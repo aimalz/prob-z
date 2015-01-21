@@ -8,7 +8,7 @@
 \newcommand{\myemail}{aimalz@nyu.edu}
 \newcommand{\textul}{\underline}
 
-\slugcomment{NOTES: THIS NEEDS SOME SERIOUS WORK WITH ORGANIZATION FOR CLARITY\dots}
+\slugcomment{NOTE: THIS NEEDS SOME SERIOUS WORK WITH ORGANIZATION FOR CLARITY\dots}
 
 \shorttitle{Probabilistic Redshift Notes}
 \shortauthors{Malz}
@@ -29,91 +29,131 @@ Herein a methodology is presented for estimating physical (and in particular, co
 
 \section{Introduction}
 
-(REVIEW LITERATURE FOR HOW WRONG POINT ESTIMATES CAN BE AND HOW GOOD THEY NEED TO GET FOR PRECISION COSMOLOGY.)
+(REVIEW LITERATURE FOR HOW WRONG POINT ESTIMATES CAN BE AND HOW GOOD THEY NEED TO GET FOR PRECISION COSMOLOGY.  ALSO INCLUDE CURRENT METHODS FOR OBTAINING REDSHIFT PROBABILITY DISTRIBUTIONS.)
 
-The goal here is to gather the tools necessary to develop a technique for working with probabilistic photometric redshifts.  Consider a survey observing $N$ objects.  Let us establish that the probability that an object $i\in[1,\dots,N]\in\mathbb{N}$ has redshift $z_{j}\in[0,\infty]\in\mathbb{R}$ is $p_{i}(z_{j})$ and assume that we are given all available $p_{i}(z_{j})$ as discrete probability distributions over a shared set of $z_{j}$.   
+This paper presents a technique for the correct use of probabilistic photometric redshifts in cosmological studies. 
 
-Here, we work with the SDSS DR8 released photo-z probability distributions available at \url{http://data.sdss3.org/sas/\\dr8/groups/boss/photoObj/photoz-weight/}, which is fortunately of exactly the form assumed above.  These were calculated using a $k$-nearest neighbors algorithm presented by \citet{she11}.  (GO OVER DETAILS TO CHECK IF THIS IS ACTUALLY $p(d_{i}|z_{i})$.)
+\section{Method}
 
-\section{Approach}
+Consider a survey of $N$ galaxies conducted with a goal of determining cosmological parameters $\vec{\Omega}$ that comprise a model.  Let us establish that the probability that a galaxy $i\in[1,\dots,N]\in\mathbb{N}$ has cosmological redshift $z_{j}\in[0,\infty]\in\mathbb{R}$ is $p_{i}(z_{j})$ and assume that we are given all available $p_{i}(z_{j})$ as discrete probability distributions over a shared set of $z_{j}$.  Further, let us consider the redshift of a given object to be a random variable with some probability distribution $p(z)$.  
+%REVIEW MATH?  The expectation of some function $f(z)$ of the redshift will be $\langle f(z)\rangle=\sum_{z}f(z)p(z)$ and its variance is $\langle(z-\langle z\rangle)^{2}\rangle=\langle z^{2}\rangle-\langle z\rangle^{2}=\sum_{z}z^{2}p(z)-(\sum_{z}zp(z))^{2}$.  
 
-To get acquainted with the problem, we will explore the application of probabilistic redshifts to a one-point statistic in the form of a density in the intrinsic brightness of galaxies, also known as the luminosity function.  
+Bayes' theorem relates the conditional probability of the model given the redshift to the redshift given the model according to Eq. \ref{eq:bayes}.  In the absence of existing knowledge about cosmology, the intrinsic distribution $p(\vec{\Omega})$ of the parameters would be assumed to be uniform or perhaps data-based via the Jeffreys prior, however a realistic problem would use the results of other observational programs.  Given $p(z)$, we wish to find $p(\vec{\Omega},z)=p(\vec{\Omega}|z)p(z)$ or $p(\vec{\Omega})=\sum_{z}p(\vec{\Omega}|z)p(z)$.  In contrast to most maximum likelihood-based methods that simply find $p(\vec{\Omega}|z)$ assuming $p(z)$ is a delta function or occasionally a Gaussian centered at the true value, we wish to study the full likelihood function.
 
-Given an observed apparent magnitude $m_{0}$ and an estimate $z_{0}$ of the redshift, one may calculate the distance to a galaxy by assuming a cosmological model.  Let us consider the radial comoving distance Eq. \ref{eq:D} to an object given its redshift.  Here we assume a flat $\Lambda$CDM cosmology with known constants $c$, $H_{0}$, $\Omega_{M}$, and $\Omega_{\Lambda}$.  Once the distance $D_{0}$ is found (in units of $pc$), the absolute magnitude $M_{0}$ may be found according to Eq. \ref{eq:M}.  (I'm ignoring K-corrections for now just to keep things simple, but Eq. \ref{eq:MK} shows the effect of their inclusion when the apparent magnitude is observed at several wavelengths $\lambda$ and some assumption is made for the spectral energy distribution $L_{\lambda}$.  See \citet{hog99} for further discussion of this effect.)
+\begin{eqnarray}
+\label{eq:bayes}
+p(\vec{\Omega}|z) &=& \frac{p(z|\vec{\Omega})p(\vec{\Omega})}{p(z)}
+\end{eqnarray}
+
+Let us express the likelihood of an observation $\vec{d}_{i}$ consisting of a galaxy's measured apparent magnitude in several bands and associated errors.  This datum is an estimate of the true apparent magnitude of the object $m_{i}$ and its redshift $z_{i}$.  These are related to one another by way of the distance to the galaxy given in Eq. \ref{eq:D}, assuming a flat $\Lambda$CDM cosmology with known constants $c$, $H_{0}$, $\Omega_{M}$, and $\Omega_{\Lambda}$ in terms of its redshift.  Thus a cosmology defined by parameters in $\vec{\Omega}$ determines $z_{i}$ and $m_{i}$.   
 
 \begin{eqnarray}
 \label{eq:D}
 D(z) &= \frac{c}{H_{0}}\int_{0}^{z}\frac{dz'}{\sqrt{\Omega_{M}(1+z)^{3}+\Omega_{\Lambda}}}
 \end{eqnarray}
 
-\begin{mathletters}
+The apparent magnitude depends not only on this distance and thus the cosmological parameters $\vec{\Omega}$ but also on the intrinsic brightness of the galaxy $M_{i}$ according to Eq. \ref{eq:M}.   (K-CORRECTIONS WILL BE IGNORED FOR NOW BECAUSE I'M NOT SURE HOW TO INFER A CONTINUOUS LUMINOSITY DISTRIBUTION FROM FIVE BANDS OF PHOTOMETRY, I.E. HOW DO I GET $L_{\lambda/(1+z)}$ FROM $L_{R}$ FOR BANDPASS R AS IN \citet{hog99}?)
+
 \begin{eqnarray}
 \label{eq:M}
 M(D(z)) &= m-5\log(D/10pc)
 \end{eqnarray}
 
-\begin{eqnarray}
-\label{eq:MK}
-M_{\lambda}(D(z)) &= m_{\lambda}-5\log(D/10pc)-2.5\log(\frac{1}{1+z}\frac{L_{\lambda/(1+z)}}{L_{\lambda}})
-\end{eqnarray}
-\end{mathletters}
+The absolute magnitude of a galaxy is drawn from a distribution determined by galaxy diversity parameters $\vec{\Phi}$.  Nuisance parameters $\psi$ will be introduced by the method used to determine its redshift, such as the generation of galaxy SED templates, but those parameters ought to be closely related to $\vec{\Phi}$.  (I'M STILL NOT 100\% CLEAR ON HOW THESE INFLUENCE THE OBSERVATION THOUGH I CAN SEE HOW THEY FACTOR INTO OUR ABILITY TO ESTIMATE $z$ and $m$.  I MIGHT BE GETTING STUCK ON SOMETHING RELATED TO THE NOTATION.  $\psi$ MAY OR MAY NOT DIFFER PER GALAXY, CORRECT?)  These hierarchical relationships are illustrated in Fig. \ref{fig:flow}.  
 
-The luminosity function $\Phi(M)$ is the number density of galaxies as a function of absolute magnitude and is typically parametrized according to the Schechter Function $\Phi(M)=\frac{\ln10}{2.5} \phi_{*}(10^{-(M-M_{*})/2.5})^{\alpha+1}\exp[-10^{-(M-M_{*})/2.5}]$ in terms of parameters $\phi_{*},M_{*},\alpha$.  Non-parametric estimators are available, such as the stepwise maximum likelihood method of \citet{efs88}.  Such estimators account for the fact that galaxy samples are typically truncated in apparent magnitude due to the observational limits, and these translate to nonuniform truncation in absolute magnitude since galaxies are not all located at the same redshift.  
-
-Usually, the errors reported with the parameters $\phi_{*},M_{*},\alpha$ are statistical errors related to sample size and variance from the fit, not proprgations of the observational uncertainties.  When observational uncertainties are included, they are generally assumed to be Gaussian and provided as $1\sigma$ limits $(z_{-},z_{+})$ and $(m_{-},m_{+})$ around point estimates $z_{0}$ and $m_{0}$.  
-
-\citet{bla02} incorporates appropriate observational uncertainties on apparent magnitude.  Because observations of $m$ are in fact Gaussian distributions $p(m)\sim N(m_{0},\sigma_{m}^{2})$ around the true apparent magnitude, they may be propagated to Gaussian probability distributions on $p(M)\sim N(M,\sigma_{M}^{2})$, which in turn may be passed on to the non-parametric form of the discrete luminosity function $\Phi(M)=\bar{n}\sum_{k}\frac{\Phi_{k}}{\sqrt{2\pi\sigma_{M}^{2}}}\exp[-(M-M_{k})^{2}/2]$ (leaving out terms permitting evolution of absolute magnitude and number density with redshift).  
-
-\section{Method}
-
-In a similar vein, I'd like to incorporate the uncertainty in photometric redshift measurements into this simple statistic.  Let us consider the redshift of a given object to be a random variable with some probability distribution $p(z)$ and review a little mathematics.  It's a bit easier for me at least to wrap my head around a discrete distribution, which fortunately is consistent with how $p(z)$ data is made available for use.
-
-%The expectation of some function $f(z)$ of the redshift will be $\langle f(z)\rangle=\sum_{z}f(z)p(z)$ and its variance is $\langle(z-\langle z\rangle)^{2}\rangle=\langle z^{2}\rangle-\langle z\rangle^{2}=\sum_{z}z^{2}p(z)-(\sum_{z}zp(z))^{2}$.  
-Say the parameter we're interested in is of physical importance, such as a luminosity function or a set of cosmological parameters $\vec{\phi}$.  Bayes' theorem relates the conditional probability of the model given the redshift to the redshift given the model as $p(\phi|z)=p(z|\phi)p(\phi)/p(z)$.  Generally, we know nothing about the intrinsic distribution of the parameter(s) $\phi$ and take $p(\phi)$ to be a uniform distribution.  (This imparts some possibly unjustified information that can be avoided with a data-based Jeffreys prior, but that's outside the scope of this project.)  In the case of probabilistic redshifts, what we actually have is $p(z)$ and what we typically want is $p(\phi,z)=p(\phi|z)p(z)$ or $p(\phi)=\sum_{z}p(\phi|z)p(z)$.  This is in contrast to most likelihood-based methods that simply find $p(\phi|z)$ assuming $p(z)$ is a delta function or occasionally a Gaussian centered at the true value.
-
-Let us express the likelihood of an observation $\vec{d}_{i}$ consisting of a galaxy's measured apparent magnitude in several bands, the errors its apparent magnitude in those bands, its position, and the errors on its position.  This datum is influenced by the true magnitude of the object $m_{i}$, its redshift $z_{i}$, and the parameters $\psi_{i}$ of the method used to determine its redshift, such as the generation of galaxy SED templates.  (I'M STILL NOT 100\% CLEAR ON HOW THESE INFLUENCE THE OBSERVATION THOUGH I CAN SEE HOW THEY FACTOR INTO OUR ABILITY TO ESTIMATE $z$ and $m$.  I MIGHT BE GETTING STUCK ON SOMETHING RELATED TO THE NOTATION.)  The luminosity function parametrized by $\vec{\Phi}$ influences $m_{i}$ and $\psi_{i}$.  The cosmology defined by parameters in $\vec{\Omega}$ influences $z_{i}$ and $m_{i}$, which in turn are related to one another by way of the distance to the galaxy.  Other relevant physics related to galaxy evolution may be rolled into another set of parameters $\vec{\Theta}$ that influence $\vec{\Phi}$.  These relationships are illustrated in Fig. \ref{fig:flow}.  Thus the likelihood we seek is $p(d_{i}|\vec{\Phi},\vec{\Theta},\vec{\Omega})=p(d_{i}|z_{i},m_{i},\psi_{i})p(\psi_{i}|\vec{\Phi})p(m_{i}|z_{i},\vec{\Omega},\vec{\Phi})p(z_{i}|\vec{\Omega})p(\vec{\Phi}|\vec{\Theta})$.  (I THINK THIS IS CONSISTENT WITH THE FLOWCHART, BUT I'M NOT SURE IT'S COMPLETE NOR CORRECT, NOT TO MENTION THAT THE LAST TERM MAY BE CONSIDERED UNKNOWABLE.)
+%Other relevant physics related to galaxy evolution may be rolled into another set of parameters $\vec{\Theta}$ that influence $\vec{\Phi}$.  
 
 \begin{figure}
+\vspace{0.5cm}
 \begin{center}
 \label{fig:flow}
-\tikzstyle{hyper} = [rectangle, rounded corners, minimum width=1cm, minimum height=1cm,text centered, draw=black, fill=yellow!30]
+\tikzstyle{hyper} = [rectangle, rounded corners, minimum width=1cm, minimum height=0.5cm,text centered, draw=black, fill=yellow!30]
 \tikzstyle{param} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=1cm, minimum height=0.5cm, text centered, draw=black, fill=green!30]
-\tikzstyle{obs} = [rectangle, minimum width=1cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+\tikzstyle{obs} = [rectangle, minimum width=1cm, minimum height=0.5cm, text centered, draw=black, fill=blue!30]
 \tikzstyle{data} = [diamond, minimum width=1cm, minimum height=1cm, text centered, draw=black, fill=red!30]
 \tikzstyle{arrow} = [thick,->,>=stealth]
 
+\usetikzlibrary{fit}
 \begin{tikzpicture}[node distance=1cm]
 \label{}
-\node (phys) [hyper, xshift=-1cm] {$\vec{\Theta}$};
+%\node (phys) [hyper, xshift=-1cm] {$\vec{\Theta}$};
 \node (cosmo) [hyper, xshift=+1cm] {$\vec{\Omega}$};
-\node (LF) [param, below of=phys] {$\vec{\Phi}$};
-\node (mod) [obs, below of=LF, xshift=-2cm] {$\psi_{i}$};
-\node (mag) [obs, below of=LF] {$m_{i}$};
-\node (red) [obs, below of=LF, xshift=+2cm] {$z_{i}$};
-\node (dat) [data, below of=mag, yshift=-0.5cm] {$\vec{d}_{i}$};
+\node (LF) [hyper, xshift=-1cm] {$\vec{\Phi}$};
+\node (lum) [param, below of=LF] {$M_{i}$};
+\node (mod) [obs, below of=lum, xshift=-2cm] {$\psi$};
+\node (mag) [obs, below of=lum] {$m_{i}$};
+\node (red) [obs, below of=lum, xshift=+2cm] {$z_{i}$};
+\node (dat) [data, below of=mag] {$\vec{d}_{i}$};
+\node (gal) [draw=gray,fit={(mag.west)([yshift=0.2cm] lum.north)(dat.south)(red.east)}] {};
+\node [anchor=north] at (gal.north) {Observed Galaxies};
 
-\draw [arrow] (phys) -- (LF);
+%\draw [arrow] (phys) -- (LF);
 \draw [arrow] (cosmo) -- (mag);
 \draw [arrow] (cosmo) -- (red);
-\draw [arrow] (LF) -- (mag);
+\draw [arrow] (LF) -- (lum);
 \draw [arrow] (LF) -- (mod);
+\draw [arrow] (lum) -- (mag);
 \draw [arrow] (red) -- (mag);
 \draw [arrow] (mag) -- (dat);
 \draw [arrow] (mod) -- (dat);
 \draw [arrow] (red) -- (dat);
 
 \end{tikzpicture}
-\caption{This directed acyclic graph illustrates the hierarchical model one can use for the likelihood in this problem.  The observed data $\vec{d}_{i}$ is influenced by the true redshift $z_{i}$, apparent magnitude $m_{i}$, and the parameters $\vec{\psi}_{i}$ used to fit those physical properties.  By Eqns. \ref{eq:D} and \ref{eq:M}, the redshift influences the apparent magnitude.  The apparent magnitude and fitting parameters are influenced by the luminosity function parametrized by $\vec{\Phi}$, which is in turn influenced by the physical parameters governing galaxy evolution herein parametrized as $\vec{\Theta}$.  Meanwhile, the cosmological parameters of $\vec{\Omega}$ influence both the redshift and apparent magnitude of each observed galaxy.}
+\caption{This directed acyclic graph illustrates the hierarchical model one can use for the likelihood in this problem.  The observed data $\vec{d}_{i}$ is influenced by the true redshift $z_{i}$, apparent magnitude $m_{i}$, and the parameters $\vec{\psi}_{i}$ used to fit those physical properties.  By Eqs. \ref{eq:D} and \ref{eq:M}, the cosmology, redshift, and absolute magnitude influence the apparent magnitude.  The absolute magnitude and fitting parameters are influenced by the luminosity function parametrized by $\vec{\Phi}$%, which is in turn influenced by the physical parameters governing galaxy evolution herein parametrized as $\vec{\Theta}$
+. The cosmological parameters of $\vec{\Omega}$ influence both the redshift and apparent magnitude of each observed galaxy.}
 \end{center}
 \end{figure}
 
-Now let us consider the probability of observing an ensemble of data $\textbf{d}=(\vec{d}_{1},\dots,\vec{d}_{N})$.  If the data were uncorrelated, we would have $p(\textbf{d}|\vec{\Phi},\vec{\Theta},\vec{\Omega})=\prod_{i}p(\vec{d}_{i}|\vec{\Phi},\vec{\Theta},\vec{\Omega})$.  However, individual galaxies with observations $\vec{d}_{i}$ will be correlated by way of $\Phi$, $\vec{\Theta}$, and $\vec{\Omega}$ so we seek $p(\textbf{d}|\vec{\Phi},\vec{\Theta},\vec{\Omega})=p(\vec{d}_{1}|\vec{\Phi},\vec{\Theta},\vec{\Omega})p(\vec{d}_{2}|d_{1},\vec{\Phi},\vec{\Theta},\vec{\Omega})\dots p(\vec{d}_{N}|\vec{d}_{1},\dots,\vec{d}_{N-1},\vec{\Phi},\vec{\Theta},\vec{\Omega})$ assuming an ordering on each new data point $\vec{d}_{i}$ observed.  THIS ISN'T REALLY WHAT I WANT, BUT IT'S WHAT I MOST EASILY KNOW HOW TO WRITE DOWN.  
+Thus the likelihood we seek is Eq. \ref{eq:likelihood}.  (I THINK THIS IS CONSISTENT WITH THE FLOWCHART, BUT I'M NOT SURE IT'S COMPLETE NOR CORRECT, NOT TO MENTION THAT THE LAST TERM MAY BE CONSIDERED UNKNOWABLE.)
 
-\section{Results}
 
-Knowing $p(z)$, we may find the probabilistic distance distribution $p(D)$ by changing variables according \ref{eq:D}, assigning probability $p(z')$ to each $D'(z')$ to get $p(D')$.  Similarly, we can find the probabilistic brightness $p(M)$ according to \ref{eq:M}, assigning a probability $p(z')$ to each $M'(D'(z'),m)$ and assuming that there is no uncertainty in the measurement of $m$ (an assumption that we will eventually revisit).  
+\begin{eqnarray}
+\label{eq:likelihood}
+p(\vec{d}_{i}|\vec{\Phi},\vec{\Omega}) &=& p(\vec{d}_{i}|z_{i},m_{i},\psi_{i})p(\psi_{i}|\vec{\Phi})p(m_{i}|z_{i},M_{i},\vec{\Omega})p(M_{i}|\vec{\Phi})p(z_{i}|\vec{\Omega})
+\end{eqnarray}
 
-Now let's say we want to do something with an ensemble of $p_{i}(z_{j})=p(d_{i}|z)\approx p_{i}(\vec{d}|z,m,\vec{\theta})$ distributions, such as find the luminosity function.  (For simplicity, let's assume there's no evolution of luminosity with redshift, another assumption we will eventually revisit.)  The number of galaxies observed as a function of absolute magnitude is given in Eq. \ref{eq:N}, recalling the absolute magnitude of Eq. \ref{eq:M}.  (K-CORRECTIONS WILL BE IGNORED FOR NOW BECAUSE I'M NOT SURE HOW TO INFER A CONTINUOUS LUMINOSITY DISTRIBUTION FROM FIVE BANDS OF PHOTOMETRY.)  To get a number density of galaxies by absolute magnitude over this redshift range, we would use Eq. \ref{eq:n}, recalling the distance $D$ from Eq. \ref{eq:D}.  Since the survey is magnitude limited at $m_{lim}$, there will be an associated $M_{lim}(z_{j})$ for each redshift.  SOMEHOW I NEED TO ACCOUNT FOR TRUNCATION LIMITS HERE\dots
+Now let us consider the probability of observing an ensemble of data $\textbf{d}=(\vec{d}_{1},\dots,\vec{d}_{N})$.  If the data were uncorrelated, we would have Eq. \ref{eq:independent}.  However, individual galaxies with observations $\vec{d}_{i}$ will be correlated by way of $\Phi$ and $\vec{\Omega}$ so we seek Eq. \ref{eq:dependent} assuming an ordering on each new data point $\vec{d}_{i}$ observed.  (THIS ISN'T REALLY WHAT I WANT, BUT IT'S WHAT I MOST EASILY KNOW HOW TO WRITE DOWN.  \citet{for14} SHOWS THAT THIS CORRELATION DOES NOT VIOLATE STATISTICAL INDEPENDENCE SO I THINK I'LL DO THE SAME.)
+
+\begin{eqnarray}
+\label{eq:independent}
+p(\textbf{d}|\vec{\Phi},\vec{\Omega}) &=& \prod_{i}p(\vec{d}_{i}|\vec{\Phi},\vec{\Omega})
+\end{eqnarray}
+
+\begin{eqnarray}
+\label{eq:dependent}
+p(\textbf{d}|\vec{\Phi},\vec{\Omega}) &=& p(\vec{d}_{1}|\vec{\Phi},\vec{\Omega})p(\vec{d}_{2}|d_{1},\vec{\Phi},\vec{\Omega})\dots p(\vec{d}_{N}|\vec{d}_{1},\dots,\vec{d}_{N-1},\vec{\Phi},\vec{\Omega})
+\end{eqnarray}
+
+\section{Application}
+
+The application of probabilistic redshifts is herein demonstrated on the luminosity function, a one-point statistic in the form of a density in the intrinsic brightness of galaxies.  
+
+% \begin{mathletters}
+% \begin{eqnarray}
+% \label{eq:MK}
+% M_{\lambda}(D(z)) &= m_{\lambda}-5\log(D/10pc)-2.5\log(\frac{1}{1+z}\frac{L_{\lambda/(1+z)}}{L_{\lambda}})
+% \end{eqnarray}
+% \end{mathletters}
+
+The luminosity function $\Phi(M)$ is the number density of galaxies as a function of absolute magnitude and is typically parametrized according to the Schechter Function of Eq. \ref{eq:schechter} in terms of the parameters $\phi_{*},M_{*},\alpha$.  Non-parametric estimators are available, such as the stepwise maximum likelihood method of \citet{efs88}.  Such estimators account for the fact that galaxy samples are typically truncated in apparent magnitude due to the observational limits, and these translate to nonuniform truncation in absolute magnitude since galaxies are not all located at the same redshift.  
+
+\begin{eqnarray}
+\label{eq:schechter}
+\Phi(M) &=& \frac{\ln10}{2.5} \phi_{*}(10^{-(M-M_{*})/2.5})^{\alpha+1}\exp[-10^{-(M-M_{*})/2.5}]
+\end{eqnarray}
+
+Usually, the errors reported with the parameters $\phi_{*},M_{*},\alpha$ are statistical errors related to sample size and variance from the fit, not proprgations of the observational uncertainties.  When observational uncertainties are included, they are generally assumed to be Gaussian and provided as $1\sigma$ limits $(z_{-},z_{+})$ and $(m_{-},m_{+})$ around point estimates $z_{0}$ and $m_{0}$.  
+
+\citet{bla02} incorporates appropriate observational uncertainties on apparent magnitude.  Because observations of $m$ are in fact Gaussian distributions $p(m)\sim N(m_{0},\sigma_{m}^{2})$ around the true apparent magnitude, they may be propagated to Gaussian probability distributions on $p(M)\sim N(M,\sigma_{M}^{2})$, which in turn may be passed on to the non-parametric form of the discrete luminosity function of Eq. \ref{eq:blanton} (leaving out terms permitting evolution of absolute magnitude and number density with redshift). 
+
+\begin{eqnarray}
+\label{eq:blanton}
+\Phi(M) &=& \bar{n}\sum_{k}\frac{\Phi_{k}}{\sqrt{2\pi\sigma_{M}^{2}}}\exp[-(M-M_{k})^{2}/2]
+\end{eqnarray}
+
+Knowing $p(z)$, we may find the probabilistic distance distribution $p(D)$ by changing variables according \ref{eq:D}, assigning probability $p(z')$ to each $D'(z')$ to get $p(D')$.  Similarly, we can find the probabilistic brightness $p(M)$ according to \ref{eq:M}, assigning a probability $p(z')$ to each $M'(D'(z'),m)$.  ($\Delta m$ IS IGNORED HERE AND SHOULD BE INCLUDED FOR REASONABLE ERROR ANALYSIS -- THIS IS THE NEXT THING I'M WORKING ON.)
+
+Here we estimate the luminosity function of an ensemble of galaxies each with a given $p_{i}(z_{j})=p(d_{i}|z)\approx p_{i}(\vec{d}|z,m,\vec{\psi})$ distributions.  In this work, evolution of luminosity with redshift is neglected.  The number of galaxies observed as a function of absolute magnitude is given in Eq. \ref{eq:N}, recalling the absolute magnitude of Eq. \ref{eq:M}.  To get a number density of galaxies by absolute magnitude over this redshift range, we would use Eq. \ref{eq:n}, recalling the distance $D$ from Eq. \ref{eq:D}.  Since the survey is magnitude limited at $m_{lim}$, there will be an associated $M_{lim}(z_{j})$ for each redshift.  (SOMEHOW I NEED TO ACCOUNT FOR TRUNCATION LIMITS HERE\dots)
 
 \begin{eqnarray}
 \label{eq:N}
@@ -125,9 +165,11 @@ N(M) &= \sum_{i}\sum_{j}p_{i}(M|p_{i}(z_{j}),m_{i})
 n(M) &= \sum_{i}\sum_{j}\frac{p_{i}(M|p_{i}(z_{j}),m_{i})}{\frac{4}{3}\pi D^{3}(z_{j})}
 \end{eqnarray}
 
-I first examined a randomly chosen set of 152,077 $p_{i}(z_{j})$ to get an idea of what they looked like.  (TALK ABOUT THE SAMPLE CHOSEN.)
+\section{Results}
 
-Then I examined the 3185 galaxies that had $p(z)$ and spectroscopic redshifts available, about 2\% of galaxies with published probability distributions.  In most cases, the photometric redshift was closer to the true redshift than the expected value of the probabilistic redshift, although this is not surprising because the expected value loses much of the valuable information contained in the distribution.  The pseudo-luminosity function of Eq. \ref{eq:N} was calculated with each of these two point estimators of redshift and the probabilistic redshift, as well as the true redshift and is shown in Fig. \ref{fig:lfs-spec}.  The actual number density as a function of absolute magnitude of Eq. \ref{eq:n} is shown in Fig. \ref{fig:lfs-spec-vol}.
+Preliminary data exploration began with examination of a randomly chosen set of 155,262 redshift probability distributions.  The galaxies were pseudo-randomly chosen from SDSS DR8 based on their accessibility at \url{http://data.sdss3.org/sas/\\dr8/groups/boss/photoObj/photoz-weight/}.  These were calculated using a $k$-nearest neighbors algorithm presented by \citet{she11}.  (GO OVER DETAILS TO DOUBLE-CHECK IF THIS IS ACTUALLY $p(d_{i}|z_{i})$.)  
+
+3185 galaxies also had spectroscopic redshifts available.  In most cases, the photometric redshift was closer to the true redshift than the expected value of the probabilistic redshift, although this is not surprising because the expected value loses much of the valuable information contained in the distribution.  The pseudo-luminosity function of Eq. \ref{eq:N} was calculated with each of these two point estimators of redshift and the probabilistic redshift, as well as the true redshift and is shown in Fig. \ref{fig:lfs-spec}.  (I WILL ATTEMPT TO FIT A SCHECHTER FUNCTION TO THESE JUST TO SHOW HOW DIFFERENT THE RESULTS ARE.)  The actual number density as a function of absolute magnitude of Eq. \ref{eq:n} is shown in Fig. \ref{fig:lfs-spec-vol}.
 
 \begin{figure}
 \plotone{lf-z-compare-big.png}
@@ -148,9 +190,23 @@ However, the galaxies with spectroscopic redshifts are a highly biased subsample
 
 \section{Discussion}
 
-Things get more interesting when we consider a two-point statistic of the redshift probability distribution.  For example, if we wanted to study cosmology using the the power spectrum $mathcal{P}(r,z)$.  We would need the distances $r=|\vec{r}|=|\vec{x}-\vec{x}'|$ between galaxies, and thus the probabilities that those galaxies are at each location in space $p_{i}(\vec{x})$.  For a single pair of galaxies we have $p_{ij}(r,z_{k})=p_{i}(z_{k},\alpha_{i},\delta_{i})p_{j}(z_{k'},\alpha_{j},\delta_{j})$.  To get the power spectrum for the ensemble at each redshift we take $p(r,z_{k})=\sum_{i\neq j}p_{ij}(r,z_{k})$.  Since the power spectrum has well-measured properties, the posterior $p(z,r|\mathcal{P}(r,z))$ is known.  This could be used to update $p_{i}(z_{k})$ distributions to more likely values.  
+PROBABLY SHOULD INCLUDE SOME ACTUAL DISCUSSION\dots
 
-I'm very interested in pursuing this direction because I don't have a huge amount of confidence in the available redshift probability distributions, which are generated either using templates or machine learning techniques.  The reason why is alluded to in Fig. \ref{fig:zdists}; samples for which spectroscopic redshifts are available may have little in common with samples for which spectroscopic redshifts cannot be obtained, so any method that is based on well-measured spectra is limited to well-behaved objects.  Bayesian updating of redshift probability distributions via well-known cosmology results could help with galaxy evolution problems, such as redshift evolution in the luminosity function.
+Of more significance would be consideration of a two-point statistic of the redshift probability distribution such as the power spectrum $mathcal{P}(r,z)$.  We would need the distances $r=|\vec{r}|=|\vec{x}-\vec{x}'|$ between galaxies, and thus the probabilities that those galaxies are at each location in space $p_{i}(\vec{x})$.  
+
+IT'S ALL SPECULATION FROM HERE ON OUT.  For a single pair of galaxies we have Eq. \ref{eq:separation}.  (I AM ASSUMING THE POWER SPECTRUM WOULD BE CALCULATED AS A FUNCTION OF REDSHIFT SUCH THAT ONLY GALAXIES IN THE SAME REDSHIFT BIN WOULD BE CONSIDERED.)  Eq. \ref{eq:power} gives the power spectrum $P(r,z_{k})$ for the ensemble at each redshift.  (THIS NEEDS TO BE NORMALIZED.)  Since the power spectrum has well-measured properties, the posterior $p(z,r|\mathcal{P}(r,z))$ is known.  
+
+\begin{eqnarray}
+\label{eq:separation}
+p_{ij}(r,z_{k}) &=& p_{i}(z_{k},\alpha_{i},\delta_{i})p_{j}(z_{k'},\alpha_{j},\delta_{j})
+\end{eqnarray}
+
+\begin{eqnarray}
+\label{eq:power}
+P(r,z_{k}) &=& \sum_{i\neq j}p_{ij}(r,z_{k})
+\end{eqnarray}
+
+The result of such an analysis could in turn be used to update $p_{i}(z_{k})$ distributions to more likely values.  This would be especially of interest in light of Fig. \ref{fig:zdists}, which shows that samples for which spectroscopic redshifts are available may have little in common with samples for which spectroscopic redshifts cannot be obtained, so any method that is based on well-measured spectra is limited to well-behaved objects.  Bayesian updating of redshift probability distributions via well-known cosmology results could help with galaxy evolution problems, such as redshift evolution in the luminosity function.
 
 %\acknowledgments
 
