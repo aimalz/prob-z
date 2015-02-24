@@ -1,0 +1,137 @@
+%\documentclass[iop]{emulateapj}
+%\documentclass[12pt, preprint]{emulateapj}
+\documentclass[12pt, onecolumn]{emulateapj}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+\usetikzlibrary{fit}
+
+\tikzstyle{hyper} = [rectangle, rounded corners, minimum width=1cm, minimum height=0.5cm,text centered, draw=black, fill=blue!30]
+\tikzstyle{param} = [rectangle, rounded corners, minimum width=1cm, minimum height=0.5cm,text centered, draw=black, fill=green!30]
+\tikzstyle{data} = [rectangle, rounded corners, minimum width=1cm, minimum height=0.5cm,text centered, draw=black, fill=red!30]
+%\tikzstyle{hyper} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=1cm, minimum height=0.5cm, text centered, draw=black, fill=green!30]
+%\tikzstyle{param} = [rectangle, minimum width=1cm, minimum height=0.5cm, text centered, draw=black, fill=green!30]
+%\tikzstyle{data} = [diamond, minimum width=1cm, minimum height=1cm, text centered, draw=black, fill=red!30]
+\tikzstyle{eqn} = [rectangle, minimum width=1cm, minimum height=0.5cm, text centered, draw=black]%, fill=green!30]
+\tikzstyle{latent} = [diamond, minimum width=1cm, minimum height=0.5cm, text centered, draw=black]%, fill=green!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+\newcommand{\myemail}{aimalz@nyu.edu}
+\newcommand{\textul}{\underline}
+
+\shorttitle{Probabilistic Redshift Distribution}
+\shortauthors{Malz}
+
+\begin{document}
+
+\title{Probabilistic Redshift Distribution: Minimal Approach}
+
+\author{A.I. Malz\altaffilmark{1}}
+\altaffiltext{1}{CCPP}
+\email{aimalz@nyu.edu}
+
+\begin{abstract}
+This paper answers the question of how one would calculate the redshift distribution function $\mathcal{N}(z)$ from a set of likelihood functions for the photometric redshifts of individual galaxies.
+\end{abstract}
+
+\keywords{photo-z}
+
+\section{Introduction}
+
+We would like to learn the redshift distribution function $\mathcal{N}(z)$ for a set of $N$ galaxies $n$.  We assume each galaxy has a known likelihood function $p(\vec{d}_{n}|z)$ for the observed data $\vec{d}_{n}$ (a set of magnitudes in each of several filters) over redshift $z$.  The redshift distribution function may be expressed as Eq. \ref{eq:params}.
+
+\begin{eqnarray}
+\label{eq:params}
+p(z|\mathcal{N}) &=& \frac{\mathcal{N}|_{z}}{\int\mathcal{N}|_{z}dz}
+\end{eqnarray}
+
+The likelihood function for the redshift distribution function is given in Eq. \ref{eq:likelihood}, where the likelihoods for each galaxy's redshift are considered to be independent.
+
+\begin{eqnarray}
+\label{eq:likelihood}
+p(\{\vec{d}_{n}\}_{N}|\mathcal{N}) &=& \prod_{n=1}^{N}\int p(\vec{d}_{n}|z)p(z|\mathcal{N})dz
+\end{eqnarray}
+
+By Bayes' Rule, we may find the desired posterior according to Eq. \ref{eq:bayes}
+
+\begin{eqnarray}
+\label{eq:bayes}
+p(\mathcal{N}|\{\vec{d}_{n}\}_{N}) &=& \frac{p(\{\vec{d}_{n}\}_{N}|\mathcal{N})p(\mathcal{N})}{p(\{\vec{d}_{n}\}_{N})}
+\end{eqnarray}
+
+It is generally considered difficult to calculate the posterior $p(\mathcal{N}|\{\vec{d}_{n}\}_{N})$ directly due to not knowing $p(\{\vec{d}_{n}\}_{N})$.  Instead, we may sample the desired distribution using Monte Carlo methods.  
+
+\section{Method}
+
+We consider the $K=35$ redshift bins $k$ for which \citet{she11} calculated posteriors for the redshift of each galaxy based on observations of the apparent magnitude in the five photmetric filters of SDSS.  We parametrize $\mathcal{N}(z)$ as a vector of histogram heights $\vec{\mathcal{N}}$ representing the probability that a galaxy's redshift lies within the corresponding bin.  Eq. \ref{eq:params} becomes Eq. \ref{eq:dparams}.
+
+\begin{eqnarray}
+\label{eq:dparams}
+p(z_{k}|\vec{\mathcal{N}}) &=& \frac{\mathcal{N}_{k}}{\sum_{k=1}^{K}\mathcal{N}_{k}}
+\end{eqnarray}
+
+For the purposes of testing the method, we set the true redshift function $\vec{\mathcal{N}}^{0}$ by exponentiating a set of $K$ floating point numbers randomly selected from a uniform distribution between $0$ and $1$, i.e. $\vec{\mathcal{N}}^{0}$ is flat in log-space.  The values are "smoothed" (read: massaged) such that each component of the true $\vec{\mathcal{N}}$ is selected from a range defined by the previous component, so that adjacent components may not differ drastically.  We assume a Gaussian prior $p(\vec{\mathcal{N}})$ on the distribution of $\vec{\mathcal{N}}$ with the arbitrarily chosen mean $\vec{\mathcal{N}}^{0}$ and diagonal covariance matrix of arbitrary magnitude, enforcing the normalization condition of Eq. \ref{eq:dparams}.
+
+Next, we generate galaxy redshift likelihood functions as follows.  We assign a bin to each of $N=10000$ galaxies by randomly sampling bins $k$ with weights given by the prior $\mathcal{N}^{0}_{k}$.  We then assign each galaxy a true redshift $z_{n}$ chosen from within the bin to which it was assigned.  The true redshift is shifted by a Gaussian error term with standard deviation equal to the average bin size to simulate inaccuracy in measurements.  The likelihood is taken to be a Gaussian centered at the "observed" redshift with standard deviation equal to the average bin size times the true redshift, to simulate the fact that uncertainty increases with redshift.  Gaussian noise of standard deviation equal to the average bin size times the "observed" redshift is added to the distribution.  The distribution is then normalized such that the probabilities sum to unity.  Generation of these likelihood functions is relatively slow.
+
+The Metropolis-Hastings algorithm is applied to sample the posterior.  Starting with an initialization of a flat $\vec{\mathcal{N}}$, we compare proposed samples of the prior to accepted samples on the basis of the numerator of Eq. \ref{eq:bayes}, since the denominator will be the same for all proposed values of $\vec{\mathcal{N}}$.  This process is repeated for 1000 iterations, arbitrarily.
+
+\section{Results}
+
+Presented here is one instantiation of this process.
+
+\begin{figure}
+\label{fig:priors}
+\plotone{rando-prior-samps.png}
+\caption{Several random samples from the prior distribution are shown here.}
+\end{figure}
+
+\begin{figure}
+\label{fig:pzs}
+\plotone{rando-likelihoods.png}
+\caption{Several random redshift likelihood functions are shown here.  }
+\end{figure}
+
+\begin{figure}
+\label{fig:results}
+\plotone{mc-results.png}
+\caption{Accepted proposal values of $\vec{\mathcal{N}}$ are shown here, along with the prior.  One can see that it is the distribution of these proposals that counts, not simply the most recent one, i.e. they do not improve on one another like that.}
+\end{figure}
+
+\section{Discussion}
+
+It is desirable to compare this result to what would have been obtained by the method of \citet{she11}, which directly calculates the posterior for the entire dataset using the posteriors for each galaxy according to Eq. \ref{eq:sheldon}.
+
+\begin{eqnarray}
+\label{eq:sheldon}
+p(\mathcal{N}|\{\vec{d}_{n}\}_{N}) &\sim& \sum_{n=1}^{N}p(\vec{d}_{n}|z)
+\end{eqnarray}
+
+%\acknowledgments
+
+%\appendix
+
+\begin{thebibliography}{}
+\bibitem[Benitez (2000)]{ben00}
+Benitez, N., ApJ 536:571-̀583, 2000 June 20
+\bibitem[Cunha, et al. (2008)]{cun08}
+Cunha, C.E., Lima, M., Oyaizu, H., Frieman, J., Lin, H., arxiv:0810.2991
+\bibitem[Fadely, et al. (2012)]{fad12}
+Fadely, R., Hogg, D.W., Willman, B., arxiv:1206.4306
+\bibitem[Foreman-Mackey, Hogg, and Morton (2014)]{for14}
+Foreman-Mackey, D., Hogg, D.W., and Morton, T.D., arxiv:1406.3020
+\bibitem[Hogg (1999)]{hog99}
+Hogg, D.W., arxiv:astro-ph/9905116
+\bibitem[Hogg, et al. (2010)]{hog10}
+Hogg, D.W., Myers, A.D., Bovy, J., arxiv:1008.4146
+\bibitem[Hogg (2012)]{hog12}
+Hogg, D.W., arxiv:1205.4446
+\bibitem[Lima, et al. (2008)]{lim08}
+Lima, M., Cunha, C.E., Oyaizu, H., Frieman, J., Lin, H., Sheldon, E.S., MNRAS, 390, 118
+\bibitem[Sheldon, et al. (2011)]{she11}
+Sheldon, E.S., Cunha, C., Mandelbaum, R., Brinkmann, J., Weaver, B.A., arxiv:1109.5192
+
+FILL IN MORE OF THESE!
+\end{thebibliography}
+
+\end{document}
