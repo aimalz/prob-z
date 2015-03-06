@@ -38,64 +38,118 @@ This paper answers the question of how one would calculate the redshift distribu
 
 \section{Introduction}
 
-We would like to learn the redshift distribution function $\mathcal{N}(z)$ for a set of $N$ galaxies $n$.  We assume each galaxy has a known likelihood function $p(\vec{d}_{n}|z)$ for the observed data $\vec{d}_{n}$ (a set of magnitudes in each of several filters) over redshift $z$.  The redshift distribution function may be expressed as Eq. \ref{eq:params}.
+We would like to learn the redshift distribution function $\mathcal{N}(z)$ for a set of $N$ galaxies $n$.  We assume each galaxy has a known likelihood function $p(\vec{d}_{n}|z)$ for the observed data $\vec{d}_{n}$ (a set of magnitudes in each of several filters) over redshift $z$.  The full dataset of $\{\vec{d}_{n}\}_{n=1,\dots,N}$ will be denoted as $\textul{D}$.  The redshift distribution function may be expressed as Eq. \ref{eq:params}.
 
 \begin{eqnarray}
 \label{eq:params}
-p(z|\mathcal{N}) &=& \frac{\mathcal{N}|_{z}}{\int\mathcal{N}|_{z}dz}
+p(z|\mathcal{N}) &=& \mathcal{N}(z) \equiv \frac{\mathcal{N}|_{z}}{\int\mathcal{N}|_{z}dz}
 \end{eqnarray}
 
-The likelihood function for the redshift distribution function is given in Eq. \ref{eq:likelihood}, where the likelihoods for each galaxy's redshift are considered to be independent.
+The likelihood function for the redshift distribution function is given in Eq. \ref{eq:likelihood}, where the likelihoods for each galaxy's redshift are considered to be independent.  
 
 \begin{eqnarray}
 \label{eq:likelihood}
-p(\{\vec{d}_{n}\}_{N}|\mathcal{N}) &=& \prod_{n=1}^{N}\int p(\vec{d}_{n}|z)p(z|\mathcal{N})dz
+p(\textul{D}|\mathcal{N}) &=& \prod_{n=1}^{N}\int p(\vec{d}_{n}|z)\ p(z|\mathcal{N})dz
 \end{eqnarray}
 
-By Bayes' Rule, we may find the desired posterior according to Eq. \ref{eq:bayes}
+By Bayes' Rule, we may find the desired posterior according to Eq. \ref{eq:bayes}.  We want the posterior for direct comparison with prior work in the literature, but the likelihood of Eq. \ref{eq:likelihood} is in fact preferable.
 
 \begin{eqnarray}
 \label{eq:bayes}
-p(\mathcal{N}|\{\vec{d}_{n}\}_{N}) &=& \frac{p(\{\vec{d}_{n}\}_{N}|\mathcal{N})p(\mathcal{N})}{p(\{\vec{d}_{n}\}_{N})}
+p(\mathcal{N}|\textul{D}) &=& \frac{p(\textul{D}|\mathcal{N})p(\mathcal{N})}{p(\textul{D})}
 \end{eqnarray}
 
-It is generally considered difficult to calculate the posterior $p(\mathcal{N}|\{\vec{d}_{n}\}_{N})$ directly due to not knowing $p(\{\vec{d}_{n}\}_{N})$.  Instead, we may sample the desired distribution using Monte Carlo methods.  
+It is generally considered difficult to calculate the posterior $p(\mathcal{N}|\textul{D})$ directly due to not knowing $p(\textul{D})$.  Instead, we may sample the desired distribution using Monte Carlo-Markov chain (MCMC) methods.  
 
 \section{Method}
 
-We consider the $K=35$ redshift bins $k$ for which \citet{she11} calculated posteriors for the redshift of each galaxy based on observations of the apparent magnitude in the five photmetric filters of SDSS.  We parametrize $\mathcal{N}(z)$ as a vector of histogram heights $\vec{\mathcal{N}}$ representing the probability that a galaxy's redshift lies within the corresponding bin.  Eq. \ref{eq:params} becomes Eq. \ref{eq:dparams}.
+\subsection{Probabilistic Model}
+
+We consider the $K=35$ redshift bins $B_{k}=[z_{k-1},z_{k}]$ for which \citet{she11} calculated posteriors for the redshift of each galaxy based on observations of the apparent magnitude in the five photmetric filters of SDSS.  We parametrize $\mathcal{N}(z)$ as a vector of histogram heights $\vec{\mathcal{N}}$ representing the probability that a galaxy's redshift lies within the corresponding bin.  Eq. \ref{eq:params} becomes Eq. \ref{eq:dparams}.
 
 \begin{eqnarray}
 \label{eq:dparams}
-p(z_{k}|\vec{\mathcal{N}}) &=& \frac{\mathcal{N}_{k}}{\sum_{k=1}^{K}\mathcal{N}_{k}}
+p(B_{k}|\vec{\mathcal{N}}) &=& \mathcal{N}_{k}% \vec{\mathcal{N}} \equiv \frac{\mathcal{N}_{k}}{\sum_{k=1}^{K}\mathcal{N}_{k}}
 \end{eqnarray}
 
-For the purposes of testing the method, we set the true redshift function $\vec{\mathcal{N}}^{0}$ by exponentiating a set of $K$ floating point numbers randomly selected from a uniform distribution between $0$ and $1$, i.e. $\vec{\mathcal{N}}^{0}$ is flat in log-space.  The values are "smoothed" (read: massaged) such that each component of the true $\vec{\mathcal{N}}$ is selected from a range defined by the previous component, so that adjacent components may not differ drastically.  We assume a Gaussian prior $p(\vec{\mathcal{N}})$ on the distribution of $\vec{\mathcal{N}}$ with the arbitrarily chosen mean $\vec{\mathcal{N}}^{0}$ and diagonal covariance matrix of arbitrary magnitude, enforcing the normalization condition of Eq. \ref{eq:dparams}.
+In order to simulate data, we must select a true redshift function $\vec{\mathcal{N}}^{0}$ from some prior.  In this case, we choose the prior $p(\vec{\mathcal{N}})$ to be a multivariate Gaussian distribution satisfying Eq. \ref{eq:covmat}.  This covariance structure is chosen to enforce continuity of the histogram heights, to better approximate a potentially realistic $\mathcal{N}(z)$.
 
-Next, we generate galaxy redshift likelihood functions as follows.  We assign a bin to each of $N=10000$ galaxies by randomly sampling bins $k$ with weights given by the prior $\mathcal{N}^{0}_{k}$.  We then assign each galaxy a true redshift $z_{n}$ chosen from within the bin to which it was assigned.  The true redshift is shifted by a Gaussian error term with standard deviation equal to the average bin size to simulate inaccuracy in measurements.  The likelihood is taken to be a Gaussian centered at the "observed" redshift with standard deviation equal to the average bin size times the true redshift, to simulate the fact that uncertainty increases with redshift.  Gaussian noise of standard deviation equal to the average bin size times the "observed" redshift is added to the distribution.  The distribution is then normalized such that the probabilities sum to unity.  Generation of these likelihood functions is relatively slow.
+\begin{mathletters}
+\begin{eqnarray}
+\label{eq:covmat}
+p(\vec{\mathcal{N}}) &=& N(\vec{\bar{p}},\textul{\Sigma})\\
+\bar{p}_{k} &=& K^{-1}\nonumber\\
+\Sigma_{ij} &=& \left\{\begin{array}{cc}0& i=j\\\frac{K^{-1}}{|i-j|}&i\neq j\end{array}\right\}\nonumber
+\end{eqnarray}
+\end{mathletters}
 
-The Metropolis-Hastings algorithm is applied to sample the posterior.  Starting with an initialization of a flat $\vec{\mathcal{N}}$, we compare proposed samples of the prior to accepted samples on the basis of the numerator of Eq. \ref{eq:bayes}, since the denominator will be the same for all proposed values of $\vec{\mathcal{N}}$.  This process is repeated for 1000 iterations, arbitrarily.
-
-\section{Results}
-
-Presented here is one instantiation of this process.
+Some examples of samples from the prior are shown in Fig. \ref{fig:priors}.
 
 \begin{figure}
 \label{fig:priors}
-\plotone{rando-prior-samps.png}
-\caption{Several random samples from the prior distribution are shown here.}
+\plotone{log-prior-samps.png}
+\caption{Several random samples of $\vec{\mathcal{N}}$ from the prior distribution of Eq. \ref{eq:covmat} are shown here.  The mean of the prior is shown in black.}
 \end{figure}
+
+\subsection{Fake Data}
+
+Next, we generate galaxy redshift likelihood functions as follows.  
+
+First, we assign a bin number $b_{n}$ from $k=1,\dots,K$ to each of $N=10000$ galaxies by randomly sampling the $K$ bins with weights given by the prior as $p(b_{n})\sim\mathcal{N}^{0}_{k}$.  We then assign each galaxy a true redshift $z_{n}^{0}$ chosen uniformly from within the bin $B_{b_{n}}$ to which it was assigned.  Here it is convenient to define $\bar{z}_{k}$ as the mean redshift per bin.
+
+The true redshift of each galaxy is shifted by a random error according to Eq. \ref{eq:zshift} to simulate inaccuracy in measurements, yielding a shifted redshift $z_{n}^{s}$ for each galaxy.  
+
+\begin{mathletters}
+\begin{eqnarray}
+\label{eq:zshift}
+z_{n}^{s} &=& z_{n}^{0}+e_{n}\\
+p(e_{n}) &=& N(0,\beta^{2})\nonumber\\
+\beta &=& \frac{\sum_{b_{n}=1}^{K}z_{b_{n}}-z_{b_{n}-1}}{K}\nonumber
+\end{eqnarray}
+\end{mathletters}
+
+The discretized likelihood function $p(\vec{d_{n}}|B_{k})$ for each galaxy is taken to be Gaussian with a mean equal to the shifted redshift and a standard deviation proportional to the true redshift to simulate the fact that uncertainty increases with redshift.  Thus the observed probability that galaxy $n$ has a redshift in bin $k$ is given by Eq. \ref{eq:zdist}.
+
+\begin{eqnarray}
+\label{eq:zdist}
+p(\vec{d_{n}}|B_{k}) = \int_{z_{k-1}}^{z_{k}} \frac{1}{\sqrt{2\pi(\beta\ z_{n}^{0})^{2}}}\exp\left[-\frac{(z_{n}^{s}-z')^{2}}{2(\beta\ z_{n}^{0})^{2}}\right]dz'
+\end{eqnarray}
+
+The likelihood functions are then noisified according to the Gaussian of Eq. \ref{eq:zerr}, yielding a likelihood $\vec{\mathcal{L}}_{n}$ for each galaxy.  Again, the standard deviation for the noisification is chosen to simulate decreased signal-to-noise at higher redshifts.  As a final step, all likelihoods are normalized such that they sum to unity.
+
+\begin{mathletters}
+\begin{eqnarray}
+\label{eq:zerr}
+\mathcal{L}_{n}^{k} &\equiv& \frac{p(\vec{d_{n}}|B_{k})+\epsilon_{nk}}{\sum_{k=1}^{K}p(\vec{d}_{n}|B_{k})+\epsilon_{nk}}\\
+p(\epsilon_{nk}) &=& N(0,(\beta\ (z_{n}^{0})^{2})^{2})\nonumber
+\end{eqnarray}
+\end{mathletters}
+
+As a final step, all likelihoods are normalized such that they sum to unity and are thus proper probabilities.  Fig. \ref{fig:pzs} shows a few examples simulated likelihoods.
 
 \begin{figure}
 \label{fig:pzs}
-\plotone{rando-likelihoods.png}
-\caption{Several random redshift likelihood functions are shown here.  }
+\plotone{rando-lik-samps.png}
+\caption{Several random redshift likelihood functions are shown here.  Note that the width of the Gaussian and magnitude of noise increases with redshift.}
 \end{figure}
+
+There are some other physically motivated modifications of this process that would be valuable to explore in future work.  In particular, a multimodal distribution replacing the Gaussian shape of the likelihoods would better simulate the degeneracies present in photometric redshift estimates.
+
+\section{Results}
+
+The Metropolis-Hastings algorithm is applied to sample the posterior.  We propose a value of $\vec{\mathcal{N}}$ based on the previously accepted value (initializing with the mean of the prior) and compare the numerator of Eq. \ref{eq:bayes} for the proposed and previously accepted values, since the two samples of $\vec{\mathcal{N}}$ will have the same denominator.  Eq. \ref{eq:disc-post} is the discretized version of the combination of \ref{eq:bayes} and \ref{eq:likelihood}.  If the ratio of the proposed posterior to the previous is greater than unity, the proposal is accepted; otherwise, the posterior likelihood is compared to a random probability and accepted if and only if the random number is less than the posterior.  This process is repeated for $R=10000$ iterations, arbitrarily.
+
+\begin{eqnarray}
+\label{eq:disc-post}
+p(\vec{\mathcal{N}}|\textul{D}) &\propto& p(\vec{\mathcal{N}})\  \prod_{n=1}^{N}\sum_{k=1}^{K}p(\vec{d}_{n}|z_{k})\ p(z_{k}|\vec{\mathcal{N}})
+\end{eqnarray}
+
+All accepted proposals from one instance of the code are shown in Fig. \ref{fig:results}.  The acceptance fraction for this run was on the order of 0.1\%.  Since 10000 iterations likely doesn't even get through the "burn-in" period of the algorithm, this acceptance fraction is not surprising!  If I were convinced it were otherwise valid, I would run it until some convergence criterion were achieved.  However, since that might take quite some time, I will conservatively refrain from doing so.
 
 \begin{figure}
 \label{fig:results}
-\plotone{mc-results.png}
-\caption{Accepted proposal values of $\vec{\mathcal{N}}$ are shown here, along with the prior.  One can see that it is the distribution of these proposals that counts, not simply the most recent one, i.e. they do not improve on one another like that.}
+\plotone{mcmc-results.png}
+\caption{Accepted proposal values of $\vec{\mathcal{N}}$ are shown here, along with the true value in black.  One can see that it is the distribution of these proposals that counts, not simply the most recent one, i.e. they do not improve on one another in a linear fashion.}
 \end{figure}
 
 \section{Discussion}
@@ -104,8 +158,31 @@ It is desirable to compare this result to what would have been obtained by the m
 
 \begin{eqnarray}
 \label{eq:sheldon}
-p(\mathcal{N}|\{\vec{d}_{n}\}_{N}) &\sim& \sum_{n=1}^{N}p(\vec{d}_{n}|z)
+p(B_{k}|\vec{\mathcal{N}}) &=& \sum_{n=1}^{N}p(B_{k}|\vec{d}_{n})
 \end{eqnarray}
+
+To do this, I calculate the posteriors $p(z|\vec{d}_{n})$ for each galaxy using Eq. \ref{eq:posts}, the product of $\vec{\mathcal{N}}$ and the likelihood for each galaxy.  THIS DOESN'T SEEM RIGHT\dots
+
+\begin{eqnarray}
+\label{eq:posts}
+p(B_{k}|\vec{d}_{n}) &=& p(\vec{d}_{n}|B_{k})p(\vec{\mathcal{N}}|\textul{D})
+\end{eqnarray}
+
+Since the Metropolis-Hastings algorithm yields a collection of $T$ accepted samples of $p(\vec{\mathcal{N}}|\textul{D})$ rather than one value, we shall take a mean value according to Eq. \ref{eq:avgn}.
+
+\begin{eqnarray}
+\label{eq:avgn}
+p(B_{k}|\vec{d}_{n}) &=& \frac{\sum_{t=1}^{T} p(\vec{d}_{n}|B_{k})p(\vec{\mathcal{N}}^{t}|\textul{D})}{T}\\
+&=& p(\vec{d}_{n}|B_{k})\frac{\sum_{t=1}^{T}\mathcal{N}_{k}^{t}}{T}\nonumber
+\end{eqnarray}
+
+Fig. \ref{fig:sheldon} compares the result of summing the posteriors of Eq. \ref{eq:avgn} with the result of the MCMC solution of Eq. \ref{eq:bayes}.  The method of \citet{she11} suffers from an overestimate of the probability of observing low redshifts and an underestimate of the probability of observing high redshifts.  As one would expect, the MCMC estimate irreversibly loses some substructure because of the shifting error added to the simulated data.
+
+\begin{figure}
+\label{fig:sheldon}
+\plotone{compare-sheldon.png}
+\caption{The result of applying Eq. \ref{eq:sheldon} is shown in red, the average accepted posterior sample from the method presented here is shown in green, and the true $\vec{\mathcal{N}}$ that seeded the data is shown in blue.  The sum of squared differences between the result of each method and the true value are also shown; one can see that the \citet{she11} approach has errors two orders of magnitude greater than those of the statistically sound approach.}
+\end{figure}
 
 %\acknowledgments
 
