@@ -132,10 +132,10 @@ One instance of $\vec{\mathcal{N}}$ was selected at random as a true value.  Sam
 \caption{The true $\vec{\mathcal{N}}$ chosen for this test is plotted here, along with histograms of the true redshifts sampled from it and the shifted redshifts resulting from the fake data generation procedure.}
 \end{figure}
 
-The Metropolis-Hastings algorithm is applied to sample the posterior.  The procedure is initialized with the log of the mean $\ln\vec{\mu}$ of the prior distribution of Eq. \ref{eq:covmat}, which shall be denoted $\ln\vec{\mathcal{N}}$.  The log of the numerator of the posterior of Eq. \ref{eq:bayes} is calculated according to Eq. \ref{eq:disc-post} and is denoted as $\ln\tilde{p}(\vec{\mathcal{N}}|\textul{D})$.  The following pseudo-code outlines the algorithm.
+The Metropolis-Hastings algorithm is applied to sample the posterior.  The procedure is initialized with the log of the average probability (i.e. a flat distribution), which shall be denoted $\ln\vec{\mathcal{N}}\equiv\ln p(z|\vec{\mathcal{N}})$.  The log of the numerator of the posterior of Eq. \ref{eq:bayes} is calculated according to Eq. \ref{eq:disc-post} and is denoted as $\ln\tilde{p}(\vec{\mathcal{N}}|\textul{D})$.  The following pseudo-code outlines the algorithm.
 
 \begin{enumerate}
-\item \label{it:randsamp} Randomly sample $\ln\tilde{p}(\vec{\mathcal{N}}|\textul{D})$ to generate $\vec{\mathcal{N}}'$.
+\item \label{it:randsamp} Randomly sample $\ln\tilde{p}(\vec{\mathcal{N}}|\textul{D})$ to generate $\ln\vec{\mathcal{N}}'$.
 \item Calculate the log of the numerator of the posterior as in Eq. \ref{eq:disc-post} to produce $\ln\tilde{p}(\vec{\mathcal{N}}'|\textul{D})$.
 \item Calculate $r=\ln\tilde{p}(\vec{\mathcal{N}}'|\textul{D})-\ln\tilde{p}(\vec{\mathcal{N}}|\textul{D})$.
 \item If $r\geq0$, set and record $\ln\vec{\mathcal{N}}=\ln\vec{\mathcal{N}}'$; recalculate $\ln\tilde{p}(\vec{\mathcal{N}}|\textul{D})$.\\
@@ -148,7 +148,7 @@ If $r<0$, select a random number $n$ from the uniform distribution between 0 and
 
 \begin{eqnarray}
 \label{eq:disc-post}
-p(\vec{\mathcal{N}}|\textul{D}) &\propto& p(\vec{\mathcal{N}})\  \prod_{j=1}^{J}\sum_{k=1}^{K}p(\vec{d}_{j}|z_{k})\ p(z_{k}|\vec{\mathcal{N}})
+\ln\tilde{p}(\vec{\mathcal{N}}'|\textul{D}) &\equiv& \ln p(\vec{\mathcal{N}}) + \sum_{j=1}^{J}\ln\left[\sum_{k=1}^{K}p(\vec{d}_{j}|z_{k})\ p(z_{k}|\vec{\mathcal{N}})\right] \propto \ln p(\vec{\mathcal{N}}|\textul{D})
 \end{eqnarray}
 
 Here, the threshold was an arbitrary $R=10000$ iterations of the algorithm.  All accepted proposals from one instance of the code are shown in Fig. \ref{fig:results}.  The acceptance fraction was $\sim0.1\%$ for this and other runs.  Since 10000 iterations likely doesn't even get through the "burn-in" period of the algorithm, this acceptance fraction is not surprising!  If I were convinced it were otherwise valid, I would run it until some convergence criterion were achieved.  However, since that might take quite some time, I will conservatively refrain from doing so.
