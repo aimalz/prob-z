@@ -31,80 +31,93 @@
 \email{aimalz@nyu.edu}
 
 \begin{abstract}
-This paper answers the question of how one would calculate the redshift distribution function $N(z)$ from a set of likelihood functions for the photometric redshifts of individual galaxies.
+This paper outlines a method for calculating the redshift distribution function $N(z)$ from a set of posteriors for the photometric redshifts of individual galaxies.
 \end{abstract}
 
 \keywords{photo-z}
 
 \section{Introduction}
 
-The redshift distribution function $N(z)$ indicates the expected number of galaxies at each redshift.
+The redshift distribution function $N(z)$ indicates the expected number of galaxies at each redshift.  
 
 \section{Method}
 
 \subsection{Probabilistic Model}
 
-We would like to learn the redshift distribution function $N(z)$ for a set of $J$ galaxies $j$.  We assume each galaxy has a known likelihood function $p(\vec{d}_{j}|z)$ for the observed data $\vec{d}_{j}$ (a set of magnitudes in each of several filters) over redshift $z$.  The full dataset of $\{\vec{d}_{j}\}_{j=1,\dots,J}$ will be denoted as $\textul{D}$.  The redshift distribution function may be expressed as Eq. \ref{eq:params}.
+We would like to learn the redshift distribution function $N(z)$ describing the number of galaxies at each redshift.  Redshifts are parameters we would like to estimate, and the parameters $N$ determining $N(z)$ may be considered hyperparameters that determine the probability of a redshift occurring.  The redshift distribution function may be expressed as Eq. \ref{eq:params}.
 
 \begin{eqnarray}
 \label{eq:params}
-p(z) &=& \frac{N(z)}{\int N(z)\ dz}
+p(z|N) &=& \frac{N(z)}{\int N(z)\ dz} = \frac{N(z)}{E[N]}
 \end{eqnarray}
 
-The likelihood function for the redshift distribution function is given in Eq. \ref{eq:likelihood}, where the likelihoods for each galaxy's redshift are considered to be independent.  
+Let us consider a galaxy $j$ whose data $\vec{d}_{j}$ is a set of magnitudes in each of several filters and seek the likelihood of observing the data under the model $N(z)$.  We may express this likelihood $p(\vec{d}_{j}|N)$ in terms of the likelihood $p(\vec{d}_{j}|z)$ as in Eq. \ref{eq:likelihood}.  However, it is generally considered impossible to calculate $p(\vec{d}_{j}|z)$ from $\vec{d}_{j}$.  It is easy to find the posterior probability $p(\vec{d}_{j}|z,N_{0})$ of a galaxy's photometry given its redshift and an assumed redshift distribution function $N_{0}(z)$ serving as an uninformative prior.  This has been done by \citet{she11}, for example.  We may use this posterior to find the likelihood function $p(\vec{d}_{j}|N)$ for the observed data $\vec{d}_{j}$ under an arbitrary redshift distribution function $N(z)$, as in Eq. \ref{eq:posterior}.  \citep{mar15}
 
 \begin{eqnarray}
 \label{eq:likelihood}
-p(\textul{D}|N) &=& \prod_{j=1}^{J}\int p(\vec{d}_{j}|z)\ p(z)dz
+p(\vec{d}_{j}|N) &=& \int\ p(\vec{d}_{j}|z)\ p(z|N)\ dz\\
+&=& \int\ p(\vec{d}_{j}|z)\ p(z|N)\ \frac{p(z|\vec{d}_{j},N_{0})}{p(z|\vec{d}_{j},N_{0})}\ dz\nonumber\\
+&=&  \int\ p(\vec{d}_{j}|z)\ p(z|N)\ \frac{p(z|\vec{d}_{j},N_{0})\ p(\vec{d}_{j}|N_{0})}{p(\vec{d}_{j}|z)\ p(z|N_{0})}\ dz\nonumber\\
+\label{eq:posterior}
+&=& \int\ p(z|N)\ p(z|\vec{d}_{j},N_{0})\ \frac{p(\vec{d}_{j}|N_{0})}{p(z|N_{0})}\ dz\nonumber\\
+&\propto& \int\ p(z|\vec{d}_{j},N_{0})\ \frac{p(z|N)}{p(z|N_{0})}\ dz
+%\prod_{j=1}^{J}\ p(\vec{d}_{j})\ \int p(z|N)\ \frac{p(z|\vec{d}_{j})}{p(z)}\ dz
 \end{eqnarray}
 
-By Bayes' Rule, we may find the desired posterior according to Eq. \ref{eq:bayes}.  We want the posterior for direct comparison with prior work in the literature, but the likelihood of Eq. \ref{eq:likelihood} is in fact preferable.
+Now let us consider an ensemble of $J$ galaxies.  The full dataset of $\{\vec{d}_{j}\}_{j=1,\dots,J}$ will be denoted as $\textul{D}$.  The likelihood function for the redshift distribution function is given in Eq. \ref{eq:fulllikelihood}, where the likelihoods for each galaxy's redshift are assumed to be independent.  
+
+\begin{eqnarray}
+\label{eq:fulllikelihood}
+p(\textul{D}|N) &=& \prod_{j=1}^{J}\ p(\vec{d}_{j}|N)
+\end{eqnarray}
+
+Here, we would also like to calculate the posterior $p(N|\textul{D})$ for direct comparison with prior work in the literature.  The posterior may be calculated via Eq. \ref{eq:bayes} in terms of the prior distribution $p(N)$.  Since we cannot know $p(\textul{D})$, we sample the desired distribution using Monte Carlo-Markov chain (MCMC) methods.  
 
 \begin{eqnarray}
 \label{eq:bayes}
-p(\vec{\theta}|\textul{D}) &=& \frac{p(\textul{D}|N)p(N)}{p(\textul{D})}
+p(N|\textul{D}) &=& \frac{p(\textul{D}|N)p(N)}{p(\textul{D})}
 \end{eqnarray}
-
-It is generally considered difficult to calculate the posterior $p(N|\textul{D})$ directly due to not knowing $p(\textul{D})$.  Instead, we may sample the desired distribution using Monte Carlo-Markov chain (MCMC) methods.  
 
 \subsection{Fake Data}
 \label{sec:fake}
 
-We consider the $K=35$ redshift bins $B_{k}=[z^{B}_{k-1},z^{B}_{k}]$ for which \citet{she11} calculated posteriors for the redshift of each galaxy based on observations of the apparent magnitude in the five photmetric filters of SDSS.  We shall take $\vec{\theta}$ to be a vector of histogram heights representing the probability that a galaxy's redshift lies within the corresponding bin, such that $N(z)$ may be parametrized on the binned redshift space as $J\vec{\theta}$ for a population of $J$ galaxies.  Eq. \ref{eq:params} becomes Eq. \ref{eq:dparams}, although we actually work with the log of $\vec{\theta}$ throughout.  
+We consider the $K=35$ redshift bins $B_{k}=[z^{B}_{k-1},z^{B}_{k}]$ for which \citet{she11} calculated posteriors for the redshift of each galaxy based on observations of the apparent magnitude in the five photmetric filters of SDSS.  We shall take $\vec{\theta}$ to be a discretized parametrization of $N(z)$, where $\theta_{k}$ is the average value of $N(z)$ over the redshift range of bin $B_{k}$.   Thus the expected number of galaxies in each bin is $J_{k}=\theta_{k}\Delta_{k}$, where $\Delta_{k}\equiv z_{k+1}-z_{k}$, transforming Eq. \ref{eq:params} into Eq. \ref{eq:dparams} (although we actually work with the log of $\vec{\theta}$ throughout).  
 
 \begin{eqnarray}
 \label{eq:dparams}
-p(B_{k}) &\equiv& \theta_{k}% \vec{\mathcal{N}} \equiv \frac{\mathcal{N}_{k}}{\sum_{k=1}^{K}\mathcal{N}_{k}}
+p(B_{k}) &\equiv& \frac{J_{k}}{J} = \frac{\theta_{k}\Delta_{k}}{J}
+%N(B_{k}) &=& \theta_{k} = J\tilde{\theta}_{k}\Delta_{k}% \frac{\mathcal{N}_{k}}{\sum_{k=1}^{K}\mathcal{N}_{k}}
 \end{eqnarray}
 
-In order to simulate data, we select set a true, physically motivated redshift function $N^{0}(z)$.  The convolution of a linear function and a sum of Gaussians is quite general and accurately generates features observed in the true $N(z)$.  (Cite this!)  The instance of $N^{0}(z)$ here is shown in Eq. \ref{eq:truenz}, where the constant $C_{c}$ indicates the relative amplitude of the Gaussian component centered at $z_{c}$ with variance $\sigma_{c}^{2}$.  We evaluate it at the center of each bin $z_{k}=(z_{k+1}^{B}-z_{k}^{B})/2$ to obtain $\tilde{\vec{\theta}}$, whose construction is illustrated in Fig. \ref{fig:truenz}.
+In order to simulate data, we select set a true, physically motivated redshift probability distribution $p^{0}(z)$, where $p(z)$ corresponds to $N(z)$ for $J=1$.  The convolution of a linear function and a sum of Gaussians is quite general and accurately generates features observed in the true $N(z)$.  (Cite this!)  The instance of $p^{0}(z)$ here is shown in Eq. \ref{eq:truepz}, where the constant $C_{c}$ indicates the relative amplitude of the Gaussian component centered at $z_{c}$ with variance $\sigma_{c}^{2}$.  The linear function is evaluated at the centers of the bins $\bar{z}_{k}=(z_{k+1}-z_{k})/2$ and is included to ensure that $\lim_{z\to0}N(z)=0$.  The construction of this probability density is illustrated in Fig. \ref{fig:truepz}.  
 
-\begin{mathletters}
 \begin{eqnarray}
-\label{eq:truenz}
-N^{0}(z_{k}) &=& \sum_{c=1}^{6}z_{k}C_{c}J\cdot \mathcal{N}(z_{c},\sigma^{2}_{c})\nonumber\\
-\tilde{\theta}_{k} &=& \frac{\int_{z_{k}^{B}}^{z_{k+1}^{B}}N^{0} dz}{\int_{z_{0}^{B}}^{z_{K+1}^{B}} N^{0}\ dz}
-%\frac{z_{k}^{z_{K}^{B}}\exp[-z_{k}*z_{1}^{B}]}{\sum_{k=0}^{K}z_{k}^{z_{K}^{B}}\exp[-z_{k}*z_{1}^{B}]}% N(\ln[\vec{\mu}],\textul{\Sigma})\\
-%\mu_{k} &=& \frac{z_{k}^{z_{K}^{B}}\exp[-z_{k}*z_{1}^{B}]}{\sum_{k=0}^{K}z_{k}^{z_{K}^{B}}\exp[-z_{k}*z_{1}^{B}]}\nonumber\\
-%\Sigma_{ij} &=& \left\{\begin{array}{cc}i=j&\ K^{-1/2}\\|i-j|=1&\ K^{-1}\\else&0\end{array}\right\}\nonumber
+\label{eq:truepz}
+p^{0}(z_{k}) &=& \sum_{c=1}^{6}\bar{z}_{k}C_{c}\int_{z_{k}}^{z_{k+1}} \mathcal{N}(z_{c},\sigma^{2}_{c})dz
 \end{eqnarray}
-\end{mathletters}
 
 \begin{figure}
-\label{fig:truenz}
-\includegraphics[scale=0.5]{trueNz.png}
-\caption{We construct $\vec{\theta}^{0}$ as a sum of Gaussians.}
+\label{fig:truepz}
+\includegraphics[scale=0.5]{truePz.png}
+\caption{We construct $p^{0}$ as a sum of Gaussians.}
 \end{figure}
 
-Next, we generate galaxy redshift likelihood functions as follows.  We first assign a bin number $b_{j}=k$ from $k=1,\dots,K$ to each of $J=1000$ galaxies by randomly sampling the $K$ bins with weights given by the true redshift function as $p(b_{j})\sim\tilde{\theta}_{k}$.  Examples of some such samples are shown in Fig. \ref{fig:obsnz}.
+We evaluate $p^{0}(z)$ over each bin to obtain $\vec{\theta}^{0}$ according to Eq. \ref{eq:truenz}, whose construction is illustrated in Fig. \ref{fig:truenz}.  The number of galaxies $J$ is selected from a Poisson distribution centered at an arbitrary $J_{0}=10,000$ galaxies.
+
+\begin{eqnarray}
+\label{eq:truenz}
+\theta_{k} &\equiv& J\int_{z_{k}}^{z_{k+1}}p^{0}(z) dz
+\end{eqnarray}
+
+Next, we generate galaxy redshift likelihood functions as follows.  We first assign a bin number $b_{j}=k$ from $k=1,\dots,K$ to each galaxy $j$ by randomly sampling the $K$ bins with weights given by the true redshift function as $\int_{z_{k}}^{z_{k+1}}p^{0}(z)dz$.  Examples of some such samples for a fixed $J=1,000$ are shown in Fig. \ref{fig:obsnz}.
 
 \begin{figure}
 \label{fig:obsnz}
 \includegraphics[scale=0.5]{obsNz.png}
-\caption{Samples of the true redshift function are generated as Poisson draws.}
+\caption{Samples of the number of galaxies in each bin are generated as Poisson draws.}
 \end{figure}
 
-We then assign each galaxy a true redshift $z_{j}$ chosen uniformly from within the bin $B_{b_{j}}$ to which it was assigned.  The true redshift of each galaxy is shifted by a random error according to Eq. \ref{eq:zshift} to simulate inaccuracy in measurements, yielding a shifted redshift $z_{j}'$ for each galaxy.  Fig. \ref{fig:samples} shows histograms of the fake data generated.  It is worth noting that any method aiming to calculate the posterior can do no better than the ``observed redshifts'' that go into generating the data.
+We then assign each galaxy a true redshift $z_{j}$ chosen uniformly from within the bin $B_{b_{j}}$ to which it was assigned.  The true redshift of each galaxy is shifted by a random error according to Eq. \ref{eq:zshift} to simulate inaccuracy in measurements, yielding a shifted redshift $z_{j}'$ for each galaxy.  Fig. \ref{fig:samples} shows histograms of the fake data generated.  It is worth noting that any method aiming to calculate the posterior should be unable to do better than the ``observed redshifts'' that go into generating the data.  SOMEHOW THIS IS NOT TRUE FOR THIS DATA, BUT HOW?
 
 \begin{mathletters}
 \begin{eqnarray}
@@ -117,11 +130,11 @@ p(e_{j}) &=& \mathcal{N}(0,\delta_{j})\nonumber\\
 
 \begin{figure}
 \label{fig:samples}
-\includegraphics[scale=0.5]{simdata.png}
-\caption{The true $J\vec{\tilde{\theta}}$ chosen for this test is plotted here, along with histograms of the true redshifts sampled from it and the shifted redshifts resulting from the fake data generation procedure.}
+\includegraphics[scale=0.5]{exdata.png}
+\caption{The true $\vec{\theta}$ chosen for this test is plotted here, along with histograms of the true redshifts sampled from it and the shifted redshifts resulting from the fake data generation procedure.}
 \end{figure}
 
-The discretized likelihood function $p(\vec{\vec{d}_{j}}|B_{k})$ for each galaxy is taken to be Gaussian with a mean equal to the shifted redshift and a standard deviation proportional to $1+z_{j}$ to simulate the fact that uncertainty increases with redshift.  According to the above, "the data" are thus comprised of $J$ pairs $(z_{j}',\delta_{j})$.  Thus the observed probability that galaxy $j$ has a redshift in bin $k$ is given by Eq. \ref{eq:zdist}.  As a final step, all likelihoods are normalized such that they sum to unity over the redshift range spanned by the bins.  Fig. \ref{fig:pzs} shows a few examples of simulated likelihoods.
+The discretized likelihood function $p(\vec{d}_{j}|B_{k})$ for each galaxy is taken to be Gaussian with a mean equal to the shifted redshift and a standard deviation proportional to $1+z_{j}$ to simulate the fact that uncertainty increases with redshift.  According to the above, "the data" are thus comprised of $J$ pairs $(z_{j}',\delta_{j})$.  The observed probability that galaxy $j$ has a redshift in bin $k$ is given by Eq. \ref{eq:zdist}.  As a final step, all likelihoods are normalized such that they integrate to unity over the redshift range spanned by the bins.  Fig. \ref{fig:pzs} shows a few examples of simulated likelihoods.
 
 \begin{eqnarray}
 \label{eq:zdist}
@@ -133,6 +146,15 @@ p(\vec{d_{j}}|B_{k}) = \int_{z_{k}}^{z_{k+1}} \frac{1}{\sqrt{2\pi\delta_{j}^{2}}
 \includegraphics[scale=0.5]{lik-samps.png}
 \caption{Several random redshift likelihood functions are shown here.  Note that the width of the Gaussian increases with redshift.}
 \end{figure}
+
+The likelihood function for the entire dataset given in Eq. \ref{eq:likelihood} may be re-expressed as Eq. \ref{eq:fulllik} in terms of $N(z)$ rather than $p(z)$.  It is valuable to verify that the likelihood is maximized for the true $N(z)$ that generated a particular set of simulated data.
+
+\begin{eqnarray}
+\label{eq:fulllik}
+p(\textul{D}|N(z)) &=& \exp\left[-\int N(z)dz\right] \prod_{j=1}^{J}\int p(\vec{d}_{j}|z)N(z)dz\\
+p(\textul{D}|\vec{\theta}) &=& \exp\left[-\sum_{k=1}^{K}\theta_{k}\Delta_{k}\right] \prod_{j=1}^{J}\sum_{k=1}^{K} p(\vec{d}_{j}|B_{k})\theta_{k}\Delta_{k} \nonumber\\
+\ln p(\textul{D}|\vec{\theta}) &=& -\sum_{k=1}^{K}\exp\left[\ln\theta_{k}+\ln\Delta_{k}\right]+\sum_{j=1}^{J}\ln\left[\sum_{k=1}^{K}\exp\left[\ln p(\vec{d}_{j}|B_{k})+\ln\theta_{k}+\ln\Delta_{k}\right]\right] \nonumber
+\end{eqnarray}
 
 \section{Results}
 
@@ -230,6 +252,8 @@ Hogg, D.W., Myers, A.D., Bovy, J., arxiv:1008.4146
 Hogg, D.W., arxiv:1205.4446
 \bibitem[Lima, et al. (2008)]{lim08}
 Lima, M., Cunha, C.E., Oyaizu, H., Frieman, J., Lin, H., Sheldon, E.S., MNRAS, 390, 118
+\bibitem[Marshall (2015)]{mar15}
+Marshall, P., github.com/drphilmarshall/Pangloss/issues/23
 \bibitem[Sheldon, et al. (2011)]{she11}
 Sheldon, E.S., Cunha, C., Mandelbaum, R., Brinkmann, J., Weaver, B.A., arxiv:1109.5192
 
