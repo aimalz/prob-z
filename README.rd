@@ -4,4 +4,4 @@ The goal of this work is to demonstrate how to use probability distributions on 
 
 ## nz
 
-The redshift distribution function N(z) is a relatively simple statistic that has previously been estimated from published posteriors.  
+The redshift distribution function N(z) is a relatively simple statistic that has previously been estimated from published posteriors.  I'm working on improving upon the method developed by [Sheldon, et al. (2011)](http://arxiv.org/pdf/1109.5192.pdf) for using those posteriors to do inference.  In the future, I may work on an improved technique for generating redshift posteriors from photometry.
