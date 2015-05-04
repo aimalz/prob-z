@@ -38,13 +38,23 @@ This paper outlines a method for calculating the redshift distribution function 
 
 \section{Introduction}
 
-The redshift distribution function $N(z)$ indicates the expected number of galaxies per redshift.  
+The redshift distribution function $N(z)$ shown in Eq. \ref{eq:distribution} gives the number of galaxies per unit redshift, effectively quantifying evolution in the number of galaxies.  \citep{men13}  According to Eq. \ref{eq:density}, the redshift distribution function is related to the redshift density function $n(z)$, which gives the number of galaxies per unit redshift per unit volume.  The redshift density function provides additional information about cosmology via the rate of expansion over redshift.
+
+\begin{eqnarray}
+\label{eq:distribution}
+N(z) &=& \frac{dN}{dz}
+\end{eqnarray}
+
+\begin{eqnarray}
+\label{eq:density}
+n(z) &=& \frac{dN}{dz\ d\Omega}
+\end{eqnarray}
 
 \section{Method}
 
 \subsection{Probabilistic Model}
 
-We would like to learn the redshift distribution function $N(z)$ describing the number of galaxies at each redshift.  Redshifts are parameters we would like to estimate, and the parameters $\vec{\theta}$ determining $N(z)$ may be considered hyperparameters that determine the probability of a redshift occurring.  The redshift distribution function may be expressed as Eq. \ref{eq:params}.
+We would like to learn the redshift density function $n(z)$.  The true redshifts $z$ of galaxies are parameters we would like to estimate, and the parameters $\vec{\theta}$ determining $N(z)$ may be considered hyperparameters that determine the probability density of true redshifts.  The density we aim to estimate may be expressed as Eq. \ref{eq:params}.
 
 \begin{eqnarray}
 \label{eq:params}
@@ -73,19 +83,14 @@ Let us consider a photometric survey of $J$ galaxies $j$, each with a set of obs
 \end{center}
 \end{figure}
 
-The data for the entire survey $\{\vec{d}_{j}\}_{J}$ can be said to be independent measurements of the $J$ data points $\vec{d}_{j}$ following Eq. \ref{eq:independent}.  The likelihood of observing this data given a model $\vec{\theta}$ is similarly a set of independent samples $p(\vec{d}_{j}|\vec{\theta})$ with a shared $\vec{\theta}$ and can thus be expressed as Eq. \ref{eq:indie}.
-
-\begin{eqnarray}
-\label{eq:independent}
-p(\{\vec{d}_{j}\}_{J}) &=& \prod_{j=1}^{J}p(\vec{d}_{j})
-\end{eqnarray}
+For the purposes of this derivation, we assume the data for the entire survey $\{\vec{d}_{j}\}_{J}$ are independent measurements of the $J$ data points $\vec{d}_{j}$.  However, this assumption that $z_{j}$ is independent of $z_{j'}$ must be false because of the shared physical processes governing observations of galaxies $j\neq j'$, such as the instruments with which they were observed and the covariances of $N(z)$.  Nonetheless, this assumption must be made in order to make the problem tractable, and .  Thus the likelihood of observing this data given a model $\vec{\theta}$ is said to be a set of independent samples $p(\vec{d}_{j}|\vec{\theta})$ with a shared $\vec{\theta}$ and can be expressed as Eq. \ref{eq:indie}.
 
 \begin{eqnarray}
 \label{eq:indie}
 p(\{\vec{d}_{j}\}_{J}|\vec{\theta}) &=& \prod_{j=1}^{J}p(\vec{d}_{j}|\vec{\theta})
 \end{eqnarray}
 
-What we are most interested in is the posterior probability of the hyperparameters $p(\vec{\theta}|\{\vec{d}_{j}\}_{J})$, which we can find via Bayes' Rule in Eq. \ref{eq:bayes}.  Combining Eq. \ref{eq:indie} with Eq. \ref{eq:bayes} yields Eq. \ref{eq:posterior}.  We can further expand Eq. \ref{eq:posterior} into Eq. \ref{eq:marginalize} by involving the redshifts as parameters.
+We may apply Bayes' Rule, as in Eq. \ref{eq:bayes} to find the posterior probability of the hyperparameters $p(\vec{\theta}|\{\vec{d}_{j}\}_{J})$ from the likelihoods of Eq. \ref{eq:indie}.  Combining Eq. \ref{eq:indie} with Eq. \ref{eq:bayes} yields Eq. \ref{eq:posterior}.  We can further expand Eq. \ref{eq:posterior} into Eq. \ref{eq:marginalize} by involving the redshifts as parameters.
 
 \begin{eqnarray}
 \label{eq:bayes}
@@ -102,9 +107,9 @@ p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}
 p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}\prod_{j=1}^{J}\int\ p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta})\ dz_{j}
 \end{eqnarray}
 
-However, Eq. \ref{eq:marginalize} contains likelihoods $p(\vec{d}_{j}|z_{j})$ that cannot be calculated by any means -- as observers, we can only calculate quantities conditioned on measurements we have.  What we can measure are the posteriors for the redshifts of individual galaxies, $p(z_{j}|\vec{d}_{j})$.  (This has been done by \citet{she11}, for example.)  Instead, we would like to have posteriors rather than likelihoods in Eq. \ref{eq:marginalize}.  To perform this transformation, we follow the reasoning of \citet{mar15}.  
+However, Eq. \ref{eq:marginalize} contains likelihoods $p(\vec{d}_{j}|z_{j})$ that in this case are inaccessible; to obtain likelihoods for photometric redshifts we would have to be able to normalize by integrating over all possible data, requiring more information than is available from any observations we can make.  What we can measure are the posteriors for the redshifts of individual galaxies, $p(z_{j}|\vec{d}_{j})$.  (This has been done by \citet{she11}, for example.)  Instead, we would like to have posteriors rather than likelihoods in Eq. \ref{eq:marginalize}.  To perform this transformation, we follow the reasoning of \citet{mar15}.  
 
-Let us consider the probability of the parameters $z_{j}$ conditioned on the data and an uninformative prior value of the hyperparameters $\vec{\theta}_{0}$ and rewrite Eq. \ref{eq:marginalize} as Eq. \ref{eq:trick}.  We may then expand the denominator according to Eq. \ref{eq:bayes} to get Eq. \ref{eq:expand}.  The likelihood terms cancel as $p(\vec{d}_{j}|z_{j},\vec{\theta}_{0})=p(\vec{d}_{j}|z_{j})\ p(\vec{d}_{j}|\vec{\theta}_{0})$, yielding Eq. \ref{eq:cancel}.
+Let us consider the probability of the parameters $z_{j}$ conditioned on the data and an interim prior value of the hyperparameters $\vec{\theta}_{0}$ and rewrite Eq. \ref{eq:marginalize} as Eq. \ref{eq:trick}.  While we would like any interim prior to be uninformative, this is rarely achievable, so we must be sure to integrate it out to avoid biasing our conclusions by this choice.  We may then expand the denominator according to Eq. \ref{eq:bayes} to get Eq. \ref{eq:expand}.  The likelihood terms cancel as $p(\vec{d}_{j}|z_{j},\vec{\theta}_{0})=p(\vec{d}_{j}|z_{j})\ p(\vec{d}_{j}|\vec{\theta}_{0})$, yielding Eq. \ref{eq:cancel}.
 
 \begin{eqnarray}
 \label{eq:trick}
@@ -200,6 +205,12 @@ p(\textul{D}|N(z)) &=& \exp\left[-\int N(z)dz\right] \prod_{j=1}^{J}\int p(\vec{
 p(\textul{D}|\vec{\theta}) &=& \exp\left[-\sum_{k=1}^{K}\theta_{k}\Delta_{k}\right] \prod_{j=1}^{J}\sum_{k=1}^{K} p(\vec{d}_{j}|B_{k})\theta_{k}\Delta_{k} \nonumber\\
 \ln p(\textul{D}|\vec{\theta}) &=& -\sum_{k=1}^{K}\exp\left[\ln\theta_{k}+\ln\Delta_{k}\right]+\sum_{j=1}^{J}\ln\left[\sum_{k=1}^{K}\exp\left[\ln p(\vec{d}_{j}|B_{k})+\ln\theta_{k}+\ln\Delta_{k}\right]\right] \nonumber
 \end{eqnarray}
+
+\begin{eqnarray}
+\label{eq:logpost}
+\ln[p(\vec{\theta}|\{\vec{d}_{j}\}_{J})] &=& \ln[p(\vec{\theta})] - \ln[p(\{\vec{d}_{j}\}_{J})] + \sum_{j=1}^{J}\ \ln\left[\int\ p(z_{j}|\vec{d}_{j},\vec{\theta}_{0})\ \frac{p(z_{j}|\vec{\theta})}{p(z_{j}|\vec{\theta}_{0})}\ dz_{j}\right]
+\end{eqnarray}
+
 
 \section{Results}
 
@@ -299,10 +310,11 @@ Hogg, D.W., arxiv:1205.4446
 Lima, M., Cunha, C.E., Oyaizu, H., Frieman, J., Lin, H., Sheldon, E.S., MNRAS, 390, 118
 \bibitem[Marshall (2015)]{mar15}
 Marshall, P., github.com/drphilmarshall/Pangloss/issues/23
+\bibitem[Menard, et al. (2013)]{men13}
+Menard, B., Scranton, R., Schmidt, S., Morrison, C., Jeong, D., Budavari, T., Rahman, M., arXiv:1303.4722 
 \bibitem[Sheldon, et al. (2011)]{she11}
 Sheldon, E.S., Cunha, C., Mandelbaum, R., Brinkmann, J., Weaver, B.A., arxiv:1109.5192
 
-FILL IN MORE OF THESE!
 \end{thebibliography}
 
 \end{document}
