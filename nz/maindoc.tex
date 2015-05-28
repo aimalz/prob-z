@@ -50,11 +50,9 @@ N(z) &=& \frac{dN}{dz}
 n(z) &=& \frac{dN}{dz\ d\Omega}
 \end{eqnarray}
 
-\section{Method}
+\section{Probabilistic Model}
 
-\subsection{Probabilistic Model}
-
-We would like to learn the redshift density function $n(z)$.  The true redshifts $z$ of galaxies are parameters we would like to estimate, and the parameters $\vec{\theta}$ determining $N(z)$ may be considered hyperparameters that determine the probability density of true redshifts.  The density we aim to estimate may be expressed as Eq. \ref{eq:params}.
+We would like to learn the redshift density function $n(z)$.  The true redshifts $z$ of galaxies are parameters we would like to estimate, and the parameters $\vec{\theta}$ determining $n(z)$ may be considered hyperparameters that determine the probability density of true redshifts.  The density we aim to estimate may be expressed as Eq. \ref{eq:params}.
 
 \begin{eqnarray}
 \label{eq:params}
@@ -83,11 +81,11 @@ Let us consider a photometric survey of $J$ galaxies $j$, each with a set of obs
 \end{center}
 \end{figure}
 
-For the purposes of this derivation, we assume the data for the entire survey $\{\vec{d}_{j}\}_{J}$ are independent measurements of the $J$ data points $\vec{d}_{j}$.  However, this assumption that $z_{j}$ is independent of $z_{j'}$ must be false because of the shared physical processes governing observations of galaxies $j\neq j'$, such as the instruments with which they were observed and the covariances of $N(z)$.  Nonetheless, this assumption must be made in order to make the problem tractable, and .  Thus the likelihood of observing this data given a model $\vec{\theta}$ is said to be a set of independent samples $p(\vec{d}_{j}|\vec{\theta})$ with a shared $\vec{\theta}$ and can be expressed as Eq. \ref{eq:indie}.
+For the purposes of this derivation, we assume the data for the entire survey $\{\vec{d}_{j}\}_{J}$ are independent measurements of the $J$ data points $\vec{d}_{j}$, where $J$ itself is a Poisson random variable with expected value $J_{0}$.  However, this assumption that $z_{j}$ is independent of $z_{j'}$ must be false because of the shared physical processes governing observations of galaxies $j\neq j'$, such as the instruments with which they were observed and the covariances of $N(z)$.  Nonetheless, this assumption must be made in order to make the problem tractable.  Thus the likelihood of observing this data given a model $\vec{\theta}$ is said to be a set of independent samples $p(\vec{d}_{j}|\vec{\theta})$ with a shared $\vec{\theta}$ and can be expressed as Eq. \ref{eq:indie}.  \citep{for14}  It is important to note that $int N(z)\ dz$ is not constrained to be $J$ for the arbitrary proposed parameters $\vec{\theta}$.
 
 \begin{eqnarray}
 \label{eq:indie}
-p(\{\vec{d}_{j}\}_{J}|\vec{\theta}) &=& \prod_{j=1}^{J}p(\vec{d}_{j}|\vec{\theta})
+p(\{\vec{d}_{j}\}_{J}|\vec{\theta}) &=& e^{-\int N(z)\ dz}\prod_{j=1}^{J}p(\vec{d}_{j}|\vec{\theta})
 \end{eqnarray}
 
 We may apply Bayes' Rule, as in Eq. \ref{eq:bayes} to find the posterior probability of the hyperparameters $p(\vec{\theta}|\{\vec{d}_{j}\}_{J})$ from the likelihoods of Eq. \ref{eq:indie}.  Combining Eq. \ref{eq:indie} with Eq. \ref{eq:bayes} yields Eq. \ref{eq:posterior}.  We can further expand Eq. \ref{eq:posterior} into Eq. \ref{eq:marginalize} by involving the redshifts as parameters.
@@ -99,43 +97,43 @@ p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}
 
 \begin{eqnarray}
 \label{eq:posterior}
-p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}\prod_{j=1}^{J}p(\vec{d}_{j}|\vec{\theta})
+p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}e^{-\int N(z)\ dz}\prod_{j=1}^{J}p(\vec{d}_{j}|\vec{\theta})
 \end{eqnarray}
 
 \begin{eqnarray}
 \label{eq:marginalize}
-p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}\prod_{j=1}^{J}\int\ p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta})\ dz_{j}
+p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}e^{-\int N(z)\ dz}\prod_{j=1}^{J}\int\ p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta})\ dz_{j}
 \end{eqnarray}
 
-However, Eq. \ref{eq:marginalize} contains likelihoods $p(\vec{d}_{j}|z_{j})$ that in this case are inaccessible; to obtain likelihoods for photometric redshifts we would have to be able to normalize by integrating over all possible data, requiring more information than is available from any observations we can make.  What we can measure are the posteriors for the redshifts of individual galaxies, $p(z_{j}|\vec{d}_{j})$.  (This has been done by \citet{she11}, for example.)  Instead, we would like to have posteriors rather than likelihoods in Eq. \ref{eq:marginalize}.  To perform this transformation, we follow the reasoning of \citet{mar15}.  
+However, Eq. \ref{eq:marginalize} contains likelihoods $p(\vec{d}_{j}|z_{j})$ that in this case are inaccessible; to obtain likelihoods for photometric redshifts, we would have to be able to normalize by integrating over all possible data, requiring more information than is available from any observations we can make.  What we can measure are the posteriors for the redshifts of individual galaxies, $p(z_{j}|\vec{d}_{j})$.  (This has been done by \citet{she11}, for example.)  Instead, we would like to have posteriors rather than likelihoods in Eq. \ref{eq:marginalize}.  To perform this transformation, we follow the reasoning of \citet{mar15}.  
 
-Let us consider the probability of the parameters $z_{j}$ conditioned on the data and an interim prior value of the hyperparameters $\vec{\theta}_{0}$ and rewrite Eq. \ref{eq:marginalize} as Eq. \ref{eq:trick}.  While we would like any interim prior to be uninformative, this is rarely achievable, so we must be sure to integrate it out to avoid biasing our conclusions by this choice.  We may then expand the denominator according to Eq. \ref{eq:bayes} to get Eq. \ref{eq:expand}.  The likelihood terms cancel as $p(\vec{d}_{j}|z_{j},\vec{\theta}_{0})=p(\vec{d}_{j}|z_{j})\ p(\vec{d}_{j}|\vec{\theta}_{0})$, yielding Eq. \ref{eq:cancel}.
+Let us consider the probability of the parameters $z_{j}$ conditioned on the data and an interim prior value of the hyperparameters $\vec{\theta}_{0}$ and rewrite Eq. \ref{eq:marginalize} as Eq. \ref{eq:trick}.  (While we would like any interim prior to be uninformative, this is rarely achievable, so we must be sure to integrate it out to avoid biasing our conclusions by this choice.)  We may then expand the denominator according to Eq. \ref{eq:bayes} to get Eq. \ref{eq:expand}.  The likelihood terms cancel as $p(\vec{d}_{j}|z_{j},\vec{\theta}_{0})=p(\vec{d}_{j}|z_{j})\ p(\vec{d}_{j}|\vec{\theta}_{0})$, yielding Eq. \ref{eq:cancel}.
 
 \begin{eqnarray}
 \label{eq:trick}
-p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}\prod_{j=1}^{J}\int\ p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta})\ \frac{p(z_{j}|\vec{d}_{j},\vec{\theta}_{0})}{p(z_{j}|\vec{d}_{j},\vec{\theta}_{0})}\ dz_{j}
+p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}e^{-\int N(z)\ dz}\prod_{j=1}^{J}\int\ p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta})\ \frac{p(z_{j}|\vec{d}_{j},\vec{\theta}_{0})}{p(z_{j}|\vec{d}_{j},\vec{\theta}_{0})}\ dz_{j}
 \end{eqnarray}
 
 \begin{eqnarray}
 \label{eq:expand}
-p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}\prod_{j=1}^{J}\int\ p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta})\ p(z_{j}|\vec{d}_{j},\vec{\theta}_{0})\ \frac{p(\vec{d}_{j}|\vec{\theta}_{0})}{p(\vec{d}_{j}|z_{j},\vec{\theta}_{0})\ p(z_{j}|\vec{\theta}_{0})}\ dz_{j}
+p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}e^{-\int N(z)\ dz}\prod_{j=1}^{J}\int\ p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta})\ p(z_{j}|\vec{d}_{j},\vec{\theta}_{0})\ \frac{p(\vec{d}_{j}|\vec{\theta}_{0})}{p(\vec{d}_{j}|z_{j},\vec{\theta}_{0})\ p(z_{j}|\vec{\theta}_{0})}\ dz_{j}
 \end{eqnarray}
 
 \begin{eqnarray}
 \label{eq:cancel}
-p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}\prod_{j=1}^{J}\ \int\ p(z_{j}|\vec{d}_{j},\vec{\theta}_{0})\ \frac{p(z_{j}|\vec{\theta})}{p(z_{j}|\vec{\theta}_{0})}\ dz_{j}
+p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}e^{-\int N(z)\ dz}\prod_{j=1}^{J}\ \int\ p(z_{j}|\vec{d}_{j},\vec{\theta}_{0})\ \frac{p(z_{j}|\vec{\theta})}{p(z_{j}|\vec{\theta}_{0})}\ dz_{j}
 \end{eqnarray}
 
 The argument of the integral in the posterior of Eq. \ref{eq:cancel} depends solely on knowable quantities and can be calculated for a given data set.  We will have to assume a prior $p(\vec{\theta})$ for the hyperparameters.   Since we cannot know $p(\{\vec{d}_{j}\}_{J})$, we sample the desired distribution $p(\vec{\theta}|\{\vec{d}_{j}\}_{J})$ using Monte Carlo-Markov chain (MCMC) methods.  
 
-\subsection{Fake Data}
-\label{sec:fake}
+\section{Mock Data}
+\label{sec:mock}
 
-We consider the $K=35$ redshift bins $B_{k}=[z^{B}_{k-1},z^{B}_{k}]$ over a range from $z_{0}=0$ to $z_{35}=1.1$ for which \citet{she11} calculated posteriors for the redshift of each galaxy based on observations of the apparent magnitude in the five photmetric filters of SDSS.  We shall take $\vec{\theta}$ to be a discretized parametrization of $N(z)$, where $\theta_{k}$ is the average value of $N(z)$ over the redshift range of bin $B_{k}$.   Thus the expected number $J_{k}$ of galaxies in each bin is $\theta_{k}\Delta_{k}$, where $\Delta_{k}\equiv z_{k}-z_{k-1}$, transforming Eq. \ref{eq:params} into Eq. \ref{eq:dparams} (although we actually work with the log of $\vec{\theta}$ throughout).  
+We consider the $K=35$ redshift bins $B_{k}=[z^{B}_{k-1},z^{B}_{k}]$ over a range from $z_{0}=0$ to $z_{35}=1.1$ for which \citet{she11} calculated posteriors for the redshift of each galaxy based on observations of the apparent magnitude in the five photmetric filters of SDSS.  We shall take $\vec{\theta}$ to be a discretized parametrization of $N(z)$, where $\exp[\theta_{k}]$ is the average value of $N(z)$ over the redshift range of bin $B_{k}$.   Thus the expected number $J_{k}$ of galaxies in each bin is $\exp[\theta_{k}]\Delta_{k}$, where $\Delta_{k}\equiv z_{k}-z_{k-1}$, transforming Eq. \ref{eq:params} into Eq. \ref{eq:dparams}.  
 
 \begin{eqnarray}
 \label{eq:dparams}
-p(B_{k}|\vec{\theta}) &\equiv& \frac{J_{k}}{J} = \frac{\theta_{k}\Delta_{k}}{J}
+p(B_{k}|\vec{\theta}) &\equiv& \frac{J_{k}}{J} = \frac{\exp[\theta_{k}]\Delta_{k}}{J}
 %N(B_{k}) &=& \theta_{k} = J\tilde{\theta}_{k}\Delta_{k}% \frac{\mathcal{N}_{k}}{\sum_{k=1}^{K}\mathcal{N}_{k}}
 \end{eqnarray}
 
@@ -156,7 +154,7 @@ We evaluate $p^{0}(z)$ over each bin to obtain $\vec{\theta}^{0}$ according to E
 
 \begin{eqnarray}
 \label{eq:truenz}
-\theta_{k} &\equiv& J\int_{z_{k}}^{z_{k+1}}p^{0}(z) dz
+\theta_{k}^{0} &\equiv& \ln\left[J\int_{z_{k}}^{z_{k+1}}p^{0}(z) dz\right]
 \end{eqnarray}
 
 Next, we generate galaxy redshift likelihood functions as follows.  We first assign a bin number $b_{j}=k$ from $k=1,\dots,K$ to each galaxy $j$ by randomly sampling the $K$ bins with weights given by the true redshift function as $\int_{z_{k}}^{z_{k+1}}p^{0}(z)dz$.  Examples of some such samples for a fixed $J=1,000$ are shown in Fig. \ref{fig:obsnz}.
@@ -167,7 +165,7 @@ Next, we generate galaxy redshift likelihood functions as follows.  We first ass
 \caption{Samples of the number of galaxies in each bin are generated as Poisson draws.}
 \end{figure}
 
-We then assign each galaxy a true redshift $z_{j}$ chosen uniformly from within the bin $B_{b_{j}}$ to which it was assigned.  The true redshift of each galaxy is shifted by a random error according to Eq. \ref{eq:zshift} to simulate inaccuracy in measurements, yielding a shifted redshift $z_{j}'$ for each galaxy.  Fig. \ref{fig:samples} shows histograms of the fake data generated.  It is worth noting that any method aiming to calculate the posterior should be unable to do better than the ``observed redshifts'' that go into generating the data.  SOMEHOW THIS IS NOT TRUE FOR THIS DATA, BUT HOW?
+We then assign each galaxy a true redshift $z_{j}$ chosen uniformly from within the bin $B_{b_{j}}$ to which it was assigned.  The true redshift of each galaxy is shifted by a random error according to Eq. \ref{eq:zshift} to simulate inaccuracy in measurements, yielding a shifted redshift $z_{j}'$ for each galaxy.  Fig. \ref{fig:samples} shows histograms of the mock data generated.  It is worth noting that any method aiming to calculate the posterior should be unable to do better than the ``observed redshifts'' that go into generating the data.  SOMEHOW THIS IS NOT TRUE FOR THIS DATA, BUT HOW?
 
 \begin{mathletters}
 \begin{eqnarray}
@@ -181,14 +179,14 @@ p(e_{j}) &=& \mathcal{N}(0,\delta_{j})\nonumber\\
 \begin{figure}
 \label{fig:samples}
 \includegraphics[scale=0.5]{exdata.png}
-\caption{The true $\vec{\theta}$ chosen for this test is plotted here, along with histograms of the true redshifts sampled from it and the shifted redshifts resulting from the fake data generation procedure.}
+\caption{The true $\vec{\theta}$ chosen for this test is plotted here, along with histograms of the true redshifts sampled from it and the shifted redshifts resulting from the mock data generation procedure.}
 \end{figure}
 
-The discretized likelihood function $p(\vec{d}_{j}|B_{k})$ for each galaxy is taken to be Gaussian with a mean equal to the shifted redshift and a standard deviation proportional to $1+z_{j}$ to simulate the fact that uncertainty increases with redshift.  According to the above, "the data" are thus comprised of $J$ pairs $(z_{j}',\delta_{j})$.  The observed probability that galaxy $j$ has a redshift in bin $k$ is given by Eq. \ref{eq:zdist}.  As a final step, all likelihoods are normalized such that they integrate to unity over the redshift range spanned by the bins.  Fig. \ref{fig:pzs} shows a few examples of simulated likelihoods.
+The discretized posterior $p(B_{k}|\vec{d}_{j})$ for each galaxy is taken to be Gaussian with a mean equal to the shifted redshift and a standard deviation proportional to $1+z_{j}$ to simulate the fact that uncertainty increases with redshift.  According to the above, "the data" are thus comprised of $J$ pairs $(z_{j}',\delta_{j})$.  The observed probability that galaxy $j$ has a redshift in bin $k$ is given by Eq. \ref{eq:zdist}.  As a final step, all posteriors are normalized such that they integrate to unity over the redshift range spanned by the bins.  Fig. \ref{fig:pzs} shows a few examples of simulated posteriors.
 
 \begin{eqnarray}
 \label{eq:zdist}
-p(\vec{d_{j}}|B_{k}) = \int_{z_{k}}^{z_{k+1}} \frac{1}{\sqrt{2\pi\delta_{j}^{2}}}\exp\left[-\frac{(z_{j}'-z)^{2}}{2\delta_{j}^{2}}\right]\ dz
+p(B_{k}|\vec{d_{j}}) = \int_{z_{k}}^{z_{k+1}} \frac{1}{\sqrt{2\pi\delta_{j}^{2}}}\exp\left[-\frac{(z_{j}'-z)^{2}}{2\delta_{j}^{2}}\right]\ dz
 \end{eqnarray}
 
 \begin{figure}
@@ -197,41 +195,31 @@ p(\vec{d_{j}}|B_{k}) = \int_{z_{k}}^{z_{k+1}} \frac{1}{\sqrt{2\pi\delta_{j}^{2}}
 \caption{Several random redshift likelihood functions are shown here.  Note that the width of the Gaussian increases with redshift.}
 \end{figure}
 
-The likelihood function for the entire dataset introduced in Eq. \ref{eq:marginalize} may be re-expressed as Eq. \ref{eq:fulllik} in terms of $N(z)$ rather than $p(z)$.  It is valuable to verify that the likelihood is maximized for the true $N(z)$ that generated a particular set of simulated data.
+The posterior for the entire dataset introduced in Eq. \ref{eq:cancel} may be re-expressed as Eq. \ref{eq:fullpost} in terms of the $K$ bins.  It is valuable to verify that the posterior is maximized for the true $N(z)$ that generated a particular set of simulated data.
 
 \begin{eqnarray}
-\label{eq:fulllik}
-p(\textul{D}|N(z)) &=& \exp\left[-\int N(z)dz\right] \prod_{j=1}^{J}\int p(\vec{d}_{j}|z)N(z)dz\\
-p(\textul{D}|\vec{\theta}) &=& \exp\left[-\sum_{k=1}^{K}\theta_{k}\Delta_{k}\right] \prod_{j=1}^{J}\sum_{k=1}^{K} p(\vec{d}_{j}|B_{k})\theta_{k}\Delta_{k} \nonumber\\
-\ln p(\textul{D}|\vec{\theta}) &=& -\sum_{k=1}^{K}\exp\left[\ln\theta_{k}+\ln\Delta_{k}\right]+\sum_{j=1}^{J}\ln\left[\sum_{k=1}^{K}\exp\left[\ln p(\vec{d}_{j}|B_{k})+\ln\theta_{k}+\ln\Delta_{k}\right]\right] \nonumber
+\label{eq:fullpost}
+p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}\ \exp\left[-\sum_{k=1}^{K}\exp[\theta_{k}]\Delta_{k}\right]\ \prod_{j=1}^{J}\ \sum_{k=1}^{K}\ p(B_{k}|\vec{d}_{j})\ \frac{\exp[\theta_{k}]}{\exp[\theta_{k}^{0}]}\Delta_{k}
 \end{eqnarray}
+
+\section{Application}
+
+The Metropolis-Hastings algorithm is applied to sample the posterior of Eq. \ref{eq:fullpost}.  We work with log probabilities from this point forward for computational efficiency and numerical stability.  Since $p(\{\vec{d}_{j}\}_{J})$ is in general unknown, we will also commence working with $\tilde{p}(\vec{\theta}|\{\vec{d}_{j}\}_{J})$, a quantity proportional to Eq. \ref{eq:fullpost}, which shall be called the "pseudo-posterior," the log of which is given in Eq. \ref{eq:logpost}.
 
 \begin{eqnarray}
 \label{eq:logpost}
-\ln[p(\vec{\theta}|\{\vec{d}_{j}\}_{J})] &=& \ln[p(\vec{\theta})] - \ln[p(\{\vec{d}_{j}\}_{J})] + \sum_{j=1}^{J}\ \ln\left[\int\ p(z_{j}|\vec{d}_{j},\vec{\theta}_{0})\ \frac{p(z_{j}|\vec{\theta})}{p(z_{j}|\vec{\theta}_{0})}\ dz_{j}\right]
+\ln[\tilde{p}(\vec{\theta}|\{\vec{d}_{j}\}_{J})] &=& \ln[p(\vec{\theta})]-\exp[\vec{\theta}]\cdot\vec{\Delta}+\sum_{j=1}^{J}\ \ln\left[\sum_{k=1}^{K}\ \exp\left[\ln[p(B_{k}|\vec{d}_{j})]+\theta_{k}-\theta_{k}^{0}+\ln[\Delta_{k}]\right]\right]
 \end{eqnarray}
 
+The procedure is initialized with an interim prior equal to a multivariate normal distribution with mean and covariance given by Eq. \ref{eq:covmat}.  The mean chosen here is that of a flat distribution.  The constants $q$, $a$, and $e$ are small numbers chosen to permit draws from the distribution in question to reproduce shapes similar to that of the true $N(z)$ set in Sec. \ref{sec:mock}.
 
-\section{Results}
-
-The Metropolis-Hastings algorithm is applied to sample the posterior.  The procedure is initialized with the log of the average probability $\ln\theta^{0}_{k}=-\ln K\ \forall\ k$ (i.e. the flat distribution), which shall be denoted $\ln\vec{\theta}\equiv\ln p(z)$.  The log of the numerator of the posterior of Eq. \ref{eq:bayes} is calculated according to Eq. \ref{eq:disc-post} and is denoted as $\ln\tilde{p}(\vec{\theta}|\textul{D})$.  
-
-\begin{eqnarray}
-\label{eq:disc-post}
-\ln\tilde{p}(\vec{\theta}'|\textul{D}) &\equiv& \ln p(\vec{\theta}') + \sum_{j=1}^{J}\ln\left[\sum_{k=1}^{K}p(\vec{d}_{j}|z_{k})\ p(z_{k}|\vec{\theta}')\right] \propto \ln p(\vec{\theta}'|\textul{D})\\
-%\ln p(\vec{\theta})_{k} &=& \mathcal{N}(K^{-1},\textul{\Sigma})\nonumber\\
-%\Sigma_{ij} &=& \left\{\begin{array}{cc}i=j&\ 1\\|i-j|=1&\ \frac{1}{2}\\else&0\end{array}\right\}
-\end{eqnarray}
-
-At each iteration $i$, proposal distribution $\vec{\theta}^{i}$ is generated from the multivariate normal distribution shown in Eq. \ref{eq:covmat}.  This covariance structure is chosen to enforce continuity of the histogram heights.  Some examples of samples from the initialization value are shown in Fig. \ref{fig:priors}.
-
-\begin{mathletters}
 \begin{eqnarray}
 \label{eq:covmat}
-\ln\vec{\theta}^{i} &=& \mathcal{N}(\ln\vec{\theta}^{i-1},\textul{\Sigma})\\
-\Sigma_{kk'} &=& q\exp^{-\frac{a(k-k')^{2}}{2}}\nonumber
+\theta^{0}_{k} &=& \ln[J_{0}]-\ln[K]-\ln[\Delta_{k}]\\
+\Sigma_{kk'} &=& q\exp^{-\frac{a(k-k')^{2}}{2}}+e\cdot\mathbb{I}
 \end{eqnarray}
-\end{mathletters}
+
+At each iteration $i$, a proposal distribution $\vec{\theta}^{i}$ generated from the prior distribution shown in Eq. \ref{eq:covmat}.  Some examples of samples from the initialization value are shown in Fig. \ref{fig:priors}.
 
 \begin{figure}
 \label{fig:priors}
@@ -243,10 +231,10 @@ At each iteration $i$, proposal distribution $\vec{\theta}^{i}$ is generated fro
 The following pseudo-code outlines the algorithm.
 
 \begin{enumerate}
-\item \label{it:randsamp} Randomly sample Eq. \ref{eq:covmat} to generate a proposal $\ln\vec{\theta}'$.
-\item Calculate the log of the numerator of the posterior as in Eq. \ref{eq:disc-post} to produce $\ln\tilde{p}(\vec{\theta}'|\textul{D})$.
-\item Calculate $r=\ln\tilde{p}(\vec{\theta}'|\textul{D})-\ln\tilde{p}(\vec{\theta}|\textul{D})$.
-\item If $r\geq0$, set and record $\ln\vec{\theta}=\ln\vec{\theta}'$.\\
+\item \label{it:randsamp} Randomly sample Eq. \ref{eq:covmat} to generate a proposal $\vec{\theta}'$.
+\item Calculate the log pseudo-posterior as in Eq. \ref{eq:logpost} to produce $\ln\tilde{p}(\vec{\theta}'|\{vec{d}_{j}\}_{J})$.
+\item Calculate $r=\ln\tilde{p}(\vec{\theta}'|\{vec{d}_{j}\}_{J})-\ln\tilde{p}(\vec{\theta}|\{vec{d}_{j}\}_{J})$.
+\item If $r\geq0$, set and record $\vec{\theta}=\vec{\theta}'$.\\
 If $r<0$, select a random number $n$ from the uniform distribution between 0 and 1.
 \begin{enumerate}
 \item If $n<\exp[r]$, record $\vec{\theta}_{r+1}=\vec{\theta}'$ and set $\vec{\theta}=\vec{\theta}'$
@@ -254,7 +242,7 @@ If $r<0$, select a random number $n$ from the uniform distribution between 0 and
 \item Check if the threshold has been achieved; if not, return to Step \ref{it:randsamp}.
 \end{enumerate}
 
-Here, the threshold was accepting $R=100$ proposal distributions.  All accepted proposals from one instance of the code are shown in Fig. %\ref{fig:results}
+Here, the threshold was $I=10^{4}$ iterations.  All accepted proposals from one instance of the code are shown in Fig. %\ref{fig:results}
 .  The acceptance fraction was $\sim0.1\%$ for this and other runs.  Since 10000 iterations likely doesn't even get through the ``burn-in'' period of the algorithm, this acceptance fraction is not surprising!  If I were convinced it were otherwise valid, I would run it until some convergence criterion were achieved.  However, since that might take quite some time, I will conservatively refrain from doing so.
 
 %\begin{figure}
