@@ -73,14 +73,24 @@ Here are some interesting questions we may ask about zPDFs:
 \item \label{it:plus} How much is an estimate of a zPDF improved by the inclusion of each additional band of photometry? 
 \item \label{it:pixel} How can one use photometry at each pixel in a galaxy to generate a posterior zPDF?
 \item \label{it:spatial} How informative is inclusion of the angular size of a galaxy to the estimated zPDF?
-\item \label{it:position} How can the angular cross-correlation of galaxies be used to improve estimates of their zPDFs?
+\item \label{it:inference} How should zPDFs be used in inference?
+\item \label{it:simultaneous} How may physical parameters and zPDFs be simultaneousluy inferred from data?
 \end{enumerate}
 
 These questions will each be discussed in detail below.
 
 \subsection{Generation of zPDFs}
 
-Question \ref{it:posterior} pertains to the processing of data $\vec{d}_{n}$ to estimate the distribution of parameters $p(z|\vec{d}_{n})$.  Prior work has employed similar methods to those used to obtain point estimates. Data-driven $k$-nearest neighbor algorithms have been implemented by \citet{she11} neglecting measurement errors and by \citet{bal08} including measurement errors.  \citet{car13} use prediction tree and random-forest classification techniques and \citet{car14} use self-organizing maps  to obtain zPDFs.  An extension of \citet{ben00} that produces full posteriors (as opposed to a selection of local maxima) from a template library has been discussed in the litertature, but a formal presentation has not yet been published.
+Question \ref{it:posterior} pertains to the processing of data $\vec{d}_{n}$ to estimate the distribution of parameters $p(z|\vec{d}_{n})$.  Previous work has employed similar methods to those used to obtain point estimates. Data-driven $k$-nearest neighbor algorithms have been implemented by \citet{she11} neglecting measurement errors and by \citet{bal08} including measurement errors.  \citet{car13} use prediction tree and random-forest classification techniques and \citet{car14} use self-organizing maps  to obtain zPDFs.  An extension of \citet{ben00} that produces full posteriors (as opposed to a selection of local maxima) from a template library has been discussed in the litertature, but a formal presentation has not yet been published.
+
+No existing method producing zPDFs has provided a complete explanation of the prior distribution $p(\vec{T})$ of nuisance parameters $\vec{T}$ employed in the calculation of zPDFs given in Eq. \ref{eq:prior}, which is essential for using zPDFs for inference.  In doing inference, we value a notion of "trust" of the zPDFs we use; a trustworthy posterior zPDF must be calculated from a trustworthy prior, and a trustworthy prior must be derived from a training set (whether data-driven or template-based) that spans the space of photometry $\{\vec{d}_{j}\}_{J}$, redshifts $\{z_{j}\}_{J}$, and nuisance parameters $\{\vec{T}_{j}\}_{J}$.  However, there will always be some discrepancy between the space spanned by the training set and the space spanned by the data, especially when investigating galaxies that have not been exhaustively studied.   
+
+\begin{align}
+\label{eq:prior}
+p(z|\vec{d}_{n}) &= \int p(z,\vec{T}|\vec{d}_{n})p(\vec{T})d\vec{T}
+\end{align}
+
+It would be interesting to consider a variety of choices for $p(\vec{T})$, including those that do not effectively span the space of data and parameters, and determine their effects on inference of hyperparameters $\vec{\theta}$ in $p(\vec{\theta}|\{\vec{d}_{j}\}_{J})$.  Some work along these lines has been done for the upcoming LSST survey, namely an investigation of the effect on point estimates of photometric redshift due to use of a limited set of template/training set spectra $\{\vec{T}_{k}\}_{K}$.  \citep{abe09}
 
 \subsection{Single-band photometry}
 
@@ -92,15 +102,25 @@ Question \ref{it:plus} is easy to answer given the answer to question \ref{it:si
 
 \subsection{Spatial information to refine zPDFs}
 
-Question \ref{it:spatial} makes use of pixel-level data to incorporate discrepancies in photometry across the extent of a galaxy in the focal plane into the zPDF.
+Question \ref{it:pixel} makes use of pixel-level data to incorporate discrepancies in photometry across the extent of a galaxy in the focal plane into the zPDF.
 
-\subsection{Location information to refine zPDFs}
+\subsection{zPDFs derived from a prior including imaging information}
 
-Question \ref{it:position} stems from the observed correlation of redshift between galaxies near one another on the sky, caused by the fact that many galaxies are interacting with their neighbors.  We shall use the sky coordinates $\vec{\phi}=(\alpha,\delta)$ in right ascension and declination.  For this discussion, let us say we have $N$ pairs of galaxies with data $\textul{d}_{n}$ comprised of photometry $\vec{f}_{n}$ and position $\vec{\phi}_{n}$ as well as $\textul{d}_{n'}$ comprised of photometry $\vec{f}_{n'}$, position $\vec{\phi}_{n'}$, and a reliable redshift $z_{n'}$.  
+Question \ref{it:spatial} is about possible use of angular size, surface brightness, or morphological information to refing zPDFs, rather than simply using a prior on photometric magnitudes as was first done in \citet{ben00}.  \citet{sta07}, for example, discusses a prior on surface brightness in estimating redshifts that may be extended to estimate zPDFs.
+
+\subsection{zPDFs in inference}
+
+Question \ref{it:inference} is currently being investigated by \citet{mal15}, with a focus on one-point statistics of redshift such as the redshift distribution function $N(z)$, the redshift density function $n(z)$, and the weak lensing mean distance ratio.  Future work is planned for use of zPDFs in higher-order statistics, such as cross-correlation functions.  
+
+\subsection{Simultaneous determination of parameters and zPDFs}
+
+Question \ref{it:simultaneous} stems from the observed correlation of redshift between galaxies near one another on the sky, caused by the fact that many galaxies are gravitationally bound to their neighbors and thus spatially constrained.  We shall use the sky coordinates $\vec{\phi}=(\alpha,\delta)$ in right ascension and declination to indicate galaxy positions.  For this discussion, let us say we have $N$ pairs of galaxies with data $\textul{d}_{n}$ comprised of photometry $\vec{f}_{n}$ and position $\vec{\phi}_{n}$ as well as $\textul{d}_{n'}$ comprised of photometry $\vec{f}_{n'}$, position $\vec{\phi}_{n'}$, and a reliable redshift $z_{n'}$.  
 
 There are two current techniques in place for determining $z_{n}$.  The first is to set $\hat{z}_{n}=z_{n'}$ for all galaxies with $\theta_{n,n'}=\theta_{n',n}=|\vec{\phi}_{n'}-\vec{\phi}_{n}|$.  The second is to draw $\hat{z}_{n}$ from a normal distribution centered at $z_{n'}$ with a variance $\sigma^{2}_{n'}$ derived from some combination of $\theta$ and $z_{n'}$.  One possible approach to improving this method would be to work with $p(z_{n}|\textul{d}_{n})=N(z_{n'},\sigma^{2}_{n'})$.
 
-A better solution takes advantage of our knowledge of the angular and/or redshift-space and/or real-space correlation functions $\vec{\xi}$ for galaxies.  Since these correlation functions are defined over all angular separations, we may relax the requirement that $\theta\ll1$.  By simultaneously inferring $z_{n}$ and $\vec{xi}$, we can improve both parameters.  Eq. \ref{eq:hyper} illustrates the approach.
+A better solution takes advantage of our knowledge of the angular and/or redshift-space and/or real-space correlation functions $\vec{\xi}$ for galaxies.  This approach has been indirectly suggested by \citet{sch06}. Since $\vec{\xi}$ is defined at all angular separations, such a method could be used to improve zPDFs not just of neighboring galaxies but of every galaxy in a survey.  One proposal for how to get around the issue of untrustworthy priors mentioned in response to Question \ref{it:posterior} is so-called cross-correlation redshifts that take advantage of the fact that $\vec{\xi}$ will be the same in the training and test sets of data.  \citep{new08}  Application of cross-correlation redshifts has been proposed for the upcoming LSST survey, however the method is less effective for fainter galaxies that most desperately need improved zPDFs.  \citep{abe09}
+
+By simultaneously inferring $z_{n}$ and $\vec{xi}$ for a complete dataset, we can improve both parameters and perhaps avoid some of the limitations of cross-correlation redshifts.  Eq. \ref{eq:hyper} illustrates the approach.
 
 \begin{align}
 \label{eq:hyper}
