@@ -48,22 +48,29 @@ This document presents a review of cross-correlation redshift distribution estim
 \section{Cross-correlation Redshift Density Estimation}
 \label{sec:review}
 
-This section outlines the method proposed in \citet{new08} for determining the redshift probability distribution $\phi_{P}(z)$ for a sample of $P$ galaxies $p$ with photometric redshifts $\hat{z}_{p}$ without spectroscopic confirmation given their angular positions $\vec{\theta}_{p}$ as well as a set of $S$ galaxies with spectroscopic redshifts $z_{s}$ and their angular positions $\vec{\theta}_{s}$.  We would like to take advantage of the angular cross-correlation function $\vec{w}_{SP}(\theta,z)$ as a prior of sorts on the redshift probability distribution in question.
+This section outlines the method proposed in \citet{new08} for determining the redshift probability distribution $\phi_{P}(z)$ for a sample of $P$ galaxies $p$ with photometric redshifts $\hat{z}_{p}$ without spectroscopic confirmation given their angular positions $\vec{\theta}_{p}$ as well as a set of $S$ galaxies with spectroscopic redshifts $z_{s}$ and their angular positions $\vec{\theta}_{s}$.  We would like to take advantage of the observed angular cross-correlation function $w_{SP}(\theta,z)$ as a prior of sorts on the redshift probability distribution in question.
 
 \begin{enumerate}
-\item Divide both samples into $K$ redshift bins $\Delta_{k}=\hat{\Delta}_{k}$.
 
-\item Calculate the surface density of galaxies in sample $P$ as $\Sigma_{P}=\frac{1}{\Omega_{P}}\sum_{p=1}^{P}N_{P}(\hat{\Delta}_{k})$ where $N_{P}(\hat{\Delta}_{k})$ is the number of galaxies in sample $P$ with photometric redshifts in bin $k$ and $\Omega_{P}$ represents the solid angle of the sky subtended by sample $P$.  
+\item Calculate the mean surface density $\bar{\Sigma}_{P}=\frac{N_{P}}{\Omega_{P}(\{\vec{\theta}_{p}\}_{P})}$ of galaxies in $P$ in terms of the total number of galaxies $N_{P}$ in $P$ and the angular area $\Omega_{P}(\{\vec{\theta}_{p}\}_{P})$ spanned by the galaxies in $P$.
 
-\item Calculate the surface density of galaxies in sample $P$ as a function of angular distance $\theta_{s}$ from each galaxy $s$ with redshift $z_{s}$ in set $S$ as $\Sigma_{sP}(\theta_{s},z_{s})=\frac{1}{\Omega(\theta_{s})}\sum_{p=1}^{P}N_{P}(\theta_{s})$, where $\Omega(\theta_{s})$ represents the solid angle within an angular distance $\theta_{s}$ from the position of galaxy $s$ and $N_{P}(\theta_{s})$ is the number of galaxies in sample $P$ within $\Omega(\theta_{s})$.
+\item Calculate surface density $\Sigma_{sP}(\theta,z_{s})=\frac{N_{P_{s}}}{\Omega(\theta)}$ of the $N_{P_{s}}$ galaxies in $P$ a distance $\theta$ from each galaxy $s$ in $S$ at redshift $z_{s}$, where $\Omega(\theta)$ is the angular area defined by a circle of radius $\theta$ around the coordinates of galaxy $s$ .
 
-\item Define the angular cross-correlation function between sample $P$ and galaxy $s$ as $w_{sP}(\theta_{s},z_{s})=\frac{\Sigma_{sP}(\theta_{s},z_{s})}{\Sigma_{P}}-1$.
+\item Calculate the average of $\Sigma_{sP}(\theta,z_{s})$ over all $\mathcal{S}_{s}$ galaxies $s$ with redshifts of $z_{s}=z$ to get the mean surface density as a function of redshift $\Sigma_{P}(\theta,z)=\frac{1}{\mathcal{S}_{s}}\sum_{z_{s}=z}\Sigma_{sP}(\theta,z_{s})$.
 
-\item Note that the angular cross-correlation function $w_{sP}(\theta_{s},z_{s})$ is related to the real-space comoving cross-correlation function $\xi_{sP}(r_{s},z_{s})=\frac{N_{P}(r_{s},z_{s})}{V(r_{s})}\frac{V_{P}}{N_{P}}-1$ by $r_{s}^{2}\propto d_{A}(z_{s})^{2}\theta_{s}^{2}$.
+\item Calculate the angular cross-correlation between $P$ and $S$ as $w_{SP}(\theta,z)=\frac{\Sigma_{P}(\theta,z)}{\bar{\Sigma}_{P}}-1$.  
 
-\item Rewrite the angular cross-correlation function in terms of the desired redshift probability distribution $\phi_{P}(z)$ and the comoving cross-correlation function $\xi(r_{s},z_{s})$ as $w_{sP}(\theta_{s},z_{s})\propto\phi_{P}(z_{s})\xi_{sP}(r_{s})\frac{r_{s}}{\frac{dl}{dz}}$, where the comoving distance to a redshift $z$ is $l(z)=c\int_{0}^{z}H^{-1}(z')dz'$.
+\item Consider the analogous quantities in real-space: the mean number density $\bar{n}_{P}=\frac{N_{P}}{V_{P}(\{\hat{z}_{p}\})}$ of galaxies in $P$ in terms of the total number of galaxies $N_{P}$ in $P$ and the comoving volume $V_{P}(\{\vec{\theta}_{p}\}_{P},\{\hat{z}_{p}\}_{P},\{\vec{\theta}_{p}\}_{P})$ spanned by $P$, the number density $n_{sP}(r,z_{s})=\frac{N_{P_{s}}}{V(r,z_{s})}$ in terms of the number $N_{P_{s}}$ of galaxies in $P$ with $\hat{z}_{p}=z_{s}$ and the comoving volume $V(r,z_{s})$ within a distance $r$ of galaxy $s$ at redshift $z_{s}$, and the mean number density as a function of redshift $n_{sP}(r,z)=\frac{1}{\mathcal{S}_{s}}\sum_{z_{s}=z}n_{sP}(r,z_{s})$.
 
-\item Solve for $\phi_{P}(z_{s})$ in the above equation for the angular cross-correlation function by assuming linear bias, so the comoving cross-correlation function takes the form $\xi_{sP}(r_{s},z_{s})=\xi_{sP}(r_{s})=(\frac{r}{r_{0,sP}})^{-\gamma}$.
+\item Note that the angular cross-correlation function $w_{sP}(\theta,z)$ is related to the real-space comoving cross-correlation function $\xi_{SP}(r,z)=\frac{n_{P}(r,z)}{\bar{n}_{P}}-1$.
+
+\item Assume Limber's Equation of $\xi_{SP}(r)=(\frac{r}{r_{0}})^{-\gamma}$.
+
+\item Recalling that the angular diameter distance is defined as $d_{A}(z)=\theta r(z)$, rewrite the angular cross-correlation function as $w_{SP}(\theta,z)=\frac{\phi_{P}(z)\mathcal{H}(\gamma)\theta d_{A}(z)}{(\frac{r}{r_{0}})^{-\gamma}\frac{dl}{dz}}$ in terms of the desired redshift probability distribution $\phi_{P}(z)$, the comoving distance $l(z)=c\int_{0}^{z}H^{-1}(z')dz'$ with the Hubble parameter $H(z)$, and the mathematical function $\mathcal{H}(\gamma)=\frac{\Gamma(\frac{1}{2})\Gamma(\frac{\gamma-1}{2})}{\Gamma(\frac{\gamma}{2})}$.
+
+\item Solve for $\phi_{P}(z)$ in the above equation for $w_{sP}(\theta,z)$.
+
+\item Profit?
 
 %\item Calculate $\Sigma_{SP}(\theta,\Delta_{k})=\frac{1}{N_{S}(\Delta_{k})}\sum_{s_{k}=1}^{N_{S}(\Delta_{k})}\Sigma_{sP}(\theta,z_{s})$ as the average of $\Sigma_{sP}(\theta,z_{s})$ over all $N_{S}(\Delta_{k})$ objects $s_{k}$ in set $S$ within bin $k$.
 
@@ -71,15 +78,6 @@ This section outlines the method proposed in \citet{new08} for determining the r
 \end{enumerate}
 
 This method has not yet been adapted to handle individual redshift posteriors for the test set and permits neither refinement of the input photometric redshifts nor determination of individual redshift posteriors based on $n(z)$ and $\vec{\xi}_{sp}$.  It is worth reviewing the method in detail to investigate possible extensions to zPDFs.
-
-\subsection{Cross-correlation zPDFs}
-
-Let us consider the question of how to determine the redshift of an object given some limited information about its neighbors on the sky.  Knowing that galaxies are gravitationally bound to their neighbors in physical space, it is natural to take advantage of the observed correlation of redshifts between galaxies near one another on the sky.  For this discussion, let us say we have $M$ pairs of galaxies $(n,n')$ near one another with test set data $\textul{d}_{n}$ comprised of photometry $\vec{m}_{n}$ and position $\vec{\phi}_{n}$ as well as training set data $\textul{d}_{n'}$ comprised of photometry $\vec{m}_{n'}$, position $\vec{\phi}_{n'}$, and a reliable redshift $z_{n'}$.  
-
-There are two current techniques in place for determining $z_{n}$.  The first is to set $\hat{z}_{n}=z_{n'}$ for all galaxies with $\Delta_{nn'}=|\vec{\phi}_{n'}-\vec{\phi}_{n}|$.  The second is to draw $\hat{z}_{n}$ from a normal distribution centered at $z_{n'}$ with a variance $\sigma^{2}_{n'}$ derived from some combination of $\Delta_{nn'}$ and $z_{n'}$.  One possible approach to improving this method would be to work with the actual posterior distribution $p(z_{n}|\textul{d}_{n})\sim N(z_{n'},\sigma^{2}_{n'})$ rather than samples, although that could be prohibitively computationally expensive.
-
-Another solution takes advantage of our knowledge of the angular and/or redshift-space and/or real-space correlation functions $\vec{\xi}$ for galaxies.  This approach has been indirectly suggested by \citet{sch06} for point estimates of redshift, which was applied by \citet{rah14} to SDSS galaxies. Since $\vec{\xi}$ is defined at all angular separations, such a method could be used to improve zPDFs not just of neighboring galaxies but of every galaxy in a survey.  
-
 %\acknowledgments
 
 %\appendix
