@@ -10,13 +10,14 @@ import plots as setup_plots
 #import matplotlib.pyplot as plt
 from setup import *
 import matplotlib.pyplot as plt
+plt.rc('text', usetex=True)
+
 
 def plot_inits():
   print 'plot_inits'
   print os.getpid()
   print plt.get_backend()
   start_time = timeit.default_timer()
-  # plt.rc('text', usetex=True)
   elapsed = timeit.default_timer() - start_time
   print('setup '+str(elapsed))
   start_time = timeit.default_timer()
@@ -41,6 +42,8 @@ init_plot_proc.start()
 init_plot_proc.join()
 print 'initial plotting done'
 #sys.exit();
+
+
 nq = nstats#number of plot processes
 qnos = range(0,nq)
 queues=[mp.Queue() for q in qnos]
@@ -213,8 +216,8 @@ def plotchains((s,n,t,r),sps_samps,sps_chains):#,sps_rando):
     #      sps_rando[s][t].hlines(plot_y_s[x][w],binlos,binhis,rasterized=True)
     for w in randsamps:#walknos:
         if r > 0:
-          for x in randiters:#runnos:#runnos
-            sps_samps[s].hlines(plot_y_s[x][w],binlos,binhis,color=colors[t],alpha=a_samp,rasterized=True)
+          for x in randiters:#runnos:
+            sps_samps[s].step(binmids,plot_y_s[x][w],color=colors[t],alpha=a_samp,rasterized=True)#.hlines(plot_y_s[x][w],binlos,binhis,color=colors[t],alpha=a_samp,rasterized=True)
         for k in dimnos:
             sps_chains[s][k].plot(plot_iters_ranges[r],plot_y_c[k][w],color=colors[t],alpha=a_chain,rasterized=True)
 
@@ -239,32 +242,27 @@ plotnames = ['acorr.pdf','fracs.pdf','lnprobs.pdf','results.pdf','compare.pdf']#
 
 #initialize each plot
 def plots_setup(q):
-    #time_info = None
-    #frac_info = None
-    #prob_info = None
-    #samp_info = None
-    #chain_info = None
     if q == 0:
-        info = plottimes_init()#time_info = plottimes_init()
+        info = plottimes_init()
     if q == 1:
-        info = plotfracs_init()#frac_info = plotfracs_init()
+        info = plotfracs_init()
     if q == 2:
-        info = plotprobs_init()#prob_info = plotprobs_init()
+        info = plotprobs_init()
     if q == 3:
-        info = plotchains_init()#samp_info,chain_info = plotchains_init()
-    return info#(time_info,frac_info,prob_info,samp_info,chain_info)
+        info = plotchains_init()
+    return info
 
 #plot one output file
-def plotone((s,n,t,r),q,info):#(time_info,frac_info,prob_info,samp_info,chain_info)):
+def plotone((s,n,t,r),q,info):
     start_time = timeit.default_timer()
     if q == 0:
-        plottimes((s,n,t,r),info[1])#time_info[1])
+        plottimes((s,n,t,r),info[1])
     if q == 1:
-        plotfracs((s,n,t,r),info[1])#frac_info[1])
+        plotfracs((s,n,t,r),info[1])
     if q == 2:
-        plotprobs((s,n,t,r),info[1])#prob_info[1])
+        plotprobs((s,n,t,r),info[1])
     if q == 3:
-        plotchains((s,n,t,r),info[0][1],info[1][1])#,info[2][1])#samp_info[1],chain_info[1])
+        plotchains((s,n,t,r),info[0][1],info[1][1])#,info[2][1])
     elapsed = timeit.default_timer() - start_time
     plottimer = open(plottime,'a')
     plottimer.write(str(time.time())+' '+str((s,n,t,r,q))+' '+str(elapsed)+'\n')
@@ -272,44 +270,33 @@ def plotone((s,n,t,r),q,info):#(time_info,frac_info,prob_info,samp_info,chain_in
     return
 
 #save each plot
-def plots_wrapup(q,info):#(time_info,frac_info,prob_info,samp_info,chain_info)):
+def plots_wrapup(q,info):
     if q == 3:
-        plotchains_wrapup(info[0])#,info[2])#samp_info)
-        info[0][0].savefig(os.path.join(topdir,plotnames[q]),dpi=100)#samp_info[0].savefig(os.path.join(topdir,plotnames[q]),dpi=100)
-        info[1][0].savefig(os.path.join(topdir,plotnames[q+1]),dpi=100)#chain_info[0].savefig(os.path.join(topdir,plotnames[q+1]),dpi=100)
+        plotchains_wrapup(info[0])#,info[2])
+        info[0][0].savefig(os.path.join(topdir,plotnames[q]),dpi=100)
+        info[1][0].savefig(os.path.join(topdir,plotnames[q+1]),dpi=100)
         #info[2][0].savefig(os.path.join(topdir,plotnames[q+2]),dpi=100)
     else:
         info[0].savefig(os.path.join(topdir,plotnames[q]),dpi=100)
-#     if q == 0:
-#         time_info[0].savefig(os.path.join(topdir,plotnames[q]),dpi=100)
-#     if q == 1:
-#         frac_info[0].savefig(os.path.join(topdir,plotnames[q]),dpi=100)
-#     if q == 2:
-#         prob_info[0].savefig(os.path.join(topdir,plotnames[q]),dpi=100)
-#     if q == 3:
     return
 
 #entire plotting process
 def plotall(q):
-#     if q == -1:
-#       plot_inits()
-#       return
-#     else:
-      plt.rc('text', usetex=True)
-      plot_info = plots_setup(q)#(time_info,frac_info,prob_info,samp_info,chain_info) = plots_setup(q)
+#      plt.rc('text', usetex=True)
+      plot_info = plots_setup(q)
       print('plot process started '+str(os.getpid()))
       while(True):
         vals = queues[q].get()
 #         if (vals=='init'):
 #             print('initializing plots now')
-#             plot_info = plots_setup(q)#(time_info,frac_info,prob_info,samp_info,chain_info) = plots_setup(q)
+#             plot_info = plots_setup(q)
         if (vals=='done'):
-            plots_wrapup(q,plot_info)#(time_info,frac_info,prob_info,samp_info,chain_info))
-            print('saving plots now')
+            plots_wrapup(q,plot_info)
+            print('saving '+plotnames[q]+' now')
             return
         else:
             (s,n,t,r) = vals
-            plotone((s,n,t,r),q,plot_info)#(time_info,frac_info,prob_info,samp_info,chain_info))
+            plotone((s,n,t,r),q,plot_info)
 
 def fplot(*args):
     return plotall(*args)
