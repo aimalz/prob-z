@@ -8,4 +8,4 @@ The redshift distribution function N(z) is a relatively simple statistic that ha
 
 ## ideas
 
-I'm keeping a running tab of all my crazy ideas for improving and applying redshift posteriors.
+I'm keeping a running tab of all my crazy ideas for improving and applying redshift posteriors.  The document in this directory also contains the comprehensive background I'm putting together to prepare for my qualifying exam.

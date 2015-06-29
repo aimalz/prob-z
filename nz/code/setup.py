@@ -1,30 +1,26 @@
 import timeit
-
-start_time = timeit.default_timer()
-
-import pdb
-#pdb.set_trace()
 import numpy as np
 import os
 import cPickle
+import time
 import pyfits
 
 #generate number of galaxies to draw
 #for consistency, must have more than one survey size
-seed_ngals = [2,20]#2*np.arange(1,6)#[1,10]#can generate for different survey sizes
+seed_ngals = [10,20,40]#2*np.arange(1,6)#[1,10]#can generate for different survey sizes
 nsurvs = len(seed_ngals)
 survnos = range(0,nsurvs)
 nsamps = 1#instantiations of the survey, more than 1 breaks some things...
 sampnos = range(0,nsamps)
-ngals = [nsamps*[seed_ngals[s]] for s in survnos]
+#ngals = [nsamps*[seed_ngals[s]] for s in survnos]
 #for poisson sampling instead of set survey size -- small number tests fail when sample size is 0!
-#ngals = [[np.random.poisson(seed_ngals[s]) for n in sampnos] for s in survnos]
+ngals = [[np.random.poisson(seed_ngals[s]) for n in sampnos] for s in survnos]
 
 if os.path.isfile('topdir.p'):
-  topdir = cPickle.load(open('topdir.p','rb'))
+  topdir = cPickle.load(open('topdir.p','r'))
 else:
-  topdir = 'test'+str(round(timeit.default_timer()))
-  cPickle.dump(topdir,open('topdir.p','wb'))
+  topdir = 'test'+str(round(time.time()))
+  cPickle.dump(topdir,open('topdir.p','w'))
   os.makedirs(topdir)
 
 #set up data structure
@@ -44,7 +40,6 @@ nbins = len(zbins[1].data)
 binnos = range(0,nbins)
 zlos = [zbins[1].data[i][0] for i in binnos]
 zhis = [zbins[1].data[i][1] for i in binnos]
-allzs = sorted(set(zlos+zhis))
 
 #use centers of bins for plotting
 zmids = [(zbins[1].data[i][0]+zbins[1].data[i][1])/2. for i in binnos]
@@ -81,89 +76,57 @@ truePz = [realistic_pdf for s in survnos]
 logtrueNz = [[m.log(max(trueNz[s][k],sys.float_info.epsilon)) for k in binnos] for s in survnos]
 logtruePz = [[m.log(max(truePz[s][k],sys.float_info.epsilon)) for k in binnos] for s in survnos]
 
-#generate an instantiation of N(z)
-def maketrue(nsurvs,nsamps):
-  #set up for random selection of galaxies per bin
-  def cdf(weights):
-   tot = sum(weights)
-   result = []
-   cumsum = 0
-   for w in weights:
-       cumsum += w
-       result.append(cumsum / tot)
-   return result
-  def choice(pop, weights):
-   assert len(pop) == len(weights)
-   cdf_vals = cdf(weights)
-   x = random.random()
-   index = bisect.bisect(cdf_vals, x)
-   return pop[index]
+##set up for random selection of galaxies per bin
+#def cdf(weights):
+#    tot = sum(weights)
+#    result = []
+#    cumsum = 0
+#    for w in weights:
+#        cumsum += w
+#        result.append(cumsum / tot)
+#    return result
+#def choice(pop, weights):
+#    assert len(pop) == len(weights)
+#    cdf_vals = cdf(weights)
+#    x = random.random()
+#    index = bisect.bisect(cdf_vals, x)
+#    return pop[index]
 
-  ##randomly select bin counts from true N(z)
-  #bincounts = []
-  #for s in survnos:
-  #    bincount = []
-  #    for n in sampnos:
-  #        count = [0]*nbins
-  #        for i in range(0,ngals[s][n]):
-  #            count[choice(binnos, trueNz[s])] += 1
-  #            bincount.append(count)
-  #    bincounts.append(bincount)
-  #
-  #plotcounts = [[[max(bincounts[s][n][k]/zdifs[k],sys.float_info.epsilon) for k in binnos] for n in sampnos] for s in survnos]
-  #logplotcounts = np.log(np.array(plotcounts))
+##randomly select bin counts from true N(z)
+#bincounts = []
+#for s in survnos:
+#    bincount = []
+#    for n in sampnos:
+#        count = [0]*nbins
+#        for i in range(0,ngals[s][n]):
+#            count[choice(binnos, trueNz[s])] += 1
+#            bincount.append(count)
+#    bincounts.append(bincount)
+#
+#plotcounts = [[[max(bincounts[s][n][k]/zdifs[k],sys.float_info.epsilon) for k in binnos] for n in sampnos] for s in survnos]
+#logplotcounts = np.log(np.array(plotcounts))
 
-  #test case: all galaxies in survey have same true redshift
-  chosenbin = np.argmax(plotrealistic_pdf)#choice(binnos, realistic_pdf)#random.sample(range(0,35),1)#np.argmax(plotrealistic_pdf)
-  chosenbins = chosenbin*nsurvs
-  bincounts = []
-  for s in survnos:
+#test case: all galaxies in survey have same true redshift
+chosenbin = np.argmax(plotrealistic_pdf)#random.sample(range(0,35),1)
+chosenbins = chosenbin*nsurvs
+bincounts = []
+for s in survnos:
     bincount = []
     for n in sampnos:
         count = [0]*nbins
         count[chosenbin] = ngals[s][n]
         bincount.append(np.array(count))
     bincounts.append(np.array(bincount))
-  bincounts = np.array(bincounts)
+bincounts = np.array(bincounts)
 
-  #plotcounts = [[[max(bincounts[s][n][k]/zdifs[k],sys.float_info.epsilon) for k in binnos] for n in sampnos] for s in survnos]
-  #logplotcounts = np.log(np.array(plotcounts))
+#plotcounts = [[[max(bincounts[s][n][k]/zdifs[k],sys.float_info.epsilon) for k in binnos] for n in sampnos] for s in survnos]
+#logplotcounts = np.log(np.array(plotcounts))
 
-  sampPz = np.array([[bincounts[s][n]/ngals[s][n]/zdif for n in sampnos] for s in survnos])
-  logsampPz = np.log(np.array([[[max(o,sys.float_info.epsilon) for o in counts] for counts in samp] for samp in sampPz]))
+sampPz = np.array([[bincounts[s][n]/ngals[s][n]/zdif for n in sampnos] for s in survnos])
+logsampPz = np.log(np.array([[[max(o,sys.float_info.epsilon) for o in counts] for counts in samp] for samp in sampPz]))
 
-  sampNz = np.array([[bincounts[s][n]/zdif for n in sampnos] for s in survnos])
-  logsampNz = np.log(np.array([[[max(o,sys.float_info.epsilon) for o in counts] for counts in samp] for samp in sampNz]))
-
-  for s in survnos:
-    for n in sampnos:
-        truefile = open(topdirs[s][n]+'true.p','wb')#open(str(n+1)+'datacat'+str(seed_ngals[s])+'.p','w')
-        cPickle.dump([bincounts[s][n],(sampPz[s][n],logsampPz[s][n]),(sampNz[s][n],logsampNz[s][n])],truefile)
-        truefile.close()
-
-  return(bincounts,(sampPz,logsampPz),(sampNz,logsampNz))
-
-#generate sampled truth and save it for later
-if not np.all([[os.path.exists(topdirs[s][n]+'true.p') for n in sampnos] for s in survnos]):
-  bincounts,(sampPz,logsampPz),(sampNz,logsampNz) = maketrue(nsurvs,nsamps)
-else:#if truth already exists, use that
-  bincounts,sampPz,logsampPz,sampNz,logsampNz = [],[],[],[],[]
-  for s in survnos:
-      bincount,sampP,logsampP,sampN,logsampN = [],[],[],[],[]
-      for n in sampnos:
-        truefile = open(topdirs[s][n]+'true.p','rb')#open(str(n+1)+'datacat'+str(seed_ngals[s])+'.p','w')
-        [b,(sP,lsP),(sN,lsN)] = cPickle.load(truefile)
-        bincount.append(b)
-        sampP.append(sP)
-        logsampP.append(lsP)
-        sampN.append(sN)
-        logsampN.append(lsN)
-        truefile.close()
-      bincounts.append(bincount)
-      sampPz.append(sampP)
-      logsampPz.append(logsampP)
-      sampNz.append(sampN)
-      logsampNz.append(logsampN)
+sampNz = np.array([[bincounts[s][n]/zdif for n in sampnos] for s in survnos])
+logsampNz = np.log(np.array([[[max(o,sys.float_info.epsilon) for o in counts] for counts in samp] for samp in sampNz]))
 
 #define flat distribution for N(z)
 avgprob = 1./nbins/zdif
@@ -175,77 +138,60 @@ logflatNz = [np.array([lf]*nbins) for lf in logflat]
 flatPz = [np.array([avgprob]*nbins) for s in survnos]
 logflatPz = np.log(flatPz)#[np.array([avg_prob]*nbins) for s in survnos]
 
-#generate the catalog of individual galaxy posteriors
-def makecat(bincounts):
+#turn bin numbers into redshifts for histogram later
+idealZs = np.array([[[zmids[k] for k in binnos] for j in range(0,int(round(trueNz[s][k])))] for s in survnos])
 
-#  #turn bin numbers into redshifts for histogram later
-#  idealZs = np.array([[[zmids[k] for k in binnos] for j in range(0,int(round(trueNz[s][k])))] for s in survnos])
+#assign actual redshifts uniformly within each bin
+trueZs = np.array([[[random.uniform(zlos[k],zhis[k]) for k in binnos for j in range(0,bincounts[s][n][k])] for n in sampnos] for s in survnos])
 
-  #assign actual redshifts uniformly within each bin
-  #trueZs = np.array([[np.array([random.uniform(zlos[k],zhis[k]) for k in binnos for j in range(0,bincounts[s][n][k])]) for n in sampnos] for s in survnos])
+##test case: all galaxies have same true redshift
+#trueZs = np.array([[[zmids[k] for k in binnos for j in range(0,bincounts[s][n][k])] for n in sampnos] for s in survnos])
 
-  #test case: all galaxies have same true redshift
-  trueZs = np.array([[np.array([zmids[k] for k in binnos for j in range(0,bincounts[s][n][k])]) for n in sampnos] for s in survnos])
+#jitter zs to simulate inaccuracy
+sigZs = np.array([[[zdif*(trueZs[s][n][j]+1.) for j in range(0,ngals[s][n])] for n in sampnos] for s in survnos])#zdif*(trueZs+1.)
+shiftZs = np.array([[[random.gauss(trueZs[s][n][j],sigZs[s][n][j]) for j in range(0,ngals[s][n])] for n in sampnos] for s in survnos])
 
-  #jitter zs to simulate inaccuracy
-  modZs = [[trueZs[s][n]+1. for n in sampnos] for s in survnos]
-  varZs = np.array([[[zdif*modZs[s][n][j] for j in range(0,ngals[s][n])] for n in sampnos] for s in survnos])#zdif*(trueZs+1.)
-  shiftZs = np.array([[[random.gauss(trueZs[s][n][j],varZs[s][n][j]) for j in range(0,ngals[s][n])] for n in sampnos] for s in survnos])
-  sigZs = np.array([[[abs(random.gauss(varZs[s][n][j],varZs[s][n][j])) for j in range(0,ngals[s][n])] for n in sampnos] for s in survnos])
-  #print(modZs,varZs,sigZs)
-  #pdb.set_trace()
+##test case: perfect observations
+#shiftZs = trueZs
+#sigZs = np.array([[[zdif*(trueZs[s][n][j]+1.) for j in range(0,ngals[s][n])] for n in sampnos] for s in survnos])
 
-  #test case: perfect observations
-  #shiftZs = trueZs
-  #sigZs = np.array([[[zdif*(trueZs[s][n][j]+1.) for j in range(0,ngals[s][n])] for n in sampnos] for s in survnos])
-
-  #write out the data into a "catalog"
-  #broken re: nsamps>1
-  for s in survnos:
+#write out the data into a "catalog"
+#broken re: nsamps>1
+for s in survnos:
     for n in sampnos:
-        catfile = open(topdirs[s][n]+'datacat.p','wb')#open(str(n+1)+'datacat'+str(seed_ngals[s])+'.p','w')
-        catdat = zip(shiftZs[s][n],sigZs[s][n])
+        catfile = open(topdirs[s][n]+'datacat.p','w')#open(str(n+1)+'datacat'+str(seed_ngals[s])+'.p','w')
+        catdat = zip(shiftZs[s],sigZs[s])
         cPickle.dump(catdat,catfile)
         catfile.close()
-
-  return(shiftZs,sigZs)
-
-#"observe" nsamps samples from nsurvs surveys
-if not np.all([[os.path.exists(topdirs[s][n]+'datacat.p') for n in sampnos] for s in survnos]):
-   obsZs,obserrs = makecat(bincounts)
-else:#if truth already exists, use that
-  obsZs,obserrs = [],[]
-  for s in survnos:
-    obsZ,obserr = [],[]
-    for n in sampnos:
-        catfile = open(topdirs[s][n]+'datacat.p','rb')
-        catdat = cPickle.load(catfile)
-        oZ,oerr = zip(*catdat)
-        obsZ.append(oZ)
-        obserr.append(oerr)
-        catfile.close()
-    obsZs.append(obsZ)
-    obserrs.append(obserr)
 
 import scipy as sp
 from scipy import stats
 import random
 
-#print(obsZs)
-#pdb.set_trace()
+#read in the data from a catalog
+#broken re: nsamps>1
+obsZs,obserrs = [],[]
+for s in survnos:
+    for n in sampnos:
+        catfile = open(topdirs[s][n]+'datacat.p','r')
+        catdat = cPickle.load(catfile)
+        obsZ,obserr = zip(*catdat)
+        obsZs.append(obsZ)
+        obserrs.append(obserr)
+        catfile.close()
 
 #define additional bins for points thrown out of Sheldon range by shifting
-minobs = min([min([min(obs) for obs in obsZ]) for obsZ in obsZs])
-maxobs = max([max([max(obs) for obs in obsZ]) for obsZ in obsZs])
+minshift = min([min([min(shift) for shift in shiftZ]) for shiftZ in shiftZs])
+maxshift = max([max([max(shift) for shift in shiftZ]) for shiftZ in shiftZs])
 
-binfront = [min(zlos)+x*zdif for x in range(int(m.floor((minobs-min(zlos))/zdif)),0)]
-binback = [max(zhis)+x*zdif for x in range(1,int(m.ceil((maxobs-max(zhis))/zdif)))]
+binfront = [min(zlos)+x*zdif for x in range(int(m.floor((minshift-min(zlos))/zdif)),0)]
+binback = [max(zhis)+x*zdif for x in range(1,int(m.ceil((maxshift-max(zhis))/zdif)))]
 binends = np.array(binfront+sorted(set(zlos+zhis))+binback)
 binlos = binends[:-1]
 binhis = binends[1:]
 new_nbins = len(binends)-1
 new_binnos = range(0,new_nbins)
-binmids = (binhis+binlos)/2.#[(binends[k]+binends[k+1])/2. for k in new_binnos]
+binmids = [(binends[k]+binends[k+1])/2. for k in new_binnos]
 
 #define true N(z),P(z) for plotting given number of galaxies
 full_trueNz = [np.append(np.array([sys.float_info.epsilon]*len(binfront)),(np.append(trueNz[s],np.array([sys.float_info.epsilon]*len(binback))))) for s in survnos]
@@ -253,57 +199,62 @@ full_logtrueNz = [[m.log(full_trueNz[s][k]) for k in new_binnos] for s in survno
 full_truePz = [np.append(np.array([sys.float_info.epsilon]*len(binfront)),(np.append(truePz[s],np.array([sys.float_info.epsilon]*len(binback))))) for s in survnos]
 full_logtruePz = [[m.log(full_truePz[s][k]) for k in new_binnos] for s in survnos]
 
-#define flat N(z),P(z) for plotting
+#define flat N(z),P(z)
 full_flatNz = [np.array([f]*new_nbins) for f in flat]
 full_logflatNz = [np.array([lf]*new_nbins) for lf in logflat]
 full_flatPz = [np.array([avgprob]*new_nbins) for s in survnos]
 full_logflatPz = [np.array([logavgprob]*new_nbins) for s in survnos]
 
-#define sampled N(z),P(z) for plotting
-full_sampNz = [[np.append(np.array([sys.float_info.epsilon]*len(binfront)),(np.append(sampNz[s][n],np.array([sys.float_info.epsilon]*len(binback))))) for n in sampnos] for s in survnos]
-full_logsampNz = [[np.append(np.array([sys.float_info.epsilon]*len(binfront)),(np.append(logsampNz[s][n],np.array([sys.float_info.epsilon]*len(binback))))) for n in sampnos] for s in survnos]#[[np.log(full_sampNz[s][n]) for n in sampnos] for s in survnos]
-full_sampPz = [[np.append(np.array([sys.float_info.epsilon]*len(binfront)),(np.append(sampPz[s][n],np.array([sys.float_info.epsilon]*len(binback))))) for n in sampnos] for s in survnos]
-full_logsampPz = [[np.append(np.array([sys.float_info.epsilon]*len(binfront)),(np.append(logsampPz[s][n],np.array([sys.float_info.epsilon]*len(binback))))) for n in sampnos] for s in survnos]#[[np.log(full_sampPz[s][n]) for n in sampnos] for s in survnos]
-
-#bin "observed" (point estimate) N(z)
-histNz = []
+#bin the true and observed samples
+sampNz = []
+obsNz = []
 for s in survnos:
-    histN = []
+    samp = []
+    obs = []
     for n in sampnos:
-        hist = [sys.float_info.epsilon]*len(binmids)
+        samphist = [sys.float_info.epsilon]*len(binmids)
+        obshist = [sys.float_info.epsilon]*len(binmids)
         for j in range(0,ngals[s][n]):
             for k in new_binnos:
-                if binends[k]<=obsZs[s][n][j] and obsZs[s][n][j]<binends[k+1]:
-                    hist[k]+=1./zdif
-        histN.append(hist)
-    histNz.append(histN)
-histNz = np.array(histNz)
-loghistNz = np.log(histNz)
-histPz = histNz/ngals
-loghistPz = np.log(histPz)
+                if binends[k]<=trueZs[s][n][j] and trueZs[s][n][j]<binends[k+1]:
+                    samphist[k]+=1./zdif
+                if binends[k]<=shiftZs[s][n][j] and shiftZs[s][n][j]<binends[k+1]:
+                    obshist[k]+=1./zdif
+        samp.append(samphist)
+        obs.append(obshist)
+    sampNz.append(samp)
+    obsNz.append(obs)
+sampNz = np.array(sampNz)
+obsNz = np.array(obsNz)
+obsPz = np.array([[obsNz[s][n]/ngals[s][n] for n in sampnos] for s in survnos])
 
-# #calculate mean and rms errors (over many draws) on bin heights
-# avgsamp,avgobs,rmssamp,rmsobs = [],[],[],[]
+logsampNz = np.log(sampNz)#)[[[m.log(trueNz[s][n][k]) for k in new_binnos] for n in range(0,ndraws)]
+logobsNz = np.log(obsNz)#[[m.log(shiftNz[s][n][k]) for k in new_binnos] for n in range(0,ndraws)]
+logobsPz = np.log(obsPz)
 
-# for s in survnos:
-#     samp = np.transpose(sampNz[s])
-#     hist = np.transpose(histNz[s])
-#     avgsamp.append([np.mean(z) for z in samp])
-#     avghist.append([np.mean(z) for z in hist])
-#     rmssamp.append([np.sqrt(np.mean(np.square(z*zdif))) for z in samp])
-#     rmshist.append([np.sqrt(np.mean(np.square(z*zdif))) for z in hist])
+#calculate mean and rms errors (over many draws) on bin heights
 
-# avgsamp,avghist,rmssamp,rmshist = np.array(avgsamp),np.array(avghist),np.array(rmssamp),np.array(rmshist)
-# maxsamp,minsamp = avgsamp+rmssamp,avgsamp-rmssamp
-# maxhist,minhist = avghist+rmshist,avghist-rmshist
+avgsamp,avgobs,rmssamp,rmsobs = [],[],[],[]
+
+for s in survnos:
+    samp = np.transpose(sampNz[s])
+    obs = np.transpose(obsNz[s])
+    avgsamp.append([np.mean(z) for z in samp])
+    avgobs.append([np.mean(z) for z in obs])
+    rmssamp.append([np.sqrt(np.mean(np.square(z*zdif))) for z in samp])
+    rmsobs.append([np.sqrt(np.mean(np.square(z*zdif))) for z in obs])
+
+avgsamp,avgobs,rmssamp,rmsobs = np.array(avgsamp),np.array(avgobs),np.array(rmssamp),np.array(rmsobs)
+maxsamp,minsamp = avgsamp+rmssamp,avgsamp-rmssamp
+maxobs,minobs = avgobs+rmsobs,avgobs-rmsobs
 
 #generate gaussian likelihood function per galaxy per sample per survey to simulate imprecision
-#simultaneously generate sheldon "posterior"
-logpobs,pobs,sheldon = [],[],[]
+logpobs,pobs = [],[]
+#n = rando#for one draw when this step is slow
 for s in survnos:
-    logpob,pob,sheldon_s = [],[],[]
+    logpob,pob = [],[]
     for n in sampnos:
-        lps,ps= [],[]
+        lps,ps = [],[]
         for j in range(0,ngals[s][n]):
             func = sp.stats.norm(loc=obsZs[s][n][j],scale=obserrs[s][n][j])
             lo = np.array([max(sys.float_info.epsilon,func.cdf(binends[k])) for k in new_binnos])
@@ -317,18 +268,10 @@ for s in survnos:
             ps.append(p)
         pob.append(ps)
         logpob.append(lps)
-        sheldonprep = np.sum(np.array(pob),axis=1)
-        sheldon_n = [max(sys.float_info.epsilon,sheldonprep[0][k]) for k in new_binnos]
-        sheldon_s.append(sheldon_n)
     pobs.append(pob)
     logpobs.append(logpob)
-    sheldon.append(sheldon_s)
 pobs = np.array(pobs)
 logpobs = np.array(logpobs)
-logsheldon = np.log(np.array(sheldon))
-#print(np.shape(sheldon))#len(sheldon),len(sheldon[0]),len(sheldon[0][0]),len(sheldon[0][0][0]))
-#print(np.shape(sheldon,logsheldon)
-#pdb.set_trace()
 
 #permit varying number of parameters for testing
 ndim = new_nbins
@@ -338,19 +281,17 @@ lenno = 0#set parameter dimensions for now
 #survno = 0#one survey size for now
 dimnos = range(0,ndims[lenno])
 
-#prepare for MCMC
+#thin the chain
+howmany = 25
 
 #how many walkers
 nwalkers = 2*new_nbins
 walknos = range(0,nwalkers)
 
 #set up number of iterations
-maxiters = int(3e3)#int(1e4)#[seed_ngals[s]*1e3 for s in survnos]#int(5e3)
+maxiters = int(5e3)#int(1e4)#[seed_ngals[s]*1e3 for s in survnos]#int(5e3)
 miniters = int(1e3)#[maxiters/seed_ngals[s] for s in survnos]#
 nruns = maxiters/miniters
-
-#thin the chain
-howmany = miniters/10#must be integer such that miniters mod howmany = 0
 
 runnos = range(0,nruns)
 plot_iters = [(r+1)*miniters for r in runnos]
@@ -369,7 +310,7 @@ import StringIO
 import hickle as hkl
 
 #generate prior distribution for each survey size
-logmus = full_logflatNz#[full_logflatNz[s][:ndims[lenno]] for s in survnos]
+logmus = [full_logflatNz[s][:ndims[lenno]] for s in survnos]
 #logmus = [full_logflatPz[s][:ndims[lenno]] for s in survnos]
 
 #MVN prior as class
@@ -412,14 +353,14 @@ class mvn(object):
         #assert np.any(np.isnan(sampprobs)) == False
         return outsamp,rando#,sampprobs,rando
 
-# #this covariance can produce N(z) for realistic data
+#this covariance can produce N(z) for realistic data
 # q=1.#0.5
 # e=0.1/zdif**2
 # tiny=q*1e-6
-# covmats = [np.array([[q*m.exp(-0.5*e*(binmids[a]-binmids[b])**2.) for a in range(0,ndim)] for b in range(0,ndim)])+tiny*np.identity(ndim) for ndim in ndims]
+# covmats = [np.array([[q*m.exp(-0.5*e*(zmids[a]-zmids[b])**2.) for a in range(0,ndim)] for b in range(0,ndim)])+tiny*np.identity(ndim) for ndim in ndims]
 # priordists = [mvn(logmus[s],covmats[lenno]) for s in survnos]
 
-#this covariance can produce N(z) for delta function test
+#this covariance can produce N(z) for the test data
 covmats = [np.identity(n) for n in ndims]
 priordists = [mvn(logmus[s],covmats[lenno]) for s in survnos]
 
@@ -435,19 +376,6 @@ ntests = len(setups)
 testnos = range(0,ntests)
 setdirs = ['ps/','gm/','gs/']
 inpaths = [[[topdirs[s][n]+setdirs[t] for t in testnos] for n in sampnos] for s in survnos]
-
-# #delta function prior for test case
-# priordists = [delta(logmus[s]) for s in survnos]
-
-# #generate initial values for walkers in delta function case
-# iguesses = [priordists[s].sample_ps(nwalkers) for s in survnos]
-# iguesses = [[iguesses[s]] for s in survnos]
-# means = [[logmus[s][0:ndims[lenno]]] for s in survnos]
-# setups = ['Prior Samples']
-# ntests = len(setups)
-# testnos = range(0,ntests)
-# setdirs = ['ps/']
-# inpaths = [[[topdirs[s][n]+setdirs[t] for t in testnos] for n in sampnos] for s in survnos]
 
 #posterior distribution we want to sample as class
 class post(object):
@@ -468,7 +396,7 @@ class post(object):
         return self.prior.logpdf(theta)
     def lnprob(self,theta):#speed this up some more with matrix magic?
         constterms = theta+self.constterm
-        sumterm = self.priorprob(theta)-np.dot(np.exp(theta),self.difs)#this should sufficiently penalize poor samples but somehow fails on large datasets
+        sumterm = self.priorprob(theta)-np.dot(np.exp(theta),self.difs)
         #assert (sumterm <= 0.), ('theta='+str(theta)+', lnprob='+str(sumterm))
         for j in self.dats:
             #logterm = sp.misc.logsumexp(self.postprobs[j]+constterms)#shockingly slower!
@@ -505,18 +433,7 @@ outnames = [[[[[os.path.join(outpaths[s][n][t][i],filenames[r]) for r in runnos]
 
 calctime = os.path.join(topdir,'calctimer.txt')
 plottime = os.path.join(topdir,'plottimer.txt')
-fitness = [[os.path.join(topdirs[s][n],'fitness.txt') for n in sampnos] for s in survnos]
-allnames_prep = [os.path.join(topdirs[s][n],'fitness.txt') for n in sampnos for s in survnos]
-allnames_prep.append(calctime)
-allnames_prep.append(plottime)
-for i in allnames_prep:
-  if os.path.exists(i):
-    os.remove(i)
 
 #import matplotlib.pyplot as plt
-#ymin = np.log(sys.float_info.epsilon)
-ymax = [np.log(seed_ngals[s]/zdif) for s in survnos]
-ymax_e = np.exp(np.array(ymax))
 
-elapsed = timeit.default_timer() - start_time
-print 'setup complete: '+str(elapsed)
+print 'SETUP DONE'
