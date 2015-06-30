@@ -11,7 +11,7 @@ import pyfits
 
 #generate number of galaxies to draw
 #for consistency, must have more than one survey size
-seed_ngals = [2,20]#2*np.arange(1,6)#[1,10]#can generate for different survey sizes
+seed_ngals = [2,200]#[2,20]#2*np.arange(1,6)#[1,10]#can generate for different survey sizes
 nsurvs = len(seed_ngals)
 survnos = range(0,nsurvs)
 nsamps = 1#instantiations of the survey, more than 1 breaks some things...
@@ -345,7 +345,7 @@ nwalkers = 2*new_nbins
 walknos = range(0,nwalkers)
 
 #set up number of iterations
-maxiters = int(3e3)#int(1e4)#[seed_ngals[s]*1e3 for s in survnos]#int(5e3)
+maxiters = int(5e3)#[seed_ngals[s]*1e3 for s in survnos]#int(5e3)
 miniters = int(1e3)#[maxiters/seed_ngals[s] for s in survnos]#
 nruns = maxiters/miniters
 
@@ -505,13 +505,21 @@ outnames = [[[[[os.path.join(outpaths[s][n][t][i],filenames[r]) for r in runnos]
 
 calctime = os.path.join(topdir,'calctimer.txt')
 plottime = os.path.join(topdir,'plottimer.txt')
-#fitness = [[os.path.join(topdirs[s][n],'fitness.txt') for n in sampnos] for s in survnos]
-#allnames_prep = [os.path.join(topdirs[s][n],'fitness.txt') for n in sampnos for s in survnos]
-#allnames_prep.append(calctime)
-#allnames_prep.append(plottime)
+#if not np.all([[[os.path.exists(inpaths[s][n][t]+'fitness.p') for t in testnos] for n in sampnos] for s in survnos]):
+#fitness = [[[os.path.join(inpaths[s][n][t],'fitness.p') for t in testnos] for n in sampnos] for s in survnos]
+fitness = [[[inpaths[s][n][t]+'fitness.p' for t in testnos] for n in sampnos] for s in survnos]
+flatfitness = [inpaths[s][n][t]+'fitness.p' for t in testnos for n in sampnos for s in survnos]
+# allnames_prep = [os.path.join(inpaths[s][n][t],'fitness.p') for t in testnos for n in sampnos for s in survnos]
+# allnames_prep.append(calctime)
+# allnames_prep.append(plottime)
+# print(allnames_prep)
 for i in [calctime,plottime]:#allnames_prep:
   if os.path.exists(i):
     os.remove(i)
+for i in flatfitness:
+    fittest = open(i,'wb')
+    cPickle.dump([0.,0.],fittest)
+    fittest.close()
 
 #import matplotlib.pyplot as plt
 #ymin = np.log(sys.float_info.epsilon)

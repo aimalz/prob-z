@@ -55,8 +55,8 @@ def sampling(sampler,ivals):
     ivals = [walk[-1] for walk in sampler.chain]
     times = sampler.get_autocorr_time()#ndims
     fracs = sampler.acceptance_fraction#nwalkers
-    probs = np.swapaxes(sampler.lnprobability,0,1)#niters*nwalkers
-    chains = np.swapaxes(sampler.chain,0,1)#niters*nwalkers*ndims
+    probs = sampler.lnprobability#np.swapaxes(sampler.lnprobability,0,1)#niters*nwalkers
+    chains = sampler.chain#np.swapaxes(sampler.chain,0,1)#niters*nwalkers*ndims
     elapsed = timeit.default_timer() - start_time
     #print(setups[n]+' '+str(ndims[k])+' complete')
     return ivals,[times,fracs,probs,chains],elapsed
@@ -159,7 +159,7 @@ def plotprobs_init():
 
 def plotprobs((s,n,t,r),sps_probs):
     yfile = open(os.path.join(outpaths[s][n][t][2],filenames[r]),'r')
-    plot_y = hkl.load(yfile).T
+    plot_y = np.swapaxes(hkl.load(yfile),0,1).T#hkl.load(yfile).T
     yfile.close()
     randwalks = random.sample(walknos,ncolors)
     for w in randwalks:
@@ -171,14 +171,12 @@ def plotchains_init():
   plt.rc('text', usetex=True)
   global a_chain
   global a_samp
-  a_samp = 1./nsamps/nruns#nwalkers
+  a_samp = 1./nsamps/ncolors#ncolors#nwalkers
   a_chain = 1./nsamps/ntests#nwalkers#/ntests#/howmany*miniters
   #prepare to plot what some of the samples look like
   f_samps,sps_samps = plt.subplots(2, nsurvs, figsize = (5*nsurvs,5*2),sharex=True)#one plot per sample per survey
   #prepare to plot evolution of chains
   f_chains, sps_chains = plt.subplots(nsurvs, ndim, figsize=(5*ndim,5*nsurvs),sharey='row',sharex=True)
-  dummy_lnsamp = [-1.]*new_nbins
-  dummy_samp = [0.]*new_nbins
   dummy_chain = [-1.]*iters_all
   ##plot a few random samples
   #f_rando, sps_rando = plt.subplots(ntests, nsurvs, figsize = (5*nsurvs,5*ntests))
@@ -191,9 +189,9 @@ def plotchains_init():
     sps_samps[1][s].set_xlabel(r'$z$')
     sps_samps[1][s].set_ylabel(r'$N(z)$')
     sps_samps[1][s].set_title(r'Sampled $N(z)$ for $J_{0}='+str(seed_ngals[s])+r'$')
-    for t in testnos:
-        sps_samps[0][s].hlines(dummy_lnsamp,binlos,binhis,color=colors[t],label=setups[t])
-        sps_samps[1][s].hlines(dummy_samp,binlos,binhis,color=colors[t],label=setups[t])
+    #for t in testnos:
+    #    sps_samps[0][s].hlines(dummy_lnsamp,binlos,binhis,color=colors[t],label=setups[t])
+    #    sps_samps[1][s].hlines(dummy_samp,binlos,binhis,color=colors[t],label=setups[t])
     for k in dimnos:
         sps_chains[s][k].set_ylim(-1.,ymax[s]+1.)
         sps_chains[s][k].set_xlabel('iteration number')
@@ -214,23 +212,40 @@ def plotchains_init():
 def plotchains((s,n,t,r),sps_samps,sps_chains):#,sps_rando):
   #if r!=0:
     yfile = open(os.path.join(outpaths[s][n][t][3],filenames[r]),'r')
-    plot_y_ls = hkl.load(yfile)
+    plot_y_prep = hkl.load(yfile)
+    plot_y_ls = np.swapaxes(plot_y_prep,0,1)
     plot_y_s = np.exp(plot_y_ls)
     plot_y_c = plot_y_s.T
     yfile.close()
     randiters = random.sample(range_iters_each,ncolors)
     randwalks = random.sample(walknos,ncolors)
-    fittest = open(fitness[s][n],'a')
     #for w in randsamps:
     #    for x in randiters:
     #      sps_rando[s][t].hlines(plot_y_s[x][w],binlos,binhis,rasterized=True)
     for w in randwalks:#walknos:
-        for x in randiters:#runnos:
+        for x in randiters:#range_iters_each:
+            #fit_ls = np.dot((plot_y_ls[x][w]-full_logsampNz[s][n]),(plot_y_ls[x][w]-full_logsampNz[s][n]))
+            #fit_s = np.dot((plot_y_s[x][w]-full_sampNz[s][n]),(plot_y_s[x][w]-full_sampNz[s][n]))
             sps_samps[0][s].hlines(plot_y_ls[x][w],binlos,binhis,color=colors[t],alpha=a_samp,rasterized=True)
             sps_samps[1][s].hlines(plot_y_s[x][w],binlos,binhis,color=colors[t],alpha=a_samp,rasterized=True)
-            fittest.write(str(np.dot((plot_y_s[x][w]-full_sampNz[s][n]),(plot_y_s[x][w]-full_sampNz[s][n])))+'\n')
         for k in dimnos:
             sps_chains[s][k].plot(plot_iters_ranges[r],plot_y_c[k][w],color=colors[t],alpha=a_chain,rasterized=True)
+    fit_ls_prep = plot_y_ls-full_logsampNz[s][n]
+    fit_s_prep = plot_y_s-full_sampNz[s][n]
+    fittest = open(fitness[s][n][t],'rb')
+    [fit_ls,fit_s] = cPickle.load(fittest)
+    fittest.close()
+    for w in walknos:
+        f_ls,f_s = 0.,0.
+        for x in range_iters_each:
+            f_ls += np.dot(fit_ls_prep[x][w],fit_ls_prep[x][w])#plot_y_ls[x][w]-full_logsampNz[s][n],plot_y_ls[x][w]-full_logsampNz[s][n])
+            f_s += np.dot(fit_s_prep[x][w],fit_s_prep[x][w])#plot_y_s[x][w]-full_sampNz[s][n],plot_y_s[x][w]-full_sampNz[s][n])
+        fit_ls += f_ls
+        fit_s += f_s
+    fit_ls = fit_ls/iters_each/nwalkers
+    fit_s = fit_s/iters_each/nwalkers
+    fittest = open(fitness[s][n][t],'wb')
+    cPickle.dump([fit_ls,fit_s],fittest)
     fittest.close()
     return
 
@@ -238,14 +253,21 @@ def plotchains_wrapup(sampinfo,chaininfo):#,randinfo):
   sps_samps = sampinfo[1]
   sps_chains = chaininfo[1]
   #sps_rando = randinfo[1]
+  dummy_lnsamp = [-1.]*new_nbins
+  dummy_samp = [0.]*new_nbins
   for s in survnos:
       sps_samps[0][s].step(binmids,full_logflatNz[s],color='k',alpha=0.5,label=r'flat $\ln N(z)$',linewidth=2,where='mid',linestyle='--')
       sps_samps[1][s].step(binmids,full_flatNz[s],color='k',alpha=0.5,label=r'flat $N(z)$',linewidth=2,where='mid',linestyle='--')
+#       for t in testnos:
+#           sps_samps[0][s].hlines(dummy_lnsamp,binlos,binhis,color=colors[t],label=setups[t])#+r'$\sigma^{2}='+str(sampvar_l)+r'$')
+#           sps_samps[1][s].hlines(dummy_samp,binlos,binhis,color=colors[t],label=setups[t])#+r'$\sigma^{2}='+str(sampvar_s)+r'$')
       for n in sampnos:
-          sps_samps[0][s].step(binmids,logsheldon[s][n],color='k',alpha=0.5,label=r'Sheldon $\ln N(z)$ ',linewidth=2,where='mid')
-          sps_samps[1][s].step(binmids,sheldon[s][n],color='k',alpha=0.5,label=r'Sheldon $N(z)$ '+str(n+1),linewidth=2,where='mid')
-          sps_samps[0][s].hlines(logsheldon[s][n],binlos,binhis,color='k',alpha=0.5,linewidth=2)
-          sps_samps[1][s].hlines(sheldon[s][n],binlos,binhis,color='k',alpha=0.5,linewidth=2)
+          logdifsheldon,difsheldon = logsheldon[s][n]-full_logsampNz[s][n],sheldon[s][n]-full_sampNz[s][n]
+          logvarsheldon,varsheldon = np.dot(logdifsheldon,logdifsheldon),np.dot(difsheldon,difsheldon)
+          sps_samps[0][s].step(binmids,logsheldon[s][n],color='w',alpha=0.5,label=r'Sheldon $\ln N(z)$ '+str(n+1)+r' $\sigma^{2}='+str(int(logvarsheldon))+r'$',linewidth=2,where='mid')
+          sps_samps[1][s].step(binmids,sheldon[s][n],color='w',alpha=0.5,label=r'Sheldon $N(z)$ '+str(n+1)+r' $\sigma^{2}='+str(int(varsheldon))+r'$',linewidth=2,where='mid')
+          sps_samps[0][s].hlines(logsheldon[s][n],binlos,binhis,color='w',alpha=0.5,linewidth=2)
+          sps_samps[1][s].hlines(sheldon[s][n],binlos,binhis,color='w',alpha=0.5,linewidth=2)
 #          for t in range(0,ntests):
 #              sps_rando[s][t].hlines(logsampNz[s][n],binlos,binhis,color='k',alpha=0.5,label=r'sample $\ln N(z)$',linewidth=2)
 #              sps_rando[s][t].hlines(logobsNz[s][n],binlos,binhis,label=r'observed $\ln N(z)$',color='k',linewidth=2,linestyle='-')
@@ -254,6 +276,16 @@ def plotchains_wrapup(sampinfo,chaininfo):#,randinfo):
           sps_samps[0][s].hlines(full_logsampNz[s][n],binlos,binhis,color='k',linewidth=2)
           sps_samps[1][s].hlines(full_sampNz[s][n],binlos,binhis,color='k',linewidth=2)
               #sps_samps[s].hlines(logobsNz[s][n],binlos,binhis,label=r'observed $\ln N(z)$',color='k',linewidth=2)
+          for t in testnos:
+             varfile = open(fitness[s][n][t],'rb')
+             #print(cPickle.load(varfile))
+             #pdb.set_trace()
+             [sampvar_l,sampvar_s] = cPickle.load(varfile)#varfile.read().T
+             varfile.close()
+             #sampvar_l = sum(sampvar_l)
+             #sampvar_s = sum(sampvar_s)
+             sps_samps[0][s].hlines(dummy_lnsamp,binlos,binhis,color=colors[t],label=setups[t]+'\n'+r'$\sigma^{2}='+str(int(sampvar_l))+r'$')
+             sps_samps[1][s].hlines(dummy_samp,binlos,binhis,color=colors[t],label=setups[t]+'\n'+r'$\sigma^{2}='+str(int(sampvar_s))+r'$')
       for k in dimnos:
           sps_chains[s][k].step(plot_iters_all,[full_logflatNz[s][k]]*iters_all,color='k',label='flat value',linestyle='--')
           for n in sampnos:
