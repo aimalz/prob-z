@@ -7,6 +7,7 @@ import sys
 import math as m
 import scipy as sp
 from scipy import stats
+import emcee
 
 def cdf(weights):
     tot = sum(weights)
@@ -24,10 +25,51 @@ def choice(pop, weights):
     index = bisect.bisect(cdf_vals,x)
     return pop[index]
 
+#posterior distribution we will want to sample as class
+class post(object):
+
+    def __init__(self,idist,xvals,yprobs):#data are logged posteriors (nsamps*nbins), idist is mvn object
+        self.prior = idist
+        self.priormean = idist.mean
+        self.xgrid = xvals
+#        self.ndims = len(xvals)-1
+#        self.dims = range(0,self.ndims)
+        self.postprobs = yprobs
+        self.ndats = len(yprobs)
+#        self.lndats = np.log(self.ndats)
+        self.dats = range(0,self.ndats)
+        self.difs = self.xgrid[1:]-self.xgrid[:-1]#np.array([self.xgrid[k+1]-self.xgrid[k] for k in self.dims])
+        self.lndifs = np.log(self.difs)
+        self.constterm = self.lndifs-self.priormean
+
+    def priorprob(self,theta):#this is proportional to log probability
+        return self.prior.logpdf(theta)
+
+    def lnprob(self,theta):#speed this up some more with matrix magic?
+        constterms = theta+self.constterm
+        sumterm = self.priorprob(theta)-np.dot(np.exp(theta),self.difs)#this should sufficiently penalize poor samples but somehow fails on large datasets
+        #assert (sumterm <= 0.), ('theta='+str(theta)+', lnprob='+str(sumterm))
+        for j in self.dats:
+            #logterm = sp.misc.logsumexp(self.postprobs[j]+constterms)#shockingly slower!
+            #logterm = np.logaddexp(self.postprobs[j]+constterms)#only works for two terms
+            logterm = np.log(np.sum(np.exp(self.postprobs[j]+constterms)))
+            sumterm += logterm
+        #have been getting positive lnprob values (i.e. probabilities>1), get reasonable samples if capped at 0 but still investigating
+        #assert (sumterm <= 0.), ('theta='+str(theta)+', lnprob='+str(sumterm))
+        #in run from which plots were generated, the following was uncommented!
+        #if sumterm <= 0.:
+        #    return sumterm
+        #else:
+        #    return 0.
+        return sumterm
+
 class persamp(object):
 
   def __init__(self,meta,p_run,s_run,n):
 
+    self.p = p_run.p
+    self.s = s_run.s
+    self.n = n
     #sample some number of galaxies
     self.nsamps = meta.samps
     self.ngals = s_run.seed#nsamps*[seed]
@@ -36,7 +78,7 @@ class persamp(object):
     self.galnos = range(0,self.ngals)
     #print([j for j in self.galnos])
 
-    self.topdir_n = s_run.topdir_s+'/'+str(n)+'-'+str(self.ngals)
+    self.topdir_n = s_run.topdir_s+'/'+str(self.n)+'-'+str(self.ngals)
     if not os.path.exists(self.topdir_n):
       os.makedirs(self.topdir_n)
 
@@ -64,7 +106,7 @@ class persamp(object):
       #plotcounts = [[[max(bincounts[s][n][k]/zdifs[k],sys.float_info.epsilon) for k in binnos] for n in sampnos] for s in survnos]
       #logplotcounts = np.log(np.array(plotcounts))
 
-        sampNz = count/p_run.zdif
+        sampNz = count/meta.zdif
         logsampNz = np.log(np.array([max(o,sys.float_info.epsilon) for o in sampNz]))
 
       #sampNz = np.array([[bincounts[s][n]/zdif for n in sampnos] for s in survnos])
@@ -86,6 +128,15 @@ class persamp(object):
 
     [self.count,(self.sampPz,self.logsampPz),(self.sampNz,self.logsampNz)] = maketrue(self)
 
+    #  #turn bin numbers into redshifts for histogram later
+      #  idealZs = np.array([[zmids[k] for k in binnos] for j in range(0,int(round(trueNz[k])))])
+
+      #assign actual redshifts uniformly within each bin
+      #trueZs = ([random.uniform(zlos[k],zhis[k]) for k in binnos for j in range(0,count[k])])
+
+      #test case: all galaxies have same true redshift
+    self.trueZs = np.array([p_run.zmids[k] for k in p_run.binnos for j in range(0,self.count[k])])
+
     #generate the catalog of individual galaxy posteriors
     def makecat(self):
 
@@ -94,18 +145,10 @@ class persamp(object):
         [shiftZs,sigZs] = cPickle.load(catfile)
         catfile.close()
       else:
-      #  #turn bin numbers into redshifts for histogram later
-      #  idealZs = np.array([[zmids[k] for k in binnos] for j in range(0,int(round(trueNz[k])))])
-
-      #assign actual redshifts uniformly within each bin
-      #trueZs = ([random.uniform(zlos[k],zhis[k]) for k in binnos for j in range(0,count[k])])
-
-      #test case: all galaxies have same true redshift
-        trueZs = np.array([p_run.zmids[k] for k in p_run.binnos for j in range(0,self.count[k])])
 
       #jitter zs to simulate inaccuracy
         modZs = trueZs+1.#[[trueZs[s][n]+1. for n in sampnos] for s in survnos]
-        varZs = [p_run.zdif*modZs[j] for j in self.galnos]# for n in sampnos] for s in survnos])#zdif*(trueZs+1.)
+        varZs = [meta.zdif*modZs[j] for j in self.galnos]# for n in sampnos] for s in survnos])#zdif*(trueZs+1.)
         shiftZs = np.array([random.gauss(trueZs[j],varZs[j]) for j in self.galnos])
         sigZs = np.array([abs(random.gauss(varZs[j],varZs[j])) for j in self.galnos])
       #print(modZs,varZs,sigZs)
@@ -130,8 +173,8 @@ class persamp(object):
     #redefine bins
       minobs = min(self.obsZs)
       maxobs = max(self.obsZs)
-      binfront = [min(p_run.zlos)+x*p_run.zdif for x in range(int(m.floor((minobs-min(p_run.zlos))/p_run.zdif)),0)]
-      binback = [max(p_run.zhis)+x*p_run.zdif for x in range(1,int(m.ceil((maxobs-max(p_run.zhis))/p_run.zdif)))]
+      binfront = [min(p_run.zlos)+x*meta.zdif for x in range(int(m.floor((minobs-min(p_run.zlos))/meta.zdif)),0)]
+      binback = [max(p_run.zhis)+x*meta.zdif for x in range(1,int(m.ceil((maxobs-max(p_run.zhis))/meta.zdif)))]
       binends = np.array(binfront+sorted(set(p_run.zlos+p_run.zhis))+binback)
       binlos = binends[:-1]
       binhis = binends[1:]
@@ -149,23 +192,70 @@ class persamp(object):
     #simultaneously generate sheldon "posterior"
       pobs = []
       logpobs = []
+      obshist = [0]*self.new_binnos
       for j in self.galnos:
         func = sp.stats.norm(loc=self.obsZs[j],scale=self.obserrs[j])
         lo = np.array([max(sys.float_info.epsilon,func.cdf(self.binends[k])) for k in self.new_binnos])
         hi = np.array([max(sys.float_info.epsilon,func.cdf(self.binends[k+1])) for k in self.new_binnos])
-        spread = (hi-lo)/p_run.zdif
+        spread = (hi-lo)/meta.zdif
       #normalize probabilities to integrate (not sum)) to 1
         summed = sum(spread)
-        pob = spread/summed/p_run.zdif
+        pob = spread/summed/meta.zdif
         logpob = [m.log(max(p_i,sys.float_info.epsilon)) for p_i in pob]
         logpobs.append(logpob)
         pobs.append(pob)
+        for k in self.new_binnos:
+          if self.obsZs[j]>self.new_binends[k] and self.obsZs[j]<self.new_binends[k+1]:
+            obshist[k]+=1
       pobs = np.array(pobs)
       logpobs = np.array(logpobs)
-      sheldonprep = np.sum(np.array(pobs),axis=0)
-      sheldon = [max(sys.float_info.epsilon,sheldonprep[k]) for k in self.new_binnos]
-      logsheldon = np.log(np.array(sheldon))
+      stackprep = np.sum(np.array(pobs),axis=0)
+      stack = np.array([max(sys.float_info.epsilon,stackprep[k]) for k in self.new_binnos])
+      logstack = np.log(stack)
+      obshist = np.array(obshist)
+      logobshist = np.log(obshist)
 
-      return([pobs,logpobs],[sheldon,logsheldon])
+      return([pobs,logpobs],[stack,logstack],[obshist,logobshist])
 
-    [self.pobs,self.logpobs],[self.sheldon,self.logsheldon] = makepdfs(self)
+    [self.pobs,self.logpobs],[self.stack,self.logstack],[self.obshist,self.logobshist] = makepdfs(self)
+
+    def makesummary(self):
+
+      #define true N(z),P(z) for plotting given number of galaxies
+      full_trueNz = np.append(np.array([sys.float_info.epsilon]*len(self.binfront)),(np.append(s_run.trueNz,np.array([sys.float_info.epsilon]*len(self.binback)))))
+      full_logtrueNz = np.log(full_trueNz)
+      #full_truePz = [np.append(np.array([sys.float_info.epsilon]*len(binfront)),(np.append(truePz[s],np.array([sys.float_info.epsilon]*len(binback))))) for s in survnos]
+      #full_logtruePz = [[m.log(full_truePz[s][k]) for k in new_binnos] for s in survnos]
+
+      #define flat N(z),P(z) for plotting
+      full_flatNz = 1./meta.zdif/self.new_nbins#[np.array([p_run.avgprob]*new_nbins) for f in flat]
+      full_logflatNz = np.log(full_flatNz)#[np.array([lf]*new_nbins) for lf in logflat]
+      #full_flatPz = [np.array([avgprob]*new_nbins) for s in survnos]
+      #full_logflatPz = [np.array([logavgprob]*new_nbins) for s in survnos]
+
+      #define sampled N(z),P(z) for plotting
+      full_sampNz = np.append(np.array([sys.float_info.epsilon]*len(self.binfront)),(np.append(self.sampNz,np.array([sys.float_info.epsilon]*len(self.binback)))))
+      full_logsampNz = np.append(np.array([sys.float_info.epsilon]*len(self.binfront)),(np.append(self.logsampNz,np.array([sys.float_info.epsilon]*len(self.binback)))))
+      #full_sampPz = [[np.append(np.array([sys.float_info.epsilon]*len(binfront)),(np.append(sampPz[s][n],np.array([sys.float_info.epsilon]*len(binback))))) for n in sampnos] for s in survnos]
+      #full_logsampPz = [[np.append(np.array([sys.float_info.epsilon]*len(binfront)),(np.append(logsampPz[s][n],np.array([sys.float_info.epsilon]*len(binback))))) for n in sampnos] for s in survnos]#[[np.log(full_sampPz[s][n]) for n in sampnos] for s in survnos]
+
+      return([(full_trueNz,full_logtrueNz),(full_flatNz,full_logflatNz),(full_sampNz,full_logsampNz)])
+
+    [(self.full_trueNz,self.full_logtrueNz),(self.full_flatNz,self.full_logflatNz),(self.full_sampNz,self.full_logsampNz)] = makesummary(self)
+
+    self.priordist = meta.mvn(self.full_logflatNz,np.identity(self.new_nbins))
+
+    # q=1.#0.5
+    # e=0.1/p_run.zdif**2
+    # tiny=q*1e-6
+    # covmat = np.array([[q*m.exp(-0.5*e*(self.binmids[a]-self.binmids[b])**2.) for a in range(0,p_run.nbins)] for b in range(0,p_run.nbins)])+tiny*np.identity(p_run.nbins) for ndim in ndims]
+    # priordist = meta.mvn(self.full_logflatNz,covmat)
+
+    #how many walkers
+    self.nwalkers = 2*self.new_nbins
+    self.walknos = range(0,self.nwalkers)
+
+    self.postdist = post(self.priordist,self.binends,self.logpobs)
+
+    self.sampler = emcee.EnsembleSampler(self.nwalkers,p_run.ndims,self.postdist.lnprob)
+

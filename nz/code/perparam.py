@@ -7,7 +7,8 @@ class perparam(object):
 
   def __init__(self,meta,p):
 
-    self.nbins = meta.params[p]
+    self.p = p
+    self.nbins = meta.params[self.p]
     self.binnos = range(0,self.nbins)
     self.zlos = meta.allzlos[:self.nbins]
     self.zhis = meta.allzhis[:self.nbins]
@@ -15,20 +16,22 @@ class perparam(object):
     #use centers of bins for plotting
     self.zmids = [(self.zlos[k]+self.zhis[k])/2. for k in self.binnos]
     self.zavg = sum(self.zmids)/self.nbins
-    self.zdifs = [self.zhis[k]-self.zlos[k] for k in self.binnos]
-    self.zdif = sum(self.zdifs)/self.nbins
+    #self.zdifs = [self.zhis[k]-self.zlos[k] for k in self.binnos]
+    #self.zdif = sum(self.zdifs)/self.nbins
 
     #set true values of P(z) for this number of parameters
     self.realsum = sum(meta.realistic[:self.nbins])
-    self.realistic_pdf = np.array([meta.realistic[k]/self.realsum/self.zdifs[k] for k in self.binnos])
+    self.realistic_pdf = np.array([meta.realistic[k]/self.realsum/meta.zdifs[k] for k in self.binnos])
     self.truePz = self.realistic_pdf#[realistic_pdf for s in survnos]
     self.logtruePz = np.array([m.log(max(self.truePz[k],sys.float_info.epsilon)) for k in self.binnos])
 
-    self.avgprob = 1./self.nbins/self.zdif
+    self.avgprob = 1./self.nbins/meta.zdif
     self.logavgprob = m.log(self.avgprob)
-    self.flatPz = np.array([self.avgprob]*self.nbins)
-    self.logflatPz = np.log(self.flatPz)
+    self.flatPz = [self.avgprob]*self.nbins
+    self.logflatPz = [self.logavgprob]*self.nbins
 
     self.topdir_p = meta.topdir+'/'+str(self.nbins)
     if not os.path.exists(self.topdir_p):
       os.makedirs(self.topdir_p)
+
+meta.queues[0].put()
