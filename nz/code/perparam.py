@@ -34,4 +34,4 @@ class perparam(object):
     if not os.path.exists(self.topdir_p):
       os.makedirs(self.topdir_p)
 
-#meta.queues[0].put()
+    print('initialized '+str(self.ndims)+' parameter test')

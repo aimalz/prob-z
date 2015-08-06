@@ -2,7 +2,7 @@ import math as m
 import sys
 import numpy as np
 import os
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 class persurv(object):
 
@@ -25,19 +25,21 @@ class persurv(object):
     if not os.path.exists(self.topdir_s):
       os.makedirs(self.topdir_s)
 
-  def plot_setup(self):
-    f = plt.figure(figsize=(5,5))#*nsurvs,5))#plt.subplots(1, nsurvs, figsize=(5*nsurvs,5))
-    #print 'created subplots'
-    #for s in survnos:
-    sps = f.add_subplot(1,1,1)#,nsurvs,s+1)
-    sps.set_title(r'True $N(z)$ for '+str(s_run.seed)+' galaxies')
-    sps.set_xlabel(r'binned $z$')
-    sps.set_ylabel(r'$\ln N(z)$')
-    #sps.hlines(logtrueNz[s],zlos,zhis,color='k',linestyle='--',label=r'true $\ln N(z)$')
-    sps.step(meta.zmids,s_run.logflatNz,color='k',label=r'flat $\ln N(z)$',where='mid')
-    # thing.step(zmids,[-10]*ndims,color='k',label=r'$J='+str(seed_ngals[s])+r'$')
+#   def plot_setup(self):
+#     f = plt.figure(figsize=(5,5))#*nsurvs,5))#plt.subplots(1, nsurvs, figsize=(5*nsurvs,5))
+#     #print 'created subplots'
+#     #for s in survnos:
+#     sps = f.add_subplot(1,1,1)#,nsurvs,s+1)
+#     sps.set_title(r'True $N(z)$ for '+str(s_run.seed)+' galaxies')
+#     sps.set_xlabel(r'binned $z$')
+#     sps.set_ylabel(r'$\ln N(z)$')
+#     #sps.hlines(logtrueNz[s],zlos,zhis,color='k',linestyle='--',label=r'true $\ln N(z)$')
+#     sps.step(meta.zmids,s_run.logflatNz,color='k',label=r'flat $\ln N(z)$',where='mid')
+#     # thing.step(zmids,[-10]*ndims,color='k',label=r'$J='+str(seed_ngals[s])+r'$')
 
-  def plot_wrapup(self):
-    sps.set_ylim((-1.,ymax[s]+1.))
-    sps.legend(loc='upper left',fontsize='x-small')
-    f.savefig(os.path.join(s_run.topdir_s,'trueNz.png'))
+#   def plot_wrapup(self):
+#     sps.set_ylim((-1.,ymax[s]+1.))
+#     sps.legend(loc='upper left',fontsize='x-small')
+#     f.savefig(os.path.join(s_run.topdir_s,'trueNz.png'))
+
+    print('initialized '+str(self.seed)+' galaxy survey')

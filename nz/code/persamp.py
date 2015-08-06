@@ -91,6 +91,7 @@ class persamp(object):
         truefile = open(os.path.join(self.topdir_n,'true.p'),'rb')#open(str(n+1)+'datacat'+str(seed_ngals[s])+'.p','w')
         [count,(sampPz,logsampPz),(sampNz,logsampNz)] = cPickle.load(truefile)
         truefile.close()
+
       else:
       ##randomly select bin counts from true N(z)
       # count = [0]*nbins
@@ -126,6 +127,7 @@ class persamp(object):
         truefile = open(os.path.join(self.topdir_n,'true.p'),'wb')#open(str(n+1)+'datacat'+str(seed_ngals[s])+'.p','w')
         cPickle.dump([count,(sampPz,logsampPz),(sampNz,logsampNz)],truefile)
         truefile.close()
+        print('simulated sample '+str(self.n+1)+' of '+str(self.ngals)+' galaxies')
 
       return([count,(sampPz,logsampPz),(sampNz,logsampNz)])
 
@@ -166,6 +168,8 @@ class persamp(object):
         catfile = open(os.path.join(self.topdir_n,'datacat.p'),'wb')#open(str(n+1)+'datacat'+str(seed_ngals[s])+'.p','w')
         cPickle.dump([shiftZs,sigZs],catfile)
         catfile.close()
+
+        print('observed sample '+str(self.n+1)+' of '+str(self.ngals)+' galaxies')
 
       return(shiftZs,sigZs)
 
@@ -218,6 +222,8 @@ class persamp(object):
       obshist = np.array(obshist)
       logobshist = np.log(obshist)
 
+      print('processed sample '+str(self.n+1)+' of '+str(self.ngals)+' galaxies')
+
       return([pobs,logpobs],[stack,logstack],[obshist,logobshist])
 
     [self.pobs,self.logpobs],[self.stack,self.logstack],[self.obshist,self.logobshist] = makepdfs(self)
@@ -265,4 +271,3 @@ class persamp(object):
     self.postdist = post(self.priordist,self.binends,self.logpobs)
 
     self.sampler = emcee.EnsembleSampler(self.nwalkers,p_run.ndims,self.postdist.lnprob)
-

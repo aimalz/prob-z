@@ -5,7 +5,9 @@ from setup import *
 import timeit
 import random
 import math as m
+import statistics
 import hickle as hkl
+import cPickle
 
 #complicated plots
 
@@ -14,7 +16,7 @@ def plottimes_init(survinfo):
 
   (meta,p_run,s_run) = survinfo
 
-  print 'plottimes_init'
+  #print 'plottimes_init'
   plt.rc('text', usetex=True)
   #f_times,sps_times = plt.subplots(1, 1, figsize = (5,5))
   f = plt.figure(figsize=(5,5))
@@ -42,8 +44,19 @@ def plottimes(testinfo,sps):
 
     yfile = open(os.path.join(i_run.topdirs_o[0],meta.filenames[r]),'r')
     plot_y = hkl.load(yfile).T
-    sps.scatter([meta.iternos[r]]*meta.params[p_run.p],plot_y,c=meta.colors[i_run.i],alpha=a_times,linewidths=0.1,s=meta.params[p_run.p],rasterized=True)
     yfile.close()
+
+    varfile = open(i_run.fitness[0],'rb')
+    [[tot_var_y],each_var_y] = cPickle.load(varfile)
+    varfile.close()
+    var_y = statistics.variance(plot_y)
+    tot_var_y = tot_var_y+var_y/meta.ntimes
+    each_var_y.append(var_y)
+    varfile = open(i_run.fitness[0],'wb')
+    cPickle.dump([[tot_var_y],each_var_y],varfile)
+    varfile.close()
+
+    sps.scatter([meta.iternos[r]]*meta.params[p_run.p],plot_y,c=meta.colors[i_run.i],alpha=a_times,linewidths=0.1,s=meta.params[p_run.p],rasterized=True)
     return
 
 #prepare to plot acceptance fractions as function of iteration number, one plot per survey
@@ -51,7 +64,7 @@ def plotfracs_init(survinfo):
 
   (meta,p_run,s_run) = survinfo
 
-  print 'plotfracs_init'
+  #print 'plotfracs_init'
   plt.rc('text', usetex=True)
   global a_fracs
   a_fracs = 1./p_run.ndims/meta.samps
@@ -71,15 +84,26 @@ def plotfracs_init(survinfo):
     #print 'done'
   return(f,sps)
 
-def plotfracs(testinfo,sps_fracs):
+def plotfracs(testinfo,sps):
 
     (meta,p_run,s_run,n_run,i_run,r) = testinfo
 
     yfile = open(os.path.join(i_run.topdirs_o[1],meta.filenames[r]),'r')
     plot_y = hkl.load(yfile).T
     yfile.close()
+
+    varfile = open(i_run.fitness[1],'rb')
+    [[tot_var_y],each_var_y] = cPickle.load(varfile)
+    varfile.close()
+    var_y = statistics.variance(plot_y)
+    tot_var_y = tot_var_y+var_y/meta.ntimes
+    each_var_y.append(var_y)
+    varfile = open(i_run.fitness[1],'wb')
+    cPickle.dump([[tot_var_y],each_var_y],varfile)
+    varfile.close()
+
     #for i in walknos:
-    sps_fracs.scatter([meta.iternos[r]]*n_run.nwalkers,plot_y,c=meta.colors[i_run.i],alpha=a_fracs,linewidths=0.1,s=p_run.ndims,rasterized=True)
+    sps.scatter([meta.iternos[r]]*n_run.nwalkers,plot_y,c=meta.colors[i_run.i],alpha=a_fracs,linewidths=0.1,s=p_run.ndims,rasterized=True)
     return
 
 #prepare to plot lnprobs as function of iteration number, one plot per survey
@@ -87,7 +111,7 @@ def plotprobs_init(survinfo):
 
   (meta,p_run,s_run) = survinfo
 
-  print 'plotprobs_init'
+  #print 'plotprobs_init'
   plt.rc('text', usetex=True)
   global a_probs
   a_probs = 1./meta.ncolors/meta.samps
@@ -97,14 +121,15 @@ def plotprobs_init(survinfo):
 #  if nsurvs == 1:
 #    sps_probs = [sps_probs]
 #  for s in survnos:
-  sps.set_ylim(-100,0)
+ # sps.set_ylim(-25,0)
   sps.set_title(r'Sample Probability Evolution for $J_{0}='+str(s_run.seed)+r'$')
   sps.set_ylabel('log probability of walker')
   sps.set_xlabel('iteration number')
+  sps.set_xlim(0,meta.maxiters)
   dummy_rec = [0]*meta.nsteps
   for i in meta.initnos:
-      sps.plot(meta.iternos,dummy_rec,c=meta.colors[i],label=meta.init_names[i])
-  sps.legend(fontsize='small',loc='lower right')
+      sps.plot([-1.]*meta.nsteps,dummy_rec,c=meta.colors[i],label=meta.init_names[i])
+  sps.legend(fontsize='x-small',loc='lower right')
     #print 'done'
   return(f,sps)
 
@@ -115,6 +140,17 @@ def plotprobs(testinfo,sps):
     yfile = open(os.path.join(i_run.topdirs_o[2],meta.filenames[r]),'r')
     plot_y = np.swapaxes(hkl.load(yfile),0,1).T#hkl.load(yfile).T
     yfile.close()
+
+    varfile = open(i_run.fitness[2],'rb')
+    [[tot_var_y],each_var_y] = cPickle.load(varfile)
+    varfile.close()
+    var_y = sum([statistics.variance(plot_y[w])/n_run.nwalkers for w in n_run.walknos])
+    tot_var_y = tot_var_y+var_y/meta.ntimes
+    each_var_y.append(var_y)
+    varfile = open(i_run.fitness[2],'wb')
+    cPickle.dump([[tot_var_y],each_var_y],varfile)
+    varfile.close()
+
     #randwalks = random.sample(n_run.walknos,meta.ncolors)
     for w in n_run.walknos:#randwalks:
         sps.plot(meta.eachtimenos[r],plot_y[w],c=meta.colors[i_run.i],alpha=a_probs,rasterized=True)
@@ -122,16 +158,16 @@ def plotprobs(testinfo,sps):
 
 #plot accepted N(z) aggregate and as a function of iteration number#one plot per survey
 
-def plotchains_init(sampinfo):
+def plotchains_init(initinfo):
 
-  (meta,p_run,s_run,n_runs) = sampinfo
+  (meta,p_run,s_run,n_runs,i_runs) = initinfo
 
-  print 'plotchains_init'
+  #print 'plotchains_init'
   plt.rc('text', usetex=True)
   global a_chain
   global a_samp
   a_samp = 1./meta.ninits/meta.ncolors#nwalkers
-  a_chain = 1./meta.ninits#/meta.ncolors#nwalkers#/ntests#/howmany*miniters
+  a_chain = 1./meta.ninits/meta.ncolors#nwalkers#/ntests#/howmany*miniters
   #prepare to plot what some of the samples look like
   f_samps = plt.figure(figsize=(5*meta.samps,5*2))#,sps_samps = plt.subplots(2,meta.samps,figsize =(5*meta.samps,5*2),sharex=True)#one subplot per sample
   gs_samps = matplotlib.gridspec.GridSpec(2,meta.samps)
@@ -163,12 +199,17 @@ def plotchains_init(sampinfo):
     maxn = max(n_runs[n].binnos for n in meta.sampnos)
     for k in n_runs[n].binnos:
         #sps_chains[n][k] = f_chains.add_subplot(meta.samps,maxk,n*maxk+k)
-        sps_chains[n][k].set_ylim(-m.log(s_run.seed),m.log(s_run.seed/meta.zdif))#n_runs[n].full_logsampNz[k]+m.log(s_run.seed/meta.zdif))
+        sps_chains[n][k].set_ylim(-m.log(s_run.seed),m.log(s_run.seed/meta.zdif)+1.)#n_runs[n].full_logsampNz[k]+m.log(s_run.seed/meta.zdif))
+        sps_chains[n][k].set_xlim(0,meta.maxiters)
         sps_chains[n][k].set_xlabel('iteration number')
         sps_chains[n][k].set_ylabel(r'$\ln N_{'+str(k+1)+'}(z)$')
         sps_chains[n][k].set_title(str(s_run.seed)+r' galaxies: Parameter '+str(k+1)+' of '+str(n_runs[n].nbins))
         for i in meta.initnos:
-            sps_chains[n][k].plot(meta.iternos,dummy_chain,color=meta.colors[i],label=meta.init_names[i])
+            varfile = open(i_runs[n][i].fitness[3],'wb')
+            cPickle.dump([[0.,0.],[[],[]]],varfile)
+            varfile.close()
+
+            sps_chains[n][k].plot([-1.]*meta.nsteps,dummy_chain,color=meta.colors[i],label=meta.init_names[i])
 #            else:
 #             for t in testnos:
 #               sps_chains[s][k].plot(plot_iters_all,[logobsNz[s][n][k]]*iters_all,color=colors[t])
@@ -188,6 +229,7 @@ def plotchains(testinfo,sps_samps,sps_chains):#,sps_rando):
     plot_y_s = np.exp(plot_y_ls)
     plot_y_c = plot_y_ls.T
     yfile.close()
+
     #randiters = random.sample(meta.timenos,meta.ncolors)
     randwalks = random.sample(n_run.walknos,meta.ncolors)
     #for w in randsamps:
@@ -202,23 +244,37 @@ def plotchains(testinfo,sps_samps,sps_chains):#,sps_rando):
           sps_samps[1][n_run.n].hlines(plot_y_s[x][w],n_run.binlos,n_run.binhis,color=meta.colors[i_run.i],alpha=a_samp,rasterized=True)
           for k in n_run.binnos:
             sps_chains[n_run.n][k].plot(meta.eachtimenos[r],plot_y_c[k][w],color=meta.colors[i_run.i],alpha=a_chain,rasterized=True)
-    fit_ls_prep = plot_y_ls-n_run.full_logsampNz
-    fit_s_prep = plot_y_s-n_run.full_sampNz
-    fittest = open(i_run.fitness,'rb')
-    [fit_ls,fit_s] = cPickle.load(fittest)
-    fittest.close()
-    for w in n_run.walknos:
-        f_ls,f_s = 0.,0.
-        for x in meta.timenos:#eachiternos[r]:
-            f_ls += np.dot(fit_ls_prep[x][w],fit_ls_prep[x][w])#plot_y_ls[x][w]-full_logsampNz[s][n],plot_y_ls[x][w]-full_logsampNz[s][n])
-            f_s += np.dot(fit_s_prep[x][w],fit_s_prep[x][w])#plot_y_s[x][w]-full_sampNz[s][n],plot_y_s[x][w]-full_sampNz[s][n])
-        fit_ls += f_ls
-        fit_s += f_s
-    fit_ls = fit_ls/meta.ntimes/n_run.nwalkers
-    fit_s = fit_s/meta.ntimes/n_run.nwalkers
-    fittest = open(i_run.fitness,'wb')
-    cPickle.dump([fit_ls,fit_s],fittest)
-    fittest.close()
+
+    varfile = open(i_run.fitness[3],'rb')
+    [[tot_ls,tot_s],[each_ls,each_s]] = cPickle.load(varfile)
+    varfile.close()
+    var_ls = sum([sum([statistics.pvariance(plot_y_c[k][w],mu=n_run.full_logsampNz[k])/n_run.nbins for k in n_run.binnos])/n_run.nwalkers for w in n_run.walknos])
+    var_s = sum([sum([statistics.pvariance(np.exp(plot_y_c[k][w]),mu=n_run.full_sampNz[k])/n_run.nbins for k in n_run.binnos])/n_run.nwalkers for w in n_run.walknos])
+    tot_ls = tot_ls+var_ls/meta.ntimes
+    tot_s = tot_s+var_s/meta.ntimes
+    each_ls.append(var_ls)
+    each_s.append(var_s)
+    varfile = open(i_run.fitness[3],'wb')
+    cPickle.dump([[tot_ls,tot_s],[each_ls,each_s]],varfile)
+    varfile.close()
+
+#     fit_ls_prep = plot_y_ls-n_run.full_logsampNz
+#     fit_s_prep = plot_y_s-n_run.full_sampNz
+#     fittest = open(i_run.fitness,'rb')
+#     [fit_ls,fit_s] = cPickle.load(fittest)
+#     fittest.close()
+#     for w in n_run.walknos:
+#         f_ls,f_s = 0.,0.
+#         for x in meta.timenos:#eachiternos[r]:
+#             f_ls += np.dot(fit_ls_prep[x][w],fit_ls_prep[x][w])#plot_y_ls[x][w]-full_logsampNz[s][n],plot_y_ls[x][w]-full_logsampNz[s][n])
+#             f_s += np.dot(fit_s_prep[x][w],fit_s_prep[x][w])#plot_y_s[x][w]-full_sampNz[s][n],plot_y_s[x][w]-full_sampNz[s][n])
+#         fit_ls += f_ls
+#         fit_s += f_s
+#     fit_ls = fit_ls/meta.ntimes/n_run.nwalkers
+#     fit_s = fit_s/meta.ntimes/n_run.nwalkers
+#     fittest = open(i_run.fitness,'wb')
+#     cPickle.dump([fit_ls,fit_s],fittest)
+#     fittest.close()
     return
 
 def plotchains_wrapup(allinfo,(sampinfo,chaininfo)):#,randinfo):
@@ -238,9 +294,10 @@ def plotchains_wrapup(allinfo,(sampinfo,chaininfo)):#,randinfo):
 #           sps_samps[0][s].hlines(dummy_lnsamp,binlos,binhis,color=colors[t],label=setups[t])#+r'$\sigma^{2}='+str(sampvar_l)+r'$')
 #           sps_samps[1][s].hlines(dummy_samp,binlos,binhis,color=colors[t],label=setups[t])#+r'$\sigma^{2}='+str(sampvar_s)+r'$')
       logdifstack,difstack = n_run.logstack-n_run.full_logsampNz,n_run.stack-n_run.full_sampNz
-      logvarstack,varstack = np.dot(logdifstack,logdifstack),np.dot(difstack,difstack)
-      sps_samps[0][n].step(n_run.binhis,n_run.logstack,color='k',alpha=0.5,label=r'Stacked $\ln N(z)$ $\sigma^{2}='+str(round(logvarstack))+r'$',linewidth=2,where='post')
-      sps_samps[1][n].step(n_run.binhis,n_run.stack,color='k',alpha=0.5,label=r'Stacked $N(z)$ $\sigma^{2}='+str(round(varstack))+r'$',linewidth=2,where='post')
+      logvarstack,varstack = np.dot(logdifstack,logdifstack)/n_run.nbins,np.dot(difstack,difstack)/n_run.nbins
+      #varlogstack = sum([statistics.pvariance([n_run.logstack[k]],mu=n_run.full_logsampNz[k]) for k in n_run.binnos])/n_run.nbins
+      sps_samps[0][n].step(n_run.binhis,n_run.logstack,color='k',alpha=0.5,linewidth=2,where='post',label=r'Stacked $\ln N(z)$ $\sigma^{2}='+str(logvarstack)+r'$')#,linewidth=2,where='post')
+      sps_samps[1][n].step(n_run.binhis,n_run.stack,color='k',alpha=0.5,linewidth=2,where='post',label=r'Stacked $N(z)$ $\sigma^{2}='+str(varstack)+r'$')#,linewidth=2,where='post')
       #sps_samps[0][n].hlines(n_run.logstack,n_run.binlos,n_run.binhis,color='k',alpha=0.5,linewidth=2)
       #sps_samps[1][n].hlines(n_run.stack,n_run.binlos,n_run.binhis,color='k',alpha=0.5,linewidth=2)
       #sps_samps[0][n].hlines(n_run.logstack,n_run.binlos,n_run.binhis,color='k',alpha=0.5,linewidth=2,label=r'Stacked $\ln N(z)$: $\sigma^{2}='+str(round(logvarstack))+r'$')
@@ -257,15 +314,19 @@ def plotchains_wrapup(allinfo,(sampinfo,chaininfo)):#,randinfo):
               #sps_samps[s].hlines(logobsNz[s][n],binlos,binhis,label=r'observed $\ln N(z)$',color='k',linewidth=2)
       for i in meta.initnos:
           i_run = i_runs[n][i]
-          varfile = open(i_run.fitness,'rb')
-             #print(cPickle.load(varfile))
-             #pdb.set_trace()
-          [sampvar_l,sampvar_s] = cPickle.load(varfile)#varfile.read().T
+          varfile = open(i_run.fitness[3],'rb')
+          [[tot_ls,tot_s],[each_ls,each_s]] = cPickle.load(varfile)
           varfile.close()
+
+          #varfile = open(i_run.fitness,'rb')
+          #   #print(cPickle.load(varfile))
+          #   #pdb.set_trace()
+          #[sampvar_l,sampvar_s] = cPickle.load(varfile)#varfile.read().T
+          #varfile.close()
              #sampvar_l = sum(sampvar_l)
              #sampvar_s = sum(sampvar_s)
-          sps_samps[0][n].hlines(dummy_lnsamp,n_run.binlos,n_run.binhis,color=meta.colors[i],label=meta.init_names[i]+'\n'+r'$\sigma^{2}='+str(sampvar_l)+r'$')
-          sps_samps[1][n].hlines(dummy_samp,n_run.binlos,n_run.binhis,color=meta.colors[i],label=meta.init_names[i]+'\n'+r'$\sigma^{2}='+str(sampvar_s)+r'$')
+          sps_samps[0][n].hlines(dummy_lnsamp,n_run.binlos,n_run.binhis,color=meta.colors[i],label=meta.init_names[i]+'\n'+r'$\sigma^{2}='+str(tot_ls)+r'$')#str(sampvar_l)+r'$')
+          sps_samps[1][n].hlines(dummy_samp,n_run.binlos,n_run.binhis,color=meta.colors[i],label=meta.init_names[i]+'\n'+r'$\sigma^{2}='+str(tot_s)+r'$')
       for k in n_run.binnos:
           sps_chains[n][k].step(meta.iternos,[n_run.full_logflatNz[k]]*meta.nsteps,color='k',label='Flat value',linestyle='--')
           #for n in sampnos:
@@ -291,7 +352,7 @@ def plots_setup(allinfo,q):
         info = plotprobs_init(allinfo)
     if q == 3:
       #(meta,p_run,s_run,n_runs) = allinfo
-      allinfo = allinfo[:-1]
+      allinfo = allinfo#[:-1]
       info = plotchains_init(allinfo)
     return(info)
 

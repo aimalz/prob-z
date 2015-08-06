@@ -23,7 +23,7 @@ class setup(object):
       self.topdir = 'test'+str(round(timeit.default_timer()))
       cPickle.dump(self.topdir,open('topdir.p','wb'))
       os.makedirs(self.topdir)
-    print('topdir='+str(self.topdir))
+    #print('topdir='+str(self.topdir))
 
     self.calctime = os.path.join(self.topdir,'calctimer.txt')
     open(self.calctime, 'w').close()
@@ -69,7 +69,7 @@ class setup(object):
 
     #tuples of form z_center, spread,magnitude
     self.real = [(0.2,0.005,2.0),(0.4,0.005,1.25),(0.5,0.1,2.0),(0.6,0.005,1.25),(0.8,0.005,1.25),(1.0,0.005,0.75)]#mean,weight,width
-    print('real='+str(self.real))
+    #print('real='+str(self.real))
     self.nreal = len(self.real)
     self.realnos = range(0,self.nreal)
 
@@ -82,7 +82,7 @@ class setup(object):
     #set up for all tests
     #numbers of parameters
     self.params = [self.allnbins]
-    print('params='+str(self.params))
+    #print('params='+str(self.params))
     self.nparams = len(self.params)
     self.paramnos = range(0,self.nparams)
 
@@ -90,20 +90,20 @@ class setup(object):
     #for consistency, must have more than one survey size
     #seed_ngals = [2,20]#2*np.arange(1,6)#[1,10]#can generate for different survey sizes
     self.survs = [10]
-    print('survs='+str(self.survs))
+    #print('survs='+str(self.survs))
     self.nsurvs = len(self.survs)
     self.survnos = range(0,self.nsurvs)
 
     #nsamps = 1#instantiations of the survey, more than 1 breaks some things...
     self.samps = 1
-    print('samps='+str(self.samps))
+    #print('samps='+str(self.samps))
     #self.nsamps = self.samps
     self.sampnos = range(0,self.samps)
 
     #initialization conditions for MCMC
     self.init_names = ['Prior Samples','Gaussian Ball Around Mean','Gaussian Ball Around Prior Sample']
     self.inits = ['ps','gm','gs']
-    print('inits='+str(self.inits))
+    #print('inits='+str(self.inits))
     self.ninits = len(self.inits)
     self.initnos = range(0,self.ninits)
 
@@ -135,9 +135,11 @@ class setup(object):
 
     #colors for plotting
     self.colors = 'rgbymc'
-    print('colors='+str(self.colors))
+    #print('colors='+str(self.colors))
     self.ncolors = len(self.colors)
     self.colornos = range(0,self.ncolors)
+
+    print('set metaparameters')
 
   #MVN prior as class
   class mvn(object):

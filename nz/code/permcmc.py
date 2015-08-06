@@ -2,6 +2,7 @@ import os
 import timeit
 #import emcee
 #import StringIO
+
 import hickle as hkl
 
 def sampling(sampler,ivals,miniters,thinto):

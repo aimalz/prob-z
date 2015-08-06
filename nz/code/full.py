@@ -48,6 +48,17 @@ def samplings(idinfo):
 def fsamp(*args):
     return samplings(*args)
 
+def postplot(idinfo):
+    (p,s,n,i) = idinfo
+    for r in meta.stepnos:
+      #runinfo = (meta,p_run,s_run,n_run,i_run,r)
+      runinfo = (p,s,n,i,r)#(p_run.p,s_run.s,n_run.n,i_run.i,r)
+      for q in meta.statnos:
+        queues[q].put(runinfo)
+
+def pplot(*args):
+    return postplot(*args)
+
 from plots import *
 
 #entire plotting process
@@ -87,6 +98,8 @@ for p in meta.paramnos:
 
   for s in meta.survnos:
 
+    plotonly = os.path.exists(os.path.join(s_runs[(p,s)].topdir_s,meta.plotnames[meta.nstats]))
+
     #list_nruns = {0:n_runs[(p,s,0)]}
     #list_iruns = {(0,0):i_runs[(p,s,0,0)]}#[{0:i_runs[(p,s,n,i) for i in meta.initnos]} for n in meta.sampnos]
     #for n in meta.sampnos[1:]:
@@ -102,6 +115,7 @@ for p in meta.paramnos:
     #all_idinfo = i_runs.keys()
     #some_idinfo = {(p,s,n,i):perinit(meta,p_runs[p],s_runs[s],n,i) for n in meta.sampnos for i in meta.initnos}
 
+    #all_idinfo = [(p,s,n,i) for p in meta.paramnos for s in meta.survnos for n in meta.sampnos for i in initnos]# for r in runnos]
     #initinfo = [i_runs[(p,s,n,i)] for i in meta.initnos]
     #initinfo = [(meta,p_runs[(p)],s_runs[(p,s)],n_runs[(p,s,n)],i_runs[(p,s,n,i)]) for i in meta.initnos for n in meta.sampnos]
     runinfo = [(p,s,n,i) for i in meta.initnos for n in meta.sampnos]# for s in meta.survnos for p in meta.paramnos]
@@ -110,7 +124,6 @@ for p in meta.paramnos:
     nq = meta.nstats#*meta.nparams*meta.nsurvs#number of plot processes
     qnos = range(0,nq)
     queues=[mp.Queue() for q in qnos]
-    #print(len(queues))
 
     procs = [mp.Process(target=fplot,args=(initinfo,queues,q)) for q in qnos]
     #procs = [mp.Process(target=fplot,args=(survinfo,queues,q)) for q in qnos[:-1]]
@@ -124,12 +137,18 @@ for p in meta.paramnos:
     #   # for q in queues:
     # #     q.put('init')
 
-    #all_idinfo = [(p,s,n,i) for p in meta.paramnos for s in meta.survnos for n in meta.sampnos for i in initnos]# for r in runnos]
-
     nps = mp.cpu_count()-1#number of processors to use, leave one free for other things
     pool = mp.Pool(nps)
     #pool.map(fsamp, i_runs.keys())
-    pool.map(fsamp, runinfo)
+
+    if plotonly:
+      print('just plotting')
+    # # postqueue = [(p,s,n,i,r) for r in meta.stepnos for i in meta.initnos for n in meta.sampnos]
+      pool.map(pplot, runinfo)
+
+    else:
+      print('beginning calculation')
+      pool.map(fsamp, runinfo)
 
     for q in queues:
       q.put('done')

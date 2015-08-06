@@ -61,7 +61,7 @@ def plot_true_setup(survinfo):
   sps.set_title(r''+str(meta.params[p_run.p])+' Parameter True $N(z)$ for '+str(s_run.seed)+' galaxies')
   sps.set_xlabel(r'binned $z$')
   sps.set_ylabel(r'$\ln N(z)$')
-  sps.set_ylim(-1.,s_run.seed)#m.log(s_run.seed/meta.zdif)))
+  sps.set_ylim(-1.,m.log(s_run.seed/meta.zdif)+1.)
   #sps.hlines(logtrueNz[s],zlos,zhis,color='k',linestyle='--',label=r'true $\ln N(z)$')
   sps.step(p_run.zmids,s_run.logflatNz,color='k',label=r'flat $\ln N(z)$',where='mid')
   # thing.step(zmids,[-10]*nbins,color='k',label=r'$J='+str(seed_ngals[s])+r'$')
@@ -174,13 +174,14 @@ def plot_truevmap_setup(metainfo):
   #randos = random.sample(pobs[-1][0],ncolors)
   sps.set_ylabel(r'Observed $z$')
   sps.set_xlabel(r'True $z$')
+  sps.set_xlim(meta.allzs[0],meta.allzs[-1])
   return((f,sps))
 
 def plot_truevmap((f,sps),sampinfo):
 
   (meta,p_run,s_run,n_run) = sampinfo
 
-  sps.scatter(n_run.trueZs,n_run.obsZs,alpha=a_tvm)
+  sps.scatter(n_run.trueZs,n_run.obsZs,alpha=a_tvm,c='k')
   return((f,sps))
 
 def plot_truevmap_wrapup((f,sps),survinfo):
@@ -230,7 +231,7 @@ def plot_ivals_setup(sampinfo):
     #  print('plot_ivals')
   #a = m.sqrt(meta.ncolors/n_run.nwalkers)
   f,sps = plt.subplots(1, meta.ninits, figsize=(5*meta.ninits,5),sharey=True,sharex=True)
-  f.suptitle('Initialization of '+str(n_run.nwalkers)+' walkers')
+  f.suptitle('Initialization of '+str(n_run.nwalkers)+' walkers '+str(n_run.n+1))
 #  p = 0
   return((f,sps))
 
@@ -359,3 +360,4 @@ def iplots(meta,p_runs,s_runs,n_runs,i_runs):
 
       plot_true_wrapup((f_true,sps_true),survinfo)
       plot_truevmap_wrapup((f_truevmap,sps_truevmap),survinfo)
+  print('initial plots complete')

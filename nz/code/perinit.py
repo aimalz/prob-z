@@ -15,17 +15,23 @@ class perinit(object):
     self.topdir_i = n_run.topdir_n+'/'+self.init
     if not os.path.exists(self.topdir_i):
       os.makedirs(self.topdir_i)
-    self.fitness = os.path.join(self.topdir_i,'fit.txt')#[[[inpaths[s][n][t]+'fitness.p' for t in testnos] for n in sampnos] for s in survnos]
-    fittest = open(self.fitness, 'wb')
-    cPickle.dump([0.,0.],fittest)
-    fittest.close()
+#    self.fitness = os.path.join(self.topdir_i,'fit.txt')#[[[inpaths[s][n][t]+'fitness.p' for t in testnos] for n in sampnos] for s in survnos]
+#    fittest = open(self.fitness, 'wb')
+#    cPickle.dump([0.,0.],fittest)
+#    fittest.close()
 
     self.topdirs_o = []
+    self.fitness = []
     for outdir in meta.outdirs:
       topdir_o = self.topdir_i+'/'+outdir
       self.topdirs_o.append(topdir_o)
+      fitfile = os.path.join(topdir_o,'fit.p')
+      self.fitness.append(fitfile)
       if not os.path.exists(topdir_o):
         os.makedirs(topdir_o)
+      fittest = open(fitfile,'wb')
+      cPickle.dump([[0.],[]],fittest)
+      fittest.close
 
     #generate initial values for walkers
     if self.init == 'ps':
@@ -41,3 +47,5 @@ class perinit(object):
 
     #self.filename = [topdirs_o+'/'+str(x)+'.h' for x in meta.plot_iters]
     #self.outnames = [[os.path.join(i_run.topdir_i,meta.outnames[t][r]) for r in meta.stepnos] for t in statnos]
+
+    print('initialized '+str(meta.init_names[self.i])+' sampling')
