@@ -4,7 +4,7 @@ import timeit
 #import StringIO
 import hickle as hkl
 
-def sampling(self,sampler,ivals,miniters,thinto):
+def sampling(sampler,ivals,miniters,thinto):
     start_time = timeit.default_timer()
     sampler.reset()
     pos, prob, state = sampler.run_mcmc(ivals,miniters,thin=thinto)
@@ -17,27 +17,6 @@ def sampling(self,sampler,ivals,miniters,thinto):
     #print(setups[n]+' '+str(ndims[k])+' complete')
     outputs = [times,fracs,probs,chains]
     return ovals,outputs,elapsed
-
-  #sample maxiters of one draw of one survey
-def samplings(initinfo):
-
-    (meta,p_run,s_run,n_run,i_run) = initinfo
-    ivals = i_run.iguesses
-    sampler = n_run.sampler
-
-    for r in meta.stepnos:
-      runinfo = (meta,p_run,s_run,n_run,i_run,r)
-      ivals,outputs,elapsed = sampling(n_run.sampler,ivals,meta.miniters,meta.thinto)
-
-      for q in meta.statnos:
-        outfile = open(os.path.join(i_run.topdir_i,meta.outnames[q][r]),'w')
-        hkl.dump(outputs[q],outfile,mode='w')
-        outfile.close()
-        queues[q].put(runinfo)
-
-      idinfo = (p_run.p,s_run.s,n_run.n,i_run.i,r)
-      calctimer.write(str(timeit.default_timer())+' '+str(idinfo)+' '+str(elapsed)+'\n')
-      calctimer.close()
 
 # def run_samplings(run):
 #   run.samplings()

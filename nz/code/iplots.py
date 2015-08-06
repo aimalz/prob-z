@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 import sys
+import os
 
 import timeit
 import random
@@ -28,7 +29,7 @@ def plot_priorgen(metainfo):
   realsum = sum(meta.realistic)
   realistic_pdf = meta.realistic/meta.zdifs/realsum
   plotrealistic = np.array([sum(r) for r in meta.realistic_comps])
-  plotrealisticsum = sum(meta.realistic_comps)
+  plotrealisticsum = sum(plotrealistic)#meta.realistic_comps)
   plotrealistic_comps = np.transpose(meta.realistic_comps/plotrealisticsum)
   plotrealistic_pdf = plotrealistic/plotrealisticsum
 
@@ -57,11 +58,12 @@ def plot_true_setup(survinfo):
   #print 'created subplots'
   #for s in survnos:
   sps = f.add_subplot(1,1,1)#,nsurvs,s+1)
-  sps.set_title(r''+str(p_run.p)+' Parameter True $N(z)$ for '+str(s_run.seed)+' galaxies')
+  sps.set_title(r''+str(meta.params[p_run.p])+' Parameter True $N(z)$ for '+str(s_run.seed)+' galaxies')
   sps.set_xlabel(r'binned $z$')
   sps.set_ylabel(r'$\ln N(z)$')
+  sps.set_ylim(-1.,s_run.seed)#m.log(s_run.seed/meta.zdif)))
   #sps.hlines(logtrueNz[s],zlos,zhis,color='k',linestyle='--',label=r'true $\ln N(z)$')
-  sps.step(meta.zmids,s_run.logflatNz,color='k',label=r'flat $\ln N(z)$',where='mid')
+  sps.step(p_run.zmids,s_run.logflatNz,color='k',label=r'flat $\ln N(z)$',where='mid')
   # thing.step(zmids,[-10]*nbins,color='k',label=r'$J='+str(seed_ngals[s])+r'$')
   return((f,sps))
 
@@ -72,14 +74,13 @@ def plot_true((f,sps),sampinfo):
 #  print 'plot_true'
   #print plt.get_backend()
   #for n_run in sampnos:
-  sps.step(meta.zmids,n_run.logsampNz,color=colors[n%6],label=r'true $\ln N(z)$ '+str(n+1),where='mid')#,alpha=0.1)
+  sps.step(p_run.zmids,n_run.logsampNz,color=meta.colors[n_run.n%6],label=r'true $\ln N(z)$ '+str(n_run.n+1),where='mid')#,alpha=0.1)
   return(f,sps)
 
 def plot_true_wrapup((f,sps),survinfo):
 
   (meta,p_run,s_run) = survinfo
 
-  sps.set_ylim((-1.,max(s_run.logflatNz)+1.))
   sps.legend(loc='upper left',fontsize='x-small')
   f.savefig(os.path.join(s_run.topdir_s,'trueNz.png'))
   #print 'done'
@@ -147,7 +148,7 @@ def plot_pdfs(sampinfo):
 
   (meta,p_run,s_run,n_run) = sampinfo
 
-  a = min(float(meta.ncolors)/m.sqrt(s_run.seed[-1]),1.)
+  a = min(float(meta.ncolors)/m.sqrt(s_run.seed),1.)
   f = plt.figure(figsize=(5,5))
   sps = f.add_subplot(1,1,1)
   f.suptitle('Observed galaxy posteriors')
@@ -164,7 +165,8 @@ def plot_truevmap_setup(metainfo):
 
   meta = metainfo
 
-  a = 1./meta.samps
+  global a_tvm
+  a_tvm = 1./meta.samps
   f = plt.figure(figsize=(5,5))
   sps = f.add_subplot(1,1,1)
   f.suptitle('True Redshifts vs. MAP Redshifts')
@@ -178,7 +180,7 @@ def plot_truevmap((f,sps),sampinfo):
 
   (meta,p_run,s_run,n_run) = sampinfo
 
-  sps.scatter(n_run.trueZs,n_run.obsZs,alpha=a)
+  sps.scatter(n_run.trueZs,n_run.obsZs,alpha=a_tvm)
   return((f,sps))
 
 def plot_truevmap_wrapup((f,sps),survinfo):
@@ -197,7 +199,7 @@ def plot_priorsamps(sampinfo):
   #print plt.get_backend()
   f = plt.figure(figsize=(5,5))#plt.subplots(1, nsurvs, figsize=(5*nsurvs,5))
   sps = f.add_subplot(1,1,1)
-  priorsamps = np.exp(np.array([n_run.priordist.sample_ps(meta.ncolors)]))
+  priorsamps = np.exp(np.array(n_run.priordist.sample_ps(meta.ncolors)[0]))
 #  for s in survnos:
 #    sps = f.add_subplot(1,nsurvs,s+1)
 #    if nsurvs > 1:
@@ -207,14 +209,14 @@ def plot_priorsamps(sampinfo):
   sps.set_title(r'Prior samples for $J_{0}='+str(s_run.seed)+r'$')
   sps.set_xlabel(r'binned $z$')
   sps.set_ylabel(r'$\ln N(z)$')
-  sps.set_ylim((-1.,max(n_run.full_logflatNz)+1))
+  sps.set_ylim(0.,s_run.seed)#max(n_run.full_logflatNz)+m.log(s_run.seed/meta.zdif)))
   #sps.hlines(trueNz[s],zlos,zhis,color='k',linestyle='--',label=r'true $\ln N(z)$')
   sps.step(n_run.binmids,n_run.full_logflatNz,color='k',label=r'flat $\ln N(z)$',where='mid')
   #thing.step(zmids,[-10]*nbins,color='k',label=r'$J='+str(seed_ngals[s])+r'$')
 #  for n in sampnos:
 #      sps.step(zmids,sampNz[s][n],color='k',linewidth=2,label=r'true $\ln N(z)$ '+str(n+1),where='mid')
   for c in meta.colornos:
-      sps.step(n_run.binmids,priorsamps[c],color=colors[c],where='mid')
+      sps.step(n_run.binmids,priorsamps[c],color=meta.colors[c],where='mid')
   sps.legend(loc='upper left',fontsize='x-small')
   f.savefig(os.path.join(s_run.topdir_s,'priorsamps.png'))
   #print 'done'
@@ -226,9 +228,9 @@ def plot_ivals_setup(sampinfo):
   (meta,p_run,s_run,n_run) = sampinfo
 
     #  print('plot_ivals')
-  a = m.sqrt(meta.ncolors/n_run.nwalkers)
-  f = plt.figure(figsize=(5*meta.ninits,5))#plt.subplots(nsurvs, ntests, figsize=(5*ntests,5*nsurvs),sharey='row',sharex=True)
-  f.suptitle('Initialization of '+str(meta.nwalkers)+' walkers')
+  #a = m.sqrt(meta.ncolors/n_run.nwalkers)
+  f,sps = plt.subplots(1, meta.ninits, figsize=(5*meta.ninits,5),sharey=True,sharex=True)
+  f.suptitle('Initialization of '+str(n_run.nwalkers)+' walkers')
 #  p = 0
   return((f,sps))
 
@@ -238,7 +240,7 @@ def plot_ivals((f,sps),initinfo):
 
 # #  print('plot_ivals')
 #   a = m.sqrt(ncolors/nwalkers)
-   f = plt.figure(figsize=(5*meta.ninits,5))#plt.subplots(nsurvs, ntests, figsize=(5*ntests,5*nsurvs),sharey='row',sharex=True)
+  #f = plt.figure(figsize=(5*meta.ninits,5))#plt.subplots(nsurvs, ntests, figsize=(5*ntests,5*nsurvs),sharey='row',sharex=True)
 #   f.suptitle('Initialization of '+str(nwalkers)+' walkers')
 # #  p = 0
 #   for s in survnos:
@@ -320,39 +322,40 @@ def plot_ivals_wrapup((f,sps),sampinfo):
 #     full_logflatPz = np.array([p_run.logavgprob]*self.new_nbins)
 
 #initial plots
-def iplots([meta,p_runs,s_runs,n_runs,i_runs]):
+def iplots(meta,p_runs,s_runs,n_runs,i_runs):
 
   metainfo = meta
   plot_priorgen(meta)#plot underlying distribution for theta
 
-  for (p,s) in s_runs.keys():
+  for p in meta.paramnos:
+    for s in meta.survnos:
 
-    survinfo = (meta,p_runs[(p)],s_runs[(p,s)])
+      survinfo = (meta,p_runs[(p)],s_runs[(p,s)])
 
-    (f_true,sps_true) = plot_true_setup(survinfo)
-    (f_truevmap,sps_truevmap) = plot_truevmap_setup(metainfo)
+      (f_true,sps_true) = plot_true_setup(survinfo)
+      (f_truevmap,sps_truevmap) = plot_truevmap_setup(metainfo)
 
-    for n in meta.sampnos:
+      for n in meta.sampnos:
 
-      sampinfo = (meta,p_runs[(p)],s_runs[(p,s)],n_runs[(p,s,n)])
+        sampinfo = (meta,p_runs[(p)],s_runs[(p,s)],n_runs[(p,s,n)])
 
-      (f_true,sps_true) = plot_true((f_true,sps_true),sampinfo)#plot true theta for each sample of each survey
-      (f_truevmap,sps_truevmap) = plot_truevmap((f_truevmap,sps_truevmap),sampinfo)
-      (f_ivals,sps_ivals) = plot_ivals_setup(sampinfo)
+        (f_true,sps_true) = plot_true((f_true,sps_true),sampinfo)#plot true theta for each sample of each survey
+        (f_truevmap,sps_truevmap) = plot_truevmap((f_truevmap,sps_truevmap),sampinfo)
+        (f_ivals,sps_ivals) = plot_ivals_setup(sampinfo)
 
-      if n==0:
-        plot_priorsamps(sampinfo)#plot samples from prior
+        if n==0:
+          plot_priorsamps(sampinfo)#plot samples from prior
 
-        if s==meta.survnos[-1]:
+          if s==meta.survnos[-1]:
 
-          plot_pdfs(sampinfo)#plot some random zPDFs
+            plot_pdfs(sampinfo)#plot some random zPDFs
 
-      for i in meta.initnos:
-        initinfo = (meta,p_runs[(p)],s_runs[(p,s)],nruns[(p,s,n)],i_runs[(p,s,n,i)])
+        for i in meta.initnos:
+          initinfo = (meta,p_runs[(p)],s_runs[(p,s)],n_runs[(p,s,n)],i_runs[(p,s,n,i)])
 
-         (f_ivals,sps_ivals) = plot_ivals((f_ivals,sps_ivals),initinfo)#plot initial values for sampler
+          (f_ivals,sps_ivals) = plot_ivals((f_ivals,sps_ivals),initinfo)#plot initial values for sampler
 
-      plot_ivals_wrapup((f_ivals,sps_ivals),sampinfo)
+        plot_ivals_wrapup((f_ivals,sps_ivals),sampinfo)
 
-    plot_true_wrapup((f_true,sps_true),survinfo)
-    plot_truevmap_wrapup((f_truevmap,sps_truevmap),survinfo)
+      plot_true_wrapup((f_true,sps_true),survinfo)
+      plot_truevmap_wrapup((f_truevmap,sps_truevmap),survinfo)

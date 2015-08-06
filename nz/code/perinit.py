@@ -1,5 +1,6 @@
 import os
 import hickle as hkl
+import cPickle
 
 class perinit(object):
 
@@ -15,6 +16,9 @@ class perinit(object):
     if not os.path.exists(self.topdir_i):
       os.makedirs(self.topdir_i)
     self.fitness = os.path.join(self.topdir_i,'fit.txt')#[[[inpaths[s][n][t]+'fitness.p' for t in testnos] for n in sampnos] for s in survnos]
+    fittest = open(self.fitness, 'wb')
+    cPickle.dump([0.,0.],fittest)
+    fittest.close()
 
     self.topdirs_o = []
     for outdir in meta.outdirs:
@@ -33,7 +37,7 @@ class perinit(object):
     elif self.init == 'gs':
       self.iguesses,self.mean = n_run.priordist.sample_gs(n_run.nwalkers)
 
-    self.sampler = n_run.sampler()
+    self.sampler = n_run.sampler
 
     #self.filename = [topdirs_o+'/'+str(x)+'.h' for x in meta.plot_iters]
     #self.outnames = [[os.path.join(i_run.topdir_i,meta.outnames[t][r]) for r in meta.stepnos] for t in statnos]

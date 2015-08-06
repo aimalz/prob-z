@@ -49,11 +49,14 @@ class setup(object):
     #binnos = [range(0,K) for K in nbins]
 #    self.allzlos = np.array([zbins[1].data[k][0] for k in self.allbinnos])
 #    self.allzhis = np.array([zbins[1].data[k][1] for k in self.allbinnos])
-    self.allzlos = np.arange(0.,1.,self.binstep)
-    self.allzhis = np.arange(self.binstep,1.+self.binstep,self.binstep)
-    #allzs = sorted(set(zlos+zhis))
+    #self.allzlos = np.arange(0.,1.,self.binstep)
+    #self.allzhis = np.arange(self.binstep,1.+self.binstep,self.binstep)
+    self.allzs = np.arange(0.,1.+self.binstep,self.binstep)#np.unique(np.concatenate((self.allzlos,self.allzhis)))
+    #print('allzs:'+str(self.allzs))
 
 #    zbins.close()
+    self.allzlos = self.allzs[:-1]
+    self.allzhis = self.allzs[1:]
 
     #use centers of bins for plotting
     self.allzmids = (self.allzhis+self.allzlos)/2.
@@ -61,9 +64,11 @@ class setup(object):
 
     #useful for plotting
     self.zdifs = self.allzhis-self.allzlos
+    #print(self.zdifs)
     self.zdif = sum(self.zdifs)/self.allnbins
 
-    self.real = [(0.2,0.005,2.0),(0.4,0.005,1.25),(0.5,0.1,2.0),(0.6,0.005,1.25),(0.8,0.005,1.25),(1.0,0.005,0.75)]
+    #tuples of form z_center, spread,magnitude
+    self.real = [(0.2,0.005,2.0),(0.4,0.005,1.25),(0.5,0.1,2.0),(0.6,0.005,1.25),(0.8,0.005,1.25),(1.0,0.005,0.75)]#mean,weight,width
     print('real='+str(self.real))
     self.nreal = len(self.real)
     self.realnos = range(0,self.nreal)
@@ -110,16 +115,20 @@ class setup(object):
     self.plotnames.append('samps.png')
 
     #parameters for mcmc
-    self.miniters = 1e3
-    self.maxiters = 1e4
+    self.miniters = int(1e3)
+    self.maxiters = int(1e4)
     self.nsteps = self.maxiters/self.miniters
     #assert self.maxiters%self.nsteps == 0
     self.stepnos = np.arange(0,self.nsteps)
     self.iternos = self.miniters*(self.stepnos+1)
-    self.oneiternos = range(0,miniters)
+    self.oneiternos = range(0,self.miniters)
     self.alliternos = range(0,self.maxiters)
-    self.eachiternos = [range(0,self.iternos[r]) for r in self.stepnos]
-    self.thinto = 100
+    self.eachiternos = [self.miniters*np.arange(self.stepnos[r]-1,self.stepnos[r]) for r in self.stepnos]
+    self.thinto = int(1e2)
+    self.ntimes = self.miniters/self.thinto
+    self.timenos = range(0,self.ntimes)
+    self.alltimenos = range(0,self.maxiters/self.thinto,self.thinto)
+    self.eachtimenos = [range(self.iternos[r]-self.miniters,self.iternos[r],self.thinto) for r in self.stepnos]
     self.filenames = [str(ins)+'.h' for ins in self.iternos]
 
     self.outnames = [[t+'/'+r for r in self.filenames] for t in self.outdirs]
@@ -130,8 +139,8 @@ class setup(object):
     self.ncolors = len(self.colors)
     self.colornos = range(0,self.ncolors)
 
-#MVN prior as class
-class mvn(object):
+  #MVN prior as class
+  class mvn(object):
 
     def __init__(self,mean,cov):
         self.dims = len(mean)
