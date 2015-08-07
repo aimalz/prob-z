@@ -30,33 +30,33 @@ class setup(object):
     self.plottime = os.path.join(self.topdir,'plottimer.txt')
     open(self.plottime, 'w').close()
 
-#    self.loc = "http://data.sdss3.org/sas/dr8/groups/boss/photoObj/photoz-weight/zbins-12.fits"
+    self.loc = "http://data.sdss3.org/sas/dr8/groups/boss/photoObj/photoz-weight/zbins-12.fits"
 #    print('loc='+str(self.loc))
 
     #set up for probability distributions
     #all p(z) share these bins from Sheldon, et al.
 
     #zbins = pyfits.open(os.path.join('../big-data/','zbins-12.fits'))
-#    zbins = pyfits.open(self.loc)#"http://data.sdss3.org/sas/dr8/groups/boss/photoObj/photoz-weight/zbins-12.fits")
+    zbins = pyfits.open(self.loc)#"http://data.sdss3.org/sas/dr8/groups/boss/photoObj/photoz-weight/zbins-12.fits")
 
     #reformat bins
     #maxbins = len(zbins[1].data)
-#    self.allnbins = len(zbins[1].data)
-    self.allnbins = 10
+    self.allnbins = len(zbins[1].data)
+#    self.allnbins = 10
     #nbins = maxbins
     self.allbinnos = range(0,self.allnbins)
-    self.binstep = 1./self.allnbins
+#    self.binstep = 1./self.allnbins
     #binnos = [range(0,K) for K in nbins]
-#    self.allzlos = np.array([zbins[1].data[k][0] for k in self.allbinnos])
-#    self.allzhis = np.array([zbins[1].data[k][1] for k in self.allbinnos])
+    self.allzlos = np.array([zbins[1].data[k][0] for k in self.allbinnos])
+    self.allzhis = np.array([zbins[1].data[k][1] for k in self.allbinnos])
     #self.allzlos = np.arange(0.,1.,self.binstep)
     #self.allzhis = np.arange(self.binstep,1.+self.binstep,self.binstep)
-    self.allzs = np.arange(0.,1.+self.binstep,self.binstep)#np.unique(np.concatenate((self.allzlos,self.allzhis)))
+    self.allzs = np.unique(np.concatenate((self.allzlos,self.allzhis)))#np.arange(0.,1.+self.binstep,self.binstep)
     #print('allzs:'+str(self.allzs))
 
-#    zbins.close()
-    self.allzlos = self.allzs[:-1]
-    self.allzhis = self.allzs[1:]
+    zbins.close()
+#    self.allzlos = self.allzs[:-1]
+#    self.allzhis = self.allzs[1:]
 
     #use centers of bins for plotting
     self.allzmids = (self.allzhis+self.allzlos)/2.
@@ -89,7 +89,7 @@ class setup(object):
     #generate number of galaxies to draw
     #for consistency, must have more than one survey size
     #seed_ngals = [2,20]#2*np.arange(1,6)#[1,10]#can generate for different survey sizes
-    self.survs = [10]
+    self.survs = [100]
     #print('survs='+str(self.survs))
     self.nsurvs = len(self.survs)
     self.survnos = range(0,self.nsurvs)
@@ -130,7 +130,6 @@ class setup(object):
     self.alltimenos = range(0,self.maxiters/self.thinto,self.thinto)
     self.eachtimenos = [range(self.iternos[r]-self.miniters,self.iternos[r],self.thinto) for r in self.stepnos]
     self.filenames = [str(ins)+'.h' for ins in self.iternos]
-
     self.outnames = [[t+'/'+r for r in self.filenames] for t in self.outdirs]
 
     #colors for plotting

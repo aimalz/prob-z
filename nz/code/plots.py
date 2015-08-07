@@ -16,7 +16,7 @@ def plottimes_init(survinfo):
 
   (meta,p_run,s_run) = survinfo
 
-  #print 'plottimes_init'
+  print 'plottimes_init'
   plt.rc('text', usetex=True)
   #f_times,sps_times = plt.subplots(1, 1, figsize = (5,5))
   f = plt.figure(figsize=(5,5))
@@ -64,7 +64,7 @@ def plotfracs_init(survinfo):
 
   (meta,p_run,s_run) = survinfo
 
-  #print 'plotfracs_init'
+  print 'plotfracs_init'
   plt.rc('text', usetex=True)
   global a_fracs
   a_fracs = 1./p_run.ndims/meta.samps
@@ -111,7 +111,7 @@ def plotprobs_init(survinfo):
 
   (meta,p_run,s_run) = survinfo
 
-  #print 'plotprobs_init'
+  print 'plotprobs_init'
   plt.rc('text', usetex=True)
   global a_probs
   a_probs = 1./meta.ncolors/meta.samps
@@ -125,7 +125,7 @@ def plotprobs_init(survinfo):
   sps.set_title(r'Sample Probability Evolution for $J_{0}='+str(s_run.seed)+r'$')
   sps.set_ylabel('log probability of walker')
   sps.set_xlabel('iteration number')
-  sps.set_xlim(0,meta.maxiters)
+  sps.set_xlim(0,meta.maxiters+meta.miniters)
   dummy_rec = [0]*meta.nsteps
   for i in meta.initnos:
       sps.plot([-1.]*meta.nsteps,dummy_rec,c=meta.colors[i],label=meta.init_names[i])
@@ -162,12 +162,12 @@ def plotchains_init(initinfo):
 
   (meta,p_run,s_run,n_runs,i_runs) = initinfo
 
-  #print 'plotchains_init'
+  print 'plotchains_init'
   plt.rc('text', usetex=True)
   global a_chain
   global a_samp
   a_samp = 1./meta.ninits/meta.ncolors#nwalkers
-  a_chain = 1./meta.ninits/meta.ncolors#nwalkers#/ntests#/howmany*miniters
+  a_chain = 1./meta.ninits/meta.ntimes#nwalkers#/ntests#/howmany*miniters
   #prepare to plot what some of the samples look like
   f_samps = plt.figure(figsize=(5*meta.samps,5*2))#,sps_samps = plt.subplots(2,meta.samps,figsize =(5*meta.samps,5*2),sharex=True)#one subplot per sample
   gs_samps = matplotlib.gridspec.GridSpec(2,meta.samps)
@@ -185,10 +185,12 @@ def plotchains_init(initinfo):
   #f_rando, sps_rando = plt.subplots(ntests, nsurvs, figsize = (5*nsurvs,5*ntests))
   #t = 0
   for n in meta.sampnos:
+    sps_samps[0][n].set_xlim(n_runs[n].binends[0]-meta.zdif,n_runs[n].binends[-1]+meta.zdif)
     sps_samps[0][n].set_ylim(-1.,m.log(s_run.seed/meta.zdif)+1.)
     sps_samps[0][n].set_xlabel(r'$z$')
     sps_samps[0][n].set_ylabel(r'$\ln N(z)$')
     sps_samps[0][n].set_title(str(n+1)+r' Sampled $\ln N(z)$ for $J_{0}='+str(s_run.seed)+r'$')
+    sps_samps[1][n].set_xlim(n_runs[n].binends[0]-meta.zdif,n_runs[n].binends[-1]+meta.zdif)
     sps_samps[1][n].set_ylim(0.,s_run.seed/meta.zdif+s_run.seed)
     sps_samps[1][n].set_xlabel(r'$z$')
     sps_samps[1][n].set_ylabel(r'$N(z)$')
@@ -200,10 +202,10 @@ def plotchains_init(initinfo):
     for k in n_runs[n].binnos:
         #sps_chains[n][k] = f_chains.add_subplot(meta.samps,maxk,n*maxk+k)
         sps_chains[n][k].set_ylim(-m.log(s_run.seed),m.log(s_run.seed/meta.zdif)+1.)#n_runs[n].full_logsampNz[k]+m.log(s_run.seed/meta.zdif))
-        sps_chains[n][k].set_xlim(0,meta.maxiters)
+        sps_chains[n][k].set_xlim(0,meta.maxiters+meta.miniters)
         sps_chains[n][k].set_xlabel('iteration number')
         sps_chains[n][k].set_ylabel(r'$\ln N_{'+str(k+1)+'}(z)$')
-        sps_chains[n][k].set_title(str(s_run.seed)+r' galaxies: Parameter '+str(k+1)+' of '+str(n_runs[n].nbins))
+        sps_chains[n][k].set_title('Sample '+str(n+1)+' of '+str(s_run.seed)+r' galaxies: Parameter '+str(k+1)+' of '+str(n_runs[n].nbins))
         for i in meta.initnos:
             varfile = open(i_runs[n][i].fitness[3],'wb')
             cPickle.dump([[0.,0.],[[],[]]],varfile)
@@ -335,6 +337,7 @@ def plotchains_wrapup(allinfo,(sampinfo,chaininfo)):#,randinfo):
           sps_chains[n][k].legend(fontsize='xx-small',loc='lower right')
       sps_samps[0][n].legend(fontsize='xx-small',loc='upper left')
       sps_samps[1][n].legend(fontsize='xx-small',loc='upper left')
+    #print('plotchains_wrapup')
   return
 
 #plotnames = ['acorr.pdf','fracs.pdf','lnprobs.pdf','results.pdf','compare.pdf']#,'rand_results.pdf']
@@ -396,4 +399,5 @@ def plots_wrapup(allinfo,q,info):
     #ps.print_stats()
     #print(printout)
     #print(sout.getvalue())
+    print('wrapup '+str(q))
     return

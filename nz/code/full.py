@@ -1,4 +1,7 @@
-import multiprocessing as mp
+import matplotlib
+matplotlib.use('pdf')
+import matplotlib.pyplot as plt
+plt.rc('text', usetex=True)
 
 from setup import *
 meta = setup()
@@ -14,11 +17,6 @@ n_runs = {(p,s,n):persamp(meta,p_runs[(p)],s_runs[(p,s)],n) for n in meta.sampno
 
 from perinit import *
 i_runs = {(p,s,n,i):perinit(meta,p_runs[(p)],s_runs[(p,s)],n_runs[(p,s,n)],i) for i in meta.initnos for (p,s,n) in n_runs.keys()}
-
-from iplots import *
-plot_inits_proc = mp.Process(target=iplots,args=(meta,p_runs,s_runs,n_runs,i_runs))
-plot_inits_proc.start()
-plot_inits_proc.join()
 
 from permcmc import *
 
@@ -47,6 +45,105 @@ def samplings(idinfo):
 
 def fsamp(*args):
     return samplings(*args)
+
+from iplots import *
+
+# #initial plots
+# def init_plots():
+
+#   #metainfo = meta
+#   plot_priorgen(meta)#plot underlying distribution for theta
+
+#   for p in meta.paramnos:
+#     for s in meta.survnos:
+
+#       survinfo = (meta,p_runs[(p)],s_runs[(p,s)])
+
+#       (f_true,sps_true) = plot_true_setup(survinfo)
+#       (f_truevmap,sps_truevmap) = plot_truevmap_setup(meta)
+
+#       for n in meta.sampnos:
+
+#         sampinfo = (meta,p_runs[(p)],s_runs[(p,s)],n_runs[(p,s,n)])
+
+#         (f_true,sps_true) = plot_true((f_true,sps_true),sampinfo)#plot true theta for each sample of each survey
+#         (f_truevmap,sps_truevmap) = plot_truevmap((f_truevmap,sps_truevmap),sampinfo)
+#         (f_ivals,sps_ivals) = plot_ivals_setup(sampinfo)
+
+#         if n==0:
+#           plot_priorsamps(sampinfo)#plot samples from prior
+
+#           if s==meta.survnos[-1]:
+
+#             plot_pdfs(sampinfo)#plot some random zPDFs
+
+#         for i in meta.initnos:
+#           initinfo = (meta,p_runs[(p)],s_runs[(p,s)],n_runs[(p,s,n)],i_runs[(p,s,n,i)])
+
+#           (f_ivals,sps_ivals) = plot_ivals((f_ivals,sps_ivals),initinfo)#plot initial values for sampler
+
+#         plot_ivals_wrapup((f_ivals,sps_ivals),sampinfo)
+
+#       plot_true_wrapup((f_true,sps_true),survinfo)
+#       plot_truevmap_wrapup((f_truevmap,sps_truevmap),survinfo)
+
+#   print('initial plots completed')
+#   return
+
+def init_plots():
+  metainfo = meta
+
+  plot_priorgen(metainfo)#plot underlying distribution for theta
+
+  for p in meta.paramnos:
+    paraminfo = (meta,p_runs[(p)])
+
+    (f_truevmap,sps_truevmap) = plot_truevmap_setup(paraminfo)
+
+    for s in meta.survnos:
+      survinfo = (meta,p_runs[(p)],s_runs[(p,s)])
+
+      (f_true,sps_true) = plot_true_setup(survinfo)
+
+      for n in meta.sampnos:
+        sampinfo = (meta,p_runs[(p)],s_runs[(p,s)],n_runs[(p,s,n)])
+
+        (f_true,sps_true) = plot_true((f_true,sps_true),sampinfo)#plot true theta for each sample of each survey
+        (f_truevmap,sps_truevmap) = plot_truevmap((f_truevmap,sps_truevmap),sampinfo)
+        (f_ivals,sps_ivals) = plot_ivals_setup(sampinfo)
+
+        if n==0:
+          plot_priorsamps(sampinfo)#plot samples from prior
+
+          if s==meta.survnos[-1]:
+            plot_pdfs(sampinfo)#plot some random zPDFs
+
+        for i in meta.initnos:
+          initinfo = (meta,p_runs[(p)],s_runs[(p,s)],n_runs[(p,s,n)],i_runs[(p,s,n,i)])
+
+          (f_ivals,sps_ivals) = plot_ivals((f_ivals,sps_ivals),initinfo)#plot initial values for sampler
+
+        plot_ivals_wrapup((f_ivals,sps_ivals),sampinfo)
+
+      plot_true_wrapup((f_true,sps_true),survinfo)
+      plot_truevmap_wrapup((f_truevmap,sps_truevmap),survinfo)
+  print('initial plots completed')
+  return
+
+import multiprocessing as mp
+
+#init_plots()
+plot_inits_proc = mp.Process(target=init_plots)
+plot_inits_proc.start()
+plot_inits_proc.join()
+
+# def preplot():
+#   print('starting initial plots')
+#   return
+
+# def postplot():
+#   print('finishing initial plots')
+#   return
 
 def postplot(idinfo):
     (p,s,n,i) = idinfo
@@ -94,11 +191,16 @@ def plotall(allinfo,queues,q):
 def fplot(*args):
     return plotall(*args)
 
+# plot_inits_proc = [mp.Process(target=preplot),mp.Process(target=init_plots),mp.Process(target=postplot)]
+# #plot_inits_proc = mp.Process(target=init_plots)#,args=(meta,p_runs,s_runs,n_runs,i_runs))
+# for p in plot_inits_proc:
+#   p.start()
+# for p in plot_inits_proc:
+#   p.join()
+
 for p in meta.paramnos:
 
   for s in meta.survnos:
-
-    plotonly = os.path.exists(os.path.join(s_runs[(p,s)].topdir_s,meta.plotnames[meta.nstats]))
 
     #list_nruns = {0:n_runs[(p,s,0)]}
     #list_iruns = {(0,0):i_runs[(p,s,0,0)]}#[{0:i_runs[(p,s,n,i) for i in meta.initnos]} for n in meta.sampnos]
@@ -115,7 +217,6 @@ for p in meta.paramnos:
     #all_idinfo = i_runs.keys()
     #some_idinfo = {(p,s,n,i):perinit(meta,p_runs[p],s_runs[s],n,i) for n in meta.sampnos for i in meta.initnos}
 
-    #all_idinfo = [(p,s,n,i) for p in meta.paramnos for s in meta.survnos for n in meta.sampnos for i in initnos]# for r in runnos]
     #initinfo = [i_runs[(p,s,n,i)] for i in meta.initnos]
     #initinfo = [(meta,p_runs[(p)],s_runs[(p,s)],n_runs[(p,s,n)],i_runs[(p,s,n,i)]) for i in meta.initnos for n in meta.sampnos]
     runinfo = [(p,s,n,i) for i in meta.initnos for n in meta.sampnos]# for s in meta.survnos for p in meta.paramnos]
@@ -124,6 +225,9 @@ for p in meta.paramnos:
     nq = meta.nstats#*meta.nparams*meta.nsurvs#number of plot processes
     qnos = range(0,nq)
     queues=[mp.Queue() for q in qnos]
+    #print(len(queues))
+
+    plotonly = os.path.exists(os.path.join(s_runs[(p,s)].topdir_s,meta.plotnames[meta.nstats]))
 
     procs = [mp.Process(target=fplot,args=(initinfo,queues,q)) for q in qnos]
     #procs = [mp.Process(target=fplot,args=(survinfo,queues,q)) for q in qnos[:-1]]
@@ -137,9 +241,12 @@ for p in meta.paramnos:
     #   # for q in queues:
     # #     q.put('init')
 
+    #all_idinfo = [(p,s,n,i) for p in meta.paramnos for s in meta.survnos for n in meta.sampnos for i in initnos]# for r in runnos]
+
     nps = mp.cpu_count()-1#number of processors to use, leave one free for other things
     pool = mp.Pool(nps)
     #pool.map(fsamp, i_runs.keys())
+    #pool.map(fsamp, runinfo)
 
     if plotonly:
       print('just plotting')

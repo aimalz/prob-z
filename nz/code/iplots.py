@@ -62,6 +62,7 @@ def plot_true_setup(survinfo):
   sps.set_xlabel(r'binned $z$')
   sps.set_ylabel(r'$\ln N(z)$')
   sps.set_ylim(-1.,m.log(s_run.seed/meta.zdif)+1.)
+  sps.set_xlim(meta.allzlos[0]-meta.zdif,meta.allzhis[p_run.ndims-1]+meta.zdif)
   #sps.hlines(logtrueNz[s],zlos,zhis,color='k',linestyle='--',label=r'true $\ln N(z)$')
   sps.step(p_run.zmids,s_run.logflatNz,color='k',label=r'flat $\ln N(z)$',where='mid')
   # thing.step(zmids,[-10]*nbins,color='k',label=r'$J='+str(seed_ngals[s])+r'$')
@@ -158,12 +159,13 @@ def plot_pdfs(sampinfo):
     sps.step(n_run.binmids,p,where='mid',alpha=a)
   sps.set_ylabel(r'$p(z|\vec{d})$')
   sps.set_xlabel(r'$z$')
+  sps.set_xlim(n_run.binlos[0]-meta.zdif,n_run.binhis[-1]+meta.zdif)
   f.savefig(os.path.join(p_run.topdir_p,'samplepzs.png'))
   return
 
-def plot_truevmap_setup(metainfo):
+def plot_truevmap_setup(paraminfo):
 
-  meta = metainfo
+  (meta,p_run) = paraminfo
 
   global a_tvm
   a_tvm = 1./meta.samps
@@ -174,7 +176,8 @@ def plot_truevmap_setup(metainfo):
   #randos = random.sample(pobs[-1][0],ncolors)
   sps.set_ylabel(r'Observed $z$')
   sps.set_xlabel(r'True $z$')
-  sps.set_xlim(meta.allzs[0],meta.allzs[-1])
+  sps.set_xlim(meta.allzlos[0]-meta.zdif,meta.allzhis[p_run.ndims-1]+meta.zdif)
+  sps.set_ylim(meta.allzlos[0]-meta.zdif,meta.allzhis[p_run.ndims-1]+meta.zdif)
   return((f,sps))
 
 def plot_truevmap((f,sps),sampinfo):
@@ -195,12 +198,13 @@ def plot_truevmap_wrapup((f,sps),survinfo):
 def plot_priorsamps(sampinfo):
 
   (meta,p_run,s_run,n_run) = sampinfo
+  priorsamps = np.exp(np.array(n_run.priordist.sample_ps(meta.ncolors)[0]))
 
 #  print 'plot_prior_samps'
   #print plt.get_backend()
   f = plt.figure(figsize=(5,5))#plt.subplots(1, nsurvs, figsize=(5*nsurvs,5))
   sps = f.add_subplot(1,1,1)
-  priorsamps = np.exp(np.array(n_run.priordist.sample_ps(meta.ncolors)[0]))
+
 #  for s in survnos:
 #    sps = f.add_subplot(1,nsurvs,s+1)
 #    if nsurvs > 1:
@@ -210,7 +214,7 @@ def plot_priorsamps(sampinfo):
   sps.set_title(r'Prior samples for $J_{0}='+str(s_run.seed)+r'$')
   sps.set_xlabel(r'binned $z$')
   sps.set_ylabel(r'$\ln N(z)$')
-  sps.set_ylim(0.,s_run.seed)#max(n_run.full_logflatNz)+m.log(s_run.seed/meta.zdif)))
+  sps.set_xlim(n_run.binends[0]-meta.zdif,n_run.binends[-1]+meta.zdif)#,s_run.seed)#max(n_run.full_logflatNz)+m.log(s_run.seed/meta.zdif)))
   #sps.hlines(trueNz[s],zlos,zhis,color='k',linestyle='--',label=r'true $\ln N(z)$')
   sps.step(n_run.binmids,n_run.full_logflatNz,color='k',label=r'flat $\ln N(z)$',where='mid')
   #thing.step(zmids,[-10]*nbins,color='k',label=r'$J='+str(seed_ngals[s])+r'$')
@@ -247,16 +251,18 @@ def plot_ivals((f,sps),initinfo):
 #   for s in survnos:
 #     for t in testnos:
 # #      p+=1
-  sps = f.add_subplot(1,meta.ninits,i_run.i+1)
-  sps.set_ylabel(r'$\ln N(z)$ with $J_{0}='+str(s_run.seed)+'$')
-  sps.set_xlabel(r'$z$')
-  sps.set_title(meta.init_names[i_run.i])
+  #sps = f.add_subplot(1,meta.ninits,i_run.i+1)
+  sps[i_run.i].set_ylabel(r'$\ln N(z)$ with $J_{0}='+str(s_run.seed)+'$')
+  sps[i_run.i].set_xlabel(r'$z$')
+  #sps[i_run.i].set_xlim(meta.allzs[0],meta.allzs[-1])
+  #sps[i_run.i].set_ylim(meta.allzs[0],meta.allzs[-1])
+  sps[i_run.i].set_title(meta.init_names[i_run.i])
       #sps[s][t].set_ylabel(r'$\ln N(z)$ with $J='+str(seed_ngals[s])+'$')
       #sps[s][t].set_xlabel(r'$z$')
       #sps[s][t].set_title(setups[t])
   for iguess in i_run.iguesses:
-    sps.step(n_run.binmids,iguess,alpha=0.5,where='mid')
-  sps.step(n_run.binmids,i_run.mean,color='k',linewidth=2,where='mid')
+    sps[i_run.i].step(n_run.binmids,iguess,alpha=0.5,where='mid')
+  sps[i_run.i].step(n_run.binmids,i_run.mean,color='k',linewidth=2,where='mid')
         #sps[s][t].step(zmids[0:ndims[lenno]],iguess,alpha=0.5)
         #sps[s][t].step(zmids[0:ndims[lenno]],means[s][t],color='k',linewidth=2)
   return((f,sps))
@@ -323,21 +329,22 @@ def plot_ivals_wrapup((f,sps),sampinfo):
 #     full_logflatPz = np.array([p_run.logavgprob]*self.new_nbins)
 
 #initial plots
-def iplots(meta,p_runs,s_runs,n_runs,i_runs):
-
+def init_plots(meta,p_runs,s_runs,n_runs,i_runs):
   metainfo = meta
-  plot_priorgen(meta)#plot underlying distribution for theta
+
+  plot_priorgen(metainfo)#plot underlying distribution for theta
 
   for p in meta.paramnos:
-    for s in meta.survnos:
+    paraminfo = (meta,p_runs[(p)])
 
+    (f_truevmap,sps_truevmap) = plot_truevmap_setup(paraminfo)
+
+    for s in meta.survnos:
       survinfo = (meta,p_runs[(p)],s_runs[(p,s)])
 
       (f_true,sps_true) = plot_true_setup(survinfo)
-      (f_truevmap,sps_truevmap) = plot_truevmap_setup(metainfo)
 
       for n in meta.sampnos:
-
         sampinfo = (meta,p_runs[(p)],s_runs[(p,s)],n_runs[(p,s,n)])
 
         (f_true,sps_true) = plot_true((f_true,sps_true),sampinfo)#plot true theta for each sample of each survey
@@ -348,7 +355,6 @@ def iplots(meta,p_runs,s_runs,n_runs,i_runs):
           plot_priorsamps(sampinfo)#plot samples from prior
 
           if s==meta.survnos[-1]:
-
             plot_pdfs(sampinfo)#plot some random zPDFs
 
         for i in meta.initnos:
@@ -360,4 +366,4 @@ def iplots(meta,p_runs,s_runs,n_runs,i_runs):
 
       plot_true_wrapup((f_true,sps_true),survinfo)
       plot_truevmap_wrapup((f_truevmap,sps_truevmap),survinfo)
-  print('initial plots complete')
+  return
