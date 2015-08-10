@@ -46,7 +46,7 @@ The era of precision cosmology has been enabled by photometric estimation of red
 
 Much effort has been dedicated to improving photo-z estimators.  \citep{bud08}  In particular, work has focused on identifying and downweighting outliers.  \citep{gor13}  Sophisticated Bayesian techniques have been employed to more accurately determine photo-zs.  \citep{sad15}  Cutting edge machine learning methods have been used to obtain valid uncertainties for photo-zs.  \citep{car10}
 
-An alternative to point estimates of photo-zs is redshift probability distribution function (zPDF) estimation.  An extension of \citet{ben00} that produces full posteriors (as opposed to a selection of local maxima) from a template library of galaxy spectral energy distributions (SEDs) has been mentioned in the litertature \citep{hil11, kel12, lop14}, but a formal presentation of this extension has not yet been published.  zPDFs have also been obtained by a variety of trustworthy data-driven approaches in the literature: $k$-nearest neighbor algorithms with \citep{bal08} and without \citep{she11} inclusion of photometric measurement errors, neural networks \citep{bon13}, self-organizing maps \citep{car14}, prediction tree and random forest classification techniques \citep{car13}.  Redshift posterior distributions have been produced by completed surveys \citep{hil11, she11} and will be produced by upcoming surveys \citep{abe09, car14}.
+An alternative to point estimates of photo-zs is redshift probability distribution function (zPDF) estimation.  An extension of \citet{ben00} that produces full posteriors (as opposed to a selection of local maxima) from a template library of galaxy spectral energy distributions (SEDs) has been mentioned in the litertature \citep{hil11, kel12, lop14}, but a formal presentation of this extension has not yet been published.  zPDFs have also been obtained by a variety of trustworthy data-driven approaches in the literature: $k$-nearest neighbor algorithms with \citep{bal08} and without \citep{she11} inclusion of photometric measurement errors, neural networks \citep{bon13}, self-organizing maps \citep{car14}, prediction tree and random forest classification techniques \citep{car10, car13}.  Redshift posterior distributions have been produced by completed surveys \citep{hil11, she11} and will be produced by upcoming surveys \citep{abe09, car14}.
 
 However, zPDFs have seldom been used to infer physical parameters.  (Notable exceptions include \citet{app12}.)  Furthermore, no implementation of inference with zPDFs has been presented with a mathematically consistent methodology.  The goal of this paper is to clearly present and validate a technique for the use of zPDFs in inference.  For simplicity, we consider only one-point statistics relevant to cosmology, though future work will extend this technique to higher-order statistics.
 
@@ -55,6 +55,9 @@ The redshift distribution function $N(z)$ serves as an ideal statistic upon whic
 \subsection*{Temporary Notes}
 
 \begin{itemize}
+%\item \citet{bau62} first proposes inferring redshifts from photometry.
+\item \citet{bud08} is a comprehensive review of photo-zs from Bayesian perspective that motivates the production of zPDFs.
+\item \citet{car10} 
 \item \citet{hil11} obtains zPDFs via BPZ (minimally modifying its default prior) and publishes a catalog.  They also compare calculating N(z) via stacked zPDFs to a histogram of the redshifts of maximum posterior probability.
 \item \citet{ben12} calculates $N(z)$ for WL tomography by the stacking method.  They compare stacked zPDFs to a spectroscopically confirmed sample and a reweighting thereof.
 \item \citet{bon15} compares $N(z)$ found via several photo-z fitting methods, including the reduction of zPDFs to point estimates via the mean in order to recommend a method for the output of DES, without considering zPDFs as valuable data products.
@@ -172,9 +175,7 @@ We ran several tests of the method to demonstrate its validity and usage.  In Se
 \subsection{Mock Data}
 \label{sec:mock}
 
-%To enable direct comparison with previous results, we consider the $K=35$ redshift bins $B_{k}=[z^{B}_{k-1},z^{B}_{k}]$ over a range from $z^{B}_{0}=0$ to $z^{B}_{35}=1.1$ for which \citet{she11} calculated posteriors for the redshift of each galaxy based on observations of the apparent magnitude in the five photmetric filters of SDSS.  
-
-We consider an arbitrary $K=10$ redshift bins $B_{k}=[z^{B}_{k-1},z^{B}_{k}]$ over a range from $z^{B}_{0}=0$ to $z^{B}_{K}=1$.  We shall take $\vec{\theta}$ to be a discretized parametrization of $N(z)$ in log-space, where $\exp[\theta_{k}]$ is the average value of $N(z)$ over the redshift range of bin $B_{k}$.   The elements of $\vec{\theta}$ may thus be thought of as histogram heights in a binned version of $N(z)$.  By this interpretation, the expected number $J_{k}$ of galaxies in bin $k$ is $\exp[\theta_{k}]\Delta_{k}$, where $\Delta_{k}\equiv z_{k}-z_{k-1}$, transforming Eq. \ref{eq:params} into Eq. \ref{eq:dparams}.  In all cases considered here, $\Delta_{k}=\bar{\Delta}\forall k$.
+We consider $K$ redshift bins $B_{k}=[z^{B}_{k-1},z^{B}_{k}]$ over a range from $z^{B}_{0}=z_{min}$ to $z^{B}_{K}=z_{max}$.  We shall take $\vec{\theta}$ to be a discretized parametrization of $N(z)$ in log-space, where $\exp[\theta_{k}]$ is the average value of $N(z)$ over the redshift range of bin $B_{k}$.   The elements of $\vec{\theta}$ may thus be thought of as histogram heights in a binned version of $N(z)$.  By this interpretation, the expected number $J_{k}$ of galaxies in bin $k$ is $\exp[\theta_{k}]\Delta_{k}$, where $\Delta_{k}\equiv z_{k}-z_{k-1}$, transforming Eq. \ref{eq:params} into Eq. \ref{eq:dparams}.  In all cases considered here, $\Delta_{k}=\bar{\Delta}\forall k$.
 
 \begin{eqnarray}
 \label{eq:dparams}
@@ -208,12 +209,14 @@ p(z_{j}|\vec{d}_{j})\ \sim\ \mathcal{N}(z_{j}',\delta_{j}'^{2})\ &;&\ \delta'_{j
 %\caption{The true $\vec{\theta}$ chosen for this test is plotted here, along with histograms of the true redshifts sampled from it and the shifted redshifts resulting from the mock data generation procedure.}
 %\end{figure}
 
-In order to accommodate galaxies whose observed redshift $z'_{j}$ is below or above the bounds of the original $K$ bins, additional bins $\{B_{k^{-}}\}_{K^{-}}$ and $\{B_{k^{+}}\}_{K^{+}}$ may need to be defined.  The new set of $K'=K^{-}+K+K^{+}$ bins $\{B_{k'}\}_{K'}$ include the original $K$ bins but add the newly defined bins that share the original width $\bar{\Delta}$ and span the minimal redshift range necessary to include all $z'_{j}$ given that constraint, which is bounded by $z_{k^{-}}\equiv z_{0}-\bar{\Delta}[\max_{z'_{j}\leq z_{0}}(z_{0}-z'_{j})]\mod\bar{\Delta}$ and $z_{k^{+}}\equiv z_{35}+\bar{\Delta}[\max_{z'_{j}\geq z_{35}}(z'_{j}-z_{35})]\mod\bar{\Delta}$.  The discretized posterior $p(B_{k'}|\vec{d}_{j})$ for each galaxy is given by Eq. \ref{eq:zdist} in terms of the quantities available in the catalog and normalized to integrate to unity over the redshift range $[z_{k^{-}},z_{k^{+}}]$.  Fig. \ref{fig:pzs} shows a few examples of simulated zPDFs.
+In order to accommodate galaxies whose observed redshift $z'_{j}$ is below or above the bounds of the original $K$ bins, additional bins $\{B_{k^{-}}\}_{K^{-}}$ and $\{B_{k^{+}}\}_{K^{+}}$ may need to be defined.  The new set of $K'=K^{-}+K+K^{+}$ bins $\{B_{k'}\}_{K'}$ include the original $K$ bins but add the newly defined bins that share the original width $\bar{\Delta}$ and span the minimal redshift range necessary to include all $z'_{j}$ given that constraint, which is bounded by $z_{k^{-}}\equiv z_{0}-\bar{\Delta}[\max_{z'_{j}\leq z_{0}}(z_{0}-z'_{j})]\mod\bar{\Delta}$ and $z_{k^{+}}\equiv z_{K}+\bar{\Delta}[\max_{z'_{j}\geq z_{K}}(z'_{j}-z_{K})]\mod\bar{\Delta}$.  The discretized posterior $p(B_{k'}|\vec{d}_{j})$ for each galaxy is given by Eq. \ref{eq:zdist} in terms of the quantities available in the catalog and normalized to integrate to unity over the redshift range $[z_{k^{-}},z_{k^{+}}]$.  
 
 \begin{eqnarray}
 \label{eq:zdist}
 p(B_{k'}|\vec{d_{j}}) = \frac{\int_{z_{k'}}^{z_{k'+1}} \frac{1}{\sqrt{2\pi\delta_{j}^{2}}}\exp\left[-\frac{(z_{j}'-z)^{2}}{2\delta_{j}^{2}}\right]\ dz}{\int_{z_{k^{-}}}^{z_{k^{+}}} \frac{1}{\sqrt{2\pi\delta_{j}^{2}}}\exp\left[-\frac{(z_{j}'-z)^{2}}{2\delta_{j}^{2}}\right]\ dz}
 \end{eqnarray}
+
+Fig. \ref{fig:pzs} shows a few examples of simulated zPDFs in the case of the $K=35$ redshift bins from $z^{B}_{0}=0$ to $z^{B}_{35}=1.1$ for which \citet{she11} calculated posteriors for the redshift of each galaxy based on observations of the apparent magnitude in the five photometric filters of SDSS.  
 
 \begin{figure}
 \includegraphics[width=\textwidth]{samplepzs.png}
@@ -305,52 +308,66 @@ Two simulated datasets were tested to validate the method, one representing an u
 \subsubsection{Toy Model}
 \label{sec:fake}
 
-We first test the sampler in a simplified case with a delta function for the underlying $N(z)$ for a survey of size $J'$, corresponding to an underlying hyperparameter $\vec{\theta}'$ given by Eq. \ref{eq:faketheta}.  We arbitrarily take $J=J'$ and note that because there is zero weight at $B_{k\neq\tilde{k}}$, the true hyperparameter value $\vec{\tilde{\theta}}$ is equal to the underlying hyperparameter value $\vec{\theta}'$.  Furthermore, for simplicity, we give all galaxies a single true redshift $z_{j}^{0}=\tilde{z}$ equal to the midpoint of bin $B_{\tilde{k}}$.  The catalog of $J$ pairs $(z_{j}',\delta_{j}')$ is straightforwardly generated according to the method described in Sec. \ref{sec:mock}.
+We first test the sampler in a simplified case with a delta function for the underlying $N(z)$ for a survey of size $J'$, corresponding to an underlying hyperparameter $\vec{\theta}'$ given by Eq. \ref{eq:faketheta}.  The parameter space is limited to $K=10$ dimensions with $z_{0}=0.$ and $z_{10}=1.$ to minimize runtime.  We arbitrarily take $J=J'=10$ and note that because there is zero weight at $B_{k\neq\tilde{k}}$, the true hyperparameter value $\vec{\tilde{\theta}}$ is equal to the underlying hyperparameter value $\vec{\theta}'$.  Fig. \ref{fig:deltatrueNz} shows the true $N(z)$ corresponding to this choice of parameter value.  Furthermore, for simplicity, we give all galaxies a single true redshift $z_{j}^{0}=\tilde{z}$ equal to the midpoint of bin $B_{\tilde{k}}$.  The catalog of $J$ pairs $(z_{j}',\delta_{j}')$ is straightforwardly generated according to the method described in Sec. \ref{sec:mock}.  Fig. \ref{fig:toycat} shows the spread in central values for the mean of the Gaussian defining the redshift posterior of each individual galaxy.
 
 \begin{eqnarray}
 \label{eq:faketheta}
 \exp[\theta_{k}'] &=& \left\{\begin{array}{cc}0&k\neq\tilde{k}\\ \frac{J'}{\bar{\Delta}}&k=\tilde{k}\end{array}\right\}
 \end{eqnarray}
 
-We choose a prior distribution of a multivariate normal centered at a flat $\vec{\theta}^{0}$ with the identity as the covariance matrix $\textul{\Sigma}$.  Examples of draws from this prior are shown in Fig. \ref{fig:fakeprior}.  We test three procedures for generating initial values for the walkers: samples taken from the prior distribution, samples taken as a Gaussian ball around the mean of the prior distribution, and samples taken as a Gaussian ball around a single sample from the prior distribution.  The sampler is run with 70 walkers initialized as shown in Fig. \ref{fig:fakeival}.
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{toy/trueNz.png}
+\caption{The true value of $N(z)$ in the test case of all galaxies having the same redshift.}
+\label{fig:deltatrueNz}
+\end{figure}
 
 \begin{figure}
-\includegraphics[width=\textwidth]{priorsamps.png}
+\includegraphics[width=0.5\textwidth]{toy/truevmap.png}
+\caption{This plot shows the relationship between the true redshift shared by all galaxies in this survey and the redshift at which the posterior is maximized for each galaxy.}
+\label{fig:toycat}
+\end{figure}
+
+We choose a prior distribution of a multivariate normal centered at a flat $\vec{\theta}^{0}$ with the identity as the covariance matrix $\textul{\Sigma}$.  Examples of draws from this prior are shown in Fig. \ref{fig:fakeprior}.  We test three procedures for generating initial values for the walkers: samples taken from the prior distribution, samples taken as a Gaussian ball around the mean of the prior distribution, and samples taken as a Gaussian ball around a single sample from the prior distribution.  The sampler is run with $20$ walkers initialized as shown in Fig. \ref{fig:fakeival}.
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{toy/priorsamps.png}
 \caption{Examples of draws from the prior of the toy model.}
 \label{fig:fakeprior}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=\textwidth]{initializations.png}
+\includegraphics[width=\textwidth]{toy/initializations.png}
 \caption{Three different methods are tested for selecting the initial values.}
 \label{fig:fakeival}
 \end{figure}
 
-Here we tested several values of $J$ with a single value of $\tilde{k}$ and compared this method to that of \citet{she11}.
+The test was run once for $10,000$ iterations, benchmarked at intervals of $1,000$ iterations.  The diagnostics discussed in Sec. \ref{sec:diag} are shown in Figs. \ref{fig:dumbestacor}, \ref{fig:dumbestfrac}, \ref{fig:dumbestprob}, and \ref{fig:dumbestparam}.
 
 \begin{figure}
-\includegraphics[width=\textwidth]{acorr.pdf}
+\includegraphics[width=0.5\textwidth]{toy/times.png}
 \caption{The autocorrelation times are very low, indicating extremely fast convergence of the sampler.}
 \label{fig:dumbestacor}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=\textwidth]{fracs.pdf}
-\caption{The acceptance fractions are a bit low but not far from the desired range for all initialization procedures.  As expected, the acceptance fraction is lower in general for larger numbers of data points, as the parameters must be chosen to fit a more complicated likelihood.}
+\includegraphics[width=0.5\textwidth]{toy/fracs.png}
+\caption{The acceptance fractions are a bit high but not far from the desired range for all initialization procedures.  As expected, the variance in acceptance fraction across the walkers decreases with the number of iterations.}
 \label{fig:dumbestfrac}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=\textwidth]{lnprobs.pdf}
-\caption{This plot shows the log probabilities of walkers as a function of iteration number.  One can see the duration of the burn-in period.}
+\includegraphics[width=0.5\textwidth]{toy/probs.png}
+\caption{This plot shows the log probabilities of walkers as a function of iteration number.  One can see the duration of the burn-in period is less than $1,000$ iterations.}
 \label{fig:dumbestprob}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=\textwidth]{results.pdf}
-\caption{The results of the simulation may be seen here.  By way of the $\chi^{2}$ statistic (incorrectly labeled $\sigma^{2}$ in this draft), one can see that in estimating the log of $N(z)$, the result of the method of \citet{she11} is inferior to the method presented in this paper.}
+\includegraphics[width=0.5\textwidth]{toy/samps.png}
+\caption{The results of the simulation may be seen here.  By way of the variance $\sigma^{2}$ relative to the true value, one can see that in estimating $N(z)$, the result of the stacking method is inferior to the method presented in this paper.}
 \label{fig:dumbestparam}
 \end{figure}
+
+Based on this simple test, it can safely be concluded that 
 
 The posterior for the entire dataset introduced in Eq. \ref{eq:cancel} may be re-expressed as Eq. \ref{eq:fullpost} in terms of the $K$ bins.  It is valuable to verify that the posterior is maximized for the true $N(z)$ that generated a particular set of simulated data.
 
@@ -362,7 +379,7 @@ p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}
 \subsubsection{Realistic $N(z)$}
 \label{sec:realnz}
 
-In order to simulate data in the realistic case, we select set a true, physically motivated redshift probability distribution $p^{0}(z|\vec{\theta})$, where $p(z|\vec{\theta})$ corresponds to $\vec{\theta}$ for $J=1$.  The convolution of a linear function and a sum of Gaussians is quite general and accurately generates features observed in the true $N(z)$.  The instance of $p^{0}(z)$ here is shown in Eq. \ref{eq:truepz}, where the constant $C_{c}$ indicates the relative amplitude of the Gaussian component centered at $z_{c}$ with variance $\sigma_{c}^{2}$.  The linear function is evaluated at the centers of the bins $\bar{z}_{k}=(z_{k+1}-z_{k})/2$ and is included to ensure that $\lim_{z\to0}N(z)=0$.  The construction of this probability density is illustrated in Fig. \ref{fig:truepz}.  %In the realistic case, we evaluate $p^{0}(z)$ over each bin assuming some expected survey size $J'$ to obtain $\vec{\theta}'$ according to Eq. \ref{eq:truenz}.
+In order to simulate data in the realistic case, we select set a true, physically motivated redshift probability distribution $p^{0}(z|\vec{\theta})$, where $p(z|\vec{\theta})$ corresponds to $\exp[\vec{\theta}]$ for $J=1$.  The convolution of a linear function and a sum of Gaussians is quite general and accurately generates features observed in the true $N(z)$.  The instance of $p^{0}(z)$ here is shown in Eq. \ref{eq:truepz}, where the constant $C_{c}$ indicates the relative amplitude of the Gaussian component centered at $z_{c}$ with variance $\sigma_{c}^{2}$.  The linear function is evaluated at the centers of the bins $\bar{z}_{k}=(z_{k+1}-z_{k})/2$ and is included to ensure that $\lim_{z\to0}N(z)=0$.  The construction of this probability density is illustrated in Fig. \ref{fig:truepz}.  %In the realistic case, we evaluate $p^{0}(z)$ over each bin assuming some expected survey size $J'$ to obtain $\vec{\theta}'$ according to Eq. \ref{eq:truenz}.
 
 \begin{eqnarray}
 \label{eq:truepz}
@@ -371,19 +388,70 @@ p^{0}(z_{k}) &=& \sum_{c=1}^{6}\bar{z}_{k}C_{c}\int_{z_{k}}^{z_{k+1}} \mathcal{N
 
 \begin{figure}
 \includegraphics[width=\textwidth]{truePz.png}
-\caption{We construct $p^{0}$ as a sum of Gaussians.}
+\caption{We construct $p^{0}$ as a sum of Gaussians.  This plot shows the underlying $p(z)$ for$K=35$ redshift bins.}
 \label{fig:truepz}
 \end{figure}
 
-The number of galaxies in the survey $J$ is taken as a random draw from a Poisson distribution centered at $J'$.  Taking $p^{0}(z_{k})$ as the probability that galaxy $j$ has a true redshift within bin $B_{k}$, we draw true redshift bins $\{B_{j}\}_{J}$ for all $J$ galaxies in the survey.  These $J_{k}$ define the true value of the parameters $\vec{\tilde{\theta}}$ via Eq. \ref{eq:dparams}.  True redshifts $z'_{j}$ are taken as draws from a uniform distribution within bin $B_{j}$.
+%The number of galaxies in the survey $J$ is taken as a random draw from a Poisson distribution centered at $J'$.  
+Taking $p^{0}(z_{k})$ as the probability that galaxy $j$ has a true redshift within bin $B_{k}$, we draw true redshift bins $\{B_{j}\}_{J}$ for all $J=100$ galaxies in the survey.  These $J_{k}$ define the true value of the parameters $\vec{\tilde{\theta}}$ via Eq. \ref{eq:dparams}.  The true $N(z)$ in this test is shown in Fig. \ref{fig:realtrueNz}.  True redshifts $z'_{j}$ are taken as draws from a uniform distribution within bin $B_{j}$.  The mean redshift of the Gaussian defining the individual posterior is plotted against the true redshift in Fig. \ref{fig:realcat}.
 
-The calculation is initialized with an interim prior equal to a multivariate normal distribution with mean satisfying $\vec{\theta}'$ and covariance $\textul{\Sigma}$ given by Eq. \ref{eq:covmat}.  The mean chosen here is that of a flat distribution for the expected number of galaxies in the survey $J'$.  The constants $q$, $a$, and $e$ are small numbers chosen to permit draws from the distribution in question to reproduce shapes similar to that of the true parameters $\vec{\tilde{\theta}}$.
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{real/trueNz.png}
+\caption{The true value of $N(z)$ in the case of galaxies drawn from the probability distribution of Fig. \ref{fig:truepz}.}
+\label{fig:realtrueNz}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{real/truevmap.png}
+\caption{This plot shows the relationship between the true redshift shared by all galaxies in this survey and the redshift at which the posterior is maximized for each galaxy.}
+\label{fig:realcat}
+\end{figure}
+
+We choose an interim prior equal to a multivariate normal distribution with mean satisfying $\vec{\theta}'$ and covariance $\textul{\Sigma}$ given by Eq. \ref{eq:covmat}.  The mean chosen here is that of a flat distribution for the expected number of galaxies in the survey $J'$.  The constants $q$, $a$, and $e$ are small numbers chosen to permit draws from the distribution in question to reproduce shapes similar to that of the true parameters $\vec{\tilde{\theta}}$.  Samples from this prior are shown in Fig. \ref{fig:realprior}.  The calculation is initialized with $20$ walkers each with a value chosen from a Gaussian distribution around a sample of the prior.  The initial values of the walkers are shown in Fig. \ref{fig:realival}.
 
 \begin{eqnarray}
 \label{eq:covmat}
 \theta'_{k} &=& \ln[J']-\ln[K]-\ln[\Delta_{k}]\\
 \Sigma_{kk'} &=& q\exp\left[-\frac{a(k-k')^{2}}{2}\right]+e
 \end{eqnarray}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{real/priorsamps.png}
+\caption{Examples of draws from the prior of the realistic model.}
+\label{fig:realprior}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{real/initializations.png}
+\caption{The initial values of the walkers are shown here.}
+\label{fig:realival}
+\end{figure}
+
+The test was run once for $10,000$ iterations, benchmarked at intervals of $1,000$ iterations.  The diagnostics discussed in Sec. \ref{sec:diag} are shown in Figs. \ref{fig:realacor}, \ref{fig:realfrac}, \ref{fig:realprob}, and \ref{fig:realparam}.
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{real/times.png}
+\caption{The autocorrelation times are very low, indicating extremely fast convergence of the sampler.}
+\label{fig:realacor}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{real/fracs.png}
+\caption{The acceptance fractions are a bit high but not far from the desired range for all initialization procedures.  As expected, the variance in acceptance fraction across the walkers decreases with the number of iterations.}
+\label{fig:realfrac}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{real/probs.png}
+\caption{This plot shows the log probabilities of walkers as a function of iteration number.  One can see the duration of the burn-in period is about $3,000$ iterations.}
+\label{fig:realprob}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{real/samps.png}
+\caption{The results of the simulation may be seen here.  By way of the variance $\sigma^{2}$ relative to the true value, one can see that in estimating $N(z)$, the result of the stacking method is inferior to the method presented in this paper.}
+\label{fig:realparam}
+\end{figure}
 
 %\subsubsection{Realistic zPDFs}
 %\label{sec:realpz}
