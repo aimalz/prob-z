@@ -44,13 +44,13 @@ Upcoming galaxy surveys aim to produce posterior probability distribution functi
 
 The era of precision cosmology has been enabled by photometric estimation of redshifts previously accessible only by time- and resource-intensive spectroscopic confirmation.  However, photometric redshifts (photo-zs) are susceptible to a number of errors, particularly their inherent noisiness due to the coarseness of photometric filters and catastrophic errors in which galaxies of one type at one redshift are mistaken for galaxies of another type at a different redshift.  In addition to these limitations in accuracy, there is also the matter of precision; photo-zs are often reported with error bars derived without inclusion of all systematic errors, including the different selection effects between the magnitude-spaces of galaxies for which photo-zs are desired and galaxies with spectroscopically confirmed redshifts used to calibrate photo-z estimators.
 
-Since their conception \citep{bau62}, much effort has been dedicated to improving photo-zs, though they are still most commonly obtained by a maximum likelihood estimator (MLE) based on libraries of galaxy spectral energy distribution (SED) templates with conservative approaches to error estimation.  Recent work has focused on identifying and downweighting outliers.  \citep{gor13}  Sophisticated Bayesian techniques and cutting-edge machine learning methods have been employed to improve precision \citep{car10} and accuracy \citep{sad15}. 
+Since their conception \citep{bau62}, much effort has been dedicated to improving photo-zs, though they are still most commonly obtained by a maximum likelihood estimator (MLE) based on libraries of galaxy spectral energy distribution (SED) templates with conservative approaches to error estimation.  Recent work has focused on identifying and removing catastrophic outliers when using photo-zs for inference.  \citep{gor13}  Sophisticated Bayesian techniques and cutting-edge machine learning methods have been employed to improve precision \citep{car10} and accuracy \citep{sad15}. 
 
-An alternative to point estimates of photo-zs is redshift probability distribution function (zPDF) estimation, in which the full posterior probability function of the redshift of a galaxy is produced rather than MLEs.  \citep{bud08}  This option is favorable because it contains more potentially useful information than a point estimate while addressing all the problems associated with point estimates discussed above.  zPDFs are not without their own weaknesses, the foremost of which are the computation time and storage space necessary to calculate and record zPDFs for large galaxy surveys.  The Bayesian prior used in such calculations may be based on either empirical training sets of spectroscopically confirmed galaxies but must nonetheless be made with great caution.
+An alternative to point estimates of photo-zs is redshift probability distribution function (zPDF) estimation, in which the full posterior probability function of the redshift of a galaxy is produced rather than MLEs.  \citep{bud08}  This option is favorable because it contains more potentially useful information than a point estimate while addressing all the problems associated with point estimates discussed above.  For example, there is no need to identify and remove catastrophic outliers because their zPDFs would be automatically downweighted in inference.  zPDFs are not without their own weaknesses, the foremost of which are the computation time and storage space necessary to calculate and record zPDFs for large galaxy surveys.  \citep{car14b}  The Bayesian prior used in such calculations may be based on either empirical training sets of spectroscopically confirmed galaxies but must nonetheless be made with great caution.
 
-There is not yet consensus on the best way to obtain zPDFs, and many methods have been proposed and tested in the literature.  An extension of the BPZ method of \citet{ben00} that produces full posteriors (as opposed to a selection of local maxima) from an SED template library has been employed.  \citep{hil11, kel12, lop14}  zPDFs have also been obtained by a variety of trustworthy data-driven approaches in the literature: $k$-nearest neighbor algorithms with \citep{bal08} and without \citep{she11} inclusion of photometric measurement errors, neural networks \citep{bon13}, self-organizing maps \citep{car14}, prediction tree and random forest classification techniques \citep{car10, car13}.  
+There is not yet consensus on the best way to obtain zPDFs, and many methods have been proposed and tested in the literature.  An extension of the BPZ method of \citet{ben00} that produces full posteriors (as opposed to a selection of local maxima) from an SED template library has been employed.  \citep{hil11, kel12, lop14}  zPDFs have also been obtained by a variety of trustworthy data-driven approaches in the literature: $k$-nearest neighbor algorithms with \citep{bal08} and without \citep{she11} inclusion of photometric measurement errors, neural networks \citep{bon13}, self-organizing maps \citep{car14a}, prediction tree and random forest classification techniques \citep{car10, car13}.  
 
-zPDFs have been produced by completed surveys \citep{hil11, she11} and will be produced by upcoming surveys \citep{abe09, car14}.  Though their potential to improve estimates of physical parameters is tremendous, full posteriors have seldom been used to infer physical parameters.  (Notable exceptions include \citet{app12}.)  Furthermore, no implementation of inference with zPDFs has been presented with a mathematically consistent methodology.  The goal of this paper is to clearly present and validate a technique for the use of zPDFs in inference.  For simplicity, we consider only one-point statistics relevant to cosmology, though future work will extend this technique to higher-order statistics.
+zPDFs have been produced by completed surveys \citep{hil11, she11} and will be produced by upcoming surveys \citep{abe09, car14a}.  Though their potential to improve estimates of physical parameters is tremendous, full posteriors have seldom been used to infer physical parameters.  (Notable exceptions include \citet{app12}.)  Furthermore, no implementation of inference with zPDFs has been presented with a mathematically consistent methodology.  The goal of this paper is to clearly present and validate a technique for the use of zPDFs in inference.  For simplicity, we consider only one-point statistics relevant to cosmology, though future work will extend this technique to higher-order statistics.
 
 The redshift distribution function $N(z)$ serves as an ideal statistic upon which to demonstrate such an approach, in large part because it has been the subject of inference using zPDFs before.  \citep{she11, kel12, ben12, bon13, vii15}  $N(z)$ for observed galaxies can be used to validate survey selection functions used in generation of realistic mock catalogs used for many purposes.  \citep{nor01}  $N(z)$ is also trivially related to the comoving distance density function $n(\chi)$ \citep{hog99}, which is necessary for calculations of weak lensing tomography that are directly used to probe cosmological parameters.  
 
@@ -73,11 +73,12 @@ The redshift distribution function $N(z)$ serves as an ideal statistic upon whic
 %\item \citet{hog12} reviews Bayesian probability, including rectifying some common pitfalls.
 \item \citet{app12} does inference on the WL shear estimator with zPDFs from \citet{kel12}.  They mistakenly refer to the products of BPZ as likelihoods rather than posteriors, and something's a little fishy in the math.
 \item \citet{ben12} calculates $N(z)$ for WL tomography by the stacking method.  They compare stacked zPDFs to a spectroscopically confirmed sample and a reweighting thereof.
-%\item \citet{gor13}
+\item \citet{gor13} presents a likelihood ratio test to identify and remove from inference catastrophic outliers in point-estimate photo-zs.
 %\item \citet{men13}
 %\item \citet{car13}
 %\item \citet{bon13}
-%\item \citet{car14}
+%\item \citet{car14a}
+%\item \citet{car14b}
 %\item \citet{for14}
 %\item \citet{lop14}
 %\item \citet{vii15}
@@ -157,7 +158,7 @@ p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}
 p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}e^{-\int N(z)\ dz}\prod_{j=1}^{J}\int\ p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta})\ dz_{j}
 \end{eqnarray}
 
-However, Eq. \ref{eq:marginalize} contains likelihoods $p(\vec{d}_{j}|z_{j})$ that in this case are inaccessible; it is worth discussing why this is the case.  Both empirical and data-driven methods for obtaining zPDFs effectively assign to each galaxy's photometry $\vec{d}_{j}$ both a redshift $z_{j}$ and some nuisance parameters contained in $\vec{\alpha}$ related to the unobserved spectrum of the galaxy.  If we were to attempt to calculate likelihoods $p(\vec{d}_{j}|z_{j},\vec{\alpha}_{j})$, we would be unable to integrate out these nuisance parameters.  (See \citet{hog12} for a comprehensive explanation of the mathematics behind why this is the case.)  However, posteriors $p(z_{j},\vec{\alpha}_{j}|\vec{d}_{j})$ could be transformed to zPDFs $p(z_{j}|\vec{d}_{j})$ by integrating $p(z_{j},\vec{\alpha}_{j}|\vec{d}_{j})\ p(\vec{\alpha}$ with respect to $\vec{\alpha}$, given the prior distribution $p(\vec{\alpha})$ of those parameters.  Instead, we would like to work with posteriors rather than likelihoods in Eq. \ref{eq:marginalize}.  The method outlined here is valid regardless of how the zPDF $p(z_{j}|\vec{d}_{j})$ is calculated so no approach to producing zPDFs will be presented here.  Though it is outside the scope of this paper, various methods have been presented in the literature. \citep{she11, bal08, car13, car14}
+However, Eq. \ref{eq:marginalize} contains likelihoods $p(\vec{d}_{j}|z_{j})$ that in this case are inaccessible; it is worth discussing why this is the case.  Both empirical and data-driven methods for obtaining zPDFs effectively assign to each galaxy's photometry $\vec{d}_{j}$ both a redshift $z_{j}$ and some nuisance parameters contained in $\vec{\alpha}$ related to the unobserved spectrum of the galaxy.  If we were to attempt to calculate likelihoods $p(\vec{d}_{j}|z_{j},\vec{\alpha}_{j})$, we would be unable to integrate out these nuisance parameters.  (See \citet{hog12} for a comprehensive explanation of the mathematics behind why this is the case.)  However, posteriors $p(z_{j},\vec{\alpha}_{j}|\vec{d}_{j})$ could be transformed to zPDFs $p(z_{j}|\vec{d}_{j})$ by integrating $p(z_{j},\vec{\alpha}_{j}|\vec{d}_{j})\ p(\vec{\alpha}$ with respect to $\vec{\alpha}$, given the prior distribution $p(\vec{\alpha})$ of those parameters.  Instead, we would like to work with posteriors rather than likelihoods in Eq. \ref{eq:marginalize}.  The method outlined here is valid regardless of how the zPDF $p(z_{j}|\vec{d}_{j})$ is calculated so no approach to producing zPDFs will be presented here.  Though it is outside the scope of this paper, various methods have been presented in the literature. \citep{she11, bal08, car13, car14a}
 
 To perform the necessary transformation from likelihoods to posteriors, we follow the reasoning of \citet{mar15}.  Let us consider the probability of the parameters $\{z_{j}\}_{J}$ conditioned on the data $\{\vec{d}_{j}\}_{J}$ and an interim prior value of the hyperparameters $\vec{\theta}^{0}$ and rewrite Eq. \ref{eq:marginalize} as Eq. \ref{eq:trick}.  (While we would like any interim prior to be uninformative, this is rarely achievable, so we must be sure to integrate it out to avoid biasing our conclusions by this choice.)  We may then expand the denominator according to Eq. \ref{eq:bayes} to get Eq. \ref{eq:expand}.  The likelihood terms cancel as $p(\vec{d}_{j}|z_{j},\vec{\theta}^{0})=p(\vec{d}_{j}|z_{j})\ p(\vec{d}_{j}|\vec{\theta}^{0})$, yielding Eq. \ref{eq:cancel}.
 
@@ -191,7 +192,7 @@ The method presented here is in contrast with that of \citet{she11}.
 \section{Experiments}
 \label{sec:exp}
 
-We ran several tests of the method to demonstrate its validity and usage.  In Sec. \ref{sec:mock} we describe the method by which sets of simulated zPDFs $\{p(z_{j}|\vec{d}_{j})\}_{J}$ are generated in all test cases.  In Sec. \ref{sec:mcmc} we describe the algorithm used to compute the full posterior distribution $p(\vec{\theta}|\{\vec{d}_{j}\}_{J})$.  In Sec. \ref{sec:diag} we outline the measures used to evaluate the performance of the method, including the competing methods with which our results will be compared.  Then in Sec. \ref{sec:valid} we present the reasoning behind each test, its results, and a comparison with competing methods.
+We ran several tests of the method to demonstrate its validity and usage.  In Sec. \ref{sec:mock} we describe the method by which sets of simulated zPDFs $\{p(z_{j}|\vec{d}_{j})\}_{J}$ are generated in all test cases.  In Sec. \ref{sec:mcmc} we describe the algorithm used to compute the full posterior distribution $p(\vec{\theta}|\{\vec{d}_{j}\}_{J})$.  In Sec. \ref{sec:diag} we outline the measures used to evaluate the performance of the method, including the competing methods with which our results will be compared.  Then in Sec. \ref{sec:valid} we motivate and present the results of several informative tests.
 
 \subsection{Mock Data}
 \label{sec:mock}
@@ -212,7 +213,14 @@ In order to simulate data, we must first simulate the true value of $\vec{\theta
 %\caption{Samples of the number of galaxies in each bin are generated as Poisson draws.}
 %\end{figure}
 
-We next simulate observed zPDFs.  To simulate the innacuracy in measurements, the true redshift of each galaxy $z_{j}^{0}$ is transformed to a shifted redshift $z'_{j}$.  To simulate the fact that such inaccuracy increases at higher redshift, $z'_{j}$ is drawn from a Gaussian distribution with mean of $z_{j}^{0}$ and standard deviation $\delta_{j}\propto(1+z_{j}^{0})$ given by Eq. \ref{eq:zshift}.  In Secs. \ref{sec:fake} and \ref{sec:realnz}, we shall take the continuous zPDFs to be simple Gaussians, each with mean equal to the shifted redshift $z_{j}'$ and standard deviation $\delta'_{j}$ that is itself drawn from a Gaussian of mean $\delta_{j}$ and standard deviation $\delta_{j}$, a relation that is given in Eq. \ref{eq:zspread} and simulates the fact that precision noisily decreases with redshift.  This permits us to record a catalog of data comprised of $J$ pairs $(z_{j}',\delta'_{j})$ from which binned zPDFs may be constructed.  %A natural extension of Gaussian zPDFs to the more realistic case in which $p(z_{j}|\vec{d}_{j})$ is a sum of Gaussian terms of varying weights is developed in Sec. \ref{sec:realpz}.  
+We next simulate surveys of observed zPDFs.  Redshift posteriors of three forms were considered and shall be discussed in detail below.  
+
+\subsubsection{Unimodal zPDFs}
+\label{sec:unimodal}
+
+zPDFs taking the form of a Gaussian distribution around some maximum a posteriori redshift are the simplest extension of point estimates with reported error bars.  In the unimodal case, we construct zPDFs as follows.
+
+To simulate the innacuracy in measurements, the true redshift of each galaxy $z_{j}^{0}$ is transformed to a shifted redshift $z'_{j}$.  To simulate the fact that such inaccuracy increases at higher redshift, $z'_{j}$ is drawn from a Gaussian distribution with mean of $z_{j}^{0}$ and standard deviation $\delta_{j}\propto(1+z_{j}^{0})$ given by Eq. \ref{eq:zshift}.  In Secs. \ref{sec:fake} and \ref{sec:realnz}, we shall take the continuous zPDFs to be simple Gaussians, each with mean equal to the shifted redshift $z_{j}'$ and standard deviation $\delta'_{j}$ that is itself drawn from a Gaussian of mean $\delta_{j}$ and standard deviation $\delta_{j}$, a relation that is given in Eq. \ref{eq:zspread} and simulates the fact that precision noisily decreases with redshift.  This permits us to record a catalog of data comprised of $J$ pairs $(z_{j}',\delta'_{j})$ from which binned zPDFs may be constructed.  %A natural extension of Gaussian zPDFs to the more realistic case in which $p(z_{j}|\vec{d}_{j})$ is a sum of Gaussian terms of varying weights is developed in Sec. \ref{sec:realpz}.  
 
 \begin{eqnarray}
 \label{eq:zshift}
@@ -244,6 +252,16 @@ Fig. \ref{fig:pzs} shows a few examples of simulated zPDFs in the case of the $K
 \caption{Several random redshift likelihood functions selected from the $p^{0}(z)$ of Fig. \ref{fig:truepz} are shown here.  Note that the width of the Gaussian increases with redshift according to Eq. \ref{eq:zdist}.}
 \label{fig:pzs}
 \end{figure}
+
+\subsubsection{Multimodal zPDFs}
+\label{sec:multimodal}
+
+Multimodal zPDFs represent the
+
+\subsubsection{Noisy zPDFs}
+\label{sec:noisy}
+
+One important case to consider is 
 
 \subsection{Computation}
 \label{sec:mcmc}
@@ -324,7 +342,9 @@ It must be noted here that Eq. \ref{eq:stack} is not mathematically valid.  (See
 \subsection{Validation Tests}
 \label{sec:valid}
 
-Two simulated datasets were tested to validate the method, one representing an unrealistic toy model for $N(z)$ in Sec. \ref{sec:fake} and one based on a physically motivated $N(z)$ in Sec. \ref{sec:realnz}.%, and one based on physically motivated zPDFs in Sec. \ref{sec:realpz}.
+The code was tested on several simulated datasets with differing underlying $N(z)$ and the form of the 
+
+Two simulated datasets were tested to validate the method, one representing an unrealistic toy model for $N(z)$ in Sec. \ref{sec:fake} and a fiducial experiment based on a physically motivated $N(z)$ in Sec. \ref{sec:realnz}.%, and one based on physically motivated zPDFs in Sec. \ref{sec:realpz}.
 
 \subsubsection{Toy Model}
 \label{sec:fake}
