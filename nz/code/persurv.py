@@ -1,45 +1,55 @@
+# one of these objects per approximate survey size
+
 import math as m
 import sys
 import numpy as np
 import os
-#import matplotlib.pyplot as plt
+from util import path
+import key
 
+# define class for survey size test
 class persurv(object):
 
-  def __init__(self,meta,p_run,s):
+    path_builder = path("{topdir}/{p}/{s}")
 
-    self.p = p_run.p
-    self.s = s
-    #set true value of N(z) for this survey size
-    self.seed = meta.survs[self.s]
-    self.trueNz = self.seed*p_run.realistic_pdf
-    self.logtrueNz = [m.log(max(self.trueNz[k],sys.float_info.epsilon)) for k in p_run.dimnos]
+    def __init__(self,meta,p_run,s):
+        self.p_run = p_run
+        self.p = p_run.p
+        self.s = s
+        self.path_builder = persurv.path_builder.fill(topdir=meta.topdir, p=p_run.p, s=s)
+        self.key = p_run.key.add(s=s)
 
-    #define flat distribution for N(z)
-    self.flat = self.seed*p_run.avgprob
-    self.logflat = m.log(self.flat)
-    self.flatNz = np.array([self.flat]*p_run.ndims)
-    self.logflatNz = np.array([self.logflat]*p_run.ndims)
+        # set true value of N(z) for this survey size
+        self.seed = meta.survs[self.s]
+        self.trueNz = self.seed*p_run.realistic_pdf
+        self.logtrueNz = [m.log(max(x,sys.float_info.epsilon)) for x in self.trueNz]
 
-    self.topdir_s = p_run.topdir_p+'/'+str(self.seed)
-    if not os.path.exists(self.topdir_s):
-      os.makedirs(self.topdir_s)
+        # define flat distribution for N(z)
+        self.flat = self.seed*p_run.avgprob
+        self.logflat = m.log(self.flat)
+        self.flatNz = np.array([self.flat]*p_run.ndims)
+        self.logflatNz = np.array([self.logflat]*p_run.ndims)
+        self.n_runs = []
 
-#   def plot_setup(self):
-#     f = plt.figure(figsize=(5,5))#*nsurvs,5))#plt.subplots(1, nsurvs, figsize=(5*nsurvs,5))
-#     #print 'created subplots'
-#     #for s in survnos:
-#     sps = f.add_subplot(1,1,1)#,nsurvs,s+1)
-#     sps.set_title(r'True $N(z)$ for '+str(s_run.seed)+' galaxies')
-#     sps.set_xlabel(r'binned $z$')
-#     sps.set_ylabel(r'$\ln N(z)$')
-#     #sps.hlines(logtrueNz[s],zlos,zhis,color='k',linestyle='--',label=r'true $\ln N(z)$')
-#     sps.step(meta.zmids,s_run.logflatNz,color='k',label=r'flat $\ln N(z)$',where='mid')
-#     # thing.step(zmids,[-10]*ndims,color='k',label=r'$J='+str(seed_ngals[s])+r'$')
+        #     # parameters for mcmc, used to need these, keeping around in case I missed one
+        #     self.miniters = self.seed**2#int(1e3)
+        #     self.nsteps = self.p#self.maxiters/self.miniters
+        #     self.maxiters = self.miniters*self.p#int(1e4)
+        #     self.stepnos = np.arange(0,self.nsteps)
+        #     self.iternos = self.miniters*(self.stepnos+1)
+        #     self.oneiternos = range(0,self.miniters)
+        #     self.alliternos = range(0,self.maxiters)
+        #     self.eachiternos = [self.miniters*np.arange(self.stepnos[r]-1,self.stepnos[r]) for r in self.stepnos]
+        #     self.thinto = self.seed#int(1e2)
+        #     self.ntimes = self.miniters/self.thinto
+        #     self.timenos = range(0,self.ntimes)
+        #     self.alltimenos = range(0,self.maxiters/self.thinto,self.thinto)
+        #     self.eachtimenos = [range(self.iternos[r]-self.miniters,self.iternos[r],self.thinto) for r in self.stepnos]
+        #     self.filenames = [str(ins)+'.h' for ins in self.iternos]
+        #     self.outnames = [[t+'/'+r for r in self.filenames] for t in self.outdirs]
 
-#   def plot_wrapup(self):
-#     sps.set_ylim((-1.,ymax[s]+1.))
-#     sps.legend(loc='upper left',fontsize='x-small')
-#     f.savefig(os.path.join(s_run.topdir_s,'trueNz.png'))
+        print('initialized '+str(self.seed)+' galaxy survey')
 
-    print('initialized '+str(self.seed)+' galaxy survey')
+    # associated directory for this survey size
+    def get_dir(self):
+        return self.path_builder.construct()

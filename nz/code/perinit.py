@@ -1,51 +1,86 @@
+# one of these objects per initialization procedure
+
 import os
 import hickle as hkl
 import cPickle
+import statistics
+from subprocess import call
+from permcmc import *
+import stats
 
+# define class per initialization of MCMC
+# will be changing this object at each iteration as it encompasses state
 class perinit(object):
 
-  def __init__(self,meta,p_run,s_run,n_run,i):#input initno
+    def __init__(self, meta, n_run, i):
 
-    self.p = p_run.p
-    self.s = s_run.s
-    self.n = n_run.n
-    self.i = i
-    self.init = meta.inits[i]
-    #set up directory structure
-    self.topdir_i = n_run.topdir_n+'/'+self.init
-    if not os.path.exists(self.topdir_i):
-      os.makedirs(self.topdir_i)
-#    self.fitness = os.path.join(self.topdir_i,'fit.txt')#[[[inpaths[s][n][t]+'fitness.p' for t in testnos] for n in sampnos] for s in survnos]
-#    fittest = open(self.fitness, 'wb')
-#    cPickle.dump([0.,0.],fittest)
-#    fittest.close()
+        self.meta = meta
+        self.p_run = n_run.p_run
+        self.s_run = n_run.s_run
+        self.n_run = n_run
+        self.i = i
+        self.key = n_run.key.add(i=i)
+        self.init = meta.inits[i]
 
-    self.topdirs_o = []
-    self.fitness = []
-    for outdir in meta.outdirs:
-      topdir_o = self.topdir_i+'/'+outdir
-      self.topdirs_o.append(topdir_o)
-      fitfile = os.path.join(topdir_o,'fit.p')
-      self.fitness.append(fitfile)
-      if not os.path.exists(topdir_o):
-        os.makedirs(topdir_o)
-      fittest = open(fitfile,'wb')
-      cPickle.dump([[0.],[]],fittest)
-      fittest.close
+        #generate initial values for walkers
+        if self.init == 'ps':
+            self.iguesses,self.mean = n_run.priordist.sample_ps(n_run.nwalkers)
 
-    #generate initial values for walkers
-    if self.init == 'ps':
-      self.iguesses,self.mean = n_run.priordist.sample_ps(n_run.nwalkers)
+        elif self.init == 'gm':
+            self.iguesses,self.mean = n_run.priordist.sample_gm(n_run.nwalkers)
 
-    elif self.init == 'gm':
-      self.iguesses,self.mean = n_run.priordist.sample_gm(n_run.nwalkers)
+        elif self.init == 'gs':
+            self.iguesses,self.mean = n_run.priordist.sample_gs(n_run.nwalkers)
 
-    elif self.init == 'gs':
-      self.iguesses,self.mean = n_run.priordist.sample_gs(n_run.nwalkers)
+        print('initialized '+str(self.meta.init_names[self.i])+' sampling')
 
-    self.sampler = n_run.sampler
+        # what outputs of emcee will we be saving?
+        self.stats = [ stats.stat_chains(self),
+                       stats.stat_probs(self),
+                       stats.stat_fracs(self),
+                       stats.stat_times(self) ]
+        n_run.i_runs.append(self)
 
-    #self.filename = [topdirs_o+'/'+str(x)+'.h' for x in meta.plot_iters]
-    #self.outnames = [[os.path.join(i_run.topdir_i,meta.outnames[t][r]) for r in meta.stepnos] for t in statnos]
+    # retrieve last saved state
+    def get_last_state(self):
+        iterno = self.key.load_iterno(self.meta.topdir)
+        print('getting state:' + str(self.key))
+        state = self.key.add(r = iterno).load_state(self.meta.topdir)
+        if state is not None:
+            print ('state restored at: {}/{} runs', state.runs, self.key.r)
+            return state
+        return permcmc(self)
 
-    print('initialized '+str(meta.init_names[self.i])+' sampling')
+    # retrieve all saved states
+    def get_all_states(self):
+        iterno = self.key.load_iterno(self.meta.topdir)
+        if iterno is None:
+            print ("BLOODY HELL, I couldn't find the number of iterations, assuming 0")
+            return []
+        print('getting state:' + str(self.key))
+        # check this: is there an off-by-one here?
+        states = [self.key.add(r=r).load_state(self.meta.topdir) for r in xrange(iterno)]
+        return states
+
+    # update goodness of fit tests calculated at each set of iterations
+    def load_fitness(self, category):
+        iterno = self.key.load_iterno(self.meta.topdir)
+        vars = ['tot_ls', 'tot_s', 'var_ls', 'var_s']
+        retval = {var : [] for var in vars}
+        if iterno is None:
+            print ("BLOODY HELL, I couldn't find the number of iterations, assuming 0")
+            return retval
+        # TODO: this currently returns a list of tuples, rather than a tuple of lists.
+        fitness_list =  self.key.load_stats(self.meta.topdir, category, iterno)
+        for per_iter in fitness_list:
+            print ("per_iter: {}".format(per_iter))
+            for var in vars:
+                if isinstance(per_iter[var], list):
+                    retval[var].extend(per_iter[var])
+                else:
+                    retval[var].append(per_iter[var])
+        return retval
+
+    # sample this using information defined for each run of MCMC
+    def samplings(self):
+        return permcmc(self).samplings()
