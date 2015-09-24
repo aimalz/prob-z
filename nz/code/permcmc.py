@@ -61,7 +61,7 @@ class permcmc(object):
         self.runs = 0
 
         with open(self.meta.calctime,'w') as calctimer:
-            calctimer.write('\n')
+            calctimer.write(str(timeit.default_timer())+' icalc \n')
             calctimer.close()
 
     # sample with emcee and provide output

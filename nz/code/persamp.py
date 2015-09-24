@@ -2,7 +2,6 @@
 
 import os
 import random
-import bisect
 import cPickle
 import numpy as np
 import sys
@@ -37,6 +36,7 @@ class persamp(object):
           self.ngals = ngals = np.random.poisson(s_run.seed)#[[np.random.poisson(seed) for n in sampnos] for s in survnos]
         else:
           self.ngals = s_run.seed
+        print('ngals='+str(self.ngals))
 
         self.filltrue()
         self.fillcat()
@@ -85,11 +85,13 @@ class persamp(object):
 
         #test all galaxies in survey have same true redshift vs. sample from truePz
         if self.meta.random:
-            for g in range(0,self.ngals):
-              count[choice(self.p_run.dimnos, self.p_run.truePz)] += 1
+            for j in range(0,self.ngals):
+              count[choice(xrange(self.p_run.ndims), self.p_run.truePz)] += 1
+              #count[choice(xrange(self.p_run.ndims), self.p_run.flatPz)] += 1
         else:
             chosenbin = np.argmax(self.p_run.truePz)
             count[chosenbin] = self.ngals
+        print('count='+str(count))
 
         self.count = np.array(count)
 
@@ -101,9 +103,10 @@ class persamp(object):
 
         # assign actual redshifts either uniformly or identically to mean
         if self.meta.uniform:
-            self.trueZs = ([random.uniform(self.p_run.zlos[k],self.p_run.zhis[k]) for k in lrange(self.p_run.ndims) for j in xrange(count[k])])
+            self.trueZs = np.array([random.uniform(self.p_run.zlos[k],self.p_run.zhis[k]) for k in xrange(self.p_run.ndims) for j in xrange(count[k])])
         else:
             self.trueZs = np.array([self.p_run.zmids[k] for k in xrange(self.p_run.ndims) for j in xrange(self.count[k])])
+        print('trueZs='+str(self.trueZs))
 
         self.key.store_true(self.meta.topdir,
                             {'count': self.count,
@@ -137,8 +140,8 @@ class persamp(object):
             npeaks = [1]*self.ngals
 
         # jitter zs to simulate inaccuracy, choose variance randomly for eah peak
-        shiftZs = np.array([[random.gauss(self.trueZs[j],varZs[j]) for p in xrange(npeak)] for npeak in npeaks])
-        sigZs = np.array([[abs(random.gauss(varZs[j],varZs[j])) for p in xrange(npeak)] for npeak in npeaks])
+        shiftZs = np.array([[np.random.normal(loc=self.trueZs[j],scale=varZs[j]) for p in xrange(npeaks[j])] for j in xrange(0,self.ngals)])
+        sigZs = np.array([[abs(random.gauss(varZs[j],varZs[j])) for p in xrange(npeaks[j])] for j in xrange(0,self.ngals)])
 
         self.minobs = min(min(shiftZs))
         self.maxobs = max(max(shiftZs))
@@ -191,8 +194,8 @@ class persamp(object):
             if self.meta.noise:
                 spob = [sys.float_info.epsilon]*self.nbins
                 for k in self.binnos:
-                    spob[choice(self.binnos, pob)] += self.meta.zdif
-                    pob = spob
+                    spob[choice(self.binnos, pob)] += 1.
+                pob = np.array(spob)/sum(spob)/self.meta.zdif
 
             logpob = [m.log(max(p_i,sys.float_info.epsilon)) for p_i in pob]
             logpobs.append(logpob)

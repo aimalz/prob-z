@@ -24,7 +24,7 @@ class perparam(object):
         self.zmids = (self.zlos+self.zhis)/2.
         self.zavg = sum(self.zmids)/self.ndims
 
-        # define underlying P(z) for this number of parameters
+        # define realistic underlying P(z) for this number of parameters
         self.realsum = sum(meta.realistic[:self.ndims])
         self.realistic_pdf = np.array([meta.realistic[k]/self.realsum/meta.zdifs[k] for k in xrange(0,self.ndims)])
         self.truePz = self.realistic_pdf

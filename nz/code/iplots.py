@@ -47,9 +47,9 @@ def initial_plots(meta, runs):
                 plot_ivals_wrapup(ivals, *sampinfo)
             plot_true_wrapup(plot_true_tup, *survinfo)
 #             plot_truevmap_wrapup(truevmap, *survinfo)
-    print('Initial plots completed.')
+    print('initial plots completed')
     with open(meta.plottime,'w') as plottimer:
-            plottimer.write('\n')
+            plottimer.write(str(timeit.default_timer())+' iplots \n')
             plottimer.close()
 
 # plot the underlying P(z) and its components
@@ -105,16 +105,18 @@ def plot_true_wrapup((f,sps),meta,p_run,s_run):
 # plot some individual posteriors
 def plot_pdfs(meta,p_run,s_run,n_run):
 
-  a = min(float(len(meta.colors))/m.sqrt(s_run.seed),1.)
+  #a = min(float(len(meta.colors))/m.sqrt(s_run.seed),1.)
   f = plt.figure(figsize=(5,5))
   sps = f.add_subplot(1,1,1)
-  f.suptitle('Observed galaxy posteriors')
+  f.suptitle('Observed galaxy posteriors\n multimodal='+str(meta.shape)+', noise='+str(meta.noise))
   randos = random.sample(xrange(n_run.ngals),len(meta.colors))#n_run.ngals
-  for r in randos:
-    sps.step(n_run.binmids,n_run.pobs[r],where='mid',alpha=a)
+  for r in lrange(randos):
+    sps.step(n_run.binmids,n_run.pobs[randos[r]],where='mid',color=meta.colors[r])#,alpha=a)
+    sps.vlines(n_run.trueZs[randos[r]],0.,max(n_run.pobs[randos[r]]),color=meta.colors[r],linestyle='--')
   sps.set_ylabel(r'$p(z|\vec{d})$')
   sps.set_xlabel(r'$z$')
   sps.set_xlim(n_run.binlos[0]-meta.zdif,n_run.binhis[-1]+meta.zdif)
+  sps.set_ylim(0.,1./meta.zdif)
   f.savefig(os.path.join(p_run.get_dir(),'samplepzs.png'))
   return
 

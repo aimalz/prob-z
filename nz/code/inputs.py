@@ -61,16 +61,16 @@ class setup(object):
         self.params = [self.allnbins]
 
         # generate number of galaxies in survey/s
-        self.survs = [100]
+        self.survs = [10]
 
         # instantiations of the survey (more than 1 breaks some plots)
         self.samps = 1
         self.poisson = 0#0 for set number of galaxies, 1 for statistical sample around target
-        self.random = 0#0 for all galaxies having same true redshift bin, 1 for statistical sample around underlying P(z)
-        self.uniform = 0#0 for all galaxies having mean redshift of bin, 1 for uniform sampling
+        self.random = 1#0 for all galaxies having same true redshift bin, 1 for statistical sample around underlying P(z)
+        self.uniform = 1#0 for all galaxies having mean redshift of bin, 1 for uniform sampling
 
         # permit more complicated p(z)s
-        self.shape = 0# 0 for unimodal, 1 for multimodal
+        self.shape = 0#0 for unimodal, 1 for multimodal
         self.noise = 0#0 for noiseless, 1 for noisy
 
         # initialization schemes
@@ -78,8 +78,8 @@ class setup(object):
         self.inits = ['gs']#corresponding to 'ps', 'gm'
 
         # parameters for MCMC
-        self.thinto = int(1e2)
         self.miniters = int(1e3)
+        self.thinto = int(1e2)
         self.ntimes = self.miniters / self.thinto
 
         # colors for plots
@@ -93,5 +93,25 @@ class setup(object):
 #                 self.olddata = 1
 #         else:
 #             cPickle.dump(self,open('test.p','wb'))
+
+        readme_dict = {
+            'topdir': self.topdir,
+            'allzs': self.allzs,
+            'params': self.params,
+            'survs': self.survs,
+            'samps': self.samps,
+            'poisson': self.poisson,
+            'random': self.random,
+            'uniform': self.uniform,
+            'shape': self.shape,
+            'noise': self.noise,
+            'inits': self.inits,
+            'miniters': self.miniters,
+            'thinto': self.thinto
+            }
+
+        readme = open(os.path.join(self.topdir,'README.md'), 'w' )
+        readme.write(repr(readme_dict))
+        readme.close()
 
         print('done setting up metaparameters')

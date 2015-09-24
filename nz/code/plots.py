@@ -206,8 +206,11 @@ class plotter_chains(plotter):
                 sps_chain[k].legend(fontsize='small', loc='upper right')
 
     def plot(self,key):
-        print('chains plot key '+str(key))
-        if not key.burnin:
+
+        if key.burnin:
+            with open(self.meta.plottime,'a') as plottimer:
+              plottimer.write(str(timeit.default_timer())+' '+str(key)+' nope \n')
+              plottimer.close()
             return
 
         data = key.load_state(self.meta.topdir)['chains']
@@ -312,12 +315,12 @@ class plotter_chains(plotter):
                                             n_run.binlos,
                                             n_run.binhis,
                                             color=meta.colors[i],
-                                            label=meta.init_names[i]+'\n'+r'$\sigma^{2}='+str(tot_ls)+r'$')
+                                            label=meta.init_names[i]+'\n'+r'$\sigma^{2}='+str(tot_ls[-1])+r'$')
                 self.sps_samps[1][n].hlines(dummy_samp,
                                             n_run.binlos,
                                             n_run.binhis,
                                             color=meta.colors[i],
-                                            label=meta.init_names[i]+'\n'+r'$\sigma^{2}='+str(tot_s)+r'$')
+                                            label=meta.init_names[i]+'\n'+r'$\sigma^{2}='+str(tot_s[-1])+r'$')
             maxsteps = self.last_key.r
             maxiternos = np.arange(0,maxsteps)
             for k in n_run.binnos:

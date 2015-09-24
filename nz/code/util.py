@@ -2,6 +2,8 @@
 
 import sys
 import numpy as np
+import random
+import bisect
 
 # constructs a range for every element in a list
 def lrange(l):
