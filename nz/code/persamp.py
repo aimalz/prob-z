@@ -32,7 +32,7 @@ class persamp(object):
         self.true_path_builder = path("")
 
         # sample some number of galaxies, poisson or set
-        if meta.poisson:
+        if meta.poisson[self.n]:
           self.ngals = ngals = np.random.poisson(s_run.seed)#[[np.random.poisson(seed) for n in sampnos] for s in survnos]
         else:
           self.ngals = s_run.seed
@@ -45,18 +45,17 @@ class persamp(object):
 
         self.fillsummary()
 
-        #print(np.shape(self.full_logflatNz))
+#         q = 1.#0.5
+#         e = 0.15/self.meta.zdif**2
+#         tiny = q*1e-6
+#         self.covmat = np.array([[q*m.exp(-0.5*e*(self.binmids[a]-self.binmids[b])**2.) for a in xrange(0,self.nbins)] for b in xrange(0,self.nbins)])+tiny*np.identity(self.nbins)
+        self.covmat = np.identity(self.nbins)
+        self.priordist = mvn(self.full_logflatNz,self.covmat)
 
-        self.priordist = mvn(self.full_logflatNz,np.identity(self.nbins))
-        # add ourself to the list of things that our parent knows about
+        #self.priordist = mvn(self.full_logflatNz,np.identity(self.nbins))
+        ## add ourself to the list of things that our parent knows about
         s_run.n_runs.append(self)
         self.i_runs = []
-
-        # q=1.#0.5
-        # e=0.1/p_run.zdif**2
-        # tiny=q*1e-6
-        # covmat = np.array([[q*m.exp(-0.5*e*(self.binmids[a]-self.binmids[b])**2.) for a in range(0,p_run.nbins)] for b in range(0,p_run.nbins)])+tiny*np.identity(p_run.nbins) for ndim in ndims]
-        # priordist = meta.mvn(self.full_logflatNz,covmat)
 
         #how many walkers
         self.nwalkers = 2*self.nbins
@@ -84,14 +83,14 @@ class persamp(object):
         count = [0]*self.p_run.ndims
 
         #test all galaxies in survey have same true redshift vs. sample from truePz
-        if self.meta.random:
+        if self.meta.random[self.n]:
             for j in range(0,self.ngals):
               count[choice(xrange(self.p_run.ndims), self.p_run.truePz)] += 1
               #count[choice(xrange(self.p_run.ndims), self.p_run.flatPz)] += 1
         else:
             chosenbin = np.argmax(self.p_run.truePz)
             count[chosenbin] = self.ngals
-        print('count='+str(count))
+        #print('count='+str(count))
 
         self.count = np.array(count)
 
@@ -102,11 +101,11 @@ class persamp(object):
         self.logsampPz = np.log(np.array([max(o,sys.float_info.epsilon) for o in self.sampPz]))
 
         # assign actual redshifts either uniformly or identically to mean
-        if self.meta.uniform:
+        if self.meta.uniform[self.n]:
             self.trueZs = np.array([random.uniform(self.p_run.zlos[k],self.p_run.zhis[k]) for k in xrange(self.p_run.ndims) for j in xrange(count[k])])
         else:
             self.trueZs = np.array([self.p_run.zmids[k] for k in xrange(self.p_run.ndims) for j in xrange(self.count[k])])
-        print('trueZs='+str(self.trueZs))
+        #print('trueZs='+str(self.trueZs))
 
         self.key.store_true(self.meta.topdir,
                             {'count': self.count,
@@ -134,14 +133,14 @@ class persamp(object):
         varZs = [self.meta.zdif*modZs[j] for j in xrange(self.ngals)]# for n in sampnos] for s in survnos])#zdif*(trueZs+1.)
 
         # we can re-calculate npeaks later from shiftZs or sigZs.
-        if self.meta.shape:
+        if self.meta.shape[self.n]:
             npeaks = [random.randrange(1,self.p_run.ndims,1) for j in xrange(self.ngals)]
         else:
             npeaks = [1]*self.ngals
 
         # jitter zs to simulate inaccuracy, choose variance randomly for eah peak
         shiftZs = np.array([[np.random.normal(loc=self.trueZs[j],scale=varZs[j]) for p in xrange(npeaks[j])] for j in xrange(0,self.ngals)])
-        sigZs = np.array([[abs(random.gauss(varZs[j],varZs[j])) for p in xrange(npeaks[j])] for j in xrange(0,self.ngals)])
+        sigZs = np.array([[abs(random.gauss(varZs[j],m.sqrt(varZs[j]))) for p in xrange(npeaks[j])] for j in xrange(0,self.ngals)])
 
         self.minobs = min(min(shiftZs))
         self.maxobs = max(max(shiftZs))
@@ -174,6 +173,7 @@ class persamp(object):
         self.obsdata = zip(self.obsZs,self.obserror)
         pobs = []
         logpobs = []
+        mapzs = []
 
         for (obsZ, obserr) in self.obsdata:
             allsummed = [sys.float_info.epsilon]*self.nbins
@@ -191,17 +191,20 @@ class persamp(object):
             pob = allsummed/self.meta.zdif/npeaks
 
             # sample posterior if noisy observation
-            if self.meta.noise:
+            if self.meta.noise[self.n]:
                 spob = [sys.float_info.epsilon]*self.nbins
-                for k in self.binnos:
+                for k in xrange(2*self.nbins):#self.binnos:
                     spob[choice(self.binnos, pob)] += 1.
                 pob = np.array(spob)/sum(spob)/self.meta.zdif
 
+            mapz = self.binmids[np.argmax(pob)]
             logpob = [m.log(max(p_i,sys.float_info.epsilon)) for p_i in pob]
             logpobs.append(logpob)
             pobs.append(pob)
+            mapzs.append(mapz)
         self.pobs = np.array(pobs)
         self.logpobs = np.array(logpobs)
+        self.mapzs = np.array(mapzs)
 
         # generate full Sheldon, et al. 2011 "posterior"
         stackprep = np.sum(np.array(pobs),axis=0)

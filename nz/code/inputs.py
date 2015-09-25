@@ -32,7 +32,7 @@ class setup(object):
         #self.allzs = np.unique(np.concatenate([self.allzlos,self.allzhis]))
 
         # synthetic redshift bins
-        self.allnbins = 25
+        self.allnbins = 10
         self.binstep = 1. / self.allnbins
         self.allzs = np.arange(0., 1. + self.binstep, self.binstep)
         self.allzlos = np.arange(0., 1., self.binstep)#self.allzs[:-1]
@@ -61,17 +61,17 @@ class setup(object):
         self.params = [self.allnbins]
 
         # generate number of galaxies in survey/s
-        self.survs = [10]
+        self.survs = [100]
 
         # instantiations of the survey (more than 1 breaks some plots)
-        self.samps = 1
-        self.poisson = 0#0 for set number of galaxies, 1 for statistical sample around target
-        self.random = 1#0 for all galaxies having same true redshift bin, 1 for statistical sample around underlying P(z)
-        self.uniform = 1#0 for all galaxies having mean redshift of bin, 1 for uniform sampling
+        self.samps = 4
+        self.poisson = [0,0,0,0]#0 for set number of galaxies, 1 for statistical sample around target
+        self.random = [0,0,0,0]#0 for all galaxies having same true redshift bin, 1 for statistical sample around underlying P(z)
+        self.uniform = [0,0,0,0]#0 for all galaxies having mean redshift of bin, 1 for uniform sampling
 
         # permit more complicated p(z)s
-        self.shape = 0#0 for unimodal, 1 for multimodal
-        self.noise = 0#0 for noiseless, 1 for noisy
+        self.shape = [0,0,1,1]#0 for unimodal, 1 for multimodal
+        self.noise = [0,1,0,1]#0 for noiseless, 1 for noisy
 
         # initialization schemes
         self.init_names = ['Gaussian Ball Around Prior Sample']#may also include 'Prior Samples', 'Gaussian Ball Around Mean'
