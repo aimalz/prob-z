@@ -272,11 +272,10 @@ If $r<0$, select a random number $n$ from the uniform distribution between 0 and
 \begin{enumerate}
 \item If $n<\exp[r]$, set and record $\vec{\theta}=\vec{\theta}^{i}$.
 \end{enumerate}
-\item Check if the threshold has been achieved; if not, return to Step \ref{it:randsamp}.
+\item Check if the threshold condition has been achieved; if not, return to Step \ref{it:randsamp}.
 \end{enumerate}
 
-%Here, the threshold was $I=10^{4}$ iterations.  All accepted proposals from one instance of the code are shown in Fig. %\ref{fig:results}
-%The acceptance fraction was $\sim0.1\%$ for this and other runs.  Since 10000 iterations likely doesn't even get through the ``burn-in'' period of the algorithm, this acceptance fraction is not surprising!  If I were convinced it were otherwise valid, I would run it until some convergence criterion were achieved.  However, since that might take quite some time, I will conservatively refrain from doing so.
+Here, the threshold condition is defined in terms of sub-runs of $I'=10^{3}$ iterations.  When the variance of the log probabilities is less than the change in median log probability over the sub-run, the burn-in period is considered complete.  When this occurs, an additional number of sub-runs equal to the number of sub-runs consumed by the burn-in period are completed such that $I=2I'$.  was $I=10^{4}$ iterations.  
 
 \subsection{Diagnostics}
 \label{sec:diag}
@@ -323,24 +322,14 @@ It must be noted here that Eq. \ref{eq:stack} is not mathematically valid.  (See
 \subsection{Validation Tests}
 \label{sec:valid}
 
-The code was tested on several simulated datasets with differing underlying $N(z)$ and the form of the zPDFs.  A preliminary test was run on the "toy model" case of a true redshift distribution that is a delta function, wherein all galaxies share the same true redshift.  
-
-%- The fiducial experiment, which makes fake data from the lumpy N(z) and recovers it well.  This case needs to be well documented with plots.  These plots need to show the true redshift distribution, the interim prior used to make the redshifts, the p(z) functions for a few example objects, the result of histogramming the modes of p(z) and also of coadding the p(z) functions, and our result (as a sampling).
-
-%- The "highly informative" case of the narrow true distribution (the case we did first).  All the plots again.
-
-%- The fiducial case but where the individual-object p(z) functions are multi-modal.  All the plots again.
-
-%- The fiducial case but where the interim prior p_0(z) is highly featured.  Indeed, our p_0(z) should always be odd and inappropriate, because (in most cases) the prior is a histogram of a training set of galaxies!  But in this experiment we should make it super-weird.
-
-%- The fiducial case but where the individual object p(z) functions are very noisy.  (For example, constructed by making histograms of (say) 30 z samples.)
+The code was tested on several simulated datasets with different underlying $N(z)$ and the forms of the zPDFs.  A preliminary test was run on the "toy model" case of a true redshift distribution that is a delta function, wherein all galaxies share the same true redshift.  
 
 Two simulated datasets were tested to validate the method, one representing an unrealistic toy model for $N(z)$ in Sec. \ref{sec:fake} and a fiducial experiment based on a physically motivated $N(z)$ in Sec. \ref{sec:realnz}.%, and one based on physically motivated zPDFs in Sec. \ref{sec:realpz}.
 
 \subsubsection{Toy Model}
 \label{sec:fake}
 
-We first test the sampler in a simplified case with a delta function for the underlying $N(z)$ for a survey of size $J'$, corresponding to an underlying hyperparameter $\vec{\theta}'$ given by Eq. \ref{eq:faketheta}.  The parameter space is limited to $K=10$ dimensions with $z_{0}=0.$ and $z_{10}=1.$ to minimize runtime.  We arbitrarily take $J=J'=10$ and note that because there is zero weight at $B_{k\neq\tilde{k}}$, the true hyperparameter value $\vec{\tilde{\theta}}$ is equal to the underlying hyperparameter value $\vec{\theta}'$.  Fig. \ref{fig:deltatrueNz} shows the true $N(z)$ corresponding to this choice of parameter value.  Furthermore, for simplicity, we give all galaxies a single true redshift $z_{j}^{0}=\tilde{z}$ equal to the midpoint of bin $B_{\tilde{k}}$.  The catalog of $J$ pairs $(z_{j}',\delta_{j}')$ is straightforwardly generated according to the method described in Sec. \ref{sec:mock}.  Fig. \ref{fig:toycat} shows the spread in central values for the mean of the Gaussian defining the redshift posterior of each individual galaxy.
+We first test the sampler in a simplified case with a delta function for the underlying $N(z)$ in which all galaxies have true redshifts in the same bin for a survey of size $J'$, corresponding to an underlying hyperparameter $\vec{\theta}'$ given by Eq. \ref{eq:faketheta}.  The parameter space is limited to $K=10$ dimensions with $z_{0}=0.$ and $z_{10}=1.$ to minimize runtime.  We arbitrarily take $J=J'=100$ and note that because there is zero weight at $B_{k\neq\tilde{k}}$, the true hyperparameter value $\vec{\tilde{\theta}}$ is equal to the underlying hyperparameter value $\vec{\theta}'$.  Fig. \ref{fig:deltatrueNz} shows the true $N(z)$ corresponding to this choice of parameter value.  Furthermore, for simplicity, we give all galaxies a single true redshift $z_{j}^{0}=\tilde{z}$ equal to the midpoint of bin $B_{\tilde{k}}$.  All four combinations of unimodal/multimodal zPDF shapes and noiseless/noisy observations are tested as described in Sec. \ref{sec:mock}.  Fig. \ref{fig:toycat} shows the spread in maximum a posteriori values versus the true redshifts in each case.
 
 \begin{eqnarray}
 \label{eq:faketheta}
@@ -348,65 +337,63 @@ We first test the sampler in a simplified case with a delta function for the und
 \end{eqnarray}
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{toy/trueNz.png}
-\caption{The true value of $N(z)$ in the test case of all galaxies having the same redshift.}
+\includegraphics[width=0.5\textwidth]{trueNz-toy.png}
+\caption{The true value of $N(z)$ in the test case of all galaxies having the same redshift, compared with a flat $N(z)$ distribution.}
 \label{fig:deltatrueNz}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{toy/truevmap.png}
-\caption{This plot shows the relationship between the true redshift shared by all galaxies in this survey and the redshift at which the posterior is maximized for each galaxy.}
+\includegraphics[width=0.5\textwidth]{truevmap-toy.png}
+\caption{This plot shows the relationship between the true redshift shared by all galaxies in this survey and the mean redshift of the bin in which the posterior is maximized for each galaxy for each set of mock data tested.}
 \label{fig:toycat}
 \end{figure}
 
-We choose a prior distribution of a multivariate normal centered at a flat $\vec{\theta}^{0}$ with the identity as the covariance matrix $\textul{\Sigma}$.  Examples of draws from this prior are shown in Fig. \ref{fig:fakeprior}.  We test three procedures for generating initial values for the walkers: samples taken from the prior distribution, samples taken as a Gaussian ball around the mean of the prior distribution, and samples taken as a Gaussian ball around a single sample from the prior distribution.  The sampler is run with $20$ walkers initialized as shown in Fig. \ref{fig:fakeival}.
+We choose a prior distribution of a multivariate normal centered at a flat $\vec{\theta}^{0}$ with the identity as the covariance matrix $\textul{\Sigma}$.  The diagnostics discussed in Sec. \ref{sec:diag} are shown in Figs. \ref{fig:dumbestacor}, \ref{fig:dumbestfrac}, \ref{fig:dumbestprob}, and \ref{fig:dumbestparam}.%Examples of draws from this prior are shown in Fig. \ref{fig:fakeprior}.  %We test three procedures for generating initial values for the walkers: samples taken from the prior distribution, samples taken as a Gaussian ball around the mean of the prior distribution, and samples taken as a Gaussian ball around a single sample from the prior distribution.  The sampler is run with $20$ walkers initialized as shown in Fig. \ref{fig:fakeival}.
+
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{toy/priorsamps.png}
+%\caption{Examples of draws from the prior of the toy model.}
+%\label{fig:fakeprior}
+%\end{figure}
+
+%\begin{figure}
+%\includegraphics[width=\textwidth]{toy/initializations.png}
+%\caption{Three different methods are tested for selecting the initial values.}
+%\label{fig:fakeival}
+%\end{figure}
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{toy/priorsamps.png}
-\caption{Examples of draws from the prior of the toy model.}
-\label{fig:fakeprior}
-\end{figure}
-
-\begin{figure}
-\includegraphics[width=\textwidth]{toy/initializations.png}
-\caption{Three different methods are tested for selecting the initial values.}
-\label{fig:fakeival}
-\end{figure}
-
-The test was run once for $10,000$ iterations, benchmarked at intervals of $1,000$ iterations.  The diagnostics discussed in Sec. \ref{sec:diag} are shown in Figs. \ref{fig:dumbestacor}, \ref{fig:dumbestfrac}, \ref{fig:dumbestprob}, and \ref{fig:dumbestparam}.
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{toy/times.png}
+\includegraphics[width=0.5\textwidth]{times-toy.png}
 \caption{The autocorrelation times are very low, indicating extremely fast convergence of the sampler.}
 \label{fig:dumbestacor}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{toy/fracs.png}
-\caption{The acceptance fractions are a bit high but not far from the desired range for all initialization procedures.  As expected, the variance in acceptance fraction across the walkers decreases with the number of iterations.}
+\includegraphics[width=0.5\textwidth]{fracs-toy.png}
+\caption{The acceptance fractions are within the desired range for all choices of mock data.}
 \label{fig:dumbestfrac}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{toy/probs.png}
-\caption{This plot shows the log probabilities of walkers as a function of iteration number.  One can see the duration of the burn-in period is less than $1,000$ iterations.}
+\includegraphics[width=0.5\textwidth]{probs-toy.png}
+\caption{This plot shows the log probabilities of walkers as a function of iteration number.  One can see the duration of the burn-in period is less than $10^{3}$ iterations.}
 \label{fig:dumbestprob}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{toy/samps.png}
+\includegraphics[width=\textwidth]{samps-toy.png}
 \caption{The results of the simulation may be seen here.  By way of the variance $\sigma^{2}$ relative to the true value, one can see that in estimating $N(z)$, the result of the stacking method is inferior to the method presented in this paper.}
 \label{fig:dumbestparam}
 \end{figure}
 
-Based on this simple test, it can safely be concluded that 
+Based on this simple test, it can safely be concluded that more accurate estimates of $N(z)$ are enabled by the statistically sound technique developed here.
 
-The posterior for the entire dataset introduced in Eq. \ref{eq:cancel} may be re-expressed as Eq. \ref{eq:fullpost} in terms of the $K$ bins.  It is valuable to verify that the posterior is maximized for the true $N(z)$ that generated a particular set of simulated data.
+%The posterior for the entire dataset introduced in Eq. \ref{eq:cancel} may be re-expressed as Eq. \ref{eq:fullpost} in terms of the $K$ bins.  It is valuable to verify that the posterior is maximized for the true $N(z)$ that generated a particular set of simulated data.
 
-\begin{eqnarray}
-\label{eq:fullpost}
-p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}\ \exp\left[-\sum_{k=1}^{K}\exp[\theta_{k}]\Delta_{k}\right]\ \prod_{j=1}^{J}\ \sum_{k=1}^{K}\ p(B_{k}|\vec{d}_{j})\ \frac{\exp[\theta_{k}]}{\exp[\theta_{k}^{0}]}\Delta_{k}
-\end{eqnarray}
+%\begin{eqnarray}
+%\label{eq:fullpost}
+%p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}\ \exp\left[-\sum_{k=1}^{K}\exp[\theta_{k}]\Delta_{k}\right]\ \prod_{j=1}^{J}\ \sum_{k=1}^{K}\ p(B_{k}|\vec{d}_{j})\ \frac{\exp[\theta_{k}]}{\exp[\theta_{k}^{0}]}\Delta_{k}
+%\end{eqnarray}
 
 \subsubsection{Realistic $N(z)$}
 \label{sec:realnz}
@@ -424,8 +411,9 @@ p^{0}(z_{k}) &=& \sum_{c=1}^{6}\bar{z}_{k}C_{c}\int_{z_{k}}^{z_{k+1}} \mathcal{N
 \label{fig:truepz}
 \end{figure}
 
-%The number of galaxies in the survey $J$ is taken as a random draw from a Poisson distribution centered at $J'$.  
-Taking $p^{0}(z_{k})$ as the probability that galaxy $j$ has a true redshift within bin $B_{k}$, we draw true redshift bins $\{B_{j}\}_{J}$ for all $J=100$ galaxies in the survey.  These $J_{k}$ define the true value of the parameters $\vec{\tilde{\theta}}$ via Eq. \ref{eq:dparams}.  The true $N(z)$ in this test is shown in Fig. \ref{fig:realtrueNz}.  True redshifts $z'_{j}$ are taken as draws from a uniform distribution within bin $B_{j}$.  The mean redshift of the Gaussian defining the individual posterior is plotted against the true redshift in Fig. \ref{fig:realcat}.
+The number of galaxies in the survey $J$ is taken as a random draw from a Poisson distribution centered at $J'=100$.  Taking $p^{0}(z_{k})$ as the probability that galaxy $j$ has a true redshift within bin $B_{k}$, we draw true redshift bins $\{B_{j}\}_{J}$ for all $J$ galaxies in the survey.  These $J_{k}$ define the true value of the parameters $\vec{\tilde{\theta}}$ via Eq. \ref{eq:dparams}.True redshifts $z'_{j}$ are taken as draws from a uniform distribution within bin $B_{j}$.  The mean redshift of the Gaussian defining the individual posterior is plotted against the true redshift in Fig. \ref{fig:realcat}.
+
+We test the realistic case with the same four mock data generation procedures tested in Sec. \ref{sec:toy}.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{real/trueNz.png}
@@ -459,7 +447,15 @@ We choose an interim prior equal to a multivariate normal distribution with mean
 \label{fig:realival}
 \end{figure}
 
-The test was run once for $10,000$ iterations, benchmarked at intervals of $1,000$ iterations.  The diagnostics discussed in Sec. \ref{sec:diag} are shown in Figs. %\ref{fig:realacor}, \ref{fig:realfrac}, \ref{fig:realprob}, and \ref{fig:realparam}.
+%- The fiducial experiment, which makes fake data from the lumpy N(z) and recovers it well.  This case needs to be well documented with plots.  These plots need to show the true redshift distribution, the interim prior used to make the redshifts, the p(z) functions for a few example objects, the result of histogramming the modes of p(z) and also of coadding the p(z) functions, and our result (as a sampling).
+
+%- The fiducial case but where the individual-object p(z) functions are multi-modal.  All the plots again.
+
+%- The fiducial case but where the interim prior p_0(z) is highly featured.  Indeed, our p_0(z) should always be odd and inappropriate, because (in most cases) the prior is a histogram of a training set of galaxies!  But in this experiment we should make it super-weird.
+
+%- The fiducial case but where the individual object p(z) functions are very noisy.  (For example, constructed by making histograms of (say) 30 z samples.)
+
+The diagnostics discussed in Sec. \ref{sec:diag} are shown in Figs. %\ref{fig:realacor}, \ref{fig:realfrac}, \ref{fig:realprob}, and \ref{fig:realparam}.
 
 \begin{figure}
 %\includegraphics[width=0.5\textwidth]{real/times.png}
