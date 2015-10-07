@@ -1,4 +1,8 @@
-# redo state handling with dicts
+"""
+key module defines loading/saving/naming conventions
+"""
+
+# TO DO: redo state handling with dicts or generators rather than lists
 
 from util import path
 import distribute
@@ -8,7 +12,6 @@ import os
 import inputs as meta
 
 # read/write cPickle
-# should work with generators but lists for now
 def safe_load_c(path, num_objs = None):
     print 'loading: ' + path
     if not os.path.exists(path):
@@ -26,7 +29,6 @@ def safe_store_c(path, o):
         cPickle.dump(o, f)
 
 # read/write hickle
-# should work with generators but lists for now
 def safe_load_h(path, num_objs = None):
     if not os.path.exists(path):
         return None
@@ -45,6 +47,7 @@ def safe_store_h(path, o):
 # define templates for path
 true_builder = path("{topdir}/{p}/{s}/{n}/true.p")
 cat_builder = path("{topdir}/{p}/{s}/{n}/cat.p")
+ivals_builder = path("{topdir}/{p}/{s}/{n}/{i}/ivals.p")
 state_builder = path("{topdir}/{p}/{s}/{n}/{i}/state-{r}.p")
 iterno_builder = path("{topdir}/{p}/{s}/{n}/{i}/iterno.p")
 statistics_builder = path("{topdir}/{p}/{s}/{n}/{i}/stat_{stat_name}.p")
@@ -164,6 +167,14 @@ class key(distribute.distribute_key):
         filepath = cat_builder.construct(**self.to_dict({'topdir':topdir}))
         safe_store_c(filepath, o)
 
+    # initial values for plotting
+    def load_ivals(self, topdir):
+        filepath = ivals_builder.construct(**self.to_dict({'topdir':topdir}))
+        return safe_load_c(filepath)
+    def store_ivals(self, topdir, o):
+        filepath = ivals_builder.construct(**self.to_dict({'topdir':topdir}))
+        safe_store_c(filepath, o)
+
     # state is mutable permcmc object at each stage
     def load_state(self, topdir):
         filepath = state_builder.construct(**self.to_dict({'topdir':topdir}))
@@ -189,6 +200,7 @@ class key(distribute.distribute_key):
         filepath = statistics_builder.construct(**self.to_dict({'topdir':topdir, 'stat_name':name}))
         with open(filepath, "ab") as f:
             cPickle.dump(o, f)
+
     def load_data(self, topdir):
         filepath = data_builder.construct(**self.to_dict({'topdir':topdir, 'data_name':name}))
         return safe_load_h(filepath, size)

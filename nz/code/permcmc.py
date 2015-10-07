@@ -1,4 +1,8 @@
-# these functions permit updating of perinit
+"""
+permcmc module governs updating of state information at each step of MCMC
+"""
+
+# TO DO: investigate emcee settings for autocorrelation time
 
 import os
 import timeit
@@ -9,7 +13,7 @@ import cPickle
 from subprocess import call
 import hickle as hkl
 import statistics
-
+import psutil
 
 # test whether burning in or done with that, true if burning in
 def burntest(output,r_run):# of dimensions nwalkers*miniters
@@ -65,6 +69,7 @@ class permcmc(object):
             calctimer.close()
 
     # sample with emcee and provide output
+    # TO DO: change emcee parameters to save less data to reduce i/o and storage
     def sampling(self):
         sampler = self.n_run.sampler
         ivals = self.ivals
@@ -74,7 +79,7 @@ class permcmc(object):
         sampler.reset()
         pos, prob, state = sampler.run_mcmc(ivals,miniters,thin=thinto)
         ovals = [walk[-1] for walk in sampler.chain]
-        times = sampler.get_autocorr_time()#ndims
+        times = sampler.get_autocorr_time(window = 100)#ndims
         fracs = sampler.acceptance_fraction#nwalkers
         probs = sampler.lnprobability#niters*nwalkers
         chains = sampler.chain#niters*nwalkers*ndims
@@ -107,7 +112,8 @@ class permcmc(object):
 
         # record time of calculation for monitoring progress
         with open(self.meta.calctime,'a') as calctimer:
-            calctimer.write(str(timeit.default_timer())+' '+str(self.key)+' '+str(elapsed)+'\n')
+            process = psutil.Process(os.getpid())
+            calctimer.write(str(timeit.default_timer())+' '+str(self.key)+' '+str(elapsed)+' mem:'+str(process.get_memory_info())+'\n')
             calctimer.close()
 
         return outputs

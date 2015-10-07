@@ -1,4 +1,6 @@
-# one of these objects per initialization procedure
+"""
+perinit module permits varying initial conditions for MCMC
+"""
 
 import os
 import hickle as hkl
@@ -15,24 +17,14 @@ class perinit(object):
     def __init__(self, meta, n_run, i):
 
         self.meta = meta
-        self.p_run = n_run.p_run
-        self.s_run = n_run.s_run
         self.n_run = n_run
+        self.s_run = self.n_run.s_run
+        self.p_run = self.n_run.p_run
         self.i = i
-        self.key = n_run.key.add(i=i)
-        self.init = meta.inits[i]
+        self.key = self.n_run.key.add(i=i)
+        self.init = self.meta.inits[i]
 
-        #generate initial values for walkers
-        if self.init == 'ps':
-            self.iguesses,self.mean = n_run.priordist.sample_ps(n_run.nwalkers)
-
-        elif self.init == 'gm':
-            self.iguesses,self.mean = n_run.priordist.sample_gm(n_run.nwalkers)
-
-        elif self.init == 'gs':
-            self.iguesses,self.mean = n_run.priordist.sample_gs(n_run.nwalkers)
-
-        print('initialized '+str(self.meta.init_names[self.i])+' sampling')
+        self.genivals()
 
         # what outputs of emcee will we be saving?
         self.stats = [ stats.stat_chains(self),
@@ -40,6 +32,30 @@ class perinit(object):
                        stats.stat_fracs(self),
                        stats.stat_times(self) ]
         n_run.i_runs.append(self)
+
+    def genivals(self):
+        if self.meta.mcmc == 0:
+            on_disk = self.key.load_ivals(self.meta.topdir)
+            self.iguesses = on_disk['ivals']
+            self.mean = on_disk['mean']
+            print('loaded initialized '+str(self.meta.init_names[self.i])+' sampling')
+            return
+
+        #generate initial values for walkers
+        if self.init == 'ps':
+            self.iguesses,self.mean = self.n_run.priordist.sample_ps(self.n_run.nwalkers)
+
+        elif self.init == 'gm':
+            self.iguesses,self.mean = self.n_run.priordist.sample_gm(self.n_run.nwalkers)
+
+        elif self.init == 'gs':
+            self.iguesses,self.mean = self.n_run.priordist.sample_gs(self.n_run.nwalkers)
+
+        self.key.store_ivals(self.meta.topdir,
+                            {'ivals': self.iguesses,
+                             'mean': self.mean})
+
+        print('initialized '+str(self.meta.init_names[self.i])+' sampling')
 
     # retrieve last saved state
     def get_last_state(self):
@@ -70,7 +86,7 @@ class perinit(object):
         if iterno is None:
             print ("BLOODY HELL, I couldn't find the number of iterations, assuming 0")
             return retval
-        # TODO: this currently returns a list of tuples, rather than a tuple of lists.
+        # TO DO: this currently returns a list of tuples, rather than a tuple of lists.
         fitness_list =  self.key.load_stats(self.meta.topdir, category, iterno)
         for per_iter in fitness_list:
             print ("per_iter: {}".format(per_iter))

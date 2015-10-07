@@ -1,4 +1,6 @@
-# put all the multiprocessing stuff here
+"""
+distribute module sets up for multiprocessing outside of full module
+"""
 
 import multiprocessing as mp
 import sys
@@ -66,7 +68,6 @@ class distribute(object):
         for q in self.queues:
             q.put('done')
             print('put key '+str('done'))
-
 
     def finish_and_wait(self):
         self.finish()

@@ -1,4 +1,8 @@
-# plots made before MCMC that won't need multiprocessing
+"""
+iplots module makes quick plots that don't need multiprocessing before MCMC
+"""
+
+# TO DO: split up datagen and pre-run plots
 
 import matplotlib.pyplot as plt
 import numpy as np

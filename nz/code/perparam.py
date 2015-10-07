@@ -1,4 +1,6 @@
-# one of these objects per dimensionality of N(z) parameters to be tested
+"""
+perparam module permits varying of number of parameters defining N(z)
+"""
 
 import numpy as np
 import sys

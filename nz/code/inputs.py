@@ -1,3 +1,10 @@
+"""
+inputs module contains parameters controlling one run of p(z) inference program
+"""
+
+# TO DO: add docstrings
+# TO DO: add option to generate data only, run only, plot only
+
 import os
 import sys
 import cPickle
@@ -6,22 +13,12 @@ import pyfits
 import math as m
 import numpy as np
 
-#setup object contains inputs of necessary parameters for code
+# setup object contains inputs of necessary parameters for code
 class setup(object):
+    """
+    setup object specifies all parameters controlling one run of p(z) inference program
+    """
     def __init__(self):
-#         # topdir.p is there for debugging purposes, so I don't regenerate data if the problem happens after data is generated
-#         if os.path.isfile('topdir.p'):
-#           self.topdir = cPickle.load(open('topdir.p','rb'))
-#         else:
-#           self.topdir = 'test'+str(round(timeit.default_timer()))
-#           cPickle.dump(self.topdir,open('topdir.p','wb'))
-#           os.makedirs(self.topdir)
-        self.topdir = 'test'+str(round(timeit.default_timer()))
-        os.makedirs(self.topdir)
-
-        # make files to put progress later
-        self.calctime = os.path.join(self.topdir, 'calctimer.txt')
-        self.plottime = os.path.join(self.topdir, 'plottimer.txt')
 
         # Sheldon, et al. 2011 redshift bins
         #loc = "http://data.sdss3.org/sas/dr8/groups/boss/photoObj/photoz-weight/zbins-12.fits"
@@ -66,8 +63,8 @@ class setup(object):
         # instantiations of the survey (more than 1 breaks some plots)
         self.samps = 4
         self.poisson = [0,0,0,0]#0 for set number of galaxies, 1 for statistical sample around target
-        self.random = [0,0,0,0]#0 for all galaxies having same true redshift bin, 1 for statistical sample around underlying P(z)
-        self.uniform = [0,0,0,0]#0 for all galaxies having mean redshift of bin, 1 for uniform sampling
+        self.random = [1,1,1,1]#0 for all galaxies having same true redshift bin, 1 for statistical sample around underlying P(z)
+        self.uniform = [1,1,1,1]#0 for all galaxies having mean redshift of bin, 1 for uniform sampling
 
         # permit more complicated p(z)s
         self.shape = [0,0,1,1]#0 for unimodal, 1 for multimodal
@@ -95,7 +92,7 @@ class setup(object):
 #             cPickle.dump(self,open('test.p','wb'))
 
         readme_dict = {
-            'topdir': self.topdir,
+#             'topdir': self.topdir,
             'allzs': self.allzs,
             'params': self.params,
             'survs': self.survs,
@@ -109,6 +106,31 @@ class setup(object):
             'miniters': self.miniters,
             'thinto': self.thinto
             }
+
+                # generate data y/n
+        self.gendat = 1
+
+        # do MCMC y/n
+        self.mcmc = 1
+
+        # make plots y/n
+        self.plots = 1
+
+        # topdir.p is there for debugging purposes, so I don't regenerate data if the problem happens after data is generated
+        if (self.gendat == 0 or self.mcmc == 0 or self.plots == 0):
+            assert os.path.isfile('topdir.p')
+            self.topdir = cPickle.load(open('topdir.p','rb'))
+            readme = open(os.path.join(self.topdir,'README.md'), 'r' ).read()
+            assert repr(readme_dict) == readme
+            print('loaded old run '+self.topdir)
+        else:
+            self.topdir = 'test'+str(round(timeit.default_timer()))
+            cPickle.dump(self.topdir,open('topdir.p','wb'))
+            os.makedirs(self.topdir)
+
+        # make files to put progress later
+        self.calctime = os.path.join(self.topdir, 'calctimer.txt')
+        self.plottime = os.path.join(self.topdir, 'plottimer.txt')
 
         readme = open(os.path.join(self.topdir,'README.md'), 'w' )
         readme.write(repr(readme_dict))

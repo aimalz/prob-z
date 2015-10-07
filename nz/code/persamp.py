@@ -1,4 +1,9 @@
-# one of these objects per instantiation of a survey
+"""
+persamp module permits comparing more than one instantiation of each survey
+"""
+
+# TO DO: eventually break this up into multiple files...
+# TO DO: check how realistic these simulated p(z)s are!
 
 import os
 import random
@@ -12,9 +17,6 @@ import emcee
 from inputs import setup
 import key
 from util import *
-
-# eventually break this up into multiple files...
-# import datagen
 
 # define class for instantiation of survey
 class persamp(object):
@@ -31,13 +33,6 @@ class persamp(object):
         self.path_builder = persamp.path_builder.fill(topdir = meta.topdir, p=self.p, s = self.s, n = self.n)
         self.true_path_builder = path("")
 
-        # sample some number of galaxies, poisson or set
-        if meta.poisson[self.n]:
-          self.ngals = ngals = np.random.poisson(s_run.seed)#[[np.random.poisson(seed) for n in sampnos] for s in survnos]
-        else:
-          self.ngals = s_run.seed
-        print('ngals='+str(self.ngals))
-
         self.filltrue()
         self.fillcat()
         self.setup_pdfs()
@@ -45,19 +40,21 @@ class persamp(object):
 
         self.fillsummary()
 
-#         q = 1.#0.5
-#         e = 0.15/self.meta.zdif**2
-#         tiny = q*1e-6
-#         self.covmat = np.array([[q*m.exp(-0.5*e*(self.binmids[a]-self.binmids[b])**2.) for a in xrange(0,self.nbins)] for b in xrange(0,self.nbins)])+tiny*np.identity(self.nbins)
+#         if self.meta.random[self.n]:
+#             q = 1.#0.5
+#             e = 0.15/self.meta.zdif**2
+#             tiny = q*1e-6
+#             self.covmat = np.array([[q*m.exp(-0.5*e*(self.binmids[a]-self.binmids[b])**2.) for a in xrange(0,self.nbins)] for b in xrange(0,self.nbins)])+tiny*np.identity(self.nbins)
+#         else:
         self.covmat = np.identity(self.nbins)
+
         self.priordist = mvn(self.full_logflatNz,self.covmat)
 
-        #self.priordist = mvn(self.full_logflatNz,np.identity(self.nbins))
-        ## add ourself to the list of things that our parent knows about
-        s_run.n_runs.append(self)
+        # add ourself to the list of things that our parent knows about
+        self.s_run.n_runs.append(self)
         self.i_runs = []
 
-        #how many walkers
+        # how many walkers
         self.nwalkers = 2*self.nbins
         self.walknos = xrange(self.nwalkers)
 
@@ -71,14 +68,25 @@ class persamp(object):
 
     # set true redshifts
     def filltrue(self):
-#         on_disk = self.meta.olddata#self.key.load_true(self.meta.topdir)
-#         if on_disk:# is not None:
-#             self.count = on_disk['count']
-#             self.sampNz = on_disk['sampNz']
-#             self.logsampNz = on_disk['logsampNz']
-#             self.sampPz = on_disk['sampPz']
-#             self.logsampPz = on_disk['logsampPz']
-#             return
+
+        if self.meta.gendat == 0:#on_disk:# is not None:
+            on_disk = self.key.load_true(self.meta.topdir)
+            self.count = on_disk['count']
+            self.ngals = sum(self.count)
+            self.trueZs = on_disk['trueZs']
+            self.sampNz = on_disk['sampNz']
+            self.logsampNz = on_disk['logsampNz']
+            self.sampPz = on_disk['sampPz']
+            self.logsampPz = on_disk['logsampPz']
+            print('loaded sample '+str(self.n+1)+' of '+str(self.ngals)+' galaxies')
+            return
+
+        # sample some number of galaxies, poisson or set
+        if self.meta.poisson[self.n]:
+            self.ngals = np.random.poisson(self.s_run.seed)#[[np.random.poisson(seed) for n in sampnos] for s in survnos]
+        else:
+            self.ngals = self.s_run.seed
+        print('ngals='+str(self.ngals))
 
         count = [0]*self.p_run.ndims
 
@@ -120,13 +128,14 @@ class persamp(object):
     # generate the catalog of individual galaxy posteriors
     def fillcat(self):
 
-#         on_disk = self.meta.olddata#self.key.load_cat(self.meta.topdir)
-#         if on_disk is not None:
-#             self.obsZs = on_disk['obsZs']
-#             self.obserror = on_disk['obserror']
-#             self.minobs = min(min(self.obsZs))
-#             self.maxobs = max(max(self.obsZs))
-#             return
+        if self.meta.gendat == 0:#on_disk is not None:
+            on_disk = self.key.load_cat(self.meta.topdir)
+            self.obsZs = on_disk['obsZs']
+            self.obserror = on_disk['obserror']
+            self.minobs = min(min(self.obsZs))
+            self.maxobs = max(max(self.obsZs))
+            print('loaded sample '+str(self.n+1)+' of '+str(self.ngals)+' galaxies')
+            return
 
         # define 1+z and variance to use for sampling z
         modZs = self.trueZs+1.#[[trueZs[s][n]+1. for n in sampnos] for s in survnos]

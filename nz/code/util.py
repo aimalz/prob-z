@@ -1,17 +1,22 @@
-# handy tools defined here
+"""
+utils module defines handy tools used in p(z) inference program
+"""
 
 import sys
 import numpy as np
 import random
 import bisect
 
-# constructs a range for every element in a list
 def lrange(l):
+    """
+    lrange(l) makes a range based on the length of a list or array l
+    """
     return xrange(len(l))
 
-# path object build paths given a template and a number of variables
 class path(object):
-
+    """
+    path object takes templates of path style and variables for it and makes os.path objects from them
+    """
     def __init__(self, path_template, filled = None):
         self.path_template = path_template
         if filled is None:
@@ -31,9 +36,10 @@ class path(object):
         dct.update(args)
         return path(self.path_template, dct)
 
-# multivariate normal distribution object, used in data generation and emcee prior
 class mvn(object):
-
+    """
+    mvn object is multivariate normal distribution, to be used in data generation and prior to emcee
+    """
     def __init__(self, mean, cov):
         self.dims = len(mean)
         self.mean = mean
@@ -64,9 +70,10 @@ class mvn(object):
         outsamp = [rando + np.random.randn(self.dims) for w in range(0,W)]
         return (outsamp, rando)
 
-# posterior distribution we will want to sample as class
 class post(object):
-
+    """
+    post object is posterior distribution we wish to sample
+    """
     def __init__(self,idist,xvals,yprobs):#data are logged posteriors (ngals*nbins), idist is mvn object
         self.prior = idist
         self.priormean = idist.mean
@@ -99,8 +106,10 @@ class post(object):
         return sumterm
 
 # tools for sampling an arbitrary distribution, used in data generation
-# turn weights into proper CDF
 def cdf(weights):
+    """
+    cdf takes weights and makes them a normalized CDF
+    """
     tot = sum(weights)
     result = []
     cumsum = 0
@@ -109,23 +118,12 @@ def cdf(weights):
       result.append(cumsum/tot)
     return result
 
-# sample population given weights
 def choice(pop, weights):
+    """
+    choice takes a population and assigns each element a value from 0 to len(weights) based on CDF of weights
+    """
     assert len(pop) == len(weights)
     cdf_vals = cdf(weights)
     x = random.random()
     index = bisect.bisect(cdf_vals,x)
     return pop[index]
-
-# these are good ideas but I never used them
-# def dadd(l, r):
-#     return l.copy().update(r)
-
-# def key_lookup(db, mask):
-#     return lambda key: db[key.filter(mask)]
-
-# def concatenate(ll):
-#     return [x for x in l for l in ll]
-
-# def curry(f, a):
-#     return lambda(b): f(a,b)

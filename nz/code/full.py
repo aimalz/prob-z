@@ -1,4 +1,6 @@
-# this is how the sausage is made
+"""
+full module runs MCMC and plotting in parallel
+"""
 
 #!/usr/bin/python2
 import matplotlib
@@ -42,6 +44,15 @@ def fsamp(idinfo):
     finally:
         print ('Done')
 
+def fcalc(idinfo):
+    if ~meta.mcmc:
+        return
+
+# currently no way to bypass plotting
+# def noplot(meta, runs, dist, idinfo):
+#     if ~meta.plots:
+#         return
+
 # all the work happens here
 def main():
     meta = setup()
@@ -59,7 +70,7 @@ def main():
     # make initial plots
     distribute.run_offthread_sync(iplots.initial_plots, meta, runs)
 
-    nps = mp.cpu_count()-1
+    nps = mp.cpu_count()#-1
     for s_run in s_runs.values():
         print ('starting run of: ' + str(s_run.key))
         # fork off all of the plotter threads,

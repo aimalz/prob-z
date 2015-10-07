@@ -1,4 +1,9 @@
-# this hideous file makes the plots
+"""
+plots module says how to make the plots
+"""
+
+# TO DO: use enumerate instead of indices and elements
+# TO DO: consider seaborn for plots
 
 import distribute
 import matplotlib
@@ -10,6 +15,7 @@ import os
 import statistics
 import timeit
 import random
+import psutil
 
 # most generic plotter, specific plotters below inherit from this to get handle
 class plotter(distribute.consumer):
@@ -17,16 +23,17 @@ class plotter(distribute.consumer):
         self.last_key = key
         self.plot(key)
 
-def postplot(meta, runs, dist, idinfo):
-    r_run = runs.i_runs[idinfo].getstate()
-    for r in r_run.stepnos:
-        runinfo = idinfo + (r,)
-        dist.complete_chunk(key(runinfo))
+# def postplot(meta, runs, dist, idinfo):
+#     r_run = runs.i_runs[idinfo].getstate()
+#     for r in r_run.stepnos:
+#         runinfo = idinfo + (r,)
+#         dist.complete_chunk(key(runinfo))
 
 def plotall(allinfo, ):
     pass
 
 # plot autocorrelation times
+# TO DO: check how emcee calculates these to troubleshoot 0 autocorrelation times
 class plotter_times(plotter):
 
     def __init__(self, meta, p_run, s_run, n_runs, i_runs):
@@ -62,7 +69,8 @@ class plotter_times(plotter):
                          s=self.n_runs[key.n].nbins,
                          rasterized=True)
         with open(self.meta.plottime,'a') as plottimer:
-          plottimer.write(str(timeit.default_timer())+' '+str(key)+' times \n')
+          process = psutil.Process(os.getpid())
+          plottimer.write('times '+str(timeit.default_timer())+' '+str(key)+' mem:'+str(process.get_memory_info())+'\n')
           plottimer.close()
 
     def finish(self):
@@ -107,7 +115,8 @@ class plotter_fracs(plotter):
                          s=self.p_run.ndims,
                          rasterized=True)
         with open(self.meta.plottime,'a') as plottimer:
-          plottimer.write(str(timeit.default_timer())+' '+str(key)+' fracs \n')
+          process = psutil.Process(os.getpid())
+          plottimer.write('fracs '+str(timeit.default_timer())+' '+str(key)+' mem:'+str(process.get_memory_info())+'\n')
           plottimer.close()
 
     def finish(self):
@@ -152,7 +161,8 @@ class plotter_probs(plotter):
                      alpha=self.a_probs,
                      rasterized=True)
         with open(self.meta.plottime,'a') as plottimer:
-          plottimer.write(str(timeit.default_timer())+' '+str(key)+' probs \n')
+          process = psutil.Process(os.getpid())
+          plottimer.write('probs '+str(timeit.default_timer())+' '+str(key)+' mem:'+str(process.get_memory_info())+'\n')
           plottimer.close()
 
     def finish(self):
@@ -221,7 +231,8 @@ class plotter_chains(plotter):
         randwalks = random.sample(self.n_runs[key.n].walknos, len(self.meta.colors))
 
         with open(self.meta.plottime,'a') as plottimer:
-            plottimer.write(str(timeit.default_timer())+' '+str(key)+' chains \n')
+            process = psutil.Process(os.getpid())
+            plottimer.write('chains '+str(timeit.default_timer())+' '+str(key)+' mem:'+str(process.get_memory_info())+'\n')
             plottimer.close()
 
         if key.burnin:
@@ -384,7 +395,7 @@ class plotter_chains(plotter):
                                         label=r'True $N(z)$')
             self.sps_samps[1][n].vlines(n_run.binends[1:-1],
                                         n_run.full_sampNz[:-1],#np.concatenate((np.array([0]),n_run.full_sampNz)),
-                                        n_run.full_logsampNz[1:],#np.concatenate((n_run.full_logsampNz,np.array([0]))),
+                                        n_run.full_sampNz[1:],#np.concatenate((n_run.full_logsampNz,np.array([0]))),
                                         color='k',
                                         linewidth=2)
 #             self.sps_samps[1][n].step(n_run.binends,
@@ -394,11 +405,15 @@ class plotter_chains(plotter):
 #                                       where='post',
 #                                       label=r'True $N(z)$')
 
+            maxsteps = self.last_key.r
+            maxiternos = np.arange(0,maxsteps)
             for i in lrange(meta.inits):
                 i_run = i_runs[i]
                 fitness = i_run.load_fitness('chains')
-                tot_ls = round(fitness['tot_ls'][-1])
-                tot_s = round(fitness['tot_s'][-1])
+                tot_ls = round(fitness['tot_ls'][-1])#/maxsteps)
+                print(fitness['tot_ls'])
+                tot_s = round(fitness['tot_s'][-1])#/maxsteps)
+                print(fitness['tot_s'])
                 #var_ls = round(fitness['var_ls'])
                 #var_s = round(fitness['var_s'])
                 self.sps_samps[0][n].hlines(dummy_lnsamp,
@@ -411,8 +426,6 @@ class plotter_chains(plotter):
                                             n_run.binhis,
                                             color=meta.colors[i],
                                             label=meta.init_names[i]+'\n'+r'$\sigma^{2}='+str(tot_s)+r'$')
-            maxsteps = self.last_key.r
-            maxiternos = np.arange(0,maxsteps)
             for k in n_run.binnos:
                 self.sps_chains[n][k].step(maxiternos*meta.miniters,
                                            [n_run.full_logflatNz[k]]*maxsteps,

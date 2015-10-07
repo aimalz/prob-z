@@ -1,4 +1,6 @@
-# one of these objects per approximate survey size
+"""
+persurv module permits varying approximate size of galaxy survey
+"""
 
 import math as m
 import sys

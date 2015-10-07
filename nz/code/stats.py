@@ -1,4 +1,6 @@
-# calculate intermediate statistics for monitoring state
+"""
+stats module calculates intermediate statistics for monitoring state
+"""
 
 import statistics
 import numpy as np
@@ -20,8 +22,8 @@ class stat_chains(calcstats):
         self.name = 'chains'
     def compute(self, ydata):
       y = np.swapaxes(ydata,0,1).T
-      var_ls = sum([sum([statistics.pvariance(y[k][w],mu=self.n_run.full_logsampNz[k]) for k in self.n_run.binnos])/self.n_run.nwalkers for w in self.n_run.walknos])
-      var_s = sum([sum([statistics.pvariance(np.exp(y[k][w]),mu=self.n_run.full_sampNz[k]) for k in self.n_run.binnos])/self.n_run.nwalkers for w in self.n_run.walknos])
+      var_ls = sum([sum([statistics.pvariance(y[k][w],mu=self.n_run.full_logsampNz[k]) for k in self.n_run.binnos])/self.n_run.nwalkers**2 for w in self.n_run.walknos])
+      var_s = sum([sum([statistics.pvariance(np.exp(y[k][w]),mu=self.n_run.full_sampNz[k]) for k in self.n_run.binnos])/self.n_run.nwalkers**2 for w in self.n_run.walknos])
       self.tot_ls = self.tot_ls+var_ls
       self.tot_s = self.tot_s+var_s
       return { 'tot_ls': self.tot_ls,
