@@ -3,7 +3,6 @@ inputs module contains parameters controlling one run of p(z) inference program
 """
 
 # TO DO: add docstrings
-# TO DO: add option to generate data only, run only, plot only
 
 import os
 import sys
@@ -20,20 +19,23 @@ class setup(object):
     """
     def __init__(self):
 
-        # Sheldon, et al. 2011 redshift bins
-        #loc = "http://data.sdss3.org/sas/dr8/groups/boss/photoObj/photoz-weight/zbins-12.fits"
-        #zbins = pyfits.open(loc)
-        #self.allnbins = len(zbins[1].data)
-        #self.allzlos = np.array([zbins[1].data[k][0] for k in lrange(self.allnbins)])
-        #self.allzhis = np.array([zbins[1].data[k][1] for k in lrange(self.allnbins)])
-        #self.allzs = np.unique(np.concatenate([self.allzlos,self.allzhis]))
+        self.realbins = 0
 
-        # synthetic redshift bins
-        self.allnbins = 10
-        self.binstep = 1. / self.allnbins
-        self.allzs = np.arange(0., 1. + self.binstep, self.binstep)
-        self.allzlos = np.arange(0., 1., self.binstep)#self.allzs[:-1]
-        self.allzhis = np.arange(self.binstep, 1. + self.binstep, self.binstep)#self.allzs[1:]
+        if self.realbins:
+            # Sheldon, et al. 2011 redshift bins
+            loc = "http://data.sdss3.org/sas/dr8/groups/boss/photoObj/photoz-weight/zbins-12.fits"
+            zbins = pyfits.open(loc)
+            self.allnbins = len(zbins[1].data)
+            self.allzlos = np.array([zbins[1].data[k][0] for k in xrange(self.allnbins)])
+            self.allzhis = np.array([zbins[1].data[k][1] for k in xrange(self.allnbins)])
+            self.allzs = np.unique(np.concatenate([self.allzlos,self.allzhis]))
+        else:
+            # synthetic redshift bins
+            self.allnbins = 10
+            binstep = 1. / self.allnbins
+            self.allzs = np.arange(0., 1. + binstep, binstep)
+            self.allzlos = np.arange(0., 1., binstep)#self.allzs[:-1]
+            self.allzhis = np.arange(binstep, 1. + binstep, binstep)#self.allzs[1:]
 
         # centers of bins and bin widths handy for plotting
         self.allzmids = (self.allzhis + self.allzlos) / 2
@@ -61,14 +63,14 @@ class setup(object):
         self.survs = [100]
 
         # instantiations of the survey (more than 1 breaks some plots)
-        self.samps = 4
-        self.poisson = [0,0,0,0]#0 for set number of galaxies, 1 for statistical sample around target
-        self.random = [1,1,1,1]#0 for all galaxies having same true redshift bin, 1 for statistical sample around underlying P(z)
-        self.uniform = [1,1,1,1]#0 for all galaxies having mean redshift of bin, 1 for uniform sampling
+        self.samps = 2
+        self.poisson = [0]*self.samps#0 for set number of galaxies, 1 for statistical sample around target
+        self.random = [1]*self.samps#0 for all galaxies having same true redshift bin, 1 for statistical sample around underlying P(z)
+        self.uniform = [1]*self.samps#0 for all galaxies having mean redshift of bin, 1 for uniform sampling
 
         # permit more complicated p(z)s
-        self.shape = [0,0,1,1]#0 for unimodal, 1 for multimodal
-        self.noise = [0,1,0,1]#0 for noiseless, 1 for noisy
+        self.shape = [0,1]#0 for unimodal, 1 for multimodal
+        self.noise = [1]*self.samps#0 for noiseless, 1 for noisy
 
         # initialization schemes
         self.init_names = ['Gaussian Ball Around Prior Sample']#may also include 'Prior Samples', 'Gaussian Ball Around Mean'
@@ -107,7 +109,7 @@ class setup(object):
             'thinto': self.thinto
             }
 
-                # generate data y/n
+        # generate data y/n
         self.gendat = 1
 
         # do MCMC y/n
@@ -125,7 +127,9 @@ class setup(object):
             print('loaded old run '+self.topdir)
         else:
             self.topdir = 'test'+str(round(timeit.default_timer()))
-            cPickle.dump(self.topdir,open('topdir.p','wb'))
+            topdir = open('topdir.p','wb')
+            cPickle.dump(self.topdir,topdir)
+            topdir.close()
             os.makedirs(self.topdir)
 
         # make files to put progress later

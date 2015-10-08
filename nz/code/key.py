@@ -20,6 +20,7 @@ def safe_load_c(path, num_objs = None):
         if num_objs is None:
             return cPickle.load(f)
         return [cPickle.load(f) for _ in xrange(num_objs)]
+    f.close()
 def safe_store_c(path, o):
     print 'storing: ' + path
     directory = path[:path.rfind('/')]
@@ -27,6 +28,7 @@ def safe_store_c(path, o):
         os.makedirs(directory)
     with open(path, "wb") as f:
         cPickle.dump(o, f)
+    f.close()
 
 # read/write hickle
 def safe_load_h(path, num_objs = None):
@@ -36,6 +38,7 @@ def safe_load_h(path, num_objs = None):
         if num_objs is None:
             return hkl.load(f)
         return [hkl.load(f) for _ in xrange(num_objs)]
+    f.close()
 def safe_store_h(path, o):
     print 'storing hkl:' + path
     directory = path[:path.rfind('/')]
@@ -43,6 +46,7 @@ def safe_store_h(path, o):
         os.makedirs(directory)
     with open(path, "w") as f:
         hkl.dump(o, f)
+    f.close()
 
 # define templates for path
 true_builder = path("{topdir}/{p}/{s}/{n}/true.p")

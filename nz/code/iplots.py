@@ -132,19 +132,28 @@ def plot_truevmap_setup(meta, p_run, s_run):
 
     global a_tvm
     a_tvm = 1./meta.samps
-    f = plt.figure(figsize=(5*len(meta.survs),5))
-    sps = f.add_subplot(1,1,1)
+    f = plt.figure(figsize=(2*5*len(meta.survs),5))
+    sps = [f.add_subplot(1,2,1),f.add_subplot(1,2,2)]
     f.suptitle('True Redshifts vs. MAP Redshifts')
     #print('plot_lfs')
     #randos = random.sample(pobs[-1][0],ncolors)
-    sps.set_ylabel(r'Observed $z$')
-    sps.set_xlabel(r'True $z$')
-    sps.set_xlim(meta.allzlos[0]-meta.zdif,meta.allzhis[p_run.ndims-1]+meta.zdif)
-    sps.set_ylim(meta.allzlos[0]-meta.zdif,meta.allzhis[p_run.ndims-1]+meta.zdif)
+    sps[0].set_ylabel(r'MAP $z$')
+    sps[1].set_ylabel(r'$E(z)$')
+    for x in range(0,2):
+        sps[x].set_xlabel(r'True $z$')
+        sps[x].set_xlim(meta.allzlos[0]-meta.zdif,meta.allzhis[p_run.ndims-1]+meta.zdif)
+        sps[x].set_ylim(meta.allzlos[0]-meta.zdif,meta.allzhis[p_run.ndims-1]+meta.zdif)
     return((f,sps))
 
 def plot_truevmap((f,sps),meta,p_run,s_run,n_run):
-    sps.scatter(n_run.trueZs, n_run.mapzs,
+    sps[0].plot(n_run.trueZs,n_run.trueZs,c='k')
+    sps[1].plot(n_run.trueZs,n_run.trueZs,c='k')
+    sps[0].scatter(n_run.trueZs, n_run.mapzs,
+                alpha=a_tvm,
+                c=meta.colors[n_run.n],
+                label='shape='+str(meta.shape[n_run.n])+', noise='+str(meta.noise[n_run.n]),
+                linewidth=0.1)
+    sps[1].scatter(n_run.trueZs, n_run.expzs,
                 alpha=a_tvm,
                 c=meta.colors[n_run.n],
                 label='shape='+str(meta.shape[n_run.n])+', noise='+str(meta.noise[n_run.n]),
@@ -152,7 +161,8 @@ def plot_truevmap((f,sps),meta,p_run,s_run,n_run):
     return((f,sps))
 
 def plot_truevmap_wrapup((f,sps),meta,p_run,s_run):
-    sps.legend(loc='upper left',fontsize='x-small')
+    for x in range(0,2):
+        sps[x].legend(loc='upper left',fontsize='x-small')
     f.savefig(os.path.join(s_run.get_dir(),'truevmap.png'))
     return
 

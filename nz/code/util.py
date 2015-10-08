@@ -112,7 +112,7 @@ def cdf(weights):
     """
     tot = sum(weights)
     result = []
-    cumsum = 0
+    cumsum = 0.
     for w in weights:
       cumsum += w
       result.append(cumsum/tot)

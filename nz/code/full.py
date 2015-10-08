@@ -44,9 +44,9 @@ def fsamp(idinfo):
     finally:
         print ('Done')
 
-def fcalc(idinfo):
-    if ~meta.mcmc:
-        return
+# def fcalc(idinfo):
+#     if ~meta.mcmc:
+#         return
 
 # currently no way to bypass plotting
 # def noplot(meta, runs, dist, idinfo):
