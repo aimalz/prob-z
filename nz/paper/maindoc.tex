@@ -6,6 +6,7 @@
 \usepackage{tikz}
 \usepackage{natbib}
 \usepackage{amsmath}
+
 \usetikzlibrary{shapes.geometric, arrows}
 \usetikzlibrary{fit}
 
@@ -181,11 +182,13 @@ The argument of the integral in the posterior of Eq. \ref{eq:cancel} depends sol
 
 To be clear, the following assumptions must be made in order to apply this method:
 
-\begin{itemize}
+\begin{enumerate}
 \item Photometric measurements of galaxies are independent Poisson draws from the set of all galaxies such that Eq. \ref{eq:indie} holds.
 \item We take the individual galaxy zPDFs to be accurate estimates of the posteriors $\{p(z_{j}|\vec{d}_{j})\}_{J}$ and assume we are given the interim prior $\vec{\theta}^{0}$ used to produce them.
 \item One must assume a hyperprior $p(\vec{\theta})$ constraining the underlying probability of the variables defining the hyperparameters $\vec{\theta}$.
-\end{itemize}
+\end{enumerate}
+
+These assumptions have known limitations.  First, the observations $\{\vec{d}_{j}\}_{J}$ are not a set of independent measurements; they are correlated not only by the conditions of the experiment under which they were made but also by $N(z)$ and other physical processes governing underlying galaxy spectra.  Second, the zPDFs $\{p(z_{j}|\vec{d}_{j})_{J}$ may not be trustworthy; there is not yet agreement on the best technique to obtain zPDFs, and the interim prior $\vec{\theta}^{0}$ may not be appropriate or even known to us.  Third, the hyperprior $p(\vec{\theta})$ may be quite arbitrary; it may be poorly motivated if the underlying physics is complex.
 
 \section{Experiments}
 \label{sec:exp}
@@ -238,16 +241,20 @@ p(B_{k'}|\vec{d_{j}}) = \frac{\sum_{r_{j}}^{G_{j}}\int_{z_{k'}}^{z_{k'+1}} \frac
 
 As a final step, the survey of zPDFs may be optionally noisified.  Rather than using the zPDF of the form of Eq. \ref{eq:zdist}, one can instead use a random sampling thereof.  In this case, the zPDF of each galaxy is a normalized histogram of $K'$ random draws from the full zPDF of Eq. \ref{eq:zdist}.  Fig. \ref{fig:pzs} shows a few examples of simulated zPDFs in the case of a choice of $K=25$ redshift bins from $z^{B}_{0}=0$ to $z^{B}_{35}=1.0$ drawn from a flat underlying $N(z)$ in the cases of unimodal and multimodal zPDFs as well as noiseless and noisy observations.
 
-\begin{figure}
-\includegraphics[width=0.25\textwidth]{samplepzs-uni-less.png}\includegraphics[width=0.25\textwidth]{samplepzs-multi-less.png}\includegraphics[width=0.25\textwidth]{samplepzs-uni-noise.png}\includegraphics[width=0.25\textwidth]{samplepzs-multi-noise.png}
-\caption{Several random redshift likelihood functions (solid) selected from a flat $p^{0}(z)$ are shown here, along with the true redshift for each (dashed).  The leftmost panel is noiseless unimodal zPDFs; the left-middle panel is noiseless multimodal zPDFs; the right-middle panel is noisy unimodal zPDFs; the rightmost panel is noisy multimodal zPDFs.}
-\label{fig:pzs}
-\end{figure}
+%\begin{figure}
+%\includegraphics[width=0.25\textwidth]{samplepzs-uni-less.png}\includegraphics[width=0.25\textwidth]{samplepzs-multi-less.png}\includegraphics[width=0.25\textwidth]{samplepzs-uni-noise.png}\includegraphics[width=0.25\textwidth]{samplepzs-multi-noise.png}
+%\caption{Several random redshift likelihood functions (solid) selected from a flat $p^{0}(z)$ are shown here, along with the true redshift for each (dashed).  The leftmost panel is noiseless unimodal zPDFs; the left-middle panel is noiseless multimodal zPDFs; the right-middle panel is noisy unimodal zPDFs; the rightmost panel is noisy multimodal zPDFs.}
+%\label{fig:pzs}
+%\end{figure}
 
 \subsection{Computation}
 \label{sec:mcmc}
 
-The Metropolis-Hastings algorithm is applied to sample the full posterior of Eq. \ref{eq:cancel}.  The testing procedure was written in Python and employs the \textit{emcee} implementation of the algorithm.  \citep{for12}  We work with log probabilities from this point forward for computational efficiency and numerical stability.  Since $p(\{\vec{d}_{j}\}_{J})$ is in general unknown, we will also commence working with $\tilde{p}(\vec{\theta}|\{\vec{d}_{j}\}_{J})$, a quantity proportional to the full posterior $p(\vec{\theta}|\{\vec{d}_{j}\}_{J})$, which shall be called the "pseudo-posterior," the log of which is given in Eq. \ref{eq:logpost}.
+The Metropolis-Hastings algorithm is applied to sample the full posterior of Eq. \ref{eq:cancel}.  The testing procedure was written in \texttt{Python} and employs the \texttt{emcee} implementation of the algorithm.  \citep{for12}  The input/output format chosen for this work is \texttt{HDF5} because of its efficiency for large amounts of data.
+
+The code takes as input an \texttt{HDF5} file containing a specification of the interim prior $\vec{\theta}^{0}$, a catalog of $J$ zPDFs $\{p(z_{j}|\vec{d}_{j})\}_{J}$ in some basis, and a keyword specifying the basis used.  The form of the data may be one of a set of $J$ elements $j$ with $R_{j}$ tuples $(z_{j}^{r_{j}},\delta_{j}^{r_{j}})$ of means and standard deviations for each element in a sum of Gaussians in the case of noiseless zPDFs or a set of $J$ elements each with $K'$ values each representing the continuous distribution function over the $k'$th bin in the case of noisy zPDFs.
+
+We work with log probabilities from this point forward for computational efficiency and numerical stability.  Since $p(\{\vec{d}_{j}\}_{J})$ is in general unknown, we will also commence working with $\tilde{p}(\vec{\theta}|\{\vec{d}_{j}\}_{J})$, a quantity proportional to the full posterior $p(\vec{\theta}|\{\vec{d}_{j}\}_{J})$, which shall be called the "pseudo-posterior," the log of which is given in Eq. \ref{eq:logpost}.
 
 \begin{eqnarray}
 \label{eq:logpost}
@@ -275,7 +282,9 @@ If $r<0$, select a random number $n$ from the uniform distribution between 0 and
 \item Check if the threshold condition has been achieved; if not, return to Step \ref{it:randsamp}.
 \end{enumerate}
 
-Here, the threshold condition is defined in terms of sub-runs of $I'=10^{3}$ iterations.  When the variance of the log probabilities is less than the change in median log probability over the sub-run, the burn-in period is considered complete.  When this occurs, an additional number of sub-runs equal to the number of sub-runs consumed by the burn-in period are completed such that $I=2I'$.  was $I=10^{4}$ iterations.  
+Here, the threshold condition is defined in terms of sub-runs of $I_{0}=10^{3}$ iterations.  When the variance of the log probabilities is less than the change in median log probability over the sub-run, the burn-in period is considered complete.  When this occurs, an additional number of sub-runs equal to the number $I'$ of sub-runs consumed by the burn-in period are completed such that $I=2I'$.  
+
+The output of the code is a set of $I$ ordered \texttt{hickle} files enumerated by $\rho$ containing the state information after each sub-run.  The state information includes $\frac{I_{0}}{t}$ actual samples $\vec{\theta}^{i}$ for a pre-specified chain thinning factor $t=100$ and their full posterior probabilities $p(\vec{\theta}^{i}|\{\vec{d}_{j}\}_{J})$ as well as the autocorrelation times and acceptance fractions calculated for each element of $\vec{\theta}$ over the entire sub-run.  These two summary statistics are described in Sec. \ref{sec:diag}, along with the proper use of the other outputs in interpreting the results of the code.
 
 \subsection{Diagnostics}
 \label{sec:diag}
@@ -398,18 +407,18 @@ Based on this simple test, it can safely be concluded that more accurate estimat
 \subsubsection{Realistic $N(z)$}
 \label{sec:realnz}
 
-In order to simulate data in the realistic case, we select set a true, physically motivated redshift probability distribution $p^{0}(z|\vec{\theta})$, where $p(z|\vec{\theta})$ corresponds to $\exp[\vec{\theta}]$ for $J=1$.  The convolution of a linear function and a sum of Gaussians is quite general and accurately generates features observed in the true $N(z)$.  The instance of $p^{0}(z)$ here is shown in Eq. \ref{eq:truepz}, where the constant $C_{c}$ indicates the relative amplitude of the Gaussian component centered at $z_{c}$ with variance $\sigma_{c}^{2}$.  The linear function is evaluated at the centers of the bins $\bar{z}_{k}=(z_{k+1}-z_{k})/2$ and is included to ensure that $\lim_{z\to0}N(z)=0$.  The construction of this probability density is illustrated in Fig. \ref{fig:truepz}.  %In the realistic case, we evaluate $p^{0}(z)$ over each bin assuming some expected survey size $J'$ to obtain $\vec{\theta}'$ according to Eq. \ref{eq:truenz}.
+In order to simulate data in the realistic case, we select set a true, physically motivated redshift probability distribution $p^{0}(z|\vec{\theta})$, where $p(z|\vec{\theta})$ corresponds to $\exp[\vec{\theta}]$ for $J=1$.  The convolution of a linear function and a sum of Gaussians is quite general and accurately generates features observed in the true $N(z)$.  The instance of $p^{0}(z)$ here is shown in Eq. \ref{eq:truepz}, where the constant $C_{c}$ indicates the relative amplitude of the Gaussian component centered at $z_{c}$ with variance $\sigma_{c}^{2}$.  The linear function is evaluated at the centers of the bins $\bar{z}_{k}=(z_{k+1}-z_{k})/2$ and is included to ensure that $\lim_{z\to0}N(z)=0$.  The construction of this probability density is illustrated in Fig. \ref{fig:physpz}.  %In the realistic case, we evaluate $p^{0}(z)$ over each bin assuming some expected survey size $J'$ to obtain $\vec{\theta}'$ according to Eq. \ref{eq:truenz}.
 
 \begin{eqnarray}
 \label{eq:truepz}
 p^{0}(z_{k}) &=& \sum_{c=1}^{6}\bar{z}_{k}C_{c}\int_{z_{k}}^{z_{k+1}} \mathcal{N}(z_{c},\sigma_{c})dz
 \end{eqnarray}
 
-\begin{figure}
-\includegraphics[width=\textwidth]{truePz.png}
-\caption{We construct $p^{0}$ as a sum of Gaussians.  This plot shows the underlying $p(z)$ for$K=25$ redshift bins from $z_{0}=0$ to $z_{25}=1$.}
-\label{fig:truepz}
-\end{figure}
+%\begin{figure}
+%\includegraphics[width=\textwidth]{truePz.png}
+%\caption{We construct $p^{0}$ as a sum of Gaussians.  This plot shows the underlying $p(z)$ for$K=25$ redshift bins from $z_{0}=0$ to $z_{25}=1$.}
+%\label{fig:truepz}
+%\end{figure}
 
 The number of galaxies in the survey $J$ is taken as a random draw from a Poisson distribution centered at $J'=100$.  Taking $p^{0}(z_{k})$ as the probability that galaxy $j$ has a true redshift within bin $B_{k}$, we draw true redshift bins $\{B_{j}\}_{J}$ for all $J$ galaxies in the survey.  These $J_{k}$ define the true value of the parameters $\vec{\tilde{\theta}}$ via Eq. \ref{eq:dparams}.True redshifts $z'_{j}$ are taken as draws from a uniform distribution within bin $B_{j}$.  The mean redshift of the Gaussian defining the individual posterior is plotted against the true redshift in Fig. \ref{fig:realcat}.
 
@@ -489,7 +498,70 @@ The diagnostics discussed in Sec. \ref{sec:diag} are shown in Figs. %\ref{fig:re
 \section{Discussion}
 \label{sec:disc}
 
-This study demonstrates a mathematically consistent implementation of parameter inference of a one-point statistic based on zPDFs.  The method herein developed is applicable with minimal modification to other one-point statistics such as the weak lensing mean distance ratio or the luminosity function.
+This study demonstrates a mathematically consistent implementation of inference of a one-point statistic based on zPDFs.  This work supports the production of zPDFs by upcoming photometric surveys such as LSST so that more accurate inference of physical parameters may be accessible to the scientific community.  We discourage researchers from co-adding zPDFs or converting them into point estimates of redshift and instead recommend the use of Bayesian probability to guide the usage of zPDFs in science.
+
+The method herein developed is applicable with minimal modification to other one-point statistics of redshift to which we will apply this method in the future.  Such statistics include the redshift-dependent luminosity function and weak lensing mean distance ratio, the former of which is presented below in Sec. \ref{sec:lf}.
+
+\subsection{The Luminosity Function}
+\label{sec:lf}
+
+Since the redshift-dependent luminosity function $\Phi(\vec{L},z)$ is a number density over redshift $z$ and one other parameter, luminosity $\vec{L}$ (which may be a vector if not bolometric), that contributes to the same data $\{\vec{d}_{j}\}_{J}$ in the form of a vector of photometric magnitudes, it is essentially a generalization of the redshift distribution function $N(z)$ previously investigated here; in other words, $N(z)$ is related to $\Phi(\vec{L},z)$ by way of an integral over luminosity.   We may express this as Eq. \ref{eq:lf}, where $\Phi(\vec{L},z)$ is parametrized by hyperparameters that are components of $\vec{\phi}$ .
+
+\begin{eqnarray}
+\label{eq:lf}
+p(z_{j},\vec{L}_{j}|\vec{\phi}) &=& \frac{\Phi(\vec{L},z)}{\iint \Phi(\vec{L},z)\ d\vec{L}\ dz} = \frac{\Phi(\vec{L},z)}{\int N(z)\ dz} = \frac{1}{J}\ \Phi(\vec{L},z)
+\end{eqnarray}
+
+A graphical model for this problem is presented in Fig. \ref{fig:lf}.  As in Sec. \ref{sec:meth}, we shall outline the translation of this graphical representation of the probabilistic model using the same formalism.
+
+\begin{figure}
+\vspace{0.5cm}
+\begin{center}
+\begin{tikzpicture}[node distance=1cm]
+
+\node (lf) [hyper] {$\Phi(\vec{L},z)$};
+\node (z) [param, below of=lf,yshift=-0.75cm,xshift=0.5cm] {$z_{j}$};
+\node (L) [param, below of=lf,yshift=-0.75cm,xshift=-0.5cm] {$\vec{L}_{j}$};
+\node (flux) [data, below of=lf,yshift=-2cm] {$\vec{d}_{j}$};
+\node (survey) [draw=black,fit={(L.west)(z.north)(flux.south)(z.east)}] {};
+\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
+
+\draw [arrow] (lf) -- (z);
+\draw [arrow] (lf) -- (L);
+\draw [arrow] (z) -- (flux);
+\draw [arrow] (L) -- (flux);
+
+\end{tikzpicture}
+\caption{This directed acyclic graph illustrates a hierarchical model for the luminosity function $\Phi(\vec{L},z)$.}
+\label{fig:lf}
+\end{center}
+\end{figure}
+
+First, we assume independence of the $J$ data points $\vec{d}_{j}$ where $J$ is a Poisson random variable with expected value $J_{0}$.  However, we acknowledge that the measurements are not independent if they are made as part of the same experimental design with shared equipment, not to mention the fact that $\vec{L}_{j}$ and $z_{j}$ are not independent of $\vec{L}_{j'\neq j}$ and $z_{j'\neq j}$ respectively due to the physics summarized by the luminosity function $\Phi(\vec{L},z)$.  However, given the assumption of independence, we may write the full likelihood as Eq. \ref{eq:lfind}.  
+
+\begin{eqnarray}
+\label{eq:lfind}
+p(\{\vec{d}_{j}\}_{J}|\vec{\phi}) &=& e^{-\iint \Phi(\vec{L},z)\ dL\ dz}\ \prod_{j=1}^{J}\ p(\vec{d}_{j}|\vec{\phi})
+\end{eqnarray}
+
+As before, we apply Bayes' Rule to relate the full likelihood to the full posterior in Eq. \ref{eq:lfbayes} and expand out the individual likelihood in terms of the parameters $\{\vec{L}_{j}\}_{J}$ and $\{z_{j}\}_{J}$ in Eq. \ref{eq:lfexpand}.
+
+\begin{eqnarray}
+\label{eq:lfbayes}
+p(\vec{\phi}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\phi})}{p(\{\vec{d}_{j}\}_{J})}e^{-\iint \Phi(\vec{L},z)\ d\vec{L}\ dz}\ \prod_{j=1}^{J}\ p(\vec{d}_{j}|\vec{\phi})
+\end{eqnarray}
+
+\begin{eqnarray}
+\label{eq:lfexpand}
+p(\vec{\phi}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\phi})}{p(\{\vec{d}_{j}\}_{J})}e^{-\iint \Phi(\vec{L},z)\ d\vec{L}\ dz}\ \prod_{j=1}^{J}\ \iint\ p(\vec{d}_{j}|z_{j},\vec{L}_{j})\ p(z_{j},\vec{L}_{j}|\vec{\phi}) dz_{j}\ d\vec{L}_{j}
+\end{eqnarray}
+
+If we are unable to access the individual likelihoods, as is in general the case, we will repeat the trick of using an interim prior value of hyperparameters $\vec{\phi}^{0}$.  This results in Eq. \ref{eq:lftrick}.
+
+\begin{eqnarray}
+\label{eq:lftrick}
+p(\vec{\phi}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\phi})}{p(\{\vec{d}_{j}\}_{J})}e^{-\iint \Phi(\vec{L},z)\ d\vec{L}\ dz}\ \prod_{j=1}^{J}\ \iint\ p(z_{j},\vec{L}_{j}|\vec{d}_{j},\vec{\phi}^{0})\ \frac{p(z_{j},\vec{L}_{j}|\vec{\phi})}{p(z_{j},\vec{L}_{j}|\vec{\phi}^{0})} dz_{j}\ d\vec{L}_{j}
+\end{eqnarray}
 
 %Fig. \ref{fig:sheldon} compares the result of summing the posteriors as in Eq. \ref{eq:sheldon} with the result of the MCMC solutions of Eq. \ref{eq:bayes}.  The method of \citet{she11} underestimates the probability of observing low redshifts.  As one would expect, the MCMC estimate irreversibly loses some substructure because of the shifting error added to the simulated data.
 
