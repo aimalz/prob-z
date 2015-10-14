@@ -1,0 +1,48 @@
+Simulation Notes:
+
+Relative to the directory where code is run, there must exist /../tests.
+/../tests must contain a file tests.txt that contains the names of .txt files specifying the parameters of each test (i.e. test1.txt), each followed by a newline.
+Each .txt file may contain any number of parameters defining tests, with the options below.  Parameters are to be presented as the name of the parameter followed by a space and then the value of the desired parameter.  The order of parameters does not matter
+
+allzs
+  Specifies K endpoints of a maximum of K-1 redshift bins to be used
+  Input in the form of floating point values separated by spaces
+
+phys
+  Specifies underlying N(z) as a sum of Gaussians each represented by triplets of floating point numbers mean m, standard deviation s, magnitude a
+  Input in the form of floating point values separated by spaces
+
+params
+  Specifies number of parameters K' <= K-1 to be considered in the test, which will be taken from the first K'+1 elements of allzs
+  Input integer number of parameters
+
+survs
+  Specifies ballpark galaxy survey size
+  Input integer number of galaxies
+
+poisson
+  Specifies whether ballpark survey size should be used or if number of observed galaxies should be drawn from Poisson distribution around ballpark galaxy survey size
+  Input integer: 0 for set number of galaxies, 1 for Poisson sample
+
+random
+  Specifies whether galaxies should be placed in a single shared redshift bin or sampled from the underlying N(z)
+  Input integer: 0 for single bin, 1 for random sample
+
+uniform
+  Specifies whether true galaxy redshifts should be set to the center of the bin in which they were placed or selected randomly from a uniform distribution within that bin
+  Input integer: 0 for center of bin, 1 for random sample
+
+shape
+  Specifies whether zPDFs may be multimodal
+  Input integer: 0 for unimodal only, 1 for multimodal with random number of components
+
+noise
+  Specifies whether zPDFs are noisified
+  Input integer: 0 for underlying zPDF, 1 for random sampling of K' redshifts from underlying zPDF
+
+Ex:
+
+allzs 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0
+phys 0.2 0.005 2.0 0.4 0.005 1.25 0.5 0.1 2.0 0.6 0.005 1.25 0.8 0.005 1.25 1.0 0.005 0.75
+params 5
+survs 100
