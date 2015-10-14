@@ -40,9 +40,36 @@ noise
   Specifies whether zPDFs are noisified
   Input integer: 0 for underlying zPDF, 1 for random sampling of K' redshifts from underlying zPDF
 
+prior
+  Specifies if prior distribution is provided
+  No input value necessary
+
+priormean
+  Specifies mean of prior distribution, must be of length K'
+  Input in the form of floating point values separated by spaces
+
+priorcov
+  Specifies covariance matrix of prior distribution must be of length K'^2
+  Input in the form of floating point values separated by spaces going row by row
+
+inits
+  Specifies sampling scheme for initializing walkers based on the prior
+  Input ps for samples taken directly from the prior, gm for samples taken from a Gaussian distribution of identity covariance distributed around the mean of the prior, gs for samples taken from a Gaussian distribution of identity covariance distributed around a single sample from the prior
+
+miniters
+  Specifies the granularity of an MCMC run before diagnostics are run, in units of number of samples to take per walker before halting, saving the state, and evaluating whether to continue
+  Input integer number of iterations, should be a power of 10
+
+thinto
+  Specifies chain thinning factor of MCMC runs such that every thinto number of samples is saved
+  Input integer number such that miniters (defaults to 1000) is evenly divisible by thinto
+
 Ex:
 
 allzs 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0
 phys 0.2 0.005 2.0 0.4 0.005 1.25 0.5 0.1 2.0 0.6 0.005 1.25 0.8 0.005 1.25 1.0 0.005 0.75
 params 5
 survs 100
+inits gs
+miniters 10000
+thinto 20
