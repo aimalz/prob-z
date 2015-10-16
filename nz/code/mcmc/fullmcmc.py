@@ -37,10 +37,10 @@ testdir = os.path.join('..','tests')
 
 def main():
     runs  = {}
-    with open(os.path.join(testdir,'topdirs.p'),'rb') as names:
-        names = cpkl.load(names)
+    with open(os.path.join(testdir,'tests-mcmc.txt'),'rb') as names:#open(os.path.join(testdir,'topdirs.p'),'rb') as names:
+        #names = cpkl.load(names)
         for name in names:
-            meta = setup(name)
+            meta = setup(name[:-1])
             runs[name[:-4]] = meta
     # make initial plots
     distribute.run_offthread_sync(plots.initial_plots(runs))

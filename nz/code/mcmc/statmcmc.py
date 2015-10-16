@@ -67,18 +67,16 @@ class stat_times(calcstats):
         return { 'summary': self.summary,
                 'var_y': var_y }
 
-# def cf(chain,lag):# per dimension
+# def cfs(w,k,lag):# per dimension per walker
 #     mean = sum(chain)/float(len(chain))
-#     term1 = chain
+#     terms = [(chain[lag+n]-mean)*(chain[n]-mean) for n in xrange(0,len(chain)-lag)]
+#     c = sum(terms)/(len(chain)-lag)
+#     return c
 
-# def cfs(chains,lag):
-#     terms = [cf(chain,lag) for chain in np.swapaxes(chains,axis=1)]
-#     ans  = sum(terms)/float(len(chain-lag))
+# def cf(chains,lag):# per walker
+#     terms = [cfs(chain,lag) for chain in chains]
+#     c  = sum(terms)/float(len(chain-lag))
 #     return ans
-
-# def acor(chain):# per walker
-#     tau = 1+2*sum([cf(chain,t)/cf(chain,0) for t in xrange(len(chain))])
-#     return tau
 
 # def acors(chains):
 #     acfs = []
@@ -86,3 +84,7 @@ class stat_times(calcstats):
 #         acf = acor(chain)
 #         acfs.append(acf)
 #     return acfs
+
+# def acor(chain):# per walker
+#     tau = 1+2*sum([cf(chain,t)/cf(chain,0) for t in xrange(len(chain))])
+#     return tau

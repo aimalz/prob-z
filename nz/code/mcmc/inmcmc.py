@@ -142,7 +142,11 @@ class setup(object):
         else:
             self.thinto = 1
 
+        assert(self.miniters%self.thinto==0)
+
         self.ntimes = self.miniters / self.thinto
+
+        assert(self.ntimes > self.nwalkers)
 
 #         # what outputs of emcee will we be saving?
         self.stats = [ stats.stat_chains(self),
@@ -152,6 +156,23 @@ class setup(object):
 
         # colors for plots
         self.colors='rgbymc'
+
+        self.trueZs = None
+        self.trueNz = None
+        self.logtrueNz = None
+        if os.path.exists(os.path.join(self.datadir,'logtrue.csv')):
+            with open(os.path.join(self.datadir,'logtrue.csv'),'rb') as csvfile:
+                tuples = (line.split(None) for line in csvfile)
+                alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
+            self.trueZs = np.array(alldata[1:])
+
+            trueNz = [sys.float_info.epsilon]*self.nbins
+            for z in self.trueZs:
+                for k in xrange(self.nbins):
+                    if z[0] > self.binlos[k] and z[0] < self.binhis[k]:
+                        trueNz[k] += 1./self.bindif
+            self.trueNz = np.array(trueNz)
+            self.logtrueNz = np.log(self.trueNz)
 
         outdict = {
             'topdir': self.topdir,

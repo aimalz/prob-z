@@ -9,7 +9,6 @@ import distribute
 import cPickle
 import hickle as hkl
 import os
-import inputs as meta
 
 # read/write cPickle
 def safe_load_c(path, num_objs = None):

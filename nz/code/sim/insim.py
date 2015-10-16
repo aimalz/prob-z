@@ -117,16 +117,20 @@ class setup(object):
             shutil.rmtree(self.topdir)
         os.makedirs(self.topdir)
 
-        topdir = os.path.join(self.testdir,'topdirs.p')
-        if os.path.isfile(topdir):
-            with open(os.path.join(self.testdir,'topdirs.p'),'rb') as topdir:
-                topdirs = cpkl.load(topdir)#cPickle.dump(self.topdir,topdir)
-                topdirs[input_address] = self.topdir
-            with open(os.path.join(self.testdir,'topdirs.p'),'wb') as topdir:
-                cpkl.dump(topdirs,topdir)
-        else:
-            with open(os.path.join(self.testdir,'topdirs.p'),'wb') as topdir:
-                cpkl.dump({input_address:self.topdir},topdir)
+#         topdir = os.path.join(self.testdir,'topdirs.p')
+#         if os.path.isfile(topdir):
+#               with open(os.path.join(self.testdir,'topdirs.p'),'rb') as topdir:
+#                     topdirs = cpkl.load(topdir)#cPickle.dump(self.topdir,topdir)
+#                     print('reading '+str(topdirs))
+#               topdirs[input_address] = self.topdir
+#               with open(os.path.join(self.testdir,'topdirs.p'),'wb') as topdir:
+#                     cpkl.dump(topdirs,topdir)
+#                     print('writing '+str(topdirs))
+#         else:
+#               topdirs = {input_address:self.topdir}
+#               with open(os.path.join(self.testdir,'topdirs.p'),'wb') as topdir:
+#                     cpkl.dump({input_address:self.topdir},topdir)
+#                     print('writing '+str(topdirs))
 
         self.simdir = os.path.join(self.topdir,'data')
         if os.path.exists(self.simdir):
@@ -145,7 +149,7 @@ class setup(object):
             'noise': self.noise,
             }
 
-        readme = open(os.path.join(self.topdir,'README.md'), 'w' )
+        readme = open(os.path.join(self.simdir,'README.md'), 'w' )
         readme.write(repr(outdict))
         readme.close()
 

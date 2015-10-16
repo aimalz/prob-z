@@ -132,6 +132,8 @@ class pertest(object):
         self.nbins = len(self.binends)-1
         self.binnos = range(0,self.nbins)
         self.binmids = (self.binhis+self.binlos)/2.#[(binends[k]+binends[k+1])/2. for k in binnos]
+        self.bindifs = self.binhis-self.binlos
+        self.bindif = sum(self.bindifs)/self.nbins
 
     def makecat(self):
 
@@ -182,6 +184,22 @@ class pertest(object):
         self.stack = np.array([max(sys.float_info.epsilon,stackprep[k]) for k in self.binnos])
         self.logstack = np.log(self.stack)
 
+        # generate MAP N(z)
+        self.mapNz = [sys.float_info.epsilon]*self.nbins
+        mappreps = [np.argmax(l) for l in self.logpobs]
+        for z in mappreps:
+              self.mapNz[z] += 1./self.bindifs[z]
+        self.logmapNz = np.log(self.mapNz)
+
+        # generate expected value N(z)
+        expprep = [sum(z) for z in self.binmids*np.exp(self.pobs)*self.bindifs]
+        self.expNz = [sys.float_info.epsilon]*self.nbins
+        for z in expprep:
+              for k in xrange(self.nbins):
+                  if z > self.binlos[k] and z < self.binhis[k]:
+                      self.expNz[k] += 1./self.bindifs[k]
+        self.logexpNz = np.log(self.expNz)
+
     # generate summary quantities for plotting
     def fillsummary(self):
 
@@ -208,4 +226,7 @@ class pertest(object):
         with open(os.path.join(self.meta.simdir,'logtrue.csv'),'wb') as csvfile:
             out = csv.writer(csvfile,delimiter=' ')
             out.writerow(self.binends)
-            out.writerow(self.full_logtrueNz)
+            #out.writerow(self.full_logtrueNz)
+            trueZs = [[z] for z in self.trueZs]
+            for item in trueZs:
+                out.writerow(item)
