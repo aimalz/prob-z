@@ -168,7 +168,7 @@ class pertest(object):
                 pob = np.array(spob)/sum(spob)/self.meta.zdif
 
             mapz = self.binmids[np.argmax(pob)]
-            expz = sum(self.binmids*pob*self.meta.zdif)
+            expz = sum(self.binmids*self.bindifs*pob)
             logpob = [m.log(max(p_i,sys.float_info.epsilon)) for p_i in pob]
             logpobs.append(logpob)
             pobs.append(pob)
@@ -192,7 +192,7 @@ class pertest(object):
         self.logmapNz = np.log(self.mapNz)
 
         # generate expected value N(z)
-        expprep = [sum(z) for z in self.binmids*np.exp(self.pobs)*self.bindifs]
+        expprep = [sum(z) for z in self.binmids*self.pobs*self.bindifs]
         self.expNz = [sys.float_info.epsilon]*self.nbins
         for z in expprep:
               for k in xrange(self.nbins):

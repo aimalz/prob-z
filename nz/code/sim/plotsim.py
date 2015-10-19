@@ -54,8 +54,7 @@ def plot_true(meta, test):
     sps.set_xlabel(r'binned $z$')
     sps.set_ylabel(r'$\ln N(z)$')
     sps.set_ylim(-1.,m.log(test.seed/meta.zdif)+1.)
-    sps.set_xlim(meta.allzlos[0]-meta.zdif,meta.allzhis[-1]+meta.zdif)
-    sps.step(test.zmids,test.logflatNz,label=r'flat $\ln N(z)$',where='mid')
+    sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
     sps.step(test.zmids,test.logsampNz,
              #color=meta.colors[n_run.n%6],
              label=r'true $\ln N(z)$',#+str(n_run.n+1),
@@ -63,6 +62,7 @@ def plot_true(meta, test):
     sps.step(test.binmids,test.logstack,label=r'Stacked $\ln N(z)$',where='mid')
     sps.step(test.binmids,test.logmapNz,label=r'MAP $\ln N(z)$',where='mid')
     sps.step(test.binmids,test.logexpNz,label=r'$E(z)\ \ln N(z)$',where='mid')
+    sps.step(test.zmids,test.logflatNz,label=r'flat $\ln N(z)$',where='mid')
     sps.legend(loc='upper left',fontsize='x-small')
     f.savefig(os.path.join(meta.simdir,'trueNz.png'))
     return

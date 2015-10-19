@@ -51,11 +51,11 @@ class setup(object):
             nelem = len(indict['phys'])
             self.real = np.reshape(np.array([float(indict['phys'][i]) for i in range(1,nelem)]),(nelem/3,3))
         else:
-            self.real = np.array([[0.2, 0.005, 2.0],
-                         [0.4, 0.005, 1.25],
-                         [0.5, 0.1, 2.0],
-                         [0.6, 0.005, 1.25],
-                         [0.8, 0.005, 1.25],
+            self.real = np.array([[0.2, 0.005, 2.5],
+                         [0.4, 0.005, 0.75],
+                         #[0.5, 0.1, 2.0],
+                         [0.6, 0.005, 0.75],
+                         [0.8, 0.005, 2.0],
                          [1.0, 0.005, 0.75]])
 
         # put together Gaussian elements

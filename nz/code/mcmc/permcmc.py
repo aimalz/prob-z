@@ -58,10 +58,10 @@ class pertest(object):
         sampler.reset()
         pos, prob, state = sampler.run_mcmc(ivals,miniters,thin=thinto)
         ovals = [walk[-1] for walk in sampler.chain]
-        chains = sampler.chain#niters*nwalkers*ndims
-        probs = sampler.lnprobability#niters*nwalkers
+        chains = sampler.chain#nsteps*nwalkers*nbins
+        probs = sampler.lnprobability#nsteps*nwalkers
         fracs = sampler.acceptance_fraction#nwalkers
-        times = stats.acors(chains)#ndims#sampler.get_autocorr_time(window = ntimes/2)#
+        times = stats.acors(chains)#nwalkers#sampler.get_autocorr_time(window = ntimes/2)#nbins
         outputs = { 'times':times,
                     'fracs':fracs,
                     'probs':probs,
