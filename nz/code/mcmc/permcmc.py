@@ -41,10 +41,10 @@ class pertest(object):
             calctimer.close()
 
         # what outputs of emcee will we be saving?
-        self.stats = [ stats.stat_chains(self),
-                       stats.stat_probs(self),
-                       stats.stat_fracs(self),
-                       stats.stat_times(self) ]
+        self.stats = [ stats.stat_chains(self.meta),
+                       stats.stat_probs(self.meta),
+                       stats.stat_fracs(self.meta),
+                       stats.stat_times(self.meta) ]
 
     # sample with emcee and provide output
     # TO DO: change emcee parameters to save less data to reduce i/o and storage
@@ -58,10 +58,10 @@ class pertest(object):
         sampler.reset()
         pos, prob, state = sampler.run_mcmc(ivals,miniters,thin=thinto)
         ovals = [walk[-1] for walk in sampler.chain]
-        times = sampler.get_autocorr_time(window = ntimes/2)#ndims
-        fracs = sampler.acceptance_fraction#nwalkers
-        probs = sampler.lnprobability#niters*nwalkers
         chains = sampler.chain#niters*nwalkers*ndims
+        probs = sampler.lnprobability#niters*nwalkers
+        fracs = sampler.acceptance_fraction#nwalkers
+        times = stats.acors(chains)#ndims#sampler.get_autocorr_time(window = ntimes/2)#
         outputs = { 'times':times,
                     'fracs':fracs,
                     'probs':probs,
@@ -103,7 +103,7 @@ class pertest(object):
     # once burn-in complete, know total number of runs remaining
     def atburn(self, b, outputs):
         print(str(b*self.meta.miniters)+' iterations of burn-in for '+str(self.meta.topdir))
-        self.nsteps = 3*(b+1)
+        self.nsteps = 2*(b+1)
         self.maxiters = self.nsteps*self.meta.miniters
         self.alliternos = range(0,self.maxiters)
         self.alltimenos = range(0,self.maxiters/self.meta.thinto,self.meta.thinto)

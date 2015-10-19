@@ -58,6 +58,23 @@ class setup(object):
         self.flatNz = np.array([float(self.ngals)/float(self.nbins)/self.bindif]*self.nbins)
         self.logflatNz = np.log(self.flatNz)
 
+        self.trueZs = None
+        self.trueNz = None
+        self.logtrueNz = None
+        if os.path.exists(os.path.join(self.datadir,'logtrue.csv')):
+            with open(os.path.join(self.datadir,'logtrue.csv'),'rb') as csvfile:
+                tuples = (line.split(None) for line in csvfile)
+                trudata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
+            self.trueZs = np.array(trudata[1:])
+
+            trueNz = [sys.float_info.epsilon]*self.nbins
+            for z in self.trueZs:
+                for k in xrange(self.nbins):
+                    if z[0] > self.binlos[k] and z[0] < self.binhis[k]:
+                        trueNz[k] += 1./self.bindif
+            self.trueNz = np.array(trueNz)
+            self.logtrueNz = np.log(self.trueNz)
+
         # generate full Sheldon, et al. 2011 "posterior"
         stackprep = np.sum(np.array(self.pobs),axis=0)
         self.stack = np.array([max(sys.float_info.epsilon,stackprep[k]) for k in xrange(self.nbins)])
@@ -89,15 +106,15 @@ class setup(object):
             mean = indict['priormean']
             self.mean = np.array([float(mean[i]) for i in range(0,self.nbins)])
             covmat = indict['priorcov']
-            self.covmat = np.reshape(np.array([float(covmat[i]) for i in range(0,self.nbins**2)]),(self.nbins,self.nbins))
-        else:
-            self.mean = self.logflatNz
 #         if self.meta.random[self.n]:
 #             q = 1.#0.5
 #             e = 0.15/self.meta.zdif**2
 #             tiny = q*1e-6
 #             self.covmat = np.array([[q*m.exp(-0.5*e*(self.binmids[a]-self.binmids[b])**2.) for a in xrange(0,self.nbins)] for b in xrange(0,self.nbins)])+tiny*np.identity(self.nbins)
 #         else:
+            self.covmat = np.reshape(np.array([float(covmat[i]) for i in range(0,self.nbins**2)]),(self.nbins,self.nbins))
+        else:
+            self.mean = self.logflatNz
             self.covmat = np.identity(self.nbins)
 
         self.priordist = mvn(self.mean,self.covmat)
@@ -157,23 +174,6 @@ class setup(object):
         # colors for plots
         self.colors='rgbymc'
 
-        self.trueZs = None
-        self.trueNz = None
-        self.logtrueNz = None
-        if os.path.exists(os.path.join(self.datadir,'logtrue.csv')):
-            with open(os.path.join(self.datadir,'logtrue.csv'),'rb') as csvfile:
-                tuples = (line.split(None) for line in csvfile)
-                alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
-            self.trueZs = np.array(alldata[1:])
-
-            trueNz = [sys.float_info.epsilon]*self.nbins
-            for z in self.trueZs:
-                for k in xrange(self.nbins):
-                    if z[0] > self.binlos[k] and z[0] < self.binhis[k]:
-                        trueNz[k] += 1./self.bindif
-            self.trueNz = np.array(trueNz)
-            self.logtrueNz = np.log(self.trueNz)
-
         outdict = {
             'topdir': self.topdir,
             'binends': self.binends,
@@ -196,9 +196,9 @@ class setup(object):
         self.plottime = os.path.join(self.testdir, 'plottimer.txt')
         if os.path.exists(self.plottime):
             os.remove(self.plottime)
-        self.iotime = os.path.join(self.testdir, 'iotimer.txt')
-        if os.path.exists(self.iotime):
-            os.remove(self.iotime)
+#         self.iotime = os.path.join(self.testdir, 'iotimer.txt')
+#         if os.path.exists(self.iotime):
+#             os.remove(self.iotime)
 
         print('ingested inputs and initialized sampling')
 

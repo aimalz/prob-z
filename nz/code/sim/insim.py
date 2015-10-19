@@ -32,7 +32,7 @@ class setup(object):
             self.allnbins = len(indict['allzs'])
             self.allzs = np.array([float(indict['allzs'][i]) for i in range(1,self.allnbins)])
         else:
-            self.allnbins = 10
+            self.allnbins = 20
             binstep = 1. / self.allnbins
             self.allzs = np.arange(0.,1.+binstep,binstep)
 
