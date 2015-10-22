@@ -25,14 +25,14 @@ class setup(object):
         # read input parameters
         with open(self.datadir) as infile:
             lines = (line.split(None) for line in infile)
-            indict   = {defn[0]:defn[1] for defn in lines}
+            indict   = {defn[0]:defn[1:] for defn in lines}
 
         # take in specification of bins if provided, otherwise make some
         if 'allzs' in indict:
-            self.allnbins = len(indict['allzs'])
-            self.allzs = np.array([float(indict['allzs'][i]) for i in range(1,self.allnbins)])
+            self.allnbins = len(indict['allzs'])-1
+            self.allzs = np.array([float(indict['allzs'][i]) for i in range(0,self.allnbins+1)])
         else:
-            self.allnbins = 20
+            self.allnbins = 15
             binstep = 1. / self.allnbins
             self.allzs = np.arange(0.,1.+binstep,binstep)
 
@@ -47,16 +47,17 @@ class setup(object):
         # will plot this
         # for sum of Gaussians, elements of the form (z_center, spread, magnitude)
         # take in specification of underlying P(z) if provided, otherwise make one
+        zrange = max(self.allzs)-min(self.allzs)
+        zmin = min(self.allzs)
         if 'phys' in indict:
             nelem = len(indict['phys'])
             self.real = np.reshape(np.array([float(indict['phys'][i]) for i in range(1,nelem)]),(nelem/3,3))
         else:
-            self.real = np.array([[0.2, 0.005, 2.5],
-                         [0.4, 0.005, 0.75],
-                         #[0.5, 0.1, 2.0],
-                         [0.6, 0.005, 0.75],
-                         [0.8, 0.005, 2.0],
-                         [1.0, 0.005, 0.75]])
+            self.real = np.array([[zmin+0.2*zrange, 0.005, 2.5],
+                         [zmin+0.4*zrange, 0.005, 0.5],
+                         #[0.5, 0.1, 0.5],
+                         [zmin+0.6*zrange, 0.005, 0.5],
+                         [zmin+0.8*zrange, 0.005, 2.5]])
 
         # put together Gaussian elements
         self.realistic_comps = np.transpose([[zmid*tup[2]*(2*m.pi*tup[1])**-0.5*m.exp(-(zmid-tup[0])**2/(2*tup[1])) for zmid in self.allzmids] for tup in self.real])
@@ -66,51 +67,51 @@ class setup(object):
 
         # dimensionality/ies of N(z) parameter
         if 'params' in indict:
-            self.params = int(indict['params'])
-            assert int(indict['params']) < self.allnbins
+            self.params = int(indict['params'][0])
+            assert int(indict['params'][0]) < self.allnbins
         else:
             self.params = self.allnbins
 
         # generate number of galaxies in survey/s
         if 'survs' in indict:
-            self.survs = int(indict['survs'])
+            self.survs = int(indict['survs'][0])
         else:
             self.survs = 1000
 
         # 0 for set number of galaxies, 1 for statistical sample around target
         if 'poisson' in indict:
-            self.poisson = bool(int(indict['poisson']))
+            self.poisson = bool(int(indict['poisson'][0]))
         else:
             self.poisson = bool(1)
 
         # assign zs to galaxies
         # 0 for all galaxies having same true redshift bin, 1 for statistical sample around underlying P(z)
         if 'random' in indict:
-            self.random = bool(int(indict['random']))
+            self.random = bool(int(indict['random'][0]))
         else:
             self.random = bool(1)
 
         # 0 for all galaxies having mean redshift of bin, 1 for uniform sampling
         if 'uniform' in indict:
-            self.uniform = bool(int(indict['uniform']))
+            self.uniform = bool(int(indict['uniform'][0]))
         else:
             self.uniform = bool(1)
 
         # permit more complicated p(z)s
         # 0 for unimodal, 1 for multimodal
         if 'shape' in indict:
-            self.shape = bool(int(indict['shape']))
+            self.shape = bool(int(indict['shape'][0]))
         else:
             self.shape = bool(1)
 
         # 0 for noiseless, 1 for noisy
         if 'noise' in indict:
-            self.noise = bool(int(indict['noise']))
+            self.noise = bool(int(indict['noise'][0]))
         else:
             self.noise = bool(1)
 
         # colors for plots
-        self.colors='rgbymc'
+        self.colors='brgycm'
 
         self.topdir = os.path.join(self.testdir,self.inadd)#os.path.join(self.testdir,str(round(timeit.default_timer())))
         if os.path.exists(self.topdir):

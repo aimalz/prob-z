@@ -106,7 +106,6 @@ class setup(object):
             mean = indict['priormean']
             self.mean = np.array([float(mean[i]) for i in range(0,self.nbins)])
             covmat = indict['priorcov']
-#         if self.meta.random[self.n]:
 #             q = 1.#0.5
 #             e = 0.15/self.meta.zdif**2
 #             tiny = q*1e-6
@@ -163,7 +162,7 @@ class setup(object):
 
         self.ntimes = self.miniters / self.thinto
 
-        assert(self.ntimes > self.nwalkers)
+        #assert(self.ntimes > self.nwalkers)
 
 #         # what outputs of emcee will we be saving?
         self.stats = [ stats.stat_chains(self),
@@ -172,7 +171,13 @@ class setup(object):
                        stats.stat_times(self) ]
 
         # colors for plots
-        self.colors='rgbymc'
+        self.colors='brgycm'
+
+        # autocorrelation time mode
+        if 'mode' in indict:
+            self.mode = int(indict['mode'])
+        else:
+            self.mode = 'bins'#'walkers'
 
         outdict = {
             'topdir': self.topdir,

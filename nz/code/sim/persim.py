@@ -63,7 +63,7 @@ class pertest(object):
     def choosen(self):
 
         # sample some number of galaxies, poisson or set
-        if self.meta.poisson:
+        if self.meta.poisson == 1:
             self.ngals = np.random.poisson(self.seed)#[[np.random.poisson(seed) for n in sampnos] for s in survnos]
         else:
             self.ngals = self.seed
@@ -73,7 +73,7 @@ class pertest(object):
         count = [0]*self.ndims
 
         #test all galaxies in survey have same true redshift vs. sample from truePz
-        if self.meta.random:
+        if self.meta.random == 1:
             for j in range(0,self.ngals):
               count[choice(xrange(self.ndims), self.truePz)] += 1
               #count[choice(xrange(self.p_run.ndims), self.p_run.flatPz)] += 1
@@ -93,7 +93,7 @@ class pertest(object):
     def choosetrue(self):
 
         # assign actual redshifts either uniformly or identically to mean
-        if self.meta.uniform:
+        if self.meta.uniform == 1:
             self.trueZs = np.array([random.uniform(self.zlos[k],self.zhis[k]) for k in xrange(self.ndims) for j in xrange(self.count[k])])
         else:
             self.trueZs = np.array([self.zmids[k] for k in xrange(self.ndims) for j in xrange(self.count[k])])
@@ -103,10 +103,10 @@ class pertest(object):
 
       # define 1+z and variance to use for sampling z
         modZs = self.trueZs+1.#[[trueZs[s][n]+1. for n in sampnos] for s in survnos]
-        varZs = self.meta.zdif*modZs#[j] for j in xrange(self.ngals)]# for n in sampnos] for s in survnos])#zdif*(trueZs+1.)
+        varZs = modZs*self.meta.zdif#[j] for j in xrange(self.ngals)]# for n in sampnos] for s in survnos])#zdif*(trueZs+1.)
 
         # we can re-calculate npeaks later from shiftZs or sigZs.
-        if self.meta.shape:
+        if self.meta.shape == 1:
             npeaks = [random.randrange(1,self.ndims,1) for j in xrange(self.ngals)]
         else:
             npeaks = [1]*self.ngals
@@ -161,7 +161,7 @@ class pertest(object):
             pob = allsummed/self.meta.zdif/npeaks
 
             # sample posterior if noisy observation
-            if self.meta.noise:
+            if self.meta.noise == 1:
                 spob = [sys.float_info.epsilon]*self.nbins
                 for k in xrange(2*self.nbins):#self.binnos:
                     spob[choice(self.binnos, pob)] += 1.
@@ -215,6 +215,21 @@ class pertest(object):
         self.full_sampNz = np.concatenate((np.array([sys.float_info.epsilon]*len(self.binfront)),self.sampNz,np.array([sys.float_info.epsilon]*len(self.binback))),axis=0)
         self.full_logsampNz = np.concatenate((np.array([m.log(sys.float_info.epsilon)]*len(self.binfront)),self.logsampNz,np.array([m.log(sys.float_info.epsilon)]*len(self.binback))),axis=0)
 
+        #summary stats
+        vsstack = self.stack-self.full_sampNz
+        self.vsstack = np.dot(vsstack,vsstack)/self.nbins
+        vslogstack = self.logstack-self.full_logsampNz
+        self.vslogstack = np.dot(vslogstack,vslogstack)/self.nbins
+
+        vsmapNz = self.mapNz-self.full_sampNz
+        self.vsmapNz = np.dot(vsmapNz,vsmapNz)/self.nbins
+        vslogmapNz = self.logmapNz-self.full_logsampNz
+        self.vslogmapNz = np.dot(vslogmapNz,vslogmapNz)/self.nbins
+
+        vsexpNz = self.expNz-self.full_sampNz
+        self.vsexpNz = np.dot(vsexpNz,vsexpNz)/self.nbins
+        vslogexpNz = self.logexpNz-self.full_logsampNz
+        self.vslogexpNz = np.dot(vslogexpNz,vslogexpNz)/self.nbins
 
     def savedat(self):
 

@@ -39,7 +39,7 @@ def safe_load_h(path, num_objs = None):
         return [hkl.load(f) for _ in xrange(num_objs)]
     f.close()
 def safe_store_h(path, o):
-    print 'storing hkl:' + path
+#     print 'storing hkl:' + path
     directory = path[:path.rfind('/')]
     if not os.path.exists(directory):
         os.makedirs(directory)

@@ -18,7 +18,7 @@ class consumer(object):
     def loop(self, queue):
         while (True):
             key = queue.get()
-            print('got key '+str(key))
+#             print('got key '+str(key))
             if (key=='done'):
                 self.finish()
                 return
@@ -35,7 +35,7 @@ def run_offthread_sync(func, *args):
 
 # plot results of one run in loop
 def do_consume(ctor, q, args):
-    print(ctor,q,args)
+    #print(ctor,q,args)
     try:
         obj = ctor(**args)
         obj.loop(q)
@@ -62,13 +62,13 @@ class distribute(object):
     def complete_chunk(self, key):
         for q in self.queues:
             q.put(key)
-            print('put key '+str(key))
+#             print('put key '+str(key))
 
     # called when all producers are done
     def finish(self):
         for q in self.queues:
             q.put('done')
-            print('put key '+str('done'))
+#             print('put key '+str('done'))
 
     def finish_and_wait(self):
         self.finish()

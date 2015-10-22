@@ -61,7 +61,7 @@ class pertest(object):
         chains = sampler.chain#nsteps*nwalkers*nbins
         probs = sampler.lnprobability#nsteps*nwalkers
         fracs = sampler.acceptance_fraction#nwalkers
-        times = stats.acors(chains)#nwalkers#sampler.get_autocorr_time(window = ntimes/2)#nbins
+        times = stats.acors(chains,self.meta.mode)#nwalkers#sampler.get_autocorr_time(window = ntimes/2)#nbins
         outputs = { 'times':times,
                     'fracs':fracs,
                     'probs':probs,

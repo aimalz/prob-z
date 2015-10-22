@@ -4,6 +4,8 @@ stat-mcmc module calculates intermediate statistics for monitoring state
 
 import statistics
 import numpy as np
+import cPickle as cpkl
+import os
 
 # unite stats for each output
 class calcstats(object):
@@ -16,8 +18,8 @@ class calcstats(object):
 class stat_chains(calcstats):
     def __init__(self, meta):
         calcstats.__init__(self, meta)
-        self.tot_ls = 0
-        self.tot_s = 0
+        self.tot_ls = 0.
+        self.tot_s = 0.
         self.var_ls = []
         self.var_s = []
         self.name = 'chains'
@@ -41,31 +43,64 @@ class stat_chains(calcstats):
             self.vsmapNz = np.dot(vsmapNz,vsmapNz)/self.meta.nbins
             vsexpNz = meta.expNz-meta.trueNz
             self.vsexpNz = np.dot(vsexpNz,vsexpNz)/self.meta.nbins
-    def compute(self, ydata):#ntimes*nwalkers*nbins
-      y = np.swapaxes(ydata.T,0,1).T#nwalkers*nbins*ntimes
-      my = np.array([[[sum(by)/len(by)]*self.meta.ntimes for by in wy] for wy in y])#ntimes*nbins*nwalkers
-      print(np.shape(y),np.shape(my))
-      sy = np.swapaxes((y-my),1,2)#nwalkers*ntimes*nbins
-      ey = np.exp(y)
-      mey = np.array([[[sum(bey)/len(bey)]*self.meta.ntimes for bey in wey] for wey in ey])
-      sey = np.swapaxes((ey-mey),1,2)
-      var_ls = sum([sum([np.dot(sy[w][i],sy[w][i])/self.meta.nbins for i in xrange(self.meta.ntimes)])/self.meta.ntimes for w in xrange(self.meta.nwalkers)])/self.meta.nwalkers
-      var_s = sum([sum([np.dot(sey[w][i],sey[w][i])/self.meta.nbins for i in xrange(self.meta.ntimes)])/self.meta.ntimes for w in xrange(self.meta.nwalkers)])/self.meta.nwalkers
-      self.var_ls.append(var_s)
-      self.var_ls.append(var_s)
-      self.tot_ls = self.tot_ls+var_ls
-      self.tot_s = self.tot_s+var_s
-      return { 'vslogstack': self.vslogstack,
+        outdict = {'vslogstack': self.vslogstack,
                'vsstack': self.vsstack,
                'vslogmapNz': self.vslogmapNz,
                'vsmapNz': self.vsmapNz,
-              'vslogexpNz': self.vslogexpNz,
-               'vsexpNz': self.vsexpNz,
-              'tot_ls': self.tot_ls,
-               'tot_s': self.tot_s,
-               'var_ls': self.var_ls,
-               'var_s': self.var_s
-          }
+               'vslogexpNz': self.vslogexpNz,
+               'vsexpNz': self.vsexpNz}
+        #print(type(outdict))
+        #print(outdict)
+        with open(os.path.join(self.meta.topdir,'stat_chains.p'),'wb') as statchains:
+            cpkl.dump(outdict,statchains)
+
+    def compute(self, ydata):#ntimes*nwalkers*nbins
+        y = np.swapaxes(ydata.T,0,1).T#nwalkers*nbins*ntimes
+        if self.meta.logtrueNz is None:
+            my = np.array([[[sum(by)/len(by)]*self.meta.ntimes for by in wy] for wy in y])#nwalkers*nbins*ntimes
+        else:
+            my = np.array([[[k]*self.meta.ntimes for k in self.meta.logtrueNz]]*self.meta.nwalkers)#nwalkers*nbins*ntimes
+        sy = np.swapaxes((y-my),1,2)#nwalkers*time*nbins
+        ey = np.exp(y)
+        if self.meta.trueNz is None:
+            mey = np.array([[[sum(bey)/len(bey)]*self.meta.ntimes for bey in wey] for wey in ey])#nwalkers*nbins*ntimes
+        else:
+            mey = np.array([[[k]*self.meta.ntimes for k in self.meta.trueNz]]*self.meta.nwalkers)#nwalkers*nbins*ntimes
+        sey = np.swapaxes((ey-mey),1,2)
+        var_ls = sum([sum([np.dot(sy[w][i],sy[w][i]) for i in xrange(self.meta.ntimes)]) for w in xrange(self.meta.nwalkers)])/(self.meta.nwalkers*self.meta.ntimes*self.meta.nbins)
+        var_s = sum([sum([np.dot(sey[w][i],sey[w][i]) for i in xrange(self.meta.ntimes)]) for w in xrange(self.meta.nwalkers)])/(self.meta.nwalkers*self.meta.ntimes*self.meta.nbins)
+        self.var_ls.append(var_ls)
+        self.var_s.append(var_s)
+        #print('stats var_ls='+str(self.var_ls))
+        #print('stats var_s='+str(self.var_s))
+        self.tot_ls = self.tot_ls+var_ls
+        self.tot_s = self.tot_s+var_s
+        #print('stats tot_ls='+str(self.tot_ls))
+        #print('stats tot_s='+str(self.tot_s))
+        with open(os.path.join(self.meta.topdir,'stat_chains.p'),'rb') as indict:
+            outdict = cpkl.load(indict)
+            #print(type(outdict))
+            #print('before addition'+str(outdict))
+        outdict['tot_ls'] = self.tot_ls
+        outdict['tot_s'] = self.tot_s
+        outdict['var_ls'] = self.var_ls
+        outdict['var_s'] = self.var_s
+            #print(type(outdict))
+        with open(os.path.join(self.meta.topdir,'stat_chains.p'),'wb') as indict:
+            cpkl.dump(outdict,indict)
+            #print('after addition'+str(outdict))
+
+#         return { 'vslogstack': self.vslogstack,
+#                'vsstack': self.vsstack,
+#                'vslogmapNz': self.vslogmapNz,
+#                'vsmapNz': self.vsmapNz,
+#                'vslogexpNz': self.vslogexpNz,
+#                'vsexpNz': self.vsexpNz,
+#                'tot_ls': self.tot_ls,
+#                'tot_s': self.tot_s,
+#                'var_ls': self.var_ls,
+#                'var_s': self.var_s
+#               }
 
 class stat_probs(calcstats):
     def __init__(self, meta):
@@ -107,47 +142,34 @@ class stat_times(calcstats):
         self.summary = self.summary+var_y
         self.var_y.append(var_y)
         return { 'summary': self.summary,
-                'var_y': self.var_y }
-
-# def cfs(onewalkoneparam,lag):# per dimension per walker per lag
-#     mean = sum(onewalkoneparam)/float(len(onewalkoneparam))
-#     terms = [(onewalkoneparam[lag+n]-mean)*(onewalkoneparam[n]-mean) for n in xrange(0,len(onewalkoneparam)-lag)]
-#     c = sum(terms)/(len(onewalkoneparam)-lag)
-#     return c
-
-# def cf(onewalk,lag):# per walker per lag
-#     terms = [cfs(onewalk[k],lag) for k in xrange(len(onewalk))]
-#     c  = sum(terms)/float(len(chain[0]))
-#     return c
+                 'var_y': self.var_y }
 
 def cft(xtimes,lag):
     lent = len(xtimes)-lag
     allt = xrange(lent)
     ans = np.array([xtimes[t+lag]*xtimes[t] for t in allt])
-    #print('cft='+str(ans))
     return ans
 
 def cf(xtimes):#xtimes has ntimes elements
     cf0 = np.dot(xtimes,xtimes)
-    #print(str(np.shape(xsteps))+' should be nsteps')
     allt = xrange(len(xtimes)/2)
     cf = np.array([sum(cft(xtimes,lag)[len(xtimes)/2:]) for lag in allt])/cf0
-    #cf = np.correlate(xtimes, xtimes, mode='full')/cf0
-    #ans = cf[len(cf)/2:]
-    #print('cf='+str(cf))
     return cf
 
-def cfs(xbinstimes):#xbinstimes has nbins by ntimes elements
-    #print(str(np.shape(xbinssteps))+' should be (nbins,nsteps)')
-    cfs = np.array([sum(cf(xtimes)) for xtimes in xbinstimes])/len(xbinstimes)
-    #print('cfs='+str(cfs))
+def cfs(x,mode):#xbinstimes has nbins by ntimes elements
+    if mode == 'walkers':
+        xbinstimes = x
+        cfs = np.array([sum(cf(xtimes)) for xtimes in xbinstimes])/len(xbinstimes)
+    if mode == 'bins':
+        xwalkerstimes = x
+        cfs = np.array([sum(cf(xtimes)) for xtimes in xwalkerstimes])/len(xwalkerstimes)
     return cfs
 
-def acors(xtimeswalkersbins):
-    #print(str(np.shape(xstepswalkersbins))+' should be (ntimes,nwalkers,nbins)')
-    xwalkersbinstimes = np.swapaxes(xtimeswalkersbins,1,2)#nwalkers by nbins by nsteps
-    #print(str(np.shape(xwalkersbinssteps))+' should be (nwalkers,nbins,ntimes)')
-    taus = np.array([1. + 2.*sum(cfs(xbinstimes)) for xbinstimes in xwalkersbinstimes])#/len(xwalkersbinstimes)# 1+2*sum(...)
-    #print(str(np.shape(taus))+' should be nwalkers')
-    print('acors='+str(taus))
+def acors(xtimeswalkersbins,mode):
+    if mode == 'walkers':
+        xwalkersbinstimes = np.swapaxes(xtimeswalkersbins,1,2)#nwalkers by nbins by nsteps
+        taus = np.array([1. + 2.*sum(cfs(xbinstimes,mode)) for xbinstimes in xwalkersbinstimes])#/len(xwalkersbinstimes)# 1+2*sum(...)
+    if mode == 'bins':
+        xbinswalkerstimes = xtimeswalkersbins.T#nbins by nwalkers by nsteps
+        taus = np.array([1. + 2.*sum(cfs(xwalkerstimes,mode)) for xwalkerstimes in xbinswalkerstimes])#/len(xwalkersbinstimes)# 1+2*sum(...)
     return taus
