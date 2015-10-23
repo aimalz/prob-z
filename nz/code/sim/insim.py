@@ -28,13 +28,19 @@ class setup(object):
             indict   = {defn[0]:defn[1:] for defn in lines}
 
         # take in specification of bins if provided, otherwise make some
+
         if 'allzs' in indict:
             self.allnbins = len(indict['allzs'])-1
             self.allzs = np.array([float(indict['allzs'][i]) for i in range(0,self.allnbins+1)])
-        else:
-            self.allnbins = 15
+        elif 'nbins' in indict:
+            self.allnbins = int(indict['nbins'][0])
             binstep = 1. / self.allnbins
             self.allzs = np.arange(0.,1.+binstep,binstep)
+        else:
+            self.allnbins = 20
+            binstep = 1. / self.allnbins
+            self.allzs = np.arange(0.,1.+binstep,binstep)
+
 
         # his, los, centers of bins and bin widths handy for plotting
         self.allzlos = self.allzs[:-1]
@@ -44,21 +50,21 @@ class setup(object):
         self.zdif = sum(self.zdifs) / self.allnbins
 
         # define a physical P(z)
-        # will plot this
         # for sum of Gaussians, elements of the form (z_center, spread, magnitude)
         # take in specification of underlying P(z) if provided, otherwise make one
         zrange = max(self.allzs)-min(self.allzs)
         zmin = min(self.allzs)
         if 'phys' in indict:
             nelem = len(indict['phys'])
-            self.real = np.reshape(np.array([float(indict['phys'][i]) for i in range(1,nelem)]),(nelem/3,3))
+            self.real = np.array([float(indict['phys'][i]) for i in range(1,nelem)])
         else:
-            self.real = np.array([[zmin+0.2*zrange, 0.005, 2.5],
-                         [zmin+0.4*zrange, 0.005, 0.5],
-                         #[0.5, 0.1, 0.5],
-                         [zmin+0.6*zrange, 0.005, 0.5],
-                         [zmin+0.8*zrange, 0.005, 2.5]])
-
+            self.real = np.array([[zmin+0.2*zrange, 0.005, 2.0],
+                         [zmin+0.4*zrange, 0.005, 1.25],
+                         [zmin+0.5*zrange, 0.1, 2.0],
+                         [zmin+0.6*zrange, 0.005, 1.25],
+                         [zmin+0.8*zrange, 0.005, 1.25],
+                         [zmin+1.0*zrange, 0.005, 0.75]
+                          ])
         # put together Gaussian elements
         self.realistic_comps = np.transpose([[zmid*tup[2]*(2*m.pi*tup[1])**-0.5*m.exp(-(zmid-tup[0])**2/(2*tup[1])) for zmid in self.allzmids] for tup in self.real])
         self.realistic = np.array([sum(realistic_comp) for realistic_comp in self.realistic_comps])

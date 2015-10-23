@@ -74,11 +74,11 @@ def plot_ivals(meta):
     f.suptitle('Initialization of '+str(meta.nwalkers)+' walkers')
     sps.set_ylabel(r'$\ln N(z)$')
     sps.set_xlabel(r'$z$')
+    sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
     sps.set_title(meta.init_names)
-
+    sps.step(meta.binmids,meta.mean,color='k',where='mid')
     for ival in meta.ivals:
-        sps.step(meta.binlos,ival,alpha=0.5,)
-    sps.step(meta.binmids,meta.mean,color='k',linewidth=2,where='mid')
+        sps.step(meta.binmids,ival,alpha=0.5,where='mid')
     f.savefig(os.path.join(meta.topdir,'initializations.png'),dpi=100)
     return
 
@@ -184,7 +184,7 @@ class plotter_probs(plotter):
 
     def finish(self):
 
-        self.sps.set_xlim(0,(self.last_key.r+2)*self.meta.miniters)
+        self.sps.set_xlim(-1*self.meta.miniters,(self.last_key.r+2)*self.meta.miniters)
         self.f.savefig(os.path.join(self.meta.topdir,'probs.png'),dpi=100)
         timesaver(self.meta,'probs-done',key)
 
@@ -274,14 +274,14 @@ class plotter_samps(plotter):
             maplabel = r' $\sigma^{2}=$'+str(int(variances['vsmapNz']))
             logexplabel = r' $\sigma^{2}=$'+str(int(variances['vslogexpNz']))
             explabel = r' $\sigma^{2}=$'+str(int(variances['vsexpNz']))
-            logsampprep = variances['tot_ls']/(self.last_key.r+1.)
-            #print('logsampvar '+str(type(logsampprep))+': '+str(logsampprep))
+            logsampprep = min(variances['var_ls'])#/(self.last_key.r+1.)
+            print('var_ls '+str(variances['var_ls']))
             logsamplabel = r' $\sigma^{2}=$'+str(int(logsampprep))#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
-            #print('plot var_ls='+str(logsampprep))
-            sampprep = variances['tot_s']/(self.last_key.r+1.)
-            #print('sampvar '+str(type(sampprep))+': '+str(sampprep))
+            print('plot var_ls='+str(logsampprep))
+            sampprep = min(variances['var_s'])#/(self.last_key.r+1.)
+            print('var_s '+str(variances['var_s']))
             samplabel = r' $\sigma^{2}=$'+str(int(sampprep))#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
-            #print('plot var_s='+str(sampprep))
+            print('plot var_s='+str(sampprep))
         else:
             logstacklabel = ' '
             stacklabel = ' '
@@ -289,8 +289,8 @@ class plotter_samps(plotter):
             maplabel = ' '
             logexplabel = ' '
             explabel = ' '
-            logsamplabel = r' $\sigma^{2}=$'+str(int(variances['tot_ls']))
-            samplabel = r' $\sigma^{2}=$'+str(int(variances['tot_s']))
+            logsamplabel = r' $\sigma^{2}=$'+str(int(variances['tot_ls']/(self.last_key.r+1.)))
+            samplabel = r' $\sigma^{2}=$'+str(int(variances['tot_s']/(self.last_key.r+1.)))
             self.meta.logtrueNz = [-1.]*self.meta.nbins
             self.meta.trueNz = [-1.]*self.meta.nbins
 

@@ -106,15 +106,16 @@ class setup(object):
             mean = indict['priormean']
             self.mean = np.array([float(mean[i]) for i in range(0,self.nbins)])
             covmat = indict['priorcov']
-#             q = 1.#0.5
-#             e = 0.15/self.meta.zdif**2
-#             tiny = q*1e-6
-#             self.covmat = np.array([[q*m.exp(-0.5*e*(self.binmids[a]-self.binmids[b])**2.) for a in xrange(0,self.nbins)] for b in xrange(0,self.nbins)])+tiny*np.identity(self.nbins)
-#         else:
             self.covmat = np.reshape(np.array([float(covmat[i]) for i in range(0,self.nbins**2)]),(self.nbins,self.nbins))
         else:
             self.mean = self.logflatNz
-            self.covmat = np.identity(self.nbins)
+            if 'random' in indict and int(indict['random']) == 1:
+                q = 1.
+                e = float(self.nbins)/self.bindif**2
+                tiny = q*1e-6
+                self.covmat = np.array([[q*np.exp(-0.5*e*(self.binmids[a]-self.binmids[b])**2.) for a in xrange(0,self.nbins)] for b in xrange(0,self.nbins)])+tiny*np.identity(self.nbins)
+            else:
+                self.covmat = np.identity(self.nbins)
 
         self.priordist = mvn(self.mean,self.covmat)
 
@@ -126,7 +127,7 @@ class setup(object):
 
         # initialization schemes
         if 'inits' in indict:
-            self.inits = indict['init']
+            self.inits = indict['inits']
         else:
             self.inits = 'gs'#corresponding to 'ps', 'gm'
 
@@ -161,6 +162,7 @@ class setup(object):
         assert(self.miniters%self.thinto==0)
 
         self.ntimes = self.miniters / self.thinto
+        self.factor = 2
 
         #assert(self.ntimes > self.nwalkers)
 

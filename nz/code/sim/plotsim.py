@@ -50,17 +50,25 @@ def plot_priorgen(metainfo):
 # plot sample of true N(z) for one set of parameters and one survey size
 def plot_true(meta, test):
 
+    #print(sum(meta.realistic))
+    #print(sum(test.ngals*meta.realistic))
+    #print(test.ngals*sum(meta.realistic))
+    plotrealistic_Nz = test.ngals*meta.realistic/sum(meta.realistic*meta.zdifs)
+    #print(sum(plotrealistic_Nz*meta.zdifs))
+    plotrealistic_logNz = np.log(plotrealistic_Nz)
+
     f = plt.figure(figsize=(5,10))
     sps = f.add_subplot(2,1,1)
-    sps.set_title(str(meta.params)+r' Parameter True $\ln N(z)$ for '+str(test.seed)+' galaxies')
+    sps.set_title(str(meta.params)+r' Parameter True $\ln N(z)$ for '+str(test.ngals)+' galaxies')
     sps.set_xlabel(r'binned $z$')
     sps.set_ylabel(r'$\ln N(z)$')
     sps.set_ylim(-1.,m.log(test.seed/meta.zdif)+1.)
     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-    sps.step(test.zmids,test.logsampNz,label=r'true $\ln N(z)$')
-    sps.step(test.binmids,test.logstack,label=r'Stacked $\ln N(z)$ with $\sigma^{2}=$'+str(int(test.vslogstack)))
-    sps.step(test.binmids,test.logmapNz,label=r'MAP $\ln N(z)$ with $\sigma^{2}=$'+str(int(test.vslogmapNz)))
-    sps.step(test.binmids,test.logexpNz,label=r'$E(\ln N(z))$ with $\sigma^{2}=$'+str(int(test.vslogexpNz)))
+    sps.step(test.zmids,plotrealistic_logNz,label=r'underlying $\ln N(z)$')
+    sps.step(test.zmids,test.logsampNz,label=r'true $\ln N(z)$',linewidth=2)
+    sps.step(test.binmids,test.logstack,label=r'Stacked $\ln N(z)$ with $\sigma^{2}=$'+str(int(test.vslogstack)),linestyle='--')
+    sps.step(test.binmids,test.logmapNz,label=r'MAP $\ln N(z)$ with $\sigma^{2}=$'+str(int(test.vslogmapNz)),linestyle='-.')
+    sps.step(test.binmids,test.logexpNz,label=r'$\ln N(E[z])$ with $\sigma^{2}=$'+str(int(test.vslogexpNz)),linestyle=':')
     sps.step(test.binmids,test.full_logflatNz,label=r'flat $\ln N(z)$')
     sps.legend(loc='lower right',fontsize='xx-small')
     sps = f.add_subplot(2,1,2)
@@ -69,10 +77,11 @@ def plot_true(meta, test):
     sps.set_ylabel(r'$N(z)$')
     sps.set_ylim(0.,test.seed/meta.zdif)
     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-    sps.step(test.zmids,test.sampNz,label=r'true $N(z)$')
-    sps.step(test.binmids,test.stack,label=r'Stacked $N(z)$ with $\sigma^{2}=$'+str(int(test.vsstack)))
-    sps.step(test.binmids,test.mapNz,label=r'MAP $N(z)$ with $\sigma^{2}=$'+str(int(test.vsmapNz)))
-    sps.step(test.binmids,test.expNz,label=r'$E(N(z))$ with $\sigma^{2}=$'+str(int(test.vsexpNz)))
+    sps.step(test.zmids,plotrealistic_Nz,label=r'underlying $N(z)$')
+    sps.step(test.zmids,test.sampNz,label=r'true $N(z)$',linewidth=2)
+    sps.step(test.binmids,test.stack,label=r'Stacked $N(z)$ with $\sigma^{2}=$'+str(int(test.vsstack)),linestyle='--')
+    sps.step(test.binmids,test.mapNz,label=r'MAP $N(z)$ with $\sigma^{2}=$'+str(int(test.vsmapNz)),linestyle='-.')
+    sps.step(test.binmids,test.expNz,label=r'$N(E[z])$ with $\sigma^{2}=$'+str(int(test.vsexpNz)),linestyle=':')
     sps.step(test.binmids,test.full_flatNz,label=r'flat $N(z)$')
     sps.legend(loc='upper left',fontsize='xx-small')
 
@@ -105,9 +114,9 @@ def plot_truevmap(meta,test):
     #randos = random.sample(pobs[-1][0],ncolors)
     sps.set_ylabel('Point Estimate')
     sps.set_xlabel(r'True $z$')
-    sps.set_xlim(meta.allzlos[0]-meta.zdif,meta.allzhis[test.ndims-1]+meta.zdif)
-    sps.set_ylim(meta.allzlos[0]-meta.zdif,meta.allzhis[test.ndims-1]+meta.zdif)
-    sps.plot(meta.allzmids,meta.allzmids,c='k')
+    sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
+    sps.set_ylim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
+    sps.plot(test.binmids,test.binmids,c='k')
     sps.scatter(test.trueZs, test.mapzs,
                 c=meta.colors[0],
                 alpha = 0.5,
@@ -120,19 +129,21 @@ def plot_truevmap(meta,test):
                 linewidth=0.1)
     plotpobs = (test.pobs*meta.zdif)
     plotpobs = plotpobs/np.max(plotpobs)
-    for x in lrange(test.zmids):
-        for y in xrange(test.ngals):
-            sps.scatter(test.trueZs[y], test.binmids[x],
-                        c=meta.colors[2],
-                        alpha=plotpobs[y][x],
-                        linewidth=0.1)
-    sps.scatter([-1],[-1],c=meta.colors[2],alpha=0.5,linewidth=0.1,label=r'$p(z|\vec{d})$')
-    for x in lrange(test.zmids):
-        for y in xrange(test.ngals):
-            sps.scatter(test.trueZs[y], test.binmids[x],
-                        c=meta.colors[2],
-                        alpha=plotpobs[y][x],
-                        linewidth=0.1)
+    #print(np.shape(plotpobs))
+    #print(plotpobs.T[-1])
+    for k in xrange(test.nbins):
+        for j in xrange(test.ngals):
+            sps.vlines(test.trueZs[j], test.binlos[k], test.binhis[k],
+                        color=meta.colors[2],
+                        alpha=plotpobs[j][k],
+                        linewidth=2)
+    sps.plot([-1],[-1],c=meta.colors[2],alpha=0.5,linewidth=2,label=r'$p(z|\vec{d})$')
+#     for k in lrange(test.zmids):
+#         for j in xrange(test.ngals):
+#             sps.scatter(test.trueZs[j], test.binmids[k],
+#                         c=meta.colors[2],
+#                         alpha=plotpobs[j][k],
+#                         linewidth=0.1)
     sps.legend(loc='upper left',fontsize='x-small')
     f.savefig(os.path.join(meta.simdir,'truevmap.png'))
     return
