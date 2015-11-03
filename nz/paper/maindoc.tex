@@ -168,71 +168,71 @@ p(\{z_{j}\}_{J}|\vec{\theta}) &=& \exp\left[-\int\ f_{\vec{\theta}}(z)\ dz\right
 
 We may now combine terms into Eq. \ref{eq:posterior}.
 
-%\begin{eqnarray}
-%\label{eq:params}
-%p(z_{j}|\vec{\theta}) &=& \frac{f_{\vec{\theta}}(z_{j})}{\int\ f_{\vec{\theta}}(z_{j})\ dz_{j}}
-%\end{eqnarray}
-
 \begin{eqnarray}
 \label{eq:posterior}
 p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &\propto& p(\vec{\theta})\ \exp\left[-\int\ f_{\vec{\theta}}(z)\ dz\right]\ \prod_{j=1}^{J}\ \int\ p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta})\ dz_{j}
 \end{eqnarray}
 
-Eq. \ref{eq:posterior} still contains the individual likelihoods $p(\vec{d}_{j}|z_{j})$ unaddressed since Eq. \ref{eq:marginalize} that are this case is inaccessible; it is worth discussing why this is the case.  Both empirical and data-driven methods for obtaining zPDFs effectively assign to each galaxy's photometry $\vec{d}_{j}$ both a redshift $z_{j}$ and some nuisance parameters contained in $\vec{\alpha}$ related to the generative model for photometry from redshifts, encapsulated by $p(z_{j}|\vec{d}_{j},\vec{\alpha})$.  (See \citet{ben98} for more detail.)  For example, in the case of estimating $N(z)$ photometrically it is common to use $\vec{\alpha}$ corresponding to $N(z)$ derived from some different, spectroscopically confirmed sample.  For statistical purposes, we would like any interim prior to be uninformative, but this is rarely achievable, so we hope to integrate it out to avoid biasing our conclusions by this choice. 
+Eq. \ref{eq:posterior} still contains the individual likelihoods $p(\vec{d}_{j}|z_{j})$ unaddressed since Eq. \ref{eq:marginalize} that are this case is inaccessible; it is worth discussing why this is the case.  Both empirical and data-driven methods for obtaining zPDFs effectively assign to each galaxy's photometry $\vec{d}_{j}$ both a redshift $z_{j}$ and some nuisance parameters contained in $\vec{\theta}^{0}$ related to the generative model for photometry from redshifts, encapsulated by $p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})$.  These may include some parameters defining intrinsic galaxy spectra and instrumental effects, for example. (See \citet{ben98} for more detail.)  In the case of estimating $N(z)$ photometrically it is common to use $\vec{\theta}^{0}$ corresponding to $N(z)$ derived from some different, spectroscopically confirmed sample or from a cosmological simulation.  For statistical purposes, we would like any interim prior to be uninformative, but this is rarely achievable.
 
-If we were to attempt to calculate likelihoods $p(\vec{d}_{j}|z_{j},\vec{\alpha}_{j})$, we would be unable to integrate out these nuisance parameters.  (See \citet{hog12} for a comprehensive presentation of the mathematics behind why this is the case.)  However, posteriors $p(z_{j},\vec{\alpha}_{j}|\vec{d}_{j})$ could be transformed to zPDFs $p(z_{j}|\vec{d}_{j})$ by integrating $p(z_{j},\vec{\alpha}_{j}|\vec{d}_{j})\ p(\vec{\alpha})$ with respect to $\vec{\alpha}$, given the prior distribution $p(\vec{\alpha})$ of those parameters.  
+%If we were to attempt to calculate likelihoods $p(\vec{d}_{j}|z_{j},\vec{\theta}^{0})$, we would be unable to integrate out these nuisance parameters.  (See \citet{hog12} for a comprehensive presentation of the mathematics behind why this is the case.)  However, posteriors $p(z_{j},\vec{\theta}^{0}|\vec{d}_{j})$ could be transformed to zPDFs $p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})$ by integrating $p(z_{j},\vec{\theta}^{0}|\vec{d}_{j})\ p(\vec{\theta}^{0})$ with respect to $\vec{\theta}^{0}$, given the prior  $p(\vec{\theta}^{0})$ of those parameters.  
 
-Instead, we would like to work with posteriors rather than likelihoods in Eq. \ref{eq:marginalize}.  The method outlined here is valid regardless of how the zPDF $p(z_{j}|\vec{d}_{j})$ is calculated so the approach to producing zPDFs will not be discussed; though the matter is outside the scope of this paper, various methods have been presented in the literature. \citep{she11, bal08, car13, car14a}  However, we will need an explicit statement of this interim prior $\vec{\alpha}$ for whatever method is chosen to produce zPDFs.  To perform the necessary transformation from likelihoods to posteriors, we follow the reasoning of \citet{mar15}.  Let us consider the probability of the parameters $z_{j}$ conditioned on the data $\vec{d}_{j}$ and an interim prior $\vec{\alpha}$ and rewrite the argument of the integral of Eq. \ref{eq:posterior} as Eq. \ref{eq:trick}.  
+Instead, we would like to work with posteriors rather than likelihoods in Eq. \ref{eq:marginalize}.  The method outlined here is valid regardless of how the zPDF $p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})$ is calculated so the approach to producing zPDFs will not be discussed; though the matter is outside the scope of this paper, various methods have been presented in the literature. \citep{she11, bal08, car13, car14a}  However, we will need an explicit statement of this interim prior $\vec{\theta}^{0}$ for whatever method is chosen to produce zPDFs.  To perform the necessary transformation from likelihoods to posteriors, we follow the reasoning of \citet{mar15}.  Let us consider the probability of the parameters $z_{j}$ conditioned on the data $\vec{d}_{j}$ and an interim prior $\vec{\theta}^{0}$ and rewrite the problematic likelihood of Eq. \ref{eq:posterior} as Eq. \ref{eq:trick}.  
 
 \begin{eqnarray}
 \label{eq:trick}
-p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta}) &=& p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta})\ \frac{p(z_{j}|\vec{d}_{j},\vec{\alpha})}{p(z_{j}|\vec{d}_{j},\vec{\alpha})}
+p(\vec{d}_{j}|z_{j}) &=& p(\vec{d}_{j}|z_{j})\ \frac{p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})}{p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})}
 %p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}\exp[-\int N(z)\ dz]\prod_{j=1}^{J}\int\ p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta})\ \frac{p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})}{p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})}\ dz_{j}
 \end{eqnarray}
 
-Once the interim prior $\vec{\alpha}$ is explicitly introduced, we may expand the denominator according to Eq. \ref{eq:bayes} to get Eq. \ref{eq:expand}.  We again expand the term $p(\vec{d}_{j}|z_{j},\vec{\alpha})$ to obtain Eq. \ref{eq:indterm}.  Canceling the undesirable likelihood terms $p(\vec{d}_{j}|z_{j})$ and $p(\vec{d}_{j}|\vec{\alpha})$ yields Eq. \ref{eq:cancel}.  We put this all together to get the full posterior Eq. \ref{eq:final}.
+Once the interim prior $\vec{\theta}^{0}$ is explicitly introduced, we may expand the denominator according to Eq. \ref{eq:bayes} to get Eq. \ref{eq:expand}.  We again expand the term $p(\vec{d}_{j}|z_{j},\vec{\theta}^{0})$ to obtain Eq. \ref{eq:indterm}.  Canceling the undesirable likelihood terms $p(\vec{d}_{j}|z_{j})$ and $p(\vec{d}_{j}|\vec{\theta}^{0})$ yields Eq. \ref{eq:cancel}.  We put this all together to get the full posterior Eq. \ref{eq:final}.
 
 \begin{eqnarray}
 \label{eq:expand}
-p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta}) &=& p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta})\ p(z_{j}|\vec{d}_{j},\vec{\alpha})\ \frac{p(\vec{d}_{j}|\vec{\alpha})}{p(z_{j}|\vec{\alpha})\ p(\vec{d}_{j}|z_{j},\vec{\alpha})}
+p(\vec{d}_{j}|z_{j}) &=& p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})\ \frac{p(\vec{d}_{j}|\vec{\theta}^{0})}{p(z_{j}|\vec{\theta}^{0})\ p(\vec{d}_{j}|z_{j},\vec{\theta}^{0})}
 %p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}\exp[-\int N(z)\ dz]\prod_{j=1}^{J}\int\ p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta})\ p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})\ \frac{p(\vec{d}_{j}|\vec{\theta}^{0})}{p(\vec{d}_{j}|z_{j},\vec{\theta}^{0})\ p(z_{j}|\vec{\theta}^{0})}\ dz_{j}
 \end{eqnarray}
 
 \begin{eqnarray}
 \label{eq:indterm}
-p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta}) &=& p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta})\ p(z_{j}|\vec{d}_{j},\vec{\alpha})\ \frac{p(\vec{d}_{j}|\vec{\alpha})}{p(z_{j}|\vec{\alpha})\ p(\vec{d}_{j}|z_{j})\ p(\vec{d}_{j}|\vec{\alpha})}
+p(\vec{d}_{j}|z_{j}) &=& p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})\ \frac{p(\vec{d}_{j}|\vec{\theta}^{0})}{p(z_{j}|\vec{\theta}^{0})\ p(\vec{d}_{j}|z_{j})\ p(\vec{d}_{j}|\vec{\theta}^{0})}
 %p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}\exp[-\int N(z)\ dz]\prod_{j=1}^{J}\ \int\ p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})\ \frac{p(z_{j}|\vec{\theta})}{p(z_{j}|\vec{\theta}^{0})}\ dz_{j}
 \end{eqnarray}
 
 \begin{eqnarray}
 \label{eq:cancel}
-p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta}) &=& p(z_{j}|\vec{d}_{j},\vec{\alpha})\ \frac{p(z_{j}|\vec{\theta})}{p(z_{j}|\vec{\alpha})}
+p(\vec{d}_{j}|z_{j}) &=& \frac{p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})}{p(z_{j}|\vec{\theta}^{0})}
 %p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}\exp[-\int N(z)\ dz]\prod_{j=1}^{J}\ \int\ p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})\ \frac{p(z_{j}|\vec{\theta})}{p(z_{j}|\vec{\theta}^{0})}\ dz_{j}
 \end{eqnarray}
 
 \begin{eqnarray}
 \label{eq:final}
 %p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &=& \frac{p(\vec{\theta})}{p(\{\vec{d}_{j}\}_{J})}\exp[-\int N(z)\ dz]\prod_{j=1}^{J}\ \int\ p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})\ \frac{p(z_{j}|\vec{\theta})}{p(z_{j}|\vec{\theta}^{0})}\ dz_{j}
-p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &\propto& p(\vec{\theta})\ \exp\left[-\int\ f_{\vec{\theta}}(z)\ dz\right]\ \prod_{j=1}^{J}\ \int\ p(z_{j}|\vec{d}_{j},\vec{\alpha})\ \frac{p(z_{j}|\vec{\theta})}{p(z_{j}|\vec{\alpha})}\ dz_{j}
+p(\vec{\theta}|\{\vec{d}_{j}\}_{J}) &\propto& p(\vec{\theta})\ \exp\left[-\int\ f_{\vec{\theta}}(z)\ dz\right]\ \prod_{j=1}^{J}\ \int\ p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})\ \frac{p(z_{j}|\vec{\theta})}{p(z_{j}|\vec{\theta}^{0})}\ dz_{j}
 \end{eqnarray}
 
-The argument of the integral in the posterior of Eq. \ref{eq:final} depends solely on knowable quantities (and those we must assume) and can be calculated for a given set of zPDFs $\{p(z_{j}|\vec{d}_{j},\vec{\alpha})\}_{J}$ and the assumed prior $\vec{\alpha}$ upon which their determination was based.  Since we cannot know $p(\{\vec{d}_{j}\}_{J})$, we sample the desired distribution $p(\vec{\theta}|\{\vec{d}_{j}\}_{J})$ using Monte Carlo-Markov chain (MCMC) methods.  
+The argument of the integral in the posterior of Eq. \ref{eq:final} depends solely on knowable quantities (and those we must assume) and can be calculated for a given set of zPDFs $\{p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})\}_{J}$ and the interim prior $\vec{\theta}^{0}$ upon which their determination was based, noting the relation of Eq. \ref{eq:params}.  Since we cannot know $p(\{\vec{d}_{j}\}_{J})$, we sample the desired distribution $p(\vec{\theta}|\{\vec{d}_{j}\}_{J})$ using Monte Carlo-Markov chain (MCMC) methods.  
+
+\begin{eqnarray}
+\label{eq:params}
+p(z_{j}|\vec{\theta}) &=& \frac{f_{\vec{\theta}}(z_{j})}{\int\ f_{\vec{\theta}}(z_{j})\ dz_{j}}
+\end{eqnarray}
 
 To be clear, the following assumptions must be made in order to apply this method:
 
 \begin{enumerate}
 \item Photometric measurements of galaxies are independent Poisson draws from the set of all galaxies such that Eqs. \ref{eq:indiedat} and \ref{eq:indie} hold.
-\item We take the individual galaxy zPDFs to be accurate estimates of the posteriors $\{p(z_{j}|\vec{d}_{j})\}_{J}$ and assume we are given the interim prior $\vec{\alpha}$ used to produce them.
+\item We take the individual galaxy zPDFs to be accurate estimates of the posteriors $\{p(z_{j}|\vec{d}_{j})\}_{J}$ and assume we are given the interim prior $\vec{\theta}^{0}$ used to produce them.
 \item One must assume a hyperprior $p(\vec{\theta})$ constraining the underlying probability of the variables defining the hyperparameters $\vec{\theta}$.
 \end{enumerate}
 
-These assumptions have known limitations.  First, the observations $\{\vec{d}_{j}\}_{J}$ are not a set of independent measurements; they are correlated not only by the conditions of the experiment under which they were made but also by $N(z)$ and other physical processes governing underlying galaxy spectra.  Second, the zPDFs $\{p(z_{j}|\vec{d}_{j},\vec{\alpha})_{J}$ may not be trustworthy; there is not yet agreement on the best technique to obtain zPDFs, and the interim prior $\vec{\alpha}$ may not be appropriate or even known to us as consumers of zPDFs.  Third, the hyperprior $p(\vec{\theta})$ may be quite arbitrary; it may be poorly motivated if the underlying physics is complex.
+These assumptions have known limitations.  First, the observations $\{\vec{d}_{j}\}_{J}$ are not a set of independent measurements; they are correlated not only by the conditions of the experiment under which they were made but also by $N(z)$ and other physical processes governing underlying galaxy spectra.  Second, the zPDFs $\{p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})_{J}$ may not be trustworthy; there is not yet agreement on the best technique to obtain zPDFs, and the interim prior $\vec{\theta}^{0}$ may not be appropriate or even known to us as consumers of zPDFs.  Third, the hyperprior $p(\vec{\theta})$ may be quite arbitrary; it may be poorly motivated if the underlying physics is complex.
 
 \clearpage
 \section{Experiments}
 \label{sec:exp}
 
-We ran several tests of this approach to demonstrate its validity and usage.  In Sec. \ref{sec:mock} we describe the method by which sets of simulated zPDFs $\{p(z_{j}|\vec{d}_{j})\}_{J}$ are generated in all test cases.  In Sec. \ref{sec:mcmc} we describe the algorithm used to compute the full posterior distribution $p(\vec{\theta}|\{\vec{d}_{j}\}_{J})$.  In Sec. \ref{sec:diag} we outline the measures used to evaluate the performance of the method, including the competing methods with which our results will be compared.  Then in Sec. \ref{sec:valid} we motivate and present the results of several informative tests.
+We ran several tests of this approach to demonstrate its validity and usage using a procedure outlined in this section.  In Sec. \ref{sec:mock} we describe the method by which sets of simulated zPDFs $\{p(z_{j}|\vec{d}_{j})\}_{J}$ are generated in all test cases.  In Sec. \ref{sec:mcmc} we describe the algorithm used to compute the full posterior distribution $p(\vec{\theta}|\{\vec{d}_{j}\}_{J})$.  In Sec. \ref{sec:diag} we outline the measures used to evaluate the performance of the method, including the competing methods with which our results will be compared.  Then in Sec. \ref{sec:valid} we motivate and present the results of several informative tests.
 
 \clearpage
 \subsection{Mock data}
@@ -248,7 +248,7 @@ The following procedure is executed to generate a true set of parameters $\tilde
 
 We consider $K'$ redshift bins $B_{k'}=[z^{B}_{k'-1},z^{B}_{k'}]$ over a range from $z^{B}_{0}=z_{min}$ to $z^{B}_{K'}=z_{max}$.  The widths of the bins are denoted as $\Delta_{k'}\equiv z_{k'}-z_{k'-1}$.
 
-We assume the underlying shape of $N(z)$, defined by some physically-motivated $p(z)$.  Here we shall set it to a sum of arbitrary Gaussians chosen to impose features on the true $N(z)$.  The underlying $p(z)$ must be binned down according to the discretization of redshift space chosen.  We may denote this binned parametrization of $p(z)$ as $\vec{\phi}$, an example of which is shown in Fig. \ref{fig:physPz}.
+We assume the underlying shape of $N(z)$, defined by some physically-motivated $p(z)$.  Here we shall set it to a sum of arbitrary Gaussians chosen to impose features on the true $N(z)$.  The underlying $p(z)$ must be binned down according to the discretization of redshift space chosen.  An example of this binned parametrization of $p(z)$ is shown in Fig. \ref{fig:physPz}.
 
 \begin{figure}
 \label{fig:physPz}
@@ -258,11 +258,11 @@ We assume the underlying shape of $N(z)$, defined by some physically-motivated $
 
 We shall take $\vec{\theta}$ to be a discretized parametrization of $N(z)$ in log-space, where $\exp[\theta_{k'}]$ is the average value of $N(z)$ over the redshift range of bin $B_{k'}$.   The elements of $\vec{\theta}$ may thus be thought of as histogram heights in a binned version of $\ln N(z)$.  
 
-We choose a target survey size of $J'$ galaxies.  This enables the definition of an underlying $N(z)$  parametrized by $\vec{\theta}'$ defined in terms of $\vec{\phi}$.  The expected number of galaxies in bin $k'$ is given in Eq. \ref{eq:dparams} (which is an extension of Eq. \ref{eq:params}).  
+We choose a target survey size of $J'$ galaxies.  This enables the definition of an underlying $N(z)$  parametrized by $\vec{\theta}'$ defined in terms of the binned parametrization of $p(z)$.  The expected number of galaxies in bin $k'$ is given in Eq. \ref{eq:dparams} (which is an extension of Eq. \ref{eq:params}).  
 
 \begin{eqnarray}
 \label{eq:dparams}
-p(B_{k'}|\vec{\theta}) &\equiv& \phi_{k} = \frac{\exp[\theta'_{k'}]\Delta_{k'}}{J'}
+B_{k'} &\sim& \frac{\exp[\theta'_{k'}]\Delta_{k'}}{J'}
 \end{eqnarray}
 
 We then select the number of galaxies $J$ actually observed in the simulated survey from a Poisson distribution centered around the expected survey size $J'$, as in Eq. \ref{eq:poisson}.  This relates the underlying $p(z)$ to an underlying $N(z)$.
@@ -276,7 +276,7 @@ Finally we are ready to set the true values of the parameters comprising $\tilde
 
 \begin{eqnarray}
 \label{eq:nparams}
-p(B_{j'}|J_{k'}) &= \frac{J_{k'}}{J} &= \exp[\tilde{\theta}_{k'}]\ \Delta_{k'}
+B_{j'} &\sim& \left\{\begin{array}{cc}\exp[\tilde{\theta}_{k'}]\ \Delta_{k'}&B_{j'}=B_{k'}\end{array}\right\}
 \end{eqnarray}
 
 \clearpage
@@ -287,7 +287,7 @@ Once the hyperparameters are fixed, we choose the redshift parameters by assigni
 
 \begin{eqnarray}
 \label{eq:uniform}
-p(z_{j}^{0}|B_{j}) &=& \left\{\begin{array}{cc}\frac{1}{z^{B}_{k'}-z^{B}_{k'-1}} & j = k'\\0 & j \neq k'\end{array}\right\}
+z_{j}^{0} &\sim& \left\{\begin{array}{cc}\frac{1}{z^{B}_{k'}-z^{B}_{k'-1}} & B_{j} = B_{k'}\\0 & B_{j} \neq B_{k'}\end{array}\right\}
 \end{eqnarray}
 
 \clearpage
@@ -298,7 +298,7 @@ Lastly, we simulate the "observed" zPDFs.  zPDFs taking the form of a Gaussian d
 
 \begin{eqnarray}
 \label{eq:zshift}
-p(z_{j}'|z^{0}_{j}) &=& \mathcal{N}(z_{j}^{0},\delta_{j})
+z_{j}' &\sim& \mathcal{N}(z_{j}^{0},\delta_{j})
 \end{eqnarray}
 
 \begin{eqnarray}
@@ -306,32 +306,26 @@ p(z_{j}'|z^{0}_{j}) &=& \mathcal{N}(z_{j}^{0},\delta_{j})
 \delta_{j} &=& \bar{\Delta}(1+z^{0}_{j})
 \end{eqnarray}
 
-The $J$ continuous zPDFs are then Gaussians given by Eq. \ref{eq:zspread}, where each Gaussian has mean equal to the shifted redshift $z_{j}'$ and variance $\delta_{j}$ to simulate the fact that the imprecision increases with redshift.  We may thus record a "catalog" of data comprised of $J$ sequences $j$ with elements of the form of a pair $(z_{j}',\delta_{j})$ from which binned zPDFs may be constructed for any parametrization of redshift.  In this simulation, we shall say $p(z'_{j}|\vec{d}_{j})$ is
+The $J$ continuous zPDFs are then Gaussians given by Eq. \ref{eq:zspread}, where each Gaussian has mean equal to the shifted redshift $z_{j}'$ and variance $\delta_{j}$ to simulate the fact that the imprecision increases with redshift.  We may thus record a "catalog" of data comprised of $J$ sequences $j$ with elements of the form of a pair $(z_{j}',\delta_{j})$ from which binned zPDFs may be constructed for any parametrization of redshift.  
 
 \begin{eqnarray}
 \label{eq:zspread}
 p(z_{j}|z_{j}') &=& \mathcal{N}(z_{j}',\delta_{j})\ \equiv\ p(z_{j}|\vec{d}_{j})
 \end{eqnarray}
 
-The interim prior $\vec{\theta}^{0}$ introduced in Eq. \ref{eq:trick} encodes our beliefs about the way data is produced by way of Eq. \ref{eq:full-interim}.  Since these zPDFs are simulated, our generative model for how the parameters defining the zPDF $z_{j}'$ are derived from a value of the hyperparameters comprising a general $\tilde{\vec{\theta}}$ via Eq. \ref{eq:interim}.  
-
-\begin{eqnarray}
-\label{eq:full-interim}
-%p(z_{j}|\vec{\theta}^{0}) &=& %\iint\ p(z_{j}|z'_{j})\ p(z'_{j}|z^{0}_{j})\ p(z^{0}_{j}|\vec{\theta}^{0})\ dz'_{j}\ dz^{0}_{j}
-p(z_{j}|\vec{d}_{j},\vec{\theta}^{0}) &=& \frac{p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta}^{0})}{p(\vec{d}_{j}|\vec{\theta}^{0})}
-\end{eqnarray}
+To obtain the desired $p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})$, we make use of the interim prior $\vec{\theta}^{0}$ introduced in Eq. \ref{eq:trick} that encodes our beliefs about the way data is produced by way of Eq. \ref{eq:interim}.  The term $\frac{p(z_{j}|\vec{\theta}^{0})}{p(z_{j})}\equiv f_{\vec{\theta}^{0}}(z_{j})$ represents the interim prior we choose when we run the code.
 
 \begin{eqnarray}
 \label{eq:interim}
-p(z_{j}|\vec{\theta}^{0}) &=& p(z_{j}|z^{0}_{j})\\
-&=& \mathcal{N}(z_{j},\delta_{j})\ \mathcal{N}(z_{j}^{0},\delta_{j})
+%p(z_{j}|\vec{\theta}^{0}) &=& %\iint\ p(z_{j}|z'_{j})\ p(z'_{j}|z^{0}_{j})\ p(z^{0}_{j}|\vec{\theta}^{0})\ dz'_{j}\ dz^{0}_{j}
+p(z_{j}|\vec{d}_{j},\vec{\theta}^{0}) &=& \frac{p(z_{j}|\vec{\theta}^{0})}{p(z_{j})}\ p(z_{j}|\vec{d}_{j})
 \end{eqnarray}
 
-In order to accommodate galaxies whose maximal a posteriori redshifts $z_{j}$ are below or above the bounds of the original $K'$ bins, additional bins $\{B_{k^{-}}\}_{K^{-}}$ and $\{B_{k^{+}}\}_{K^{+}}$ may need to be defined.  The new set of $K=K^{-}+K'+K^{+}$ bins $\{B_{k}\}_{K}$ include the original $K'$ bins but add the newly defined bins that share the original width $\bar{\Delta}$ and span the minimal redshift range necessary to include all $z_{j}$ given that constraint, which is bounded by $z_{k^{-}}\equiv z_{0}-\bar{\Delta}[\max_{z_{j}\leq z_{0}}(z_{0}-_{j})]\mod\bar{\Delta}$ and $z_{k^{+}}\equiv z_{K'}+\bar{\Delta}[\max_{z_{j}\geq z_{K'}}(z_{j}-z_{K'})]\mod\bar{\Delta}$.  The discretized posterior $p(B_{k}|\vec{d}_{j})$ for each galaxy is given by Eq. \ref{eq:zdist} in terms of the quantities available in the catalog and normalized to integrate to unity over the redshift range $[z_{k^{-}},z_{k^{+}}]$.  
+The final step in generating zPDFs is to discretize the relation of Eq. \ref{eq:interim}.  In order to accommodate galaxies whose maximal a posteriori redshifts $z_{j}$ are below or above the bounds of the original $K'$ bins, additional bins $\{B_{k^{-}}\}_{K^{-}}$ and $\{B_{k^{+}}\}_{K^{+}}$ may need to be defined.  The new set of $K=K^{-}+K'+K^{+}$ bins $\{B_{k}\}_{K}$ include the original $K'$ bins but add the newly defined bins that share the original width $\bar{\Delta}$ and span the minimal redshift range necessary to include all $z_{j}$ given that constraint, which is bounded by $z_{k^{-}}\equiv z_{0}-\bar{\Delta}[\max_{z_{j}\leq z_{0}}(z_{0}-_{j})]\mod\bar{\Delta}$ and $z_{k^{+}}\equiv z_{K'}+\bar{\Delta}[\max_{z_{j}\geq z_{K'}}(z_{j}-z_{K'})]\mod\bar{\Delta}$.  The discretized posterior $p(B_{k}|\vec{d}_{j})$ for each galaxy is given by Eq. \ref{eq:zdist} in terms of the quantities available in the catalog and normalized to integrate to unity over the redshift range $[z_{k^{-}},z_{k^{+}}]$.  
 
 \begin{eqnarray}
 \label{eq:zdist}
-p(B_{k}|\vec{d_{j}}) = \frac{\int_{z_{k}}^{z_{k+1}} \frac{1}{\sqrt{2\pi\delta_{j}}}\exp\left[-\frac{(z_{j}-z)^{2}}{2\delta_{j}}\right]\ dz}{\int_{z_{k^{-}}}^{z_{k^{+}}} \frac{1}{\sqrt{2\pi\delta_{j}}}\exp\left[-\frac{(z_{j}-z)^{2}}{2\delta_{j}}\right]\ dz}
+p(B_{k}|\vec{d_{j}}) = \frac{\int_{z_{k}}^{z_{k+1}}\ \frac{f_{\vec{\theta}^{0}}(z_{j})}{\sqrt{2\pi\delta_{j}}}\ \exp\left[-\frac{(z'_{j}-z_{j})^{2}}{2\delta_{j}}\right]\ dz_{j}}{\int_{z_{k^{-}}}^{z_{k^{+}}}\ \frac{f_{\vec{\theta}^{0}}(z_{j})}{\sqrt{2\pi\delta_{j}}}\ \exp\left[-\frac{(z'_{j}-z_{j})^{2}}{2\delta_{j}}\right]\ dz_{j}}
 \end{eqnarray}
 
 \clearpage
@@ -433,13 +427,13 @@ p(B_{k}|\vec{d}_{j}) &=& \left\{\begin{array}{cc}1&\int_{0}^{K'} \bar{z}_{k'}\ p
 It is also valuable to verify that the posterior is maximized for the true $N(z)$ that generated a particular set of simulated data and to check the degree to which the samples are unbiased.
 
 \clearpage
-\subsection{Validation Tests}
+\section{Validation Tests}
 \label{sec:valid}
 
-The code was tested on several simulated datasets with different underlying $N(z)$ and the forms of the zPDFs.  Two simulated datasets were tested to validate the method, one representing an unrealistic toy model for $N(z)$ in Sec. \ref{sec:fake} and a fiducial experiment based on a physically motivated $N(z)$ in Sec. \ref{sec:null}.  In both cases, a generalized Gaussian mixture model for the underlying $N(z)$ is employed.
+The code was tested on several simulated datasets with different underlying $N(z)$.  The fiducial experiment of Sec. \ref{sec:null} was generated by code following the procedure given in Sec. \ref{sec:exp}.  Four other cases varied the shapes of the zPDFs (Secs. \ref{sec:noisy} and \ref{sec:multi}), the underlying $N(z)$ (Sec. \ref{sec:toy}), and the interim prior $\vec{\theta}^{0}$ (Sec. \ref{sec:badprior}).  
 
 \clearpage
-\subsubsection{Realistic $N(z)$}
+\subsubsection{Fiducial Case}
 \label{sec:null}
 
 In order to simulate data in the realistic case, we select set a true, physically motivated redshift probability distribution $p^{0}(z|\vec{\theta})$, where $p(z|\vec{\theta})$ corresponds to $\exp[\vec{\theta}]$ for $J=1$.  The convolution of a linear function and a sum of Gaussians is quite general and accurately generates features observed in the true $N(z)$.  The instance of $p^{0}(z)$ here is shown in Eq. \ref{eq:truepz}, where the constant $C_{c}$ indicates the relative amplitude of the Gaussian component centered at $z_{c}$ with variance $\sigma_{c}^{2}$.  The linear function is evaluated at the centers of the bins $\bar{z}_{k}=(z_{k+1}-z_{k})/2$ and is included to ensure that $\lim_{z\to0}N(z)=0$.  The construction of this probability density is illustrated in Fig. \ref{fig:physpz}.  %In the realistic case, we evaluate $p^{0}(z)$ over each bin assuming some expected survey size $J'$ to obtain $\vec{\theta}'$ according to Eq. \ref{eq:truenz}.
@@ -523,7 +517,7 @@ The sampler performs well according to the diagnostics discussed in Sec. \ref{se
 
 \clearpage
 \subsubsection{Noisy zPDFs}
-\label{sec:noisypz}
+\label{sec:noisy}
 
 or permitted to itself be drawn from a Gaussian of mean $\delta_{j}$ and variance $\delta_{j}^{2}$.  This is done to simulate the fact that precision noisily decreases with redshift and the implementation is given in Eq. \ref{eq:zspread}.  
 
