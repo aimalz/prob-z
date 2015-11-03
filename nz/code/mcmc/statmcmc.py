@@ -30,15 +30,21 @@ class stat_chains(calcstats):
         self.vsmapNz = None
         self.vsexpNz = None
         if meta.logtrueNz is not None:
+            # print(meta.logstack,meta.logtrueNz)
             vslogstack = meta.logstack-meta.logtrueNz
+            # print(vslogstack)
             self.vslogstack = np.dot(vslogstack,vslogstack)/self.meta.nbins
+            # print(self.vslogstack)
             vslogmapNz = meta.logmapNz-meta.logtrueNz
             self.vslogmapNz = np.dot(vslogmapNz,vslogmapNz)/self.meta.nbins
             vslogexpNz = meta.logexpNz-meta.logtrueNz
             self.vslogexpNz = np.dot(vslogexpNz,vslogexpNz)/self.meta.nbins
         if meta.trueNz is not None:
+            # print(meta.stack,meta.trueNz)
             vsstack = meta.stack-meta.trueNz
+            # print(vsstack)
             self.vsstack = np.dot(vsstack,vsstack)/self.meta.nbins
+            # print(self.vsstack)
             vsmapNz = meta.mapNz-meta.trueNz
             self.vsmapNz = np.dot(vsmapNz,vsmapNz)/self.meta.nbins
             vsexpNz = meta.expNz-meta.trueNz

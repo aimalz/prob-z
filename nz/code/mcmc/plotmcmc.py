@@ -194,7 +194,7 @@ class plotter_samps(plotter):
     def __init__(self, meta):
         self.meta = meta
         self.ncolors = len(self.meta.colors)
-        self.a_samp = 1./self.meta.nbins
+        self.a_samp = 1.#/self.ncolors
         self.f_samps = plt.figure(figsize=(5, 10))
         self.sps_samps = [self.f_samps.add_subplot(2,1,l+1) for l in xrange(0,2)]
 
@@ -213,32 +213,34 @@ class plotter_samps(plotter):
 
     def plot(self,key):
 
-        if key.burnin == False:
+#         if key.burnin == False:
 
-            data = key.load_state(self.meta.topdir)['chains']
+        data = key.load_state(self.meta.topdir)['chains']
 
-            plot_y_ls = np.swapaxes(data,0,1)
-            plot_y_s = np.exp(plot_y_ls)
+        plot_y_ls = np.swapaxes(data,0,1)
+        plot_y_s = np.exp(plot_y_ls)
 
-            randsteps = random.sample(xrange(self.meta.ntimes),self.meta.nwalkers)
-            randwalks = random.sample(xrange(self.meta.nwalkers),len(self.meta.colors))
+        randsteps = random.sample(xrange(self.meta.ntimes),1)#self.ncolors)
+        randwalks = random.sample(xrange(self.meta.nwalkers),1)#self.ncolors)
             #self.a_samp = (key.r+1)/self.meta.nbins
 
-            for w in randwalks:
-                for x in randsteps:
-                    self.sps_samps[0].hlines(plot_y_ls[x][w],
-                                             self.meta.binlos,
-                                             self.meta.binhis,
-                                             color=self.meta.colors[w%self.ncolors],
-                                             alpha=self.a_samp,
-                                             rasterized=True)
-                    self.sps_samps[1].hlines(plot_y_s[x][w],
-                                             self.meta.binlos,
-                                             self.meta.binhis,
-                                             color=self.meta.colors[w%self.ncolors],
-                                             alpha=self.a_samp,
-                                             rasterized=True)
-            timesaver(self.meta,'samps',key)
+        for w in randwalks:
+            for x in randsteps:
+                self.sps_samps[0].step(self.meta.binmids,plot_y_ls[x][w],color=self.meta.colors[key.r%self.ncolors],where='mid',alpha=self.a_samp,rasterized=True)#,label=str(self.meta.miniters*(key.r+1)))
+                self.sps_samps[1].step(self.meta.binmids,plot_y_s[x][w],color=self.meta.colors[key.r%self.ncolors],where='mid',alpha=self.a_samp,rasterized=True)#,label=str(self.meta.miniters*(key.r+1)))
+#                     self.sps_samps[0].hlines(plot_y_ls[x][w],
+#                                              self.meta.binlos,
+#                                              self.meta.binhis,
+#                                              color=self.meta.colors[key.r%self.ncolors],
+#                                              alpha=self.a_samp,
+#                                              rasterized=True)
+#                     self.sps_samps[1].hlines(plot_y_s[x][w],
+#                                              self.meta.binlos,
+#                                              self.meta.binhis,
+#                                              color=self.meta.colors[key.r%self.ncolors],
+#                                              alpha=self.a_samp,
+#                                              rasterized=True)
+        timesaver(self.meta,'samps',key)
 
     def plotone(self,subplot,plot_y,style,ylabel):
         subplot.hlines(plot_y,
@@ -276,12 +278,12 @@ class plotter_samps(plotter):
             explabel = r' $\sigma^{2}=$'+str(int(variances['vsexpNz']))
             logsampprep = min(variances['var_ls'])#/(self.last_key.r+1.)
             print('var_ls '+str(variances['var_ls']))
-            logsamplabel = r' $\sigma^{2}=$'+str(int(logsampprep))#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
-            print('plot var_ls='+str(logsampprep))
+            logsamplabel = r' $\chi^{2}=$'+str(int(logsampprep))#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
+            #print('plot var_ls='+str(logsampprep))
             sampprep = min(variances['var_s'])#/(self.last_key.r+1.)
             print('var_s '+str(variances['var_s']))
-            samplabel = r' $\sigma^{2}=$'+str(int(sampprep))#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
-            print('plot var_s='+str(sampprep))
+            samplabel = r' $\chi^{2}=$'+str(int(sampprep))#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
+            #print('plot var_s='+str(sampprep))
         else:
             logstacklabel = ' '
             stacklabel = ' '
@@ -289,8 +291,8 @@ class plotter_samps(plotter):
             maplabel = ' '
             logexplabel = ' '
             explabel = ' '
-            logsamplabel = r' $\sigma^{2}=$'+str(int(variances['tot_ls']/(self.last_key.r+1.)))
-            samplabel = r' $\sigma^{2}=$'+str(int(variances['tot_s']/(self.last_key.r+1.)))
+            logsamplabel = r' $\chi^{2}=$'+str(int(variances['tot_ls']/(self.last_key.r+1.)))
+            samplabel = r' $\chi^{2}=$'+str(int(variances['tot_s']/(self.last_key.r+1.)))
             self.meta.logtrueNz = [-1.]*self.meta.nbins
             self.meta.trueNz = [-1.]*self.meta.nbins
 
@@ -316,9 +318,9 @@ class plotter_chains(plotter):
         self.meta = meta
         self.ncolors = len(self.meta.colors)
         self.a_chain = 1./ self.meta.nbins
-        self.f_chains = plt.figure(figsize=(5*self.meta.nbins, 5))
-        self.sps_chains = [self.f_chains.add_subplot(1,self.meta.nbins,k+1) for k in xrange(self.meta.nbins)]
-        self.randwalks = random.sample(xrange(self.meta.nwalkers),self.ncolors)
+        self.f_chains = plt.figure(figsize=(5,5*self.meta.nbins))
+        self.sps_chains = [self.f_chains.add_subplot(self.meta.nbins,1,k+1) for k in xrange(self.meta.nbins)]
+        self.randwalks = random.sample(xrange(self.meta.nwalkers),1)#self.ncolors)
 
         for k in xrange(self.meta.nbins):
             sps_chain = self.sps_chains[k]
@@ -334,7 +336,7 @@ class plotter_chains(plotter):
 
         plot_y_c = np.swapaxes(data,0,1).T
 
-        randsteps = random.sample(xrange(self.meta.ntimes),self.meta.nwalkers)
+        #randsteps = random.sample(xrange(self.meta.ntimes),self.meta.ncolors)
 
         for k in xrange(self.meta.nbins):
             mean = np.sum(plot_y_c[k])/(self.meta.ntimes*self.meta.nwalkers)
@@ -364,7 +366,7 @@ class plotter_chains(plotter):
         timesaver(self.meta,'chains-start',key)
 
         maxsteps = self.last_key.r+1
-        maxiternos = np.arange(0,maxsteps)
+        maxiternos = np.arange(1,maxsteps+1)
         for k in xrange(self.meta.nbins):
             sps_chain = self.sps_chains[k]
             sps_chain.set_xlim(-1*self.meta.miniters,(maxsteps+1)*self.meta.miniters)

@@ -51,14 +51,15 @@ class post(object):
     """
     post object is posterior distribution we wish to sample
     """
-    def __init__(self,idist,xvals,yprobs):#data are logged posteriors (ngals*nbins), idist is mvn object
+    def __init__(self,idist,xvals,yprobs,interim):#data are logged posteriors (ngals*nbins), idist is mvn object
         self.prior = idist
-        self.priormean = idist.mean
+        #self.priormean = idist.mean
+        self.interim = interim
         self.xgrid = np.array(xvals)
         self.difs = self.xgrid[1:]-self.xgrid[:-1]#np.array([self.xgrid[k+1]-self.xgrid[k] for k in self.dims])
         self.lndifs = np.log(self.difs)#np.array([m.log(max(self.difs[k],sys.float_info.epsilon)) for k in self.dims])
         self.postprobs = yprobs
-        self.constterm = self.lndifs-self.priormean
+        self.constterm = self.lndifs-self.interim#self.priormean
 
     # this is proportional to log probability
     def priorprob(self,theta):

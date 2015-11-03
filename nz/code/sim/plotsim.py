@@ -18,7 +18,7 @@ def initial_plots(meta, test):
     plot_true(meta,test)
     plot_pdfs(meta,test)
     plot_truevmap(meta,test)
-    print('plotted setup')
+    print('plotted setup '+meta.inadd)
 
 # plot the underlying P(z) and its components
 def plot_priorgen(metainfo):
@@ -45,6 +45,7 @@ def plot_priorgen(metainfo):
     sps.set_xlabel(r'$z$')
     sps.legend(fontsize='x-small',loc='upper left')
     f.savefig(os.path.join(meta.simdir,'physPz.png'))
+    #print('plotted physical P(z)')
     return
 
 # plot sample of true N(z) for one set of parameters and one survey size
@@ -59,20 +60,20 @@ def plot_true(meta, test):
 
     f = plt.figure(figsize=(5,10))
     sps = f.add_subplot(2,1,1)
-    sps.set_title(str(meta.params)+r' Parameter True $\ln N(z)$ for '+str(test.ngals)+' galaxies')
+    sps.set_title(str(test.nbins)+r' Parameter True $\ln N(z)$ for '+str(test.ngals)+' galaxies')
     sps.set_xlabel(r'binned $z$')
     sps.set_ylabel(r'$\ln N(z)$')
-    sps.set_ylim(-1.,m.log(test.seed/meta.zdif)+1.)
+    sps.set_ylim(-1.,m.log(test.seed/meta.zdif))
     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
     sps.step(test.zmids,plotrealistic_logNz,label=r'underlying $\ln N(z)$')
     sps.step(test.zmids,test.logsampNz,label=r'true $\ln N(z)$',linewidth=2)
     sps.step(test.binmids,test.logstack,label=r'Stacked $\ln N(z)$ with $\sigma^{2}=$'+str(int(test.vslogstack)),linestyle='--')
     sps.step(test.binmids,test.logmapNz,label=r'MAP $\ln N(z)$ with $\sigma^{2}=$'+str(int(test.vslogmapNz)),linestyle='-.')
     sps.step(test.binmids,test.logexpNz,label=r'$\ln N(E[z])$ with $\sigma^{2}=$'+str(int(test.vslogexpNz)),linestyle=':')
-    sps.step(test.binmids,test.full_logflatNz,label=r'flat $\ln N(z)$')
+    sps.step(test.binmids,test.full_loginterim,label=r'interim $\ln N(z)$ with $\sigma^{2}=$'+str(int(test.vsloginterim)))
     sps.legend(loc='lower right',fontsize='xx-small')
     sps = f.add_subplot(2,1,2)
-    sps.set_title(str(meta.params)+r' Parameter True $N(z)$ for '+str(test.seed)+' galaxies')
+    sps.set_title(str(test.nbins)+r' Parameter True $N(z)$ for '+str(test.ngals)+' galaxies')
     sps.set_xlabel(r'binned $z$')
     sps.set_ylabel(r'$N(z)$')
     sps.set_ylim(0.,test.seed/meta.zdif)
@@ -82,10 +83,12 @@ def plot_true(meta, test):
     sps.step(test.binmids,test.stack,label=r'Stacked $N(z)$ with $\sigma^{2}=$'+str(int(test.vsstack)),linestyle='--')
     sps.step(test.binmids,test.mapNz,label=r'MAP $N(z)$ with $\sigma^{2}=$'+str(int(test.vsmapNz)),linestyle='-.')
     sps.step(test.binmids,test.expNz,label=r'$N(E[z])$ with $\sigma^{2}=$'+str(int(test.vsexpNz)),linestyle=':')
-    sps.step(test.binmids,test.full_flatNz,label=r'flat $N(z)$')
+    sps.step(test.binmids,test.full_interim,label=r'interim $N(z)$ with $\sigma^{2}=$'+str(int(test.vsinterim)))
     sps.legend(loc='upper left',fontsize='xx-small')
 
     f.savefig(os.path.join(meta.simdir,'trueNz.png'))
+
+    #print('plotted true N(z)')
     return
 
 # plot some individual posteriors
@@ -93,16 +96,20 @@ def plot_pdfs(meta,test):
     f = plt.figure(figsize=(5,5))
     sps = f.add_subplot(1,1,1)
     f.suptitle('Observed galaxy posteriors')
-    sps.set_title('shape='+str(meta.shape)+', noise='+str(meta.noise))
-    randos = random.sample(xrange(test.ngals),len(meta.colors))#n_run.ngals
+    #sps.set_title('multimodal='+str(meta.shape)+', noisy='+str(meta.noise))
+    randos = random.sample(xrange(test.ngals),len(meta.colors))
+    #print('setup complete')
     for r in randos:
         sps.step(test.binmids,test.pobs[r],where='mid',color=meta.colors[r%len(meta.colors)])#,alpha=a)
         sps.vlines(test.trueZs[r],0.,max(test.pobs[r]),color=meta.colors[r%len(meta.colors)],linestyle='--')
+    #print('plotting complete')
     sps.set_ylabel(r'$p(z|\vec{d})$')
     sps.set_xlabel(r'$z$')
     sps.set_xlim(test.binlos[0]-meta.zdif,test.binhis[-1]+meta.zdif)
     sps.set_ylim(0.,1./meta.zdif)
     f.savefig(os.path.join(meta.simdir,'samplepzs.png'))
+
+    #print('wrapup complete')
     return
 
 # plot true vs. MAP redshifts
@@ -117,16 +124,6 @@ def plot_truevmap(meta,test):
     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
     sps.set_ylim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
     sps.plot(test.binmids,test.binmids,c='k')
-    sps.scatter(test.trueZs, test.mapzs,
-                c=meta.colors[0],
-                alpha = 0.5,
-                label=r'MAP $z$',
-                linewidth=0.1)
-    sps.scatter(test.trueZs, test.expzs,
-                c=meta.colors[1],
-                alpha = 0.5,
-                label=r'$E(z)$',
-                linewidth=0.1)
     plotpobs = (test.pobs*meta.zdif)
     plotpobs = plotpobs/np.max(plotpobs)
     #print(np.shape(plotpobs))
@@ -137,6 +134,16 @@ def plot_truevmap(meta,test):
                         color=meta.colors[2],
                         alpha=plotpobs[j][k],
                         linewidth=2)
+    sps.scatter(test.trueZs, test.mapzs,
+                c=meta.colors[0],
+                alpha = 0.5,
+                label=r'MAP $z$',
+                linewidth=0.1)
+    sps.scatter(test.trueZs, test.expzs,
+                c=meta.colors[1],
+                alpha = 0.5,
+                label=r'$E(z)$',
+                linewidth=0.1)
     sps.plot([-1],[-1],c=meta.colors[2],alpha=0.5,linewidth=2,label=r'$p(z|\vec{d})$')
 #     for k in lrange(test.zmids):
 #         for j in xrange(test.ngals):

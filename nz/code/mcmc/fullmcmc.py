@@ -15,6 +15,8 @@ def samplings(runs, idinfo):
     meta = runs[idinfo]
     for _ in meta.samplings():
         print('sampling ' + str(idinfo) + ": this should probably return something")
+#     print('ending run of: ' + str(idinfo))
+#     meta.dist.finish()
 
 def fsamp(idinfo):
     print ('starting key ' + str(idinfo))
@@ -30,7 +32,11 @@ def fsamp(idinfo):
         sys.stdout.flush()
         raise e
     finally:
-        print ('Done')
+        print ('Done with '+str(idinfo))
+
+#def fplot(runs,key):
+#    runs[key].dist.finish()
+#    return
 
 testdir = os.path.join('..','tests')
 #topdir = open(os.path.join(testdir,'topdirs.p'),'rb')
@@ -63,9 +69,9 @@ def main():
     pool = mp.Pool(nps)
 
     # may add back plot-only functionality later
-    keys = runs.keys() #[run.key.add(t=name) for name in lrange(names)]
-    print ('generating {} keys'.format(len(keys)))
-    pool.map(fsamp, keys)
+    #keys = runs.keys() #[run.key.add(t=name) for name in lrange(names)]
+    print ('generating {} keys'.format(len(runs.keys())))
+    pool.map(fsamp, runs.keys())
 
     for run in runs.keys():
         runs[run].dist.finish()

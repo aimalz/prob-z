@@ -52,8 +52,11 @@ class setup(object):
         self.bindif = sum(self.bindifs)/self.nbins
         self.binmids = (self.binlos+self.binhis)/2.
 
-        self.logpobs = np.array(alldata[1:])
-        self.pobs = np.exp(np.array(alldata[1:]))
+        self.loginterim = np.array(alldata[1])
+        self.interim = np.exp(self.loginterim)
+
+        self.logpobs = np.array(alldata[2:])
+        self.pobs = np.exp(self.logpobs)
         self.ngals = len(self.logpobs)
         self.flatNz = np.array([float(self.ngals)/float(self.nbins)/self.bindif]*self.nbins)
         self.logflatNz = np.log(self.flatNz)
@@ -65,13 +68,13 @@ class setup(object):
             with open(os.path.join(self.datadir,'logtrue.csv'),'rb') as csvfile:
                 tuples = (line.split(None) for line in csvfile)
                 trudata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
-            self.trueZs = np.array(trudata[1:])
+            self.trueZs = np.array(trudata[2:])
 
             trueNz = [sys.float_info.epsilon]*self.nbins
             for z in self.trueZs:
                 for k in xrange(self.nbins):
                     if z[0] > self.binlos[k] and z[0] < self.binhis[k]:
-                        trueNz[k] += 1./self.bindif
+                        trueNz[k] += 1./self.bindifs[k]
             self.trueNz = np.array(trueNz)
             self.logtrueNz = np.log(self.trueNz)
 
@@ -102,25 +105,30 @@ class setup(object):
         #self.walknos = xrange(self.nwalkers)
 
         # prior specification
-        if 'prior' in indict:
+        if 'priormean' in indict and 'priorcov' in indict:
             mean = indict['priormean']
             self.mean = np.array([float(mean[i]) for i in range(0,self.nbins)])
             covmat = indict['priorcov']
             self.covmat = np.reshape(np.array([float(covmat[i]) for i in range(0,self.nbins**2)]),(self.nbins,self.nbins))
         else:
-            self.mean = self.logflatNz
-            if 'random' in indict and int(indict['random']) == 1:
-                q = 1.
-                e = float(self.nbins)/self.bindif**2
-                tiny = q*1e-6
-                self.covmat = np.array([[q*np.exp(-0.5*e*(self.binmids[a]-self.binmids[b])**2.) for a in xrange(0,self.nbins)] for b in xrange(0,self.nbins)])+tiny*np.identity(self.nbins)
+#             if 'prior' in indict and bool(int(indict['prior'][0])) == True:
+#                 mean = self.ngals*np.array([z**2*np.exp(-(z/0.5)**1.5) for z in self.binmids])/self.bindifs
+#                 self.mean = np.log(np.array([max(x,0.) for x in mean]))
+#             else:
+            self.mean = self.loginterim
+            if 'random' in indict and bool(int(indict['random'])) == True:
+#                 q = 1.
+#                 e = 1./self.bindif**2
+#                 tiny = q*1e-6
+#                 self.covmat = np.array([[q*np.exp(-0.5*e*(self.binmids[a]-self.binmids[b])**2.) for a in xrange(0,self.nbins)] for b in xrange(0,self.nbins)])+tiny*np.identity(self.nbins)
+                self.covmat = np.identity(self.nbins)
             else:
                 self.covmat = np.identity(self.nbins)
 
         self.priordist = mvn(self.mean,self.covmat)
 
         # posterior specification
-        self.postdist = post(self.priordist, self.binends, self.logpobs)
+        self.postdist = post(self.priordist, self.binends, self.logpobs,self.loginterim)
 
         # sampler specification
         self.sampler = emcee.EnsembleSampler(self.nwalkers, self.nbins, self.postdist.lnprob)
