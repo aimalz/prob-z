@@ -6,15 +6,11 @@ import numpy as np
 import sys
 import math as m
 import os
-import random
 import scipy as sp
 from scipy import stats
 import csv
 from insim import setup
 from utilsim import *
-
-random.seed(1)
-np.random.seed(1)
 
 class pertest(object):
     def __init__(self, meta):
@@ -23,9 +19,9 @@ class pertest(object):
 
         # perparam differs from meta
         self.ndims = meta.params
-        self.allzs = meta.allzs[:self.ndims+1]#sorted(set(self.zlos+self.zhis))
-        self.zlos = self.allzs[:-1]#meta.allzlos[:self.ndims]
-        self.zhis = self.allzs[1:]#meta.allzhis[:self.ndims]
+        self.allzs = meta.allzs[:self.ndims+1]
+        self.zlos = self.allzs[:-1]
+        self.zhis = self.allzs[1:]
         self.zmids = (self.zlos+self.zhis)/2.
         self.zavg = sum(self.zmids)/self.ndims
 
@@ -66,7 +62,8 @@ class pertest(object):
 
         # sample some number of galaxies, poisson or set
         if self.meta.poisson == True:
-            self.ngals = np.random.poisson(self.seed)#[[np.random.poisson(seed) for n in sampnos] for s in survnos]
+            np.random.seed(seed=0)
+            self.ngals = np.random.poisson(self.seed)
         else:
             self.ngals = self.seed
 
@@ -76,57 +73,60 @@ class pertest(object):
 
         #test all galaxies in survey have same true redshift vs. sample from truePz
         if self.meta.random == True:
+            np.random.seed(seed=0)
             for j in range(0,self.ngals):
-              count[choice(xrange(self.ndims), self.truePz)] += 1
-              #count[choice(xrange(self.p_run.ndims), self.p_run.flatPz)] += 1
+                count[choice(xrange(self.ndims), self.truePz)] += 1
         else:
             chosenbin = np.argmax(self.truePz)
             count[chosenbin] = self.ngals
-        #print('count='+str(count))
 
         self.count = np.array(count)
 
         self.sampNz = self.count/self.meta.zdif
         self.logsampNz = np.log(np.array([max(o,sys.float_info.epsilon) for o in self.sampNz]))
 
-        self.sampPz = self.sampNz/self.ngals#count/ngal/zdif
+        self.sampPz = self.sampNz/self.ngals
         self.logsampPz = np.log(np.array([max(o,sys.float_info.epsilon) for o in self.sampPz]))
 
     def choosetrue(self):
 
         # assign actual redshifts either uniformly or identically to mean
         if self.meta.uniform == True:
-            self.trueZs = np.array([random.uniform(self.zlos[k],self.zhis[k]) for k in xrange(self.ndims) for j in xrange(self.count[k])])
+            np.random.seed(seed=0)
+            self.trueZs = np.array([np.random.uniform(self.zlos[k],self.zhis[k]) for k in xrange(self.ndims) for j in xrange(self.count[k])])
         else:
             self.trueZs = np.array([self.zmids[k] for k in xrange(self.ndims) for j in xrange(self.count[k])])
-        #print('trueZs='+str(self.trueZs))
 
     def makedat(self):
 
       # define 1+z and variance to use for sampling z
-        modZs = self.trueZs+1.#[[trueZs[s][n]+1. for n in sampnos] for s in survnos]
-        varZs = modZs*self.meta.zdif#[j] for j in xrange(self.ngals)]# for n in sampnos] for s in survnos])#zdif*(trueZs+1.)
+        modZs = self.trueZs+1.
+        varZs = modZs*self.meta.zdif
 
         # we can re-calculate npeaks later from shiftZs or sigZs.
         if self.meta.shape == True:
-            npeaks = [random.randrange(1,self.ndims,1) for j in xrange(self.ngals)]
+            np.random.seed(seed=0)
+            self.npeaks = np.array([np.random.randint(1,int(self.ndims/2.)) for j in xrange(self.ngals)])
         else:
-            npeaks = [1]*self.ngals
+            self.npeaks = [1]*self.ngals
 
         # jitter zs to simulate inaccuracy, choose variance randomly for eah peak
-        shiftZs = np.array([[np.random.normal(loc=self.trueZs[j],scale=varZs[j]) for p in xrange(npeaks[j])] for j in xrange(0,self.ngals)])
+        np.random.seed(seed=0)
+        shiftZs = np.array([[np.random.normal(loc=self.trueZs[j],scale=varZs[j]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
         # standard deviation of peaks directly dependent on true redshift vs Gaussian
-        if self.meta.sigma == True:
-            sigZs = np.array([[abs(random.gauss(varZs[j],m.sqrt(varZs[j]))) for p in xrange(npeaks[j])] for j in xrange(0,self.ngals)])
+        if self.meta.sigma == True or self.meta.shape == True:
+            np.random.seed(seed=0)
+            sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=varZs[j],scale=varZs[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+            print(zip(shiftZs,sigZs))
         else:
-            sigZs = np.array([[varZs[j] for p in xrange(npeaks[j])] for j in xrange(0,self.ngals)])
+            sigZs = np.array([[varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
         self.minobs = min(min(shiftZs))
         self.maxobs = max(max(shiftZs))
 
         # for consistency
-        self.obserror = sigZs
+        self.obserrs = sigZs
         self.obsZs = shiftZs
 
     def setup_pdfs(self):
@@ -138,7 +138,7 @@ class pertest(object):
         self.binhis = self.binends[1:]
         self.nbins = len(self.binends)-1
         self.binnos = range(0,self.nbins)
-        self.binmids = (self.binhis+self.binlos)/2.#[(binends[k]+binends[k+1])/2. for k in binnos]
+        self.binmids = (self.binhis+self.binlos)/2.
         self.bindifs = self.binhis-self.binlos
         self.bindif = sum(self.bindifs)/self.nbins
 
@@ -148,41 +148,37 @@ class pertest(object):
             suminterim = np.sum(interim)
             self.interim = float(self.ngals)*interim/suminterim/self.bindifs
         else:
-            self.interim = float(self.ngals)/self.bindifs/self.nbins#float(self.nbins)/self.bindif#np.array([self.ngals/b for b in self.bindifs])
-        #print(sum(self.interim*self.bindifs))
+            self.interim = float(self.ngals)/self.bindifs/self.nbins
         self.loginterim = np.log(self.interim)
 
     def makecat(self):
 
         self.setup_pdfs()
 
-        self.obsdata = zip(self.obsZs,self.obserror)
         pobs = []
         logpobs = []
         mapzs = []
         expzs = []
 
-        for (obsZ, obserr) in self.obsdata:
-            allsummed = [sys.float_info.epsilon]*self.nbins
-            npeaks = len(obsZ)
-            for pn in lrange(obsZ):
-                func = sp.stats.norm(loc=obsZ[pn],scale=obserr[pn])
+        for j in xrange(self.ngals):
+            allsummed = np.array([sys.float_info.epsilon]*self.nbins)
+            for pn in xrange(self.npeaks[j]):
+                func = sp.stats.norm(loc=self.obsZs[j][pn],scale=self.obserrs[j][pn])
                 # these should be two slices of the same array, rather than having two separate list comprehensions
                 lo = np.array([max(sys.float_info.epsilon,func.cdf(binend)) for binend in self.binends[:-1]])
                 hi = np.array([max(sys.float_info.epsilon,func.cdf(binend)) for binend in self.binends[1:]])
-                spread = (hi-lo)*self.interim
+                spread = (hi-lo)
 
                 # normalize probabilities to integrate (not sum)) to 1
-                onesummed = max(sum(spread),sys.float_info.epsilon)
-                allsummed += spread/onesummed
+                allsummed += spread
 
-            pob = allsummed/self.bindifs/npeaks
-            #print(np.sum(pob*self.bindifs))
+            pob = self.interim*allsummed
+            pob = pob/self.bindifs/sum(pob)
 
             # sample posterior if noisy observation
             if self.meta.noise == True:
                 spob = [sys.float_info.epsilon]*self.nbins
-                for k in xrange(2*self.nbins):#self.binnos:
+                for k in xrange(self.nbins):
                     spob[choice(self.binnos, pob)] += 1.
                 pob = np.array(spob)/sum(spob)/self.meta.zdif
 
@@ -193,7 +189,6 @@ class pertest(object):
             pobs.append(pob)
             mapzs.append(mapz)
             expzs.append(expz)
-        #print('making zPDFs worked '+self.meta.inadd)
         self.pobs = np.array(pobs)
         self.logpobs = np.array(logpobs)
         self.mapzs = np.array(mapzs)
@@ -242,25 +237,21 @@ class pertest(object):
         self.vsstack = np.dot(vsstack,vsstack)/self.nbins
         vslogstack = self.logstack-self.full_logsampNz
         self.vslogstack = np.dot(vslogstack,vslogstack)/self.nbins
-        print(self.vslogstack,vslogstack)
 
         vsmapNz = self.mapNz-self.full_sampNz
         self.vsmapNz = np.dot(vsmapNz,vsmapNz)/self.nbins
         vslogmapNz = self.logmapNz-self.full_logsampNz
         self.vslogmapNz = np.dot(vslogmapNz,vslogmapNz)/self.nbins
-        print(self.vslogmapNz,vslogmapNz)
 
         vsexpNz = self.expNz-self.full_sampNz
         self.vsexpNz = np.dot(vsexpNz,vsexpNz)/self.nbins
         vslogexpNz = self.logexpNz-self.full_logsampNz
         self.vslogexpNz = np.dot(vslogexpNz,vslogexpNz)/self.nbins
-        print(self.vslogexpNz,vslogexpNz)
 
         vsinterim = self.full_interim-self.full_sampNz
         self.vsinterim = np.dot(vsinterim,vsinterim)/self.nbins
         vsloginterim = self.full_loginterim-self.full_logsampNz
         self.vsloginterim = np.dot(vsloginterim,vsloginterim)/self.nbins
-        print(self.vsloginterim,vsloginterim)
 
     def savedat(self):
 

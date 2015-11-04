@@ -8,9 +8,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 import os
-import random
 import math as m
 from utilsim import *
+
+np.random.seed(seed=0)
 
 # make all the plots
 def initial_plots(meta, test):
@@ -45,17 +46,12 @@ def plot_priorgen(metainfo):
     sps.set_xlabel(r'$z$')
     sps.legend(fontsize='x-small',loc='upper left')
     f.savefig(os.path.join(meta.simdir,'physPz.png'))
-    #print('plotted physical P(z)')
     return
 
 # plot sample of true N(z) for one set of parameters and one survey size
 def plot_true(meta, test):
 
-    #print(sum(meta.realistic))
-    #print(sum(test.ngals*meta.realistic))
-    #print(test.ngals*sum(meta.realistic))
     plotrealistic_Nz = test.ngals*meta.realistic/sum(meta.realistic*meta.zdifs)
-    #print(sum(plotrealistic_Nz*meta.zdifs))
     plotrealistic_logNz = np.log(plotrealistic_Nz)
 
     f = plt.figure(figsize=(5,10))
@@ -85,10 +81,7 @@ def plot_true(meta, test):
     sps.step(test.binmids,test.expNz,label=r'$N(E[z])$ with $\sigma^{2}=$'+str(int(test.vsexpNz)),linestyle=':')
     sps.step(test.binmids,test.full_interim,label=r'interim $N(z)$ with $\sigma^{2}=$'+str(int(test.vsinterim)))
     sps.legend(loc='upper left',fontsize='xx-small')
-
     f.savefig(os.path.join(meta.simdir,'trueNz.png'))
-
-    #print('plotted true N(z)')
     return
 
 # plot some individual posteriors
@@ -97,27 +90,23 @@ def plot_pdfs(meta,test):
     sps = f.add_subplot(1,1,1)
     f.suptitle('Observed galaxy posteriors')
     #sps.set_title('multimodal='+str(meta.shape)+', noisy='+str(meta.noise))
-    randos = random.sample(xrange(test.ngals),len(meta.colors))
-    #print('setup complete')
-    for r in randos:
-        sps.step(test.binmids,test.pobs[r],where='mid',color=meta.colors[r%len(meta.colors)])#,alpha=a)
-        sps.vlines(test.trueZs[r],0.,max(test.pobs[r]),color=meta.colors[r%len(meta.colors)],linestyle='--')
-    #print('plotting complete')
+    randos = np.random.randint(0,test.ngals,len(meta.colors))
+    print([test.npeaks[r] for r in randos])
+    for r in lrange(randos):
+        sps.step(test.binmids,test.pobs[randos[r]],where='mid',color=meta.colors[r])#,alpha=a)
+        sps.vlines(test.trueZs[randos[r]],0.,max(test.pobs[randos[r]]),color=meta.colors[r],linestyle='--')
     sps.set_ylabel(r'$p(z|\vec{d})$')
     sps.set_xlabel(r'$z$')
     sps.set_xlim(test.binlos[0]-meta.zdif,test.binhis[-1]+meta.zdif)
     sps.set_ylim(0.,1./meta.zdif)
     f.savefig(os.path.join(meta.simdir,'samplepzs.png'))
-
-    #print('wrapup complete')
     return
 
-# plot true vs. MAP redshifts
+# plot true vs. MAP vs E(z) redshifts
 def plot_truevmap(meta,test):
     f = plt.figure(figsize=(5,5))
     sps = f.add_subplot(1,1,1)
     f.suptitle('True Redshifts vs. Point Estimates')
-    #print('plot_lfs')
     #randos = random.sample(pobs[-1][0],ncolors)
     sps.set_ylabel('Point Estimate')
     sps.set_xlabel(r'True $z$')
@@ -126,8 +115,6 @@ def plot_truevmap(meta,test):
     sps.plot(test.binmids,test.binmids,c='k')
     plotpobs = (test.pobs*meta.zdif)
     plotpobs = plotpobs/np.max(plotpobs)
-    #print(np.shape(plotpobs))
-    #print(plotpobs.T[-1])
     for k in xrange(test.nbins):
         for j in xrange(test.ngals):
             sps.vlines(test.trueZs[j], test.binlos[k], test.binhis[k],
@@ -145,12 +132,6 @@ def plot_truevmap(meta,test):
                 label=r'$E(z)$',
                 linewidth=0.1)
     sps.plot([-1],[-1],c=meta.colors[2],alpha=0.5,linewidth=2,label=r'$p(z|\vec{d})$')
-#     for k in lrange(test.zmids):
-#         for j in xrange(test.ngals):
-#             sps.scatter(test.trueZs[j], test.binmids[k],
-#                         c=meta.colors[2],
-#                         alpha=plotpobs[j][k],
-#                         linewidth=0.1)
     sps.legend(loc='upper left',fontsize='x-small')
     f.savefig(os.path.join(meta.simdir,'truevmap.png'))
     return

@@ -37,7 +37,7 @@ class setup(object):
             binstep = 1. / self.allnbins
             self.allzs = np.arange(0.,1.+binstep,binstep)
         else:
-            self.allnbins = 10
+            self.allnbins = 35
             binstep = 1. / self.allnbins
             self.allzs = np.arange(0.,1.+binstep,binstep)
 
@@ -59,14 +59,14 @@ class setup(object):
             nelem = len(indict['phys'])
             self.real = np.array([float(indict['phys'][i]) for i in range(1,nelem)])
         else:
-#             self.real = np.array([[zmin+0.2*zrange, 0.001, 0.75],#2.0],
-#                          [zmin+0.4*zrange, 0.001, 1.25],
-#                          [zmin+0.5*zrange, 0.1, 5.0],
-#                          [zmin+0.6*zrange, 0.001, 1.25],
-#                          [zmin+0.8*zrange, 0.001, 2.0]#1.25],
-#                          #[zmin+1.0*zrange, 0.001, 0.75]
-#                           ])
-            self.real = np.array([[(zmax-zmin)/2.,0.1,1.0]])
+            self.real = np.array([[zmin+0.2*zrange, 0.001, 0.75],#2.0],
+                         [zmin+0.4*zrange, 0.001, 1.25],
+                         [zmin+0.5*zrange, 0.1, 5.0],
+                         [zmin+0.6*zrange, 0.001, 1.25],
+                         [zmin+0.8*zrange, 0.001, 2.0]#1.25],
+                         #[zmin+1.0*zrange, 0.001, 0.75]
+                          ])
+            #self.real = np.array([[(zmax-zmin)/2.,0.1,1.0]])
         # put together Gaussian elements
         self.realistic_comps = np.transpose([[zmid*tup[2]*(2*m.pi*tup[1])**-0.5*m.exp(-(zmid-tup[0])**2/(2*tup[1])) for zmid in self.allzmids] for tup in self.real])
         self.realistic = np.array([sum(realistic_comp) for realistic_comp in self.realistic_comps])
@@ -84,7 +84,7 @@ class setup(object):
         if 'survs' in indict:
             self.survs = int(indict['survs'][0])
         else:
-            self.survs = 100
+            self.survs = 1e3
 
         # 0 for set number of galaxies, 1 for statistical sample around survey size
         if 'poisson' in indict:
@@ -99,36 +99,36 @@ class setup(object):
         else:
             self.random = bool(1)
 
-        # 0 for breadth of posterior peak being dependent on true redshift, 1 for drawn from Gaussian
-        if 'sigma' in indict:
-            self.sigma = bool(int(indict['sigma'][0]))
-        else:
-            self.sigma = bool(0)
-
         # 0 for all galaxies having mean redshift of bin, 1 for uniform sampling
         if 'uniform' in indict:
             self.uniform = bool(int(indict['uniform'][0]))
         else:
             self.uniform = bool(1)
 
-        # 0 for flat interim prior, 1 for Gaussian interim prior
+        # 0 for flat interim prior, 1 for bad interim prior
         if 'interim' in indict:
             self.interim = bool(int(indict['interim'][0]))
         else:
             self.interim = bool(0)
+
+        # 0 for breadth of posterior peak being dependent on true redshift, 1 for drawn from Gaussian
+        if 'sigma' in indict:
+            self.sigma = bool(int(indict['sigma'][0]))
+        else:
+            self.sigma = bool(0)
 
         # permit more complicated p(z)s
         # 0 for unimodal, 1 for multimodal
         if 'shape' in indict:
             self.shape = bool(int(indict['shape'][0]))
         else:
-            self.shape = bool(1)
+            self.shape = bool(0)
 
         # 0 for noiseless, 1 for noisy
         if 'noise' in indict:
             self.noise = bool(int(indict['noise'][0]))
         else:
-            self.noise = bool(1)
+            self.noise = bool(0)
 
         # colors for plots
         self.colors='brgycm'
