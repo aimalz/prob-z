@@ -39,12 +39,13 @@ class mvn(object):
     # W samples around mean of distribution
     def sample_gm(self,W):
         outsamp = [self.mean+np.random.randn(self.dims) for w in range(0,W)]
-        return (outsamp,self.mean)
+        return (outsamp, self.mean)
 
     # W samples from a single sample from distribution
     def sample_gs(self, W):
         rando = np.random.multivariate_normal(self.mean, self.cov)
-        outsamp = [rando + np.random.randn(self.dims) for w in range(0,W)]
+        #outsamp = [rando + np.random.randn(self.dims) for w in range(0,W)]
+        outsamp = [np.random.multivariate_normal(rando,self.cov) for w in range(0,W)]
         return (outsamp, rando)
 
 class post(object):

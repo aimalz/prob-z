@@ -116,14 +116,19 @@ class setup(object):
 #                 self.mean = np.log(np.array([max(x,0.) for x in mean]))
 #             else:
             self.mean = self.loginterim
-            if 'random' in indict and bool(int(indict['random'])) == True:
+#             if 'random' in indict and bool(int(indict['random'])) == True:
+#                 print('random '+str(bool(int(indict['random']))))
 #                 q = 1.
-#                 e = 1./self.bindif**2
+#                 e = 3./self.bindif**2
 #                 tiny = q*1e-6
 #                 self.covmat = np.array([[q*np.exp(-0.5*e*(self.binmids[a]-self.binmids[b])**2.) for a in xrange(0,self.nbins)] for b in xrange(0,self.nbins)])+tiny*np.identity(self.nbins)
-                self.covmat = np.identity(self.nbins)
-            else:
-                self.covmat = np.identity(self.nbins)
+#                 # self.covmat = np.identity(self.nbins)
+#             else:
+            #self.covmat = np.identity(self.nbins)
+            q = 0.5#self.bindif
+            e = 1./self.bindif**2
+            tiny = q*1e-6
+            self.covmat = np.array([[q*np.exp(-0.5*e*(self.binmids[a]-self.binmids[b])**2.) for a in xrange(0,self.nbins)] for b in xrange(0,self.nbins)])+tiny*np.identity(self.nbins)
 
         self.priordist = mvn(self.mean,self.covmat)
 
@@ -170,24 +175,28 @@ class setup(object):
         assert(self.miniters%self.thinto==0)
 
         self.ntimes = self.miniters / self.thinto
-        self.factor = 2
+
+        if 'factor' in indict:
+            self.factor = int(indict['factor'])
+        else:
+            self.factor = 2
 
         #assert(self.ntimes > self.nwalkers)
+        # autocorrelation time mode
+        if 'mode' in indict:
+            self.mode = int(indict['mode'])
+        else:
+            self.mode = 'bins'#'walkers'
 
 #         # what outputs of emcee will we be saving?
-        self.stats = [ stats.stat_chains(self),
+        self.stats = [ stats.stat_both(self),
+                       stats.stat_chains(self),
                        stats.stat_probs(self),
                        stats.stat_fracs(self),
                        stats.stat_times(self) ]
 
         # colors for plots
         self.colors='brgycm'
-
-        # autocorrelation time mode
-        if 'mode' in indict:
-            self.mode = int(indict['mode'])
-        else:
-            self.mode = 'bins'#'walkers'
 
         outdict = {
             'topdir': self.topdir,
@@ -231,7 +240,7 @@ class setup(object):
     def get_all_states(self):
         iterno = self.key.load_iterno(self.meta.topdir)
         if iterno is None:
-            print ("BLOODY HELL, I couldn't find the number of iterations, assuming 0")
+            print ("Oops, I couldn't find the number of iterations, assuming 0")
             return []
         print('getting state:' + str(self.key))
         # check this: is there an off-by-one here?
@@ -244,7 +253,7 @@ class setup(object):
         vars = ['tot_ls', 'tot_s', 'var_ls', 'var_s']
         retval = {var : [] for var in vars}
         if iterno is None:
-            print ("BLOODY HELL, I couldn't find the number of iterations, assuming 0")
+            print ("Oops, I couldn't find the number of iterations, assuming 0")
             return retval
         # TO DO: this currently returns a list of tuples, rather than a tuple of lists.
         fitness_list =  self.key.load_stats(self.topdir, category, iterno)

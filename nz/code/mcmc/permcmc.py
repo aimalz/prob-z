@@ -41,7 +41,8 @@ class pertest(object):
             calctimer.close()
 
         # what outputs of emcee will we be saving?
-        self.stats = [ stats.stat_chains(self.meta),
+        self.stats = [ stats.stat_both(self.meta),
+                       stats.stat_chains(self.meta),
                        stats.stat_probs(self.meta),
                        stats.stat_fracs(self.meta),
                        stats.stat_times(self.meta) ]
@@ -62,10 +63,12 @@ class pertest(object):
         probs = sampler.lnprobability#nsteps*nwalkers
         fracs = sampler.acceptance_fraction#nwalkers
         times = stats.acors(chains,self.meta.mode)#nwalkers#sampler.get_autocorr_time(window = ntimes/2)#nbins
+        both = {'probs':probs,'chains':chains}
         outputs = { 'times':times,
                     'fracs':fracs,
                     'probs':probs,
-                    'chains':chains }
+                    'chains':chains,
+                    'both':both }
         elapsed = timeit.default_timer() - start_time
         self.vals = ovals
         self.outputs = outputs

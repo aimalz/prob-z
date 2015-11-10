@@ -168,11 +168,13 @@ class plotter_probs(plotter):
         self.sps.set_title('Probability Evolution for ' + str(meta.nwalkers) + ' walkers')
         self.sps.set_ylabel('log probability of walker')
         self.sps.set_xlabel('iteration number')
+        self.miny = 0.
 
     def plot(self,key):
 
         data = key.load_state(self.meta.topdir)['probs']
         plot_y = np.swapaxes(data,0,1).T
+        self.miny = np.min(np.array([np.min(plot_y),self.miny]))
 
         for w in xrange(self.meta.nwalkers):
             self.sps.plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,
@@ -180,12 +182,53 @@ class plotter_probs(plotter):
                           c=self.meta.colors[w%self.ncolors],
                           alpha=self.a_probs,
                           rasterized=True)
+
         timesaver(self.meta,'probs',key)
 
     def finish(self):
 
-        self.sps.set_xlim(-1*self.meta.miniters,(self.last_key.r+2)*self.meta.miniters)
+        with open(os.path.join(self.meta.topdir,'stat_probs.p'),'rb') as statprobs:
+            probs = cpkl.load(statprobs)
+
+        self.sps.plot(self.meta.miniters*np.arange(0,self.last_key.r+2),
+                      [int(probs['lp_true'])]*(self.last_key.r+2),
+                      label=r'True $p(\{\vec{d}_{j}\}_{J}|\tilde{\vec{\theta}})$',
+                      color='k',linewidth=2,linestyle='-')
+        self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
+                      [int(probs['lp_stack'])]*(self.last_key.r+2),
+                      label=r'Stacked $p(\{\vec{d}_{j}\}_{J}|\vec{\theta})$',
+                      color='k',linewidth=2,linestyle='--')
+        self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
+                      [int(probs['lp_mapNz'])]*(self.last_key.r+2),
+                      label=r'MAP $p(\{\vec{d}_{j}\}_{J}|\vec{\theta})$',
+                      color='k',linewidth=2,linestyle='-.')
+        self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
+                      [int(probs['lp_expNz'])]*(self.last_key.r+2),
+                      label=r'$E(z) p(\{\vec{d}_{j}\}_{J}|\vec{\theta})$',
+                      color='k',linewidth=2,linestyle=':')
+        self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
+                      [int(probs['lp_true'])]*(self.last_key.r+2),
+                      label=r'Sampled $p(\{\vec{d}_{j}\}_{J}|\vec{\theta})$',
+                      color='k',linewidth=1,linestyle='-')
+
+        self.sps.legend(fontsize='xx-small', loc='lower right')
+        self.sps.set_xlim(0,(self.last_key.r+1)*self.meta.miniters)
+        self.sps.set_ylim(self.miny,0.)
         self.f.savefig(os.path.join(self.meta.topdir,'probs.png'),dpi=100)
+
+#         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
+#             both = cpkl.load(statboth)
+
+#         f = plt.figure(figsize=(5,5))
+#         sps = f.add_subplot(1,1,1)
+#         sps.set_title('Samples vs. Point Estimate Competitors')
+#         sps.hist(both['llr_stack'],bins=self.meta.nwalkers,alpha=1./3.,label=r'Stacked $A$')
+#         sps.hist(both['llr_mapNz'],bins=self.meta.nwalkers,alpha=1./3.,label=r'MAP $N(z)$ $A$')
+#         sps.hist(both['llr_expNz'],bins=self.meta.nwalkers,alpha=1./3.,label=r'N(E[z]) $A$')
+#         sps.semilogy()
+#         sps.legend(fontsize='xx-small', loc='upper left')
+#         f.savefig(os.path.join(self.meta.topdir,'llr.png'),dpi=100)
+
         timesaver(self.meta,'probs-done',key)
 
 # plot full posterior samples
@@ -194,7 +237,7 @@ class plotter_samps(plotter):
     def __init__(self, meta):
         self.meta = meta
         self.ncolors = len(self.meta.colors)
-        self.a_samp = 1.#/self.ncolors
+        self.a_samp = 1./self.meta.factor
         self.f_samps = plt.figure(figsize=(5, 10))
         self.sps_samps = [self.f_samps.add_subplot(2,1,l+1) for l in xrange(0,2)]
 
@@ -211,6 +254,8 @@ class plotter_samps(plotter):
         sps_samp.set_ylabel(r'$N(z)$')
         sps_samp.set_title(r'Samples of $N(z)$')
 
+        self.ll_samp = []
+
     def plot(self,key):
 
 #         if key.burnin == False:
@@ -226,8 +271,8 @@ class plotter_samps(plotter):
 
         for w in randwalks:
             for x in randsteps:
-                self.sps_samps[0].step(self.meta.binmids,plot_y_ls[x][w],color=self.meta.colors[key.r%self.ncolors],where='mid',alpha=self.a_samp,rasterized=True)#,label=str(self.meta.miniters*(key.r+1)))
-                self.sps_samps[1].step(self.meta.binmids,plot_y_s[x][w],color=self.meta.colors[key.r%self.ncolors],where='mid',alpha=self.a_samp,rasterized=True)#,label=str(self.meta.miniters*(key.r+1)))
+                self.sps_samps[0].step(self.meta.binlos,plot_y_ls[x][w],color=self.meta.colors[key.r%self.ncolors],where='post',alpha=self.a_samp,rasterized=True)#,label=str(self.meta.miniters*(key.r+1)))
+                self.sps_samps[1].step(self.meta.binlos,plot_y_s[x][w],color=self.meta.colors[key.r%self.ncolors],where='post',alpha=self.a_samp,rasterized=True)#,label=str(self.meta.miniters*(key.r+1)))
 #                     self.sps_samps[0].hlines(plot_y_ls[x][w],
 #                                              self.meta.binlos,
 #                                              self.meta.binhis,
@@ -242,19 +287,19 @@ class plotter_samps(plotter):
 #                                              rasterized=True)
         timesaver(self.meta,'samps',key)
 
-    def plotone(self,subplot,plot_y,style,ylabel):
+    def plotone(self,subplot,plot_y,style,lw,ylabel):
         subplot.hlines(plot_y,
                        self.meta.binlos,
                        self.meta.binhis,
                        color='k',
-                       linewidth=2,
+                       linewidth=lw,
                        linestyle=style,
                        label=ylabel)
         subplot.vlines(self.meta.binends[1:-1],
                        plot_y[:-1],
                        plot_y[1:],
                        color='k',
-                       linewidth=2,
+                       linewidth=lw,
                        linestyle=style)
         return
 
@@ -264,26 +309,48 @@ class plotter_samps(plotter):
         sps_samp = self.sps_samps[1]
 
         with open(os.path.join(self.meta.topdir,'stat_chains.p'),'rb') as statchains:
-            variances = cpkl.load(statchains)#self.meta.key.load_stats(self.meta.topdir,'chains',self.last_key.r+1)[0]
-        #print(type(variances))
-        #print('plot variances'+str(variances))
+            gofs = cpkl.load(statchains)#self.meta.key.load_stats(self.meta.topdir,'chains',self.last_key.r+1)[0]
+
+        #with open(os.path.join(self.meta.topdir,'stat_probs.p'),'rb') as statprobs:
+        #    gof = cpkl.load(statprobs)
+        #self.ll_samp = np.array(self.ll_samp)
+
         if self.meta.logtrueNz is not None:
-            #print(type(variances['vslogstack']))
-            #print(variances['vslogstack'])
-            logstacklabel = r' $\sigma^{2}=$'+str(int(variances['vslogstack']))
-            stacklabel = r' $\sigma^{2}=$'+str(int(variances['vsstack']))
-            logmaplabel = r' $\sigma^{2}=$'+str(int(variances['vslogmapNz']))
-            maplabel = r' $\sigma^{2}=$'+str(int(variances['vsmapNz']))
-            logexplabel = r' $\sigma^{2}=$'+str(int(variances['vslogexpNz']))
-            explabel = r' $\sigma^{2}=$'+str(int(variances['vsexpNz']))
-            logsampprep = min(variances['var_ls'])#/(self.last_key.r+1.)
-            print('var_ls '+str(variances['var_ls']))
-            logsamplabel = r' $\chi^{2}=$'+str(int(logsampprep))#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
-            #print('plot var_ls='+str(logsampprep))
-            sampprep = min(variances['var_s'])#/(self.last_key.r+1.)
-            print('var_s '+str(variances['var_s']))
-            samplabel = r' $\chi^{2}=$'+str(int(sampprep))#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
-            #print('plot var_s='+str(sampprep))
+            #llr_stackprep = str(int(gof['llr_stack']))
+            logstackprep_v = str(int(gofs['vslogstack']))
+            logstackprep_c = str(int(gofs['cslogstack']))
+            #lr_stackprep = str(int(np.log10(np.exp(gof['llr_stack']))))
+            stackprep_v = str(int(gofs['vsstack']))
+            stackprep_c = str(int(gofs['csstack']))
+            logstacklabel = r'; $\sigma^{2}=$'+logstackprep_v+r'; $\chi^{2}=$'+logstackprep_c#+r'; $\ln(r)=$'+llr_stackprep
+            stacklabel = r'; $\sigma^{2}=$'+stackprep_v+r'; $\chi^{2}=$'+stackprep_c#+r'; $\log(r)=$'+lr_stackprep
+
+            #llr_mapNzprep = str(int(gof['llr_mapNz']))
+            logmapNzprep_v = str(int(gofs['vslogmapNz']))
+            logmapNzprep_c = str(int(gofs['cslogmapNz']))
+            #lr_mapNzprep = str(int(np.log10(np.exp(gof['llr_mapNz']))))
+            mapNzprep_v = str(int(gofs['vsmapNz']))
+            mapNzprep_c = str(int(gofs['csmapNz']))
+            logmaplabel = r'; $\sigma^{2}=$'+logmapNzprep_v+r'; $\chi^{2}=$'+logmapNzprep_c#+r'; $\ln(r)=$'+llr_mapNzprep
+            maplabel = r'; $\sigma^{2}=$'+mapNzprep_v+r'; $\chi^{2}=$'+mapNzprep_c#+r'; $\log(r)=$'+lr_mapNzprep
+
+            #llr_expNzprep = str(int(gof['llr_expNz']))
+            logexpNzprep_v = str(int(gofs['vslogexpNz']))
+            logexpNzprep_c = str(int(gofs['cslogexpNz']))
+            #lr_expNzprep = str(int(np.log10(np.exp(gof['llr_expNz']))))
+            expNzprep_v = str(int(gofs['vsexpNz']))
+            expNzprep_c = str(int(gofs['csexpNz']))
+            logexplabel = r'; $\sigma^{2}=$'+logexpNzprep_v+r'; $\chi^{2}=$'+logexpNzprep_c#+r'; $\ln(r)=$'+llr_expNzprep
+            explabel = r'; $\sigma^{2}=$'+expNzprep_v+r'; $\chi^{2}=$'+expNzprep_c#+r'; $\log(r)=$'+lr_expNzprep
+
+            #llr_sampprep = str(int(np.average(self.ll_samp)))
+            logsampprep_v = str(int(min(gofs['var_ls'])))#/(self.last_key.r+1.)
+            logsampprep_c = str(int(min(gofs['chi_ls'])))#/(self.last_key.r+1.)
+            #lr_sampprep = str(int(np.log10(np.exp(np.average(self.ll_samp)))))
+            sampprep_v = str(int(min(gofs['var_s'])))#/(self.last_key.r+1.)
+            sampprep_c = str(int(min(gofs['chi_s'])))#/(self.last_key.r+1.)
+            logsamplabel = r'; $\sigma^{2}=$'+logsampprep_v+r'; $\chi^{2}=$'+logsampprep_c#+r'; $\ln(r)=$'+llr_sampprep#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
+            samplabel = r'; $\sigma^{2}=$'+sampprep_v+r'; $\chi^{2}=$'+sampprep_c#+r'; $\log(r)=$'+lr_sampprep#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
         else:
             logstacklabel = ' '
             stacklabel = ' '
@@ -291,19 +358,21 @@ class plotter_samps(plotter):
             maplabel = ' '
             logexplabel = ' '
             explabel = ' '
-            logsamplabel = r' $\chi^{2}=$'+str(int(variances['tot_ls']/(self.last_key.r+1.)))
-            samplabel = r' $\chi^{2}=$'+str(int(variances['tot_s']/(self.last_key.r+1.)))
+            logsamplabel = r' $\sigma^{2}=$'+str(int(min(gofs['var_ls'])))#gofs['tot_var_ls']/(self.last_key.r+1.)))
+            samplabel = r' $\sigma^{2}=$'+str(int(min(gofs['var_ls'])))#gofs['tot_var_s']/(self.last_key.r+1.)))
             self.meta.logtrueNz = [-1.]*self.meta.nbins
             self.meta.trueNz = [-1.]*self.meta.nbins
 
-        self.plotone(sps_samp_log,self.meta.logstack,'--',r'Stacked $\ln N(z)$'+logstacklabel)
-        self.plotone(sps_samp,self.meta.stack,'--',r'Stacked $N(z)$'+stacklabel)
-        self.plotone(sps_samp_log,self.meta.logmapNz,'-.',r'MAP $\ln N(z)$'+logmaplabel)
-        self.plotone(sps_samp,self.meta.mapNz,'-.',r'MAP $N(z)$'+maplabel)
-        self.plotone(sps_samp_log,self.meta.logexpNz,':',r'$\ln N(E(z))$'+logexplabel)
-        self.plotone(sps_samp,self.meta.expNz,':',r'$N(E(z))$'+explabel)
-        self.plotone(sps_samp_log,self.meta.logtrueNz,'-',r'True $\ln N(z)$'+logsamplabel)
-        self.plotone(sps_samp,self.meta.trueNz,'-',r'True $N(z)$'+samplabel)
+        self.plotone(sps_samp_log,self.meta.logtrueNz,'-',2,r'True $\ln N(z)$')
+        self.plotone(sps_samp,self.meta.trueNz,'-',2,r'True $N(z)$')
+        self.plotone(sps_samp_log,self.meta.logstack,'--',2,r'Stacked $\ln N(z)$'+logstacklabel)
+        self.plotone(sps_samp,self.meta.stack,'--',2,r'Stacked $N(z)$'+stacklabel)
+        self.plotone(sps_samp_log,self.meta.logmapNz,'-.',2,r'MAP $\ln N(z)$'+logmaplabel)
+        self.plotone(sps_samp,self.meta.mapNz,'-.',2,r'MAP $N(z)$'+maplabel)
+        self.plotone(sps_samp_log,self.meta.logexpNz,':',2,r'$\ln N(E(z))$'+logexplabel)
+        self.plotone(sps_samp,self.meta.expNz,':',2,r'$N(E(z))$'+explabel)
+        self.plotone(sps_samp_log,self.meta.logtrueNz,'-',0.5,r'Sampled $\ln N(z)$'+logsamplabel)
+        self.plotone(sps_samp,self.meta.trueNz,'-',0.5,r'Sampled $N(z)$'+samplabel)
 
         sps_samp_log.legend(fontsize='xx-small', loc='upper left')
         sps_samp.legend(fontsize='xx-small', loc='upper left')
@@ -365,8 +434,8 @@ class plotter_chains(plotter):
     def finish(self):
         timesaver(self.meta,'chains-start',key)
 
-        maxsteps = self.last_key.r+1
-        maxiternos = np.arange(1,maxsteps+1)
+        maxsteps = self.last_key.r+2
+        maxiternos = np.arange(0,maxsteps)
         for k in xrange(self.meta.nbins):
             sps_chain = self.sps_chains[k]
             sps_chain.set_xlim(-1*self.meta.miniters,(maxsteps+1)*self.meta.miniters)
@@ -424,3 +493,29 @@ all_plotters = [plotter_chains
                 ,plotter_probs
                 ,plotter_timefrac
                 ]
+
+# make all plots not needing MCMC
+def final_plots(runs):
+    for run in runs.keys():
+        meta = runs[run]
+        plot_llr(meta)
+        timesaver(meta,'fplot',meta.key)
+        #print('final plots completed')
+
+def plot_llr(meta):
+    with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
+        both = cpkl.load(statboth)
+
+    f = plt.figure(figsize=(5,5))
+    sps = f.add_subplot(1,1,1)
+    sps.set_title('Samples vs. Point Estimate Competitors')
+    sps.hist(both['llr_stack'],bins=meta.nwalkers,alpha=1./3.,histtype='bar',log=True,
+             label=r'Stacked $A$, $\max(A)='+str(np.max(both['llr_stack']))+r'$')
+    sps.hist(both['llr_mapNz'],bins=meta.nwalkers,alpha=1./3.,histtype='bar',log=True,
+             label=r'MAP $N(z)$ $A$, $\max(A)='+str(np.max(both['llr_mapNz']))+r'$')
+    sps.hist(both['llr_expNz'],bins=meta.nwalkers,alpha=1./3.,histtype='bar',log=True,
+             label=r'N(E[z]) $A$, $\max(A)='+str(np.max(both['llr_expNz']))+r'$')
+    sps.legend(fontsize='xx-small', loc='upper left')
+    f.savefig(os.path.join(meta.topdir,'llr.png'),dpi=100)
+
+    return
