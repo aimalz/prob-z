@@ -503,7 +503,7 @@ def final_plots(runs):
         #print('final plots completed')
 
 def plot_llr(meta):
-    with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
+    with open(os.path.join(meta.topdir,'stat_both.p'),'rb') as statboth:
         both = cpkl.load(statboth)
 
     f = plt.figure(figsize=(5,5))
