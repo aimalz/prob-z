@@ -257,7 +257,7 @@ p^{0}(z_{k'}) &=& \sum_{c=1}^{5}\bar{z}_{k'}C_{c}\int_{z_{k'}}^{z_{k'+1}} \mathc
 
 \begin{figure}
 \label{fig:physPz}
-\includegraphics[width=0.5\textwidth]{null/physPz.png}
+\includegraphics[width=0.5\textwidth]{physPz.png}
 \caption{The underlying $p(z)$ is a sum of Gaussians.  Here it is shown for the case of $K'=25$ bins from $z_{0}=0$ to $z_{K'}=1$}
 \end{figure}
 
@@ -425,7 +425,7 @@ It is desirable to compare the result of this method to what would have been obt
 \exp[\theta_{k}]\Delta_{k} &=& \sum_{j=1}^{J}\ p(B_{k}|\vec{d}_{j},\vec{\theta}^{0})
 \end{eqnarray}
 
-The second method, hereafter referred to as point estimation, converts the individual galaxy posteriors $p(B_{k}|\vec{d}_{j},\vec{\theta}^{0})$ into delta functions at the redshift bin of maximum posterior probability according to Eq. \ref{eq:map}, or at the redshift bin corresponding to the expected value of Eq. \ref{eq:expval}, before applying Eq. \ref{eq:stack}.  These two methods have been compared to one another by \citet{hil11} and \citet{ben12}.
+The second method, hereafter referred to as point estimation, converts the individual galaxy posteriors $p(B_{k}|\vec{d}_{j},\vec{\theta}^{0})$ into delta functions at the redshift bin of maximum a posteriori (MAP) probability according to Eq. \ref{eq:map}, or at the redshift bin corresponding to the expected value of Eq. \ref{eq:expval}, before applying Eq. \ref{eq:stack}.  These two methods have been compared to one another by \citet{hil11} and \citet{ben12}.
 
 \begin{eqnarray}
 \label{eq:map}
@@ -445,11 +445,11 @@ It is also valuable to verify that the posterior is maximized for the true $N(z)
 
 Beyond visual inspection of samples, we calculate summary statistics to quantitatively compare different estimators' appropriateness for the data.  Three goodness of fit measures of parameter samples $\vec{\theta}^{i}$  have been considered here.  
 
-The likelihood ratio may be calculated for a sample $\vec{\theta}^{i}$ as in Eq. \ref{eq:llr}.  Lower values of $A$ indicate a closer fit between the estimator and the true value; higher values of $A$ indicate dissonance between the true value and the estimator.  The log posterior probabilities of Sec. \ref{sec:probs} are used to obtain the log likelihoods via Eq. \ref{eq:logpost} and the sample values themselves are used to calculate the prior probability term according to Eq. \ref{eq:llr-how}.
+The likelihood ratio comparing the sampler to competing methods may be calculated for a sample $\vec{\theta}^{i}$ as in Eq. \ref{eq:llr}.  Values of $A$ greater than 0 indicate the sampler fits the data better than the competing method.  The log posterior probabilities of Sec. \ref{sec:probs} are used to obtain the log likelihoods via Eq. \ref{eq:logpost} and the sample values themselves are used to calculate the prior probability term according to Eq. \ref{eq:llr-how}.
 
 \begin{eqnarray}
 \label{eq:llr}
-A(\vec{\theta}^{i}) &=& -2\ln[\tilde{p}(\{\vec{d}_{j}\}_{J}|\tilde{\vec{\theta}})]+2\ln[\tilde{p}(\{\vec{d}_{j}\}_{J}|\vec{\theta}^{i})]
+A(\vec{\theta}^{i}) &=& -2\ln[\tilde{p}(\{\vec{d}_{j}\}_{J}|\vec{\theta}_{test})]+2\ln[\tilde{p}(\{\vec{d}_{j}\}_{J}|\vec{\theta}^{i})]
 \end{eqnarray}
 
 \begin{eqnarray}
@@ -472,7 +472,7 @@ The code was tested on several simulated datasets.  The fiducial experiment of S
 In order to simulate data in the realistic case, we select set a true, physically motivated redshift probability distribution $p^{0}(z|\vec{\theta})$, where $p(z|\vec{\theta})$ corresponds to $\exp[\vec{\theta}]$ for $J=1$.  The instance of $p^{0}(z)$ here is given by Eq. \ref{eq:truepz}, where the constant $C_{c}$ indicates the relative amplitude of the Gaussian component centered at $z_{c}$ with variance $\sigma_{c}^{2}$.  %The linear function is evaluated at the centers of the bins $\bar{z}_{k}=(z_{k+1}-z_{k})/2$ and is included to ensure that $\lim_{z\to0}N(z)=0$.  
 The construction of this probability density is illustrated in Fig. \ref{fig:physPz}. 
 
-The number of galaxies in the survey $J$ is taken as a random draw from a Poisson distribution centered at $J'=100$.  Taking $p^{0}(z_{k})$ as the probability that galaxy $j$ has a true redshift within bin $B_{k}$, we draw true redshift bins $\{B_{j}\}_{J}$ for all $J$ galaxies in the survey.  The resulting $J_{k}$ define the true value of the parameters $\vec{\tilde{\theta}}$ according to Eq. \ref{eq:sums}.   Fig. \ref{fig:realtrueNz} shows the true value of $N(z)$ for the fiducial case.
+As in Sec. \ref{sec:theta}, the number of galaxies in the survey $J$ is taken as a random draw from a Poisson distribution centered at $J'=100$.  Taking $p^{0}(z_{k})$ as the probability that galaxy $j$ has a true redshift within bin $B_{k}$, we draw true redshift bins $\{B_{j}\}_{J}$ for all $J$ galaxies in the survey.  The resulting $J_{k}$ define the true value of the parameters $\vec{\tilde{\theta}}$ according to Eq. \ref{eq:sums}.   Fig. \ref{fig:nulltrueNz} shows the true value of $N(z)$ for the fiducial case.
 
 \begin{eqnarray}
 \label{eq:sums}
@@ -481,11 +481,11 @@ The number of galaxies in the survey $J$ is taken as a random draw from a Poisso
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{null/trueNz.png}
-\caption{The true value of $N(z)$ in the case of galaxies drawn from the probability distribution of Fig. \ref{fig:physpz}.}
-\label{fig:realtrueNz}
+\caption{The true value of $N(z)$ in the case of galaxies drawn from the probability distribution of Fig. \ref{fig:physPz}.}
+\label{fig:nulltrueNz}
 \end{figure}
 
-True redshifts $z^{0}_{j}$ are taken as draws from a uniform distribution within bin $B_{j}$.  The mean redshift of the Gaussian defining the individual posterior is plotted against the true redshift in Fig. \ref{fig:realcat}.  We test the realistic case with the same mock data generation procedure as in Sec. \ref{sec:fake}; samples of some zPDFs used are shown in Fig. \ref{fig:realpzs}.
+True redshifts $z^{0}_{j}$ are taken as draws from a uniform distribution within bin $B_{j}$.  The interim prior (discussed in Sec. \ref{sec:d}) used in the fiducial case is a flat $N(z)$ normalized to $J$ galaxies.  The expected and MAP values of redshift of the Gaussian defining the individual posterior, as well as the probability distributions themselves, are plotted against the true redshift in Fig. \ref{fig:realcat}.  The mock data generation procedure of Sec. \ref{sec:fake} is used in this test; samples of some zPDFs used are shown in Fig. \ref{fig:nullpzs}.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{null/truevmap.png}
@@ -496,7 +496,7 @@ True redshifts $z^{0}_{j}$ are taken as draws from a uniform distribution within
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{null/samplepzs.png}
 \caption{Unimodal, noiseless zPDFs are used in this test.}
-\label{fig:realpzs}
+\label{fig:nullpzs}
 \end{figure}
 
 We choose an interim prior equal to a multivariate normal distribution with mean satisfying $\vec{\theta}'$ and covariance $\textul{\Sigma}$ given by Eq. \ref{eq:covmat}.  The mean chosen here is that of a flat distribution for the expected number of galaxies in the survey $J'$.  The constants $q$, $a$, and $e$ are small numbers chosen to permit draws from the distribution in question to reproduce shapes similar to that of the true parameters $\vec{\tilde{\theta}}$.  Samples from this prior are shown in Fig. \ref{fig:realprior}.  The calculation is initialized with $20$ walkers each with a value chosen from a Gaussian distribution around a sample of the prior.  The initial values of the walkers are shown in Fig. \ref{fig:realival}.
@@ -549,7 +549,9 @@ The sampler performs well according to the diagnostics discussed in Sec. \ref{se
 \subsection{Noisy zPDFs}
 \label{sec:noisy}
 
-In this test, we aim to simulate more realistic zPDFs by modifying the procedure of Sec. \ref{sec:d} to introduce imprecision that increases with true redshift.  Here, the zPDFs are still Gaussians but with variances $\delta'_{j}$ that are themselves drawn from a Gaussian of mean $\delta_{j}$ and variance $\delta_{j}^{2}$, transforming Eq. \ref{zshift-how} into Eq. \ref{eq:znoise-how} and Eq. \ref{eq:zspread} into Eq. \ref{eq:znoise}.  
+In this test, we aim to simulate more realistic zPDFs by modifying the procedure of Sec. \ref{sec:d} to introduce imprecision that increases with true redshift.  
+
+The true redshift distribution is identical to that of \ref{sec:null} (Fig. \ref{fig:nulltrueNz}), as is the method for assigning true redshifts to galaxies.  The zPDFs are still Gaussians but with variances $\delta'_{j}$ that are themselves drawn from a Gaussian of mean $\delta_{j}$ and variance $\delta_{j}^{2}$, transforming Eq. \ref{zshift-how} into Eq. \ref{eq:znoise-how} and Eq. \ref{eq:zspread} into Eq. \ref{eq:znoise}.  Fig. \ref{fig:noisycat} shows the MAP and expected values of redshift, as well as the zPDFs, as a function of the true redshifts.  Fig. \ref{fig:samplepzs} shows a few random zPDFs generated by this procedure.
 
 \begin{eqnarray}
 \label{eq:znoise-how}
@@ -561,13 +563,51 @@ In this test, we aim to simulate more realistic zPDFs by modifying the procedure
 p(z_{j}|z'_{j}) &=& \mathcal{N}(z'_{j},\delta'_{j})
 \end{eqnarray}
 
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{sigma/truevmap.png}
+\caption{This plot shows the relationship between the true redshift shared by all galaxies in this survey and the redshift at which the posterior is maximized for each galaxy.}
+\label{fig:noisycat}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{sigma/samplepzs.png}
+\caption{Unimodal, noisy zPDFs are used in this test.  Noise is introduced in the form of variances that are Gaussian random variables rather than fixed values tied to the true redshift.}
+\label{fig:noisypzs}
+\end{figure}
+
+The sampler is initialized as in Sec. \ref{sec:null}.
+
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{sigma/times.png}
+%\caption{The autocorrelation times are low, indicating fast convergence of the sampler over all parameters.}
+%\label{fig:noisyacor}
+%\end{figure}
+%
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{sigma/fracs.png}
+%\caption{The acceptance fractions are reasonable and decrease after the burn-in period.}
+%\label{fig:noisyfrac}
+%\end{figure}
+%
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{sigma/probs.png}
+%\caption{This plot shows the log probabilities of walkers as a function of iteration number for a number of iterations equal to twice the burn-in period.  One can see that the log posterior probabilities are much greater for the samples than for the alternative methods.}
+%\label{fig:noisyprob}
+%\end{figure}
+%
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{sigma/samps.png}
+%\caption{The results of the simulation may be seen here.  The three statistics considered indicate a different ordering of performance of the estimators.}
+%\label{fig:noisyparam}
+%\end{figure}
+
 \clearpage
 \subsection{Multimodal zPDFs}
 \label{sec:multi}
 
-In this test, we aim to simulate more realistic zPDFs by modifying the procedure of Sec. \ref{sec:d} to introduce inaccuracy that causes catastrophic photo-z errors.  Here, the zPDFs are sums of Gaussians of the form of those tested in Sec. \ref{sec:noisy}.  
+In this test, we aim to simulate more realistic zPDFs by modifying the procedure of Sec. \ref{sec:d} to introduce inaccuracy that causes catastrophic photo-z errors.  Catastrophic photo-z errors arise from a degeneracy in the space of galaxy SEDs and redshifts, wherein a galaxy of one type at one redshift has photometry indistinguishable from a galaxy of another type at another redshift.  To simulate this case, multimodal zPDFs will be considered.
 
-Each galaxy is first assigned a number $R_{j}$ of Gaussian elements to be summed, chosen randomly from $1,\dots,K$ where $K$ is the dimensionality of $\vec{\theta}$.  The true redshift of each galaxy $z_{j}^{0}$ is transformed to $R_{j}$ shifted redshifts $z^{r_{j}}_{j}$ for $r_{j}=1,\dots,R_{j}$, transforming Eq. \ref{eq:zshift} into Eq. \ref{eq:zmany-each}.  The standard deviations of the Gaussian components follows Eq. \ref{eq:zmany-how}, analogous to Eq. \ref{eq:znoise-how}.  Thus the zPDFs take the form of Eq. \ref{eq:zmany}.
+The true $N(z)$ is generated the same way as in Sec. \ref{sec:null} (Fig. \ref{fig:nulltrueNz}).  However, the zPDFs are sums of Gaussians of the form of those tested in Sec. \ref{sec:noisy}.  Each galaxy is first assigned a number $R_{j}$ of Gaussian elements to be summed, chosen randomly from $1,\dots,K$ where $K$ is the dimensionality of $\vec{\theta}$.  The true redshift of each galaxy $z_{j}^{0}$ is transformed to $R_{j}$ shifted redshifts $z^{r_{j}}_{j}$ for $r_{j}=1,\dots,R_{j}$, transforming Eq. \ref{eq:zshift} into Eq. \ref{eq:zmany-each}.  The standard deviations of the Gaussian components follows Eq. \ref{eq:zmany-how}, analogous to Eq. \ref{eq:znoise-how}.  Thus the zPDFs take the form of Eq. \ref{eq:zmany}.  Fig. \ref{fig:multicat} shows the MAP and expected values of redshift as well as the zPDFs as a function of the true redshift.  Some examples of the multimodal zPDFs are shown in Fig. \ref{fig:multipzs}.
 
 \begin{eqnarray}
 \label{eq:zmany-each}
@@ -584,23 +624,51 @@ z^{r_{j}}_{j} &\sim& \mathcal{N}(z_{j}^{0},\delta_{j})
 p(z_{j}|\{z^{r_{j}}_{j}\}_{R_{j}}) &=& \sum_{r_{j}=0}^{R_{j}}\ \mathcal{N}(z^{r_{j}}_{j},\delta^{r_{j}}_{j})
 \end{eqnarray}
 
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{multi/truevmap.png}
+\caption{This plot shows the relationship between the true redshift shared by all galaxies in this survey and the redshift at which the posterior is maximized for each galaxy.}
+\label{fig:multicat}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{multi/samplepzs.png}
+\caption{Multimodal, noisy zPDFs are used in this test.  Noise is introduced in the form of variances that are Gaussian random variables rather than fixed values tied to the true redshift.}
+\label{fig:multipzs}
+\end{figure}
+
+The sampler is initialized as in Sec. \ref{sec:null}.
+
 %\begin{figure}
-%%\includegraphics[width=0.5\textwidth]{truevmap-multi.png}
-%\caption{This plot shows the relationship between the true redshift shared by all galaxies in this survey and the redshift at which the posterior is maximized for each galaxy.}
-%\label{fig:multicat}
+%\includegraphics[width=0.5\textwidth]{multi/times.png}
+%\caption{The autocorrelation times are low, indicating fast convergence of the sampler over all parameters.}
+%\label{fig:multiacor}
 %\end{figure}
 %
 %\begin{figure}
-%%\includegraphics[width=0.5\textwidth]{samplepzs-multi.png}
-%\caption{Multimodal noiseless zPDFs are used in this test.}
-%\label{fig:multipzs}
+%\includegraphics[width=0.5\textwidth]{multi/fracs.png}
+%\caption{The acceptance fractions are reasonable and decrease after the burn-in period.}
+%\label{fig:multifrac}
+%\end{figure}
+%
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{multi/probs.png}
+%\caption{This plot shows the log probabilities of walkers as a function of iteration number for a number of iterations equal to twice the burn-in period.  One can see that the log posterior probabilities are much greater for the samples than for the alternative methods.}
+%\label{fig:multiprob}
+%\end{figure}
+%
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{multi/samps.png}
+%\caption{The results of the simulation may be seen here.  The three statistics considered indicate a different ordering of performance of the estimators.}
+%\label{fig:multiparam}
 %\end{figure}
 
 \clearpage
-\subsection{Toy Model}
+\subsection{Toy Model $N(z)$}
 \label{sec:fake}
 
-We test the sampler in a simplified case with a delta function for the underlying $N(z)$ in which all galaxies have the same true redshift, corresponding to an underlying hyperparameter $\vec{\theta}'$ given by Eq. \ref{eq:faketheta}.  Furthermore, for simplicity, we give all galaxies a single true redshift $z_{j}^{0}=\tilde{z}$ equal to the midpoint of bin $B_{\tilde{k}}$.  Ony unimodal, noiseless zPDF shapes are considered in this test, as shown in Fig. \ref{fig:toypzs}.  Fig. \ref{fig:toycat} shows the spread in maximum a posteriori values versus the true redshifts for this case.
+We test the sampler in a case of a highly unrealistic but strongly featured underlying $N(z)$.  This is done to show that the sampler works even in extreme conditions.
+
+Here we choose a delta function for the underlying $N(z)$ in which all galaxies have the same true redshift, corresponding to an underlying hyperparameter $\vec{\theta}'$ given by Eq. \ref{eq:faketheta}.  Furthermore, for simplicity, we give all galaxies a single true redshift $z_{j}^{0}=\tilde{z}$ equal to the midpoint of bin $B_{\tilde{k}}$ where $\tilde{k}$ denotes the bin in which $N(z)$ is nonzero.  Only unimodal, noiseless zPDF shapes are considered in this test, as shown in Fig. \ref{fig:toypzs}.  Fig. \ref{fig:toycat} shows the spread in maximum a posteriori values versus the true redshifts for this case.
 
 \begin{eqnarray}
 \label{eq:faketheta}
@@ -608,36 +676,36 @@ We test the sampler in a simplified case with a delta function for the underlyin
 \end{eqnarray}
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{trueNz-toy.png}
+\includegraphics[width=0.5\textwidth]{toy/trueNz.png}
 \caption{The true value of $N(z)$ in the test case of all galaxies having the same redshift, compared with a flat $N(z)$ distribution.}
 \label{fig:deltatrueNz}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{samplepzs-toy.png}
+\includegraphics[width=0.5\textwidth]{toy/samplepzs.png}
 \caption{Unimodal, noiseless zPDFs are used in this test.}
 \label{fig:toypzs}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{truevmap-toy.png}
+\includegraphics[width=0.5\textwidth]{toy/truevmap.png}
 \caption{This plot shows the relationship between the true redshift shared by all galaxies in this survey and the mean redshift of the bin in which the posterior is maximized for each galaxy for each set of mock data tested.}
 \label{fig:toycat}
 \end{figure}
 
-We choose a prior distribution of a multivariate normal centered at a flat $\vec{\theta}^{0}$ with the identity as the covariance matrix $\textul{\Sigma}$.  The diagnostics discussed in Sec. \ref{sec:diag} are shown in Figs. \ref{fig:dumbestacor}, \ref{fig:dumbestfrac}, \ref{fig:dumbestprob}, and \ref{fig:dumbestparam}.  Examples of draws from this prior are shown in Fig. \ref{fig:fakeprior}.  We initialize $2*K'$ walkers with samples from a Gaussian ball around a single sample from the prior distribution.  The initial values of walkers is shown in Fig. \ref{fig:fakeival}.
+We initialize the sampler as in Sec. \ref{sec:null} with the same prior.
 
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{priorsamps-toy.png}
-\caption{Examples of draws from the prior of the toy model.}
-\label{fig:fakeprior}
-\end{figure}
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{initializations-toy.png}
-\caption{The initial values of the walkers are samples from a Gaussian ball around a sample from the prior.}
-\label{fig:fakeival}
-\end{figure}
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{toy/priorsamps.png}
+%\caption{Examples of draws from the prior of the toy model.}
+%\label{fig:fakeprior}
+%\end{figure}
+%
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{toy/initializations.png}
+%\caption{The initial values of the walkers are samples from a Gaussian ball around a sample from the prior.}
+%\label{fig:fakeival}
+%\end{figure}
 
 The diagnostics of Sec. \ref{sec:diag} are evaluated and plotted as Figs. \ref{fig:dumbestacor}, \ref{fig:dumbestfrac}, \ref{fig:dumbestprob}, and \ref{fig:dumbestparam} for this test and indicate good convergence and trustworthy samples that outperform the stacked estimator.
 
@@ -673,8 +741,12 @@ The diagnostics of Sec. \ref{sec:diag} are evaluated and plotted as Figs. \ref{f
 %\end{eqnarray}
 
 \clearpage
-\subsection{Inappropriate Priors}
-\label{sec:badprior}
+\subsection{Inappropriate Interim Prior}
+\label{sec:interim}
+
+In this case, we vary the interim prior used in the calculation of individual posteriors to show that an inappropriate choice makes a difference in the results.  Typically, zPDFs are made with an interim prior derived from $N(z)$ in a previous observational study.  Since most observational studies used for this purpose are spectroscopically confirmed and objects for which photo-zs are relied upon make up a population that cannot be spectroscopically confirmed, such an interim prior is rarely appropriate.  Some efforts have been made to modify an observationally informed interim prior so that it is more representative of the data set.  \citep{she11}  However, any interim prior of this kind imparts information into the zPDFs and thus the zPDFs.  Ideally, an uninformative interim prior would be used, although it may be complicated to compute from the covariances of the raw data.  In this test, we consider an obviously inappropriate interim prior and compare it to the flat interim prior used in previous tests.
+
+The true $N(z)$ and zPDFs are generated as in Sec. \ref{sec:null} (Fig. \ref{fig:nulltrueNz}), however, the nontrivial interim prior affects the zPDFs and initialization.  
 
 \clearpage
 \section{Discussion}
