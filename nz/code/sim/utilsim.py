@@ -4,8 +4,10 @@ util-sim module defines handy tools used in data generation
 
 import sys
 import numpy as np
-import random
+#import random
 import bisect
+
+np.random.seed(seed=0)
 
 def lrange(l):
     """
@@ -32,6 +34,6 @@ def choice(pop, weights):
     """
     assert len(pop) == len(weights)
     cdf_vals = cdf(weights)
-    x = random.random()
+    x = np.random.random()
     index = bisect.bisect(cdf_vals,x)
     return pop[index]

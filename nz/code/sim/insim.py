@@ -105,7 +105,7 @@ class setup(object):
         else:
             self.uniform = bool(1)
 
-        # 0 for flat interim prior, 1 for bad interim prior
+        # 0 for underlying interim prior, 1 for bad interim prior
         if 'interim' in indict:
             self.interim = bool(int(indict['interim'][0]))
         else:

@@ -118,7 +118,6 @@ class pertest(object):
         if self.meta.sigma == True or self.meta.shape == True:
             np.random.seed(seed=0)
             sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=varZs[j],scale=varZs[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-            print(zip(shiftZs,sigZs))
         else:
             sigZs = np.array([[varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
@@ -144,11 +143,13 @@ class pertest(object):
 
         #nontrivial interim prior
         if self.meta.interim == True:
-            interim = np.array([sys.float_info.epsilon]*len(self.binfront)+list(self.meta.realistic)+[sys.float_info.epsilon]*len(self.binback))#np.array([z**2*np.exp(-(z/0.5)**1.5) for z in self.binmids])/self.bindifs
-            suminterim = np.sum(interim)
-            self.interim = float(self.ngals)*interim/suminterim/self.bindifs
+            interim = sp.stats.poisson.pmf(xrange(self.nbins),2.0)
         else:
-            self.interim = float(self.ngals)/self.bindifs/self.nbins
+            #self.interim = float(self.ngals)/self.bindifs/self.nbins
+            interim = self.realistic_pdf
+        interim = np.array([sys.float_info.epsilon]*len(self.binfront)+list(interim)+[sys.float_info.epsilon]*len(self.binback))#np.array([z**2*np.exp(-(z/0.5)**1.5) for z in self.binmids])/self.bindifs
+        suminterim = np.sum(interim)
+        self.interim = float(self.ngals)*interim/suminterim/self.bindifs
         self.loginterim = np.log(self.interim)
 
     def makecat(self):

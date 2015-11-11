@@ -6,6 +6,7 @@ import statistics
 import numpy as np
 import cPickle as cpkl
 import os
+import scipy as sp
 
 # unite stats for each output
 class calcstats(object):
@@ -24,6 +25,10 @@ class stat_both(calcstats):
         self.ll_stack = self.lnlike(self.meta.logstack)
         self.ll_mapNz = self.lnlike(self.meta.logmapNz)
         self.ll_expNz = self.lnlike(self.meta.logexpNz)
+
+        print(str(self.meta.key)+' ll_stack='+str(self.ll_stack))
+        print(str(self.meta.key)+' ll_mapNz='+str(self.ll_mapNz))
+        print(str(self.meta.key)+' ll_expNz='+str(self.ll_expNz))
 
         self.llr_stack = []
         self.llr_mapNz = []
@@ -48,11 +53,6 @@ class stat_both(calcstats):
                 self.llr_stack.append(2.*ll_samp-2.*self.ll_stack)
                 self.llr_mapNz.append(2.*ll_samp-2.*self.ll_mapNz)
                 self.llr_expNz.append(2.*ll_samp-2.*self.ll_expNz)
-
-#         outdict = {'llr_stack': np.array(self.llr_stack),
-#                   'llr_mapNz': np.array(self.llr_mapNz),
-#                   'llr_expNz': np.array(self.llr_expNz)
-#                    }
 
         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as indict:
             outdict = cpkl.load(indict)
@@ -134,10 +134,12 @@ class stat_chains(calcstats):
 
     def compute(self, ydata):#ntimes*nwalkers*nbins
 
+        flatdata = np.array([ydata.T[b].flatten() for b in xrange(self.meta.nbins)])
         eydata = np.exp(ydata)
+        eflatdata = np.array([eydata.T[b].flatten() for b in xrange(self.meta.nbins)])
 
-        vy = np.average([[statistics.variance(walk) for walk in ydata.T[b]] for b in xrange(self.meta.nbins)])
-        vey = np.average([[statistics.variance(walk) for walk in eydata.T[b]] for b in xrange(self.meta.nbins)])
+        vy = abs(np.linalg.det(np.cov(flatdata)))#np.average([[statistics.variance(walk) for walk in ydata.T[b]] for b in xrange(self.meta.nbins)])
+        vey = abs(np.linalg.det(np.cov(eflatdata)))#np.average([[statistics.variance(walk) for walk in eydata.T[b]] for b in xrange(self.meta.nbins)])
         y = np.swapaxes(ydata.T,0,1).T#nwalkers*nbins*ntimes
         ey = np.swapaxes(eydata.T,0,1).T#np.exp(y)
 
@@ -163,8 +165,8 @@ class stat_chains(calcstats):
         print('var_ls='+str(self.var_ls))
         print('var_s='+str(self.var_s))
 
-        chi_ls = np.sum(sy**2)/float(self.meta.nwalkers*self.meta.ntimes*self.meta.nbins*vy)
-        chi_s = np.sum(sey**2)/float(self.meta.nwalkers*self.meta.ntimes*self.meta.nbins*vey)
+        chi_ls = np.average(sp.stats.chisquare(flatdata.T)[0])#np.sum(sy**2)/vy#float(self.meta.nwalkers*self.meta.ntimes*self.meta.nbins*vy)
+        chi_s = np.average(sp.stats.chisquare(eflatdata.T)[0])#np.sum(sey**2)/vey#float(self.meta.nwalkers*self.meta.ntimes*self.meta.nbins*vey)
         self.chi_ls.append(chi_ls)
         self.chi_s.append(chi_s)
         #self.tot_chi_ls = self.tot_chi_ls+chi_ls

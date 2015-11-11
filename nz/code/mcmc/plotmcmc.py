@@ -16,6 +16,8 @@ import math as m
 import statistics
 import psutil
 import cPickle as cpkl
+import sklearn
+from sklearn import neighbors
 from utilmcmc import *
 from keymcmc import key
 
@@ -176,7 +178,8 @@ class plotter_probs(plotter):
         plot_y = np.swapaxes(data,0,1).T
         self.miny = np.min(np.array([np.min(plot_y),self.miny]))
 
-        for w in xrange(self.meta.nwalkers):
+        randwalks = random.sample(xrange(self.meta.nwalkers),1)#xrange(self.meta.nwalkers)
+        for w in randwalks:
             self.sps.plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,
                           plot_y[w],
                           c=self.meta.colors[w%self.ncolors],
@@ -506,15 +509,34 @@ def plot_llr(meta):
     with open(os.path.join(meta.topdir,'stat_both.p'),'rb') as statboth:
         both = cpkl.load(statboth)
 
+    alldata = np.concatenate((both['llr_stack'],both['llr_mapNz'],both['llr_expNz']))
+    min_llr = min(alldata)
+    max_llr = max(alldata)
+    datarange = np.linspace(min_llr,max_llr,meta.nwalkers)[:, np.newaxis]
+
+    kde_stack = sklearn.neighbors.KernelDensity(kernel='gaussian',bandwidth=1).fit(both['llr_stack'][:, np.newaxis])
+    print('constructed kde_stack')
+    plot_stack = kde_stack.score_samples(datarange)
+    print('scored kde_stack')
+    kde_mapNz = sklearn.neighbors.KernelDensity(kernel='gaussian',bandwidth=1).fit(both['llr_mapNz'][:, np.newaxis])
+    plot_mapNz = kde_mapNz.score_samples(datarange)
+    kde_expNz = sklearn.neighbors.KernelDensity(kernel='gaussian',bandwidth=1).fit(both['llr_expNz'][:, np.newaxis])
+    plot_expNz = kde_expNz.score_samples(datarange)
+
     f = plt.figure(figsize=(5,5))
     sps = f.add_subplot(1,1,1)
     sps.set_title('Samples vs. Point Estimate Competitors')
-    sps.hist(both['llr_stack'],bins=meta.nwalkers,alpha=1./3.,histtype='bar',log=True,
-             label=r'Stacked $A$, $\max(A)='+str(np.max(both['llr_stack']))+r'$')
-    sps.hist(both['llr_mapNz'],bins=meta.nwalkers,alpha=1./3.,histtype='bar',log=True,
-             label=r'MAP $N(z)$ $A$, $\max(A)='+str(np.max(both['llr_mapNz']))+r'$')
-    sps.hist(both['llr_expNz'],bins=meta.nwalkers,alpha=1./3.,histtype='bar',log=True,
-             label=r'N(E[z]) $A$, $\max(A)='+str(np.max(both['llr_expNz']))+r'$')
+#     sps.hist(both['llr_stack'],bins=meta.nwalkers,alpha=1./3.,histtype='bar',log=True,
+#              label=r'Stacked $A$, $\max(A)='+str(np.max(both['llr_stack']))+r'$')
+#     sps.hist(both['llr_mapNz'],bins=meta.nwalkers,alpha=1./3.,histtype='bar',log=True,
+#              label=r'MAP $N(z)$ $A$, $\max(A)='+str(np.max(both['llr_mapNz']))+r'$')
+#     sps.hist(both['llr_expNz'],bins=meta.nwalkers,alpha=1./3.,histtype='bar',log=True,
+#              label=r'N(E[z]) $A$, $\max(A)='+str(np.max(both['llr_expNz']))+r'$')
+    sps.plot(datarange[:,0],np.exp(plot_stack),label=r'Stacked $A$, $\max(A)='+str(np.max(both['llr_stack']))+r'$')
+    print('plotted kde_stack')
+    sps.plot(datarange[:,0],np.exp(plot_mapNz),label=r'MAP $A$, $\max(A)='+str(np.max(both['llr_mapNz']))+r'$')
+    sps.plot(datarange[:,0],np.exp(plot_expNz),label=r'$N(E[z])$ $A$, $\max(A)='+str(np.max(both['llr_expNz']))+r'$')
+
     sps.legend(fontsize='xx-small', loc='upper left')
     f.savefig(os.path.join(meta.topdir,'llr.png'),dpi=100)
 
