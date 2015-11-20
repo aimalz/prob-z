@@ -19,9 +19,9 @@ def burntest(outputs,run):#output,r_run):# of dimensions nwalkers*miniters
     varprob = sum([statistics.variance(w) for w in lnprobs])/run.meta.nwalkers
     difprob = statistics.median([(lnprobs[w][0]-lnprobs[w][-1])**2 for w in xrange(run.meta.nwalkers)])
     if difprob > varprob:
-        print('burning-in '+str(difprob)+' > '+str(varprob))
+        print(run.meta.name+' burning-in '+str(difprob)+' > '+str(varprob))
     else:
-        print('post-burn '+str(difprob)+' < '+str(varprob))
+        print(run.meta.name+' post-burn '+str(difprob)+' < '+str(varprob))
     return(difprob > varprob)
 
 # define class per initialization of MCMC
@@ -105,7 +105,7 @@ class pertest(object):
 
     # once burn-in complete, know total number of runs remaining
     def atburn(self, b, outputs):
-        print(str(b*self.meta.miniters)+' iterations of burn-in for '+str(self.meta.topdir))
+        print(str(b*self.meta.miniters)+' iterations of burn-in for '+self.meta.name)
         self.nsteps = self.meta.factor*b+1
         self.maxiters = self.nsteps*self.meta.miniters
         self.alliternos = range(0,self.maxiters)
@@ -125,7 +125,7 @@ class pertest(object):
         #   self = self.state()
         # else:
         outputs = self.preburn(self.burns)
-        print('zeroth run done')
+        print('zeroth run done for '+self.meta.name)
 
         while burntest(outputs,self):
             yield self

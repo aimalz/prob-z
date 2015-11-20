@@ -16,43 +16,54 @@ class calcstats(object):
         stats = self.compute(ydata)
         self.meta.key.add_stats(self.meta.topdir, self.name, stats)
 
+# statistics involving both log posterior probabilities and parameter values
 class stat_both(calcstats):
     def __init__(self,meta):
         calcstats.__init__(self,meta)
 
         self.name = 'both'
 
-        self.ll_stack = self.lnlike(self.meta.logstack)
-        self.ll_mapNz = self.lnlike(self.meta.logmapNz)
-        self.ll_expNz = self.lnlike(self.meta.logexpNz)
+        self.ll_stack = self.meta.postdist.lnlike(self.meta.logstack)
+        self.ll_mapNz = self.meta.postdist.lnlike(self.meta.logmapNz)
+        self.ll_expNz = self.meta.postdist.lnlike(self.meta.logexpNz)
 
         print(str(self.meta.key)+' ll_stack='+str(self.ll_stack))
         print(str(self.meta.key)+' ll_mapNz='+str(self.ll_mapNz))
         print(str(self.meta.key)+' ll_expNz='+str(self.ll_expNz))
 
-        self.llr_stack = []
-        self.llr_mapNz = []
-        self.llr_expNz = []
+        self.llr_stack,self.llr_mapNz,self.llr_expNz = [],[],[]
+
+        self.kl_stackvsamp,self.kl_mapNzvsamp,self.kl_expNzvsamp,self.kl_truevsamp = 0.,0.,0.,0.
+        self.kl_sampvstack,self.kl_sampvmapNz,self.kl_sampvexpNz,self.kl_sampvtrue = 0.,0.,0.,0.
 
         outdict = {'llr_stack': np.array(self.llr_stack),
                   'llr_mapNz': np.array(self.llr_mapNz),
-                  'llr_expNz': np.array(self.llr_expNz)
+                  'llr_expNz': np.array(self.llr_expNz),
+                  'kl_stackvsamp': np.array(self.kl_stackvsamp),
+                  'kl_mapNzvsamp': np.array(self.kl_mapNzvsamp),
+                  'kl_expNzvsamp': np.array(self.kl_expNzvsamp),
+                  'kl_truevsamp': np.array(self.kl_expNzvsamp),
+                  'kl_sampvstack': np.array(self.kl_sampvstack),
+                  'kl_sampvmapNz': np.array(self.kl_sampvmapNz),
+                  'kl_sampvexpNz': np.array(self.kl_sampvexpNz),
+                  'kl_sampvtrue': np.array(self.kl_sampvtrue)
                    }
         with open(os.path.join(self.meta.topdir,'stat_both.p'),'wb') as statboth:
             cpkl.dump(outdict,statboth)
 
-    def lnlike(self, theta):
-        return self.meta.postdist.lnprob(theta)-self.meta.postdist.priorprob(theta)
-
     def compute(self,ydata):
-        probs = ydata['probs']
-        chains = ydata['chains']
-        for w in xrange(self.meta.nwalkers):
-            for x in xrange(self.meta.ntimes):
-                ll_samp = probs[w][x]-self.meta.postdist.priorprob(chains[w][x])
-                self.llr_stack.append(2.*ll_samp-2.*self.ll_stack)
-                self.llr_mapNz.append(2.*ll_samp-2.*self.ll_mapNz)
-                self.llr_expNz.append(2.*ll_samp-2.*self.ll_expNz)
+
+        self.probs = ydata['probs']
+        self.chains = ydata['chains']
+
+        self.llr_stack = self.calclr(self.llr_stack,self.ll_stack)
+        self.llr_mapNz = self.calclr(self.llr_mapNz,self.ll_mapNz)
+        self.llr_expNz = self.calclr(self.llr_expNz,self.ll_expNz)
+
+        self.kl_stackvsamp,self.kl_sampvstack = self.calckl(self.kl_stackvsamp,self.kl_sampvstack,self.meta.logstackdist)
+        self.kl_mapNzvsamp,self.kl_sampvmapNz = self.calckl(self.kl_mapNzvsamp,self.kl_sampvmapNz,self.meta.logmapNzdist)
+        self.kl_expNzvsamp,self.kl_sampvexpNz = self.calckl(self.kl_expNzvsamp,self.kl_sampvexpNz,self.meta.logexpNzdist)
+        self.kl_truevsamp,self.kl_sampvtrue = self.calckl(self.kl_truevsamp,self.kl_sampvtrue,self.meta.priordist)
 
         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as indict:
             outdict = cpkl.load(indict)
@@ -60,10 +71,44 @@ class stat_both(calcstats):
         outdict['llr_stack'] = np.array(self.llr_stack)
         outdict['llr_mapNz'] = np.array(self.llr_mapNz)
         outdict['llr_expNz'] = np.array(self.llr_expNz)
+        outdict['kl_stackvsamp'] = np.array(self.kl_stackvsamp)
+        outdict['kl_mapNzvsamp'] = np.array(self.kl_mapNzvsamp)
+        outdict['kl_expNzvsamp'] = np.array(self.kl_expNzvsamp)
+        outdict['kl_truevsamp'] = np.array(self.kl_truevsamp)
+        outdict['kl_sampvstack'] = np.array(self.kl_sampvstack)
+        outdict['kl_sampvmapNz'] = np.array(self.kl_sampvmapNz)
+        outdict['kl_sampvexpNz'] = np.array(self.kl_sampvexpNz)
+        outdict['kl_sampvtrue'] = np.array(self.kl_sampvtrue)
 
         with open(os.path.join(self.meta.topdir,'stat_both.p'),'wb') as statboth:
             cpkl.dump(outdict,statboth)
+        return
 
+    # likelihood ratio test
+    def calclr(self,var,ll):
+
+        for w in xrange(self.meta.nwalkers):
+            for x in xrange(self.meta.ntimes):
+                ll_samp = self.probs[w][x]-self.meta.postdist.priorprob(self.chains[w][x])
+                var.append(2.*(ll_samp-ll))
+#                 self.llr_stack.append(2.*ll_samp-2.*self.ll_stack)
+#                 self.llr_mapNz.append(2.*ll_samp-2.*self.ll_mapNz)
+#                 self.llr_expNz.append(2.*ll_samp-2.*self.ll_expNz)
+        return(var)
+
+    # KL Divergence test
+    def calckl(self,varq,varp,q):
+
+        for w in xrange(self.meta.nwalkers):
+            for x in xrange(self.meta.ntimes):
+                qval = q.logpdf(self.chains[w][x])
+                eqval = np.exp(qval)
+                varq += eqval*(qval-self.probs[w][x])
+                epval = np.exp(self.probs[w][x])
+                varp += epval*(self.probs[w][x]-qval)
+        return(varq,varp)
+
+# statistics involving parameter values
 class stat_chains(calcstats):
     def __init__(self, meta):
         calcstats.__init__(self, meta)
@@ -134,14 +179,10 @@ class stat_chains(calcstats):
 
     def compute(self, ydata):#ntimes*nwalkers*nbins
 
-        flatdata = np.array([ydata.T[b].flatten() for b in xrange(self.meta.nbins)])
-        eydata = np.exp(ydata)
-        eflatdata = np.array([eydata.T[b].flatten() for b in xrange(self.meta.nbins)])
-
-        vy = abs(np.linalg.det(np.cov(flatdata)))#np.average([[statistics.variance(walk) for walk in ydata.T[b]] for b in xrange(self.meta.nbins)])
-        vey = abs(np.linalg.det(np.cov(eflatdata)))#np.average([[statistics.variance(walk) for walk in eydata.T[b]] for b in xrange(self.meta.nbins)])
-        y = np.swapaxes(ydata.T,0,1).T#nwalkers*nbins*ntimes
-        ey = np.swapaxes(eydata.T,0,1).T#np.exp(y)
+        self.ydata = ydata
+        self.eydata = np.exp(self.ydata)
+        y = np.swapaxes(self.ydata.T,0,1).T#nwalkers*nbins*ntimes
+        ey = np.swapaxes(self.eydata.T,0,1).T#np.exp(y)
 
         if self.meta.logtrueNz is None:
             my = np.array([[[sum(by)/len(by)]*self.meta.ntimes for by in wy] for wy in y])#nwalkers*nbins*ntimes
@@ -153,26 +194,13 @@ class stat_chains(calcstats):
         else:
             mey = np.array([[[k]*self.meta.ntimes for k in self.meta.trueNz]]*self.meta.nwalkers)#nwalkers*nbins*ntimes
 
-        sy = np.swapaxes((y-my),1,2)#nwalkers*ntimes*nbins to #nwalkers*nbins*ntimes
-        sey = np.swapaxes((ey-mey),1,2)
+        self.sy = np.swapaxes((y-my),1,2)#nwalkers*ntimes*nbins to #nwalkers*nbins*ntimes
+        self.sey = np.swapaxes((ey-mey),1,2)
 
-        var_ls = np.average([[np.dot(sy[w][i],sy[w][i]) for i in xrange(self.meta.ntimes)] for w in xrange(self.meta.nwalkers)])#/float(self.meta.nwalkers*self.meta.ntimes*self.meta.nbins)
-        var_s = np.average([[np.dot(sey[w][i],sey[w][i]) for i in xrange(self.meta.ntimes)] for w in xrange(self.meta.nwalkers)])#/float(self.meta.nwalkers*self.meta.ntimes*self.meta.nbins)
-        self.var_ls.append(var_ls)
-        self.var_s.append(var_s)
-        #self.tot_var_ls = self.tot_var_ls+var_ls
-        #self.tot_var_s = self.tot_var_s+var_s
-        print('var_ls='+str(self.var_ls))
-        print('var_s='+str(self.var_s))
-
-        chi_ls = np.average(sp.stats.chisquare(flatdata.T)[0])#np.sum(sy**2)/vy#float(self.meta.nwalkers*self.meta.ntimes*self.meta.nbins*vy)
-        chi_s = np.average(sp.stats.chisquare(eflatdata.T)[0])#np.sum(sey**2)/vey#float(self.meta.nwalkers*self.meta.ntimes*self.meta.nbins*vey)
-        self.chi_ls.append(chi_ls)
-        self.chi_s.append(chi_s)
-        #self.tot_chi_ls = self.tot_chi_ls+chi_ls
-        #self.tot_chi_s = self.tot_chi_s+chi_s
-        print('chi_ls='+str(self.chi_ls))
-        print('chi_s='+str(self.chi_s))
+        self.var_ls = self.calcvar(self.var_ls,self.sy)
+        self.var_s = self.calcvar(self.var_s,self.sey)
+        self.chi_ls = self.calcchi(self.chi_ls,self.sy,self.ydata)
+        self.chi_s = self.calcchi(self.chi_s,self.sey,self.eydata)
 
         with open(os.path.join(self.meta.topdir,'stat_chains.p'),'rb') as indict:
             outdict = cpkl.load(indict)
@@ -201,6 +229,44 @@ class stat_chains(calcstats):
 #                'var_ls': self.var_ls,
 #                'var_s': self.var_s
 #               }
+
+    # variance of samples
+    def calcvar(self,var,s):
+
+        ans = np.average([[np.dot(s[w][i],s[w][i]) for i in xrange(len(s[w]))] for w in xrange(len(s))])
+        var.append(ans)
+#         var_ls = np.average([[np.dot(self.sy[w][i],self.sy[w][i]) for i in xrange(self.meta.ntimes)] for w in xrange(self.meta.nwalkers)])#/float(self.meta.nwalkers*self.meta.ntimes*self.meta.nbins)
+#         var_s = np.average([[np.dot(self.sey[w][i],self.sey[w][i]) for i in xrange(self.meta.ntimes)] for w in xrange(self.meta.nwalkers)])#/float(self.meta.nwalkers*self.meta.ntimes*self.meta.nbins)
+#         self.var_ls.append(var_ls)
+#         self.var_s.append(var_s)
+        #self.tot_var_ls = self.tot_var_ls+var_ls
+        #self.tot_var_s = self.tot_var_s+var_s
+        #print(self.meta.name+' var_ls='+str(self.var_ls))
+        #print(self.meta.name+' var_s='+str(self.var_s))
+        return(var)
+
+    # chi^2 (or Wald test) of samples
+    def calcchi(self,var,s,data):
+
+        v = np.sum([np.average([statistics.variance(walk) for walk in data.T[b]]) for b in xrange(len(data.T))])#abs(np.linalg.det(np.cov(flatdata)))
+        ans = np.average(s**2)/v
+        var.append(ans)
+
+#         flatdata = np.array([self.ydata.T[b].flatten() for b in xrange(self.meta.nbins)])
+#         eflatdata = np.exp(flatdata)
+
+#         vy = np.sum([np.average([statistics.variance(walk) for walk in self.ydata.T[b]]) for b in xrange(self.meta.nbins)])#abs(np.linalg.det(np.cov(flatdata)))
+#         vey = np.sum([np.average([statistics.variance(walk) for walk in self.eydata.T[b]]) for b in xrange(self.meta.nbins)])#abs(np.linalg.det(np.cov(eflatdata)))
+
+#         chi_ls = np.average(self.sy**2)/vy#np.average(sp.stats.chisquare(flatdata.T)[0])#float(self.meta.nwalkers*self.meta.ntimes*self.meta.nbins*vy)
+#         chi_s = np.average(self.sey**2)/vey#np.average(sp.stats.chisquare(eflatdata.T)[0])#float(self.meta.nwalkers*self.meta.ntimes*self.meta.nbins*vey)
+#         self.chi_ls.append(chi_ls)
+#         self.chi_s.append(chi_s)
+#         #self.tot_chi_ls = self.tot_chi_ls+chi_ls
+#         #self.tot_chi_s = self.tot_chi_s+chi_s
+#         print(self.meta.name+' chi_ls='+str(self.chi_ls))
+#         print(self.meta.name+' chi_s='+str(self.chi_s))
+        return(var)
 
 class stat_probs(calcstats):
     def __init__(self, meta):

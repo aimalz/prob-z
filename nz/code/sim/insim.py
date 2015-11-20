@@ -27,6 +27,12 @@ class setup(object):
             lines = (line.split(None) for line in infile)
             indict   = {defn[0]:defn[1:] for defn in lines}
 
+        # name of test for plots
+        if 'name' in indict:
+            self.name = indict['name'][0]
+        else:
+            self.name = 'Test'
+
         # take in specification of bins if provided, otherwise make some
 
         if 'allzs' in indict:
@@ -59,11 +65,11 @@ class setup(object):
             nelem = len(indict['phys'])
             self.real = np.array([float(indict['phys'][i]) for i in range(1,nelem)])
         else:
-            self.real = np.array([[zmin+0.2*zrange, 0.001, 0.75],#2.0],
-                         [zmin+0.4*zrange, 0.001, 1.25],
+            self.real = np.array([[zmin+0.2*zrange, 0.01, 2.5],#2.0],
+                         [zmin+0.4*zrange, 0.01, 1.25],
                          [zmin+0.5*zrange, 0.1, 5.0],
-                         [zmin+0.6*zrange, 0.001, 1.25],
-                         [zmin+0.8*zrange, 0.001, 2.0]#1.25],
+                         [zmin+0.6*zrange, 0.01, 1.25],
+                         [zmin+0.8*zrange, 0.001, 1.25]#1.25],
                          #[zmin+1.0*zrange, 0.001, 0.75]
                           ])
             #self.real = np.array([[(zmax-zmin)/2.,0.1,1.0]])
@@ -174,5 +180,5 @@ class setup(object):
         readme.write(repr(outdict))
         readme.close()
 
-        print('ingested inputs '+self.inadd)
+        print(self.name+' ingested inputs')
 # want to make data accessible later. . .

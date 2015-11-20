@@ -1,3 +1,9 @@
+# import cProfile
+# import pstats
+# import StringIO
+# pr = cProfile.Profile()
+# pr.enable()
+
 import cPickle as cpkl
 import os
 import distribute
@@ -6,6 +12,10 @@ import traceback
 import psutil
 import timeit
 import sys
+import cProfile
+import pstats
+import StringIO
+
 from inmcmc import setup
 from permcmc import pertest
 import plotmcmc as plots
@@ -54,7 +64,7 @@ def main():
     global init_runs
     init_runs = runs
 
-    nps = mp.cpu_count()#-1
+    nps = mp.cpu_count()-1
     # fork off all of the plotter threads,
     for run_name in runs.keys():
         print ('starting run of ' + str(run_name))
@@ -71,7 +81,10 @@ def main():
     # may add back plot-only functionality later
     #keys = runs.keys() #[run.key.add(t=name) for name in lrange(names)]
     print ('generating {} keys'.format(len(runs.keys())))
+    start_time = timeit.default_timer()
     pool.map(fsamp, runs.keys())
+    elapsed = timeit.default_timer() - start_time
+    print(elapsed)
 
     for run in runs.keys():
         runs[run].dist.finish()
@@ -81,3 +94,10 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# pr.disable()
+# s = StringIO.StringIO()
+# sortby = 'cumulative'
+# ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+# ps.print_stats()
+# print s.getvalue()

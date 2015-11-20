@@ -62,11 +62,17 @@ class post(object):
         self.postprobs = yprobs
         self.constterm = self.lndifs-self.interim#self.priormean
 
-    # this is proportional to log probability
+    # this is proportional to log prior probability
     def priorprob(self,theta):
         return self.prior.logpdf(theta)
 
-    # calculate log probability
+    def lnlike(self,theta):
+        return self.lnprob(theta)-self.priorprob(theta)
+
+    def mlnlike(self,theta):
+        return -1.*self.lnlike(theta)
+
+    # calculate log posterior probability
     # speed this up some more with matrix magic?
     def lnprob(self,theta):
         constterms = theta+self.constterm

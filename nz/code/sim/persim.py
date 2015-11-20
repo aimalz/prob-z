@@ -56,7 +56,7 @@ class pertest(object):
         self.fillsummary()
         self.savedat()
 
-        print('simulated data '+self.meta.inadd)
+        print(self.meta.name+' simulated data')
 
     def choosen(self):
 
@@ -146,8 +146,8 @@ class pertest(object):
             interim = sp.stats.poisson.pmf(xrange(self.nbins),2.0)
         else:
             #self.interim = float(self.ngals)/self.bindifs/self.nbins
-            interim = self.realistic_pdf
-        interim = np.array([sys.float_info.epsilon]*len(self.binfront)+list(interim)+[sys.float_info.epsilon]*len(self.binback))#np.array([z**2*np.exp(-(z/0.5)**1.5) for z in self.binmids])/self.bindifs
+            interim = self.logflatNz#self.realistic_pdf
+            interim = np.array([sys.float_info.epsilon]*len(self.binfront)+list(interim)+[sys.float_info.epsilon]*len(self.binback))#np.array([z**2*np.exp(-(z/0.5)**1.5) for z in self.binmids])/self.bindifs
         suminterim = np.sum(interim)
         self.interim = float(self.ngals)*interim/suminterim/self.bindifs
         self.loginterim = np.log(self.interim)
