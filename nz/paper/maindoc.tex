@@ -444,17 +444,15 @@ Inspection of the parameter evolution can also be a good test of the appropriate
 \subsubsection{Parameter Values}
 \label{sec:samps}
 
-Sampled values of the vector of parameters are also visually inspected for goodness of fit.  When using simulated data where a true value is known, the sampler is performing well if samples are near the true value.  
-
-The distribution of the parameter values can also reveal how well the samples fit the data.  If there is a strongly peaked distribution of values for a parameter, it ought to peak close to the true value if we are to conclude that the sampler is successful; if the distribution is broad, it may reflect inherent uncertainty in inferring the parameters.
+Sampled values of the vector of parameters are also visually inspected for goodness of fit to the truth.  When using simulated data where a true value is known, the sampler is performing well if samples are near the true value.  The distribution of the parameter values can also reveal how well the samples fit the data.  If there is a strongly peaked distribution of values for a parameter, it ought to peak close to the true value if we are to conclude that the sampler is successful; if the distribution is broad, it may reflect inherent uncertainty in inferring the parameters.  We shall consider the kernel density estimate (KDE) of each element of the parameter vector.
 
 \clearpage
 \subsubsection{Summary Statistics}
 \label{sec:stats}
 
-Beyond visual inspection of samples, we calculate summary statistics to quantitatively compare different estimators' appropriateness for the data.  Three goodness of fit measures of parameter samples $\vec{\theta}^{i}$  have been considered here.  
+Beyond visual inspection of samples, we calculate summary statistics to quantitatively compare different estimators' ability to recover the truth.  Three measures of accuracy of parameter samples $\vec{\theta}^{i}$  have been considered here.  
 
-The likelihood ratio comparing the sampler to competing methods may be calculated for a sample $\vec{\theta}^{i}$ as in Eq. \ref{eq:llr}.  Values of $A$ greater than 0 indicate the sampler fits the data better than the competing method.  The log posterior probabilities of Sec. \ref{sec:probs} are used to obtain the log likelihoods via Eq. \ref{eq:logpost} and the sample values themselves are used to calculate the prior probability term according to Eq. \ref{eq:llr-how}.
+The likelihood ratio comparing the sampler to competing methods may be calculated for a sample $\vec{\theta}^{i}$ as in Eq. \ref{eq:llr}.  Values of $A$ greater than 0 indicate the sampler fits the data better than the competing method.  The log posterior probabilities of Sec. \ref{sec:probs} are used to obtain the log likelihoods via Eq. \ref{eq:logpost} and the sample values themselves are used to calculate the prior probability term according to Eq. \ref{eq:llr-how}; the difference between the log posteriors and the log prior probability is the log likelihood, and the difference between log likelihoods is the log likelihood ratio.  Because the sampler produces many samples of parameter values, the log likelihood ratio for the sampler versus each alternative is a distribution of values.
 
 \begin{eqnarray}
 \label{eq:llr}
@@ -466,7 +464,14 @@ A(\vec{\theta}^{i}) &=& -2\ln[\tilde{p}(\{\vec{d}_{j}\}_{J}|\vec{\theta}_{test})
 \ln[\tilde{p}(\{\vec{d}_{j}\}_{J}|\vec{\theta})] &=& \ln[\tilde{p}(\vec{\theta}|\{\vec{d}_{j}\}_{J})]-\ln[p(\vec{\theta})]
 \end{eqnarray}
 
-The mean squared error of samples relative to the true value may also be calculated.  The reported variance $\sigma^{2}$ and $\chi^{2}$ statistic are both calculated for the accepted samples and for the competing methods.
+We also calculate the Kullback-Leibler divergence (KLD), given in Eq. \ref{eq:kl} which measures a distance between parameter values $\vec{\theta}^{a}$ and $\vec{\theta}^{b}$ that is invariant under changes of variables.  We note that $KL_{ab}\neq KL_{ba}$, so both must be calculated.  In simulated tests, one of $\vec{\theta}^{a}$ and $\vec{\theta}^{b}$ are the true value and the other is the value produced by one of the methods in question.  For the sampler, the KLD is calculated for all samples and shown as a distribution of KLD values.
+
+\begin{eqnarray}
+\label{eq:kl}
+KL_{ab} &=& \sum_{k=1}^{K}\ \exp[\theta_{k}^{a}]\ \ln\left[\frac{\theta_{k}^{a}}{\theta_{k}^{b}}\right]
+\end{eqnarray}
+
+The mean squared error of samples relative to the true value may also be calculated.  Both the variance $\sigma^{2}$ and $\chi^{2}$ statistics are calculated for the accepted samples and for the competing methods relative to the true value in the simulated tests.
 
 \clearpage
 \section{Validation Tests}
@@ -515,13 +520,13 @@ We precisely follow the procedure of Sec. \ref{sec:mcmc} for the computation.  S
 The sampler performs well according to the diagnostics discussed in Sec. \ref{sec:diag}, the results of which are given in Figs. \ref{fig:nullacor}, \ref{fig:nullfrac}, \ref{fig:nullprob}, and \ref{fig:nullparam}.  
 
 \begin{figure}
-\includegraphics[width=0.25\textwidth]{times-real.png}
+\includegraphics[width=0.5\textwidth]{times-real.png}
 \caption{The autocorrelation times are low, indicating fast convergence of the sampler over all parameters.}
 \label{fig:nullacor}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=0.25\textwidth]{fracs-real.png}
+\includegraphics[width=0.5\textwidth]{fracs-real.png}
 \caption{The acceptance fractions are reasonable and decrease after the burn-in period.}
 \label{fig:nullfrac}
 \end{figure}
@@ -542,7 +547,7 @@ The sampler performs well according to the diagnostics discussed in Sec. \ref{se
 \subsection{Noisy zPDFs}
 \label{sec:noisy}
 
-In this test, we aim to simulate more realistic zPDFs by modifying the procedure of Sec. \ref{sec:mock} to introduce imprecision that increases with true redshift.  Several factors contribute to photo-zs increased uncertainty with redshift.  As redshift increases, so do photometric errors.  There is a greater risk of encountering unknown SEDs at higher redshift where fewer spectroscopic explorations have been conducted.  
+In this test, we aim to simulate more realistic zPDFs by modifying the procedure of Sec. \ref{sec:mock} to introduce imprecision that increases with true redshift.  Several factors contribute to photo-zs' increased uncertainty with redshift.  As redshift increases, so do photometric errors.  There is a greater risk of encountering unknown SEDs at higher redshift where fewer spectroscopic explorations have been conducted.  
 
 We follow the procedure of Secs. \ref{sec:theta} and \ref{sec:z} and introduce a change in the steps of Sec. \ref{sec:d}.  After the shifted redshifts $z'_{j}$ are chosen from a Gaussian distribution $\mathcal{N}(z_{j}^{0},\delta_{j})$ about true redshifts $z_{j}^{0}$ with variance $\delta_{j}\propto(1+z_{j}^{0})^{2}$, the variance of the Gaussian describing the shape of the zPDF is chosen to not be the same $\delta_{j}$ but rather a Gaussian random variable $\delta_{j}'$, transforming Eq. \ref{eq:zspread} into Eq. \ref{eq:zspread-noisy}.  The variance $\delta_{j}'$ is drawn from a Gaussian of mean $\delta_{j}$ and variance $\delta_{j}^{2}$, given by Eq. \ref{eq:znoise}.
 
@@ -669,7 +674,7 @@ Here we modify the procedure of Sec. \ref{sec:mock}.  In Sec. \ref{sec:theta}, i
 
 \begin{eqnarray}
 \label{eq:faketheta}
-B_{j} &=& \argmax(\vec{\theta}')\ \equiv\ \mathcal{B}
+B_{j} &=& argmax(\vec{\theta}')\ \equiv\ \mathcal{B}
 \end{eqnarray}
 
 \begin{eqnarray}
