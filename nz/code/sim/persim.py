@@ -106,7 +106,7 @@ class pertest(object):
         # we can re-calculate npeaks later from shiftZs or sigZs.
         if self.meta.shape == True:
             np.random.seed(seed=0)
-            self.npeaks = np.array([np.random.randint(1,int(self.ndims/2.)) for j in xrange(self.ngals)])
+            self.npeaks = np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
         else:
             self.npeaks = [1]*self.ngals
 
@@ -168,7 +168,7 @@ class pertest(object):
                 # these should be two slices of the same array, rather than having two separate list comprehensions
                 lo = np.array([max(sys.float_info.epsilon,func.cdf(binend)) for binend in self.binends[:-1]])
                 hi = np.array([max(sys.float_info.epsilon,func.cdf(binend)) for binend in self.binends[1:]])
-                spread = (hi-lo)
+                spread = abs(self.obsZs[j][pn]-self.trueZs[j])*(hi-lo)
 
                 # normalize probabilities to integrate (not sum)) to 1
                 allsummed += spread

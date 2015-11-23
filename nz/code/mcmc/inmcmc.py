@@ -152,8 +152,8 @@ class setup(object):
         self.logflatNz = np.log(self.flatNz)
 
         self.trueZs = None
-        self.trueNz = None
-        self.logtrueNz = None
+        self.trueNz,self.logtrueNz = None,None
+        self.truePz,self.logtruePz = None,None
         if os.path.exists(os.path.join(self.datadir,'logtrue.csv')):
             with open(os.path.join(self.datadir,'logtrue.csv'),'rb') as csvfile:
                 tuples = (line.split(None) for line in csvfile)
@@ -167,6 +167,8 @@ class setup(object):
                         trueNz[k] += 1./self.bindifs[k]
             self.trueNz = np.array(trueNz)
             self.logtrueNz = np.log(self.trueNz)
+            self.truePz = self.trueNz/np.sum(self.trueNz)
+            self.logtruePz = np.log(self.truePz)
         return
 
     def make_prior(self,indict):
