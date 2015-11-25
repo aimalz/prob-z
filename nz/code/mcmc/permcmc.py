@@ -12,21 +12,28 @@ from utilmcmc import *
 import keymcmc as key
 
 # test whether burning in or done with that, true if burning in
-def burntest(outputs,run):#output,r_run):# of dimensions nwalkers*miniters
+def burntest(outputs,run):# of dimensions nwalkers*miniters
+
     print('testing burn-in condition')
+
     lnprobs = outputs['probs']
     lnprobs = np.swapaxes(lnprobs,0,1).T
     varprob = sum([statistics.variance(w) for w in lnprobs])/run.meta.nwalkers
     difprob = statistics.median([(lnprobs[w][0]-lnprobs[w][-1])**2 for w in xrange(run.meta.nwalkers)])
+
     if difprob > varprob:
         print(run.meta.name+' burning-in '+str(difprob)+' > '+str(varprob))
     else:
         print(run.meta.name+' post-burn '+str(difprob)+' < '+str(varprob))
+
     return(difprob > varprob)
 
 # define class per initialization of MCMC
 # will be changing this object at each iteration as it encompasses state
 class pertest(object):
+    """
+    class object for MCMC state
+    """
 
     def __init__(self, meta):
 
@@ -76,6 +83,7 @@ class pertest(object):
 
         return(outputs,elapsed)
 
+    # run one sampling, store new key and state, calculate stats
     def sampnsave(self,r,burnin):
 
         self.key = self.meta.key.add(r=r, burnin=burnin)
@@ -134,7 +142,7 @@ class pertest(object):
             outputs = self.preburn(self.runs)
         else:
             self.atburn(self.runs, outputs)
-            while self.runs <= self.nsteps:#2*self.burns+1:
+            while self.runs <= self.nsteps:
                 yield self
                 self.runs += 1
                 self.postburn(self.runs)

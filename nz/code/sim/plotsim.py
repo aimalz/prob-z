@@ -15,19 +15,21 @@ from utilsim import *
 np.random.seed(seed=0)
 
 #making a step function plotter because pyplot is stupid
-def plotstep(subplot,binends,plot,style='-',col='k',lw=1,lab=' '):
+def plotstep(subplot,binends,plot,style='-',col='k',lw=1,lab=' ',a=1.):
     subplot.hlines(plot,binends[:-1],
                    binends[1:],
                    linewidth=lw,
                    linestyle=style,
                    color=col,
+                   alpha=a,
                    label=lab)
     subplot.vlines(binends[1:-1],
                    plot[:-1],
                    plot[1:],
                    linewidth=lw,
                    linestyle=style,
-                   color=col)
+                   color=col,
+                   alpha=a)
 
 # make all the plots
 def initial_plots(meta, test):
@@ -78,12 +80,14 @@ def plot_true(meta, test):
     sps.set_ylabel(r'$\ln N(z)$')
     sps.set_ylim(-1.,m.log(test.seed/meta.zdif))
     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-    plotstep(sps,test.allzs,plotrealistic_logNz,col='b',lab=r'underlying $\ln N(z)$')
-    plotstep(sps,test.allzs,test.logsampNz,style='-',lab=r'true $\ln N(z)$')
-    plotstep(sps,test.binends,test.logstack,style='--',lab=r'Stacked $\ln N(z)$ with $\sigma^{2}=$'+str(int(test.vslogstack)))
-    plotstep(sps,test.binends,test.logmapNz,style='-.',lab=r'MAP $\ln N(z)$ with $\sigma^{2}=$'+str(int(test.vslogmapNz)))
-    plotstep(sps,test.binends,test.logexpNz,style=':',lab=r'$\ln N(E[z])$ with $\sigma^{2}=$'+str(int(test.vslogexpNz)))
-    plotstep(sps,test.binends,test.full_loginterim,col='r',lab=r'interim $\ln N(z)$ with $\sigma^{2}=$'+str(int(test.vsloginterim)))
+    plotstep(sps,test.allzs,test.logsampNz,style='-',lab=r'True $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_samp))+r'$')
+#     plotstep(sps,test.allzs,plotrealistic_logNz,style='-',a=0.5,lab=r'Underlying $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_true))+r'$')
+    plotstep(sps,test.binends,test.logstack,style='--',lab=r'Stacked $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_stack))+r'$')
+    plotstep(sps,test.binends,test.logmapNz,style='-.',lab=r'MAP $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_mapNz))+r'$')
+#    plotstep(sps,test.binends,test.logexpNz,style=':',lab=r'$\ln N(E[z])$; $\ln\mathcal{L}='+str(round(test.lik_expNz))+r'$')
+    plotstep(sps,test.binends,test.mle,style=':',lab=r'MLE $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_mleNz))+r'$')
+    plotstep(sps,test.binends,test.full_loginterim,a=0.5,lab=r'Interim $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_interim))+r'$')
+#     plotstep(sps,test.binends,test.logavgNz,col='y',lab=r'True/Interim Average $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_avgNz))+r'$')
     sps.legend(loc='lower right',fontsize='xx-small')
     sps = f.add_subplot(2,1,2)
     sps.set_title('True $N(z)$')
@@ -91,12 +95,14 @@ def plot_true(meta, test):
     sps.set_ylabel(r'$N(z)$')
     sps.set_ylim(0.,test.seed/meta.zdif)
     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-    plotstep(sps,test.allzs,plotrealistic_Nz,col='b',lab=r'underlying $N(z)$')
     plotstep(sps,test.allzs,test.sampNz,style='-',lab=r'true $N(z)$')
-    plotstep(sps,test.binends,test.stack,style='--',lab=r'Stacked $N(z)$ with $\sigma^{2}=$'+str(int(test.vsstack)))
-    plotstep(sps,test.binends,test.mapNz,style='-.',lab=r'MAP $N(z)$ with $\sigma^{2}=$'+str(int(test.vsmapNz)))
-    plotstep(sps,test.binends,test.expNz,style=':',lab=r'$N(E[z])$ with $\sigma^{2}=$'+str(int(test.vsexpNz)))
-    plotstep(sps,test.binends,test.full_interim,col='r',lab=r'interim $N(z)$ with $\sigma^{2}=$'+str(int(test.vsinterim)))
+#     plotstep(sps,test.allzs,plotrealistic_Nz,a=0.5,lab=r'underlying $N(z)$; $KLD='+str(test.kl_physPz)+r'$')
+    plotstep(sps,test.binends,test.stack,style='--',lab=r'Stacked $N(z)$; $KLD='+str(test.kl_stack)+r'$')# with $\sigma^{2}=$'+str(int(test.vsstack)))
+    plotstep(sps,test.binends,test.mapNz,style='-.',lab=r'MAP $N(z)$; $KLD='+str(test.kl_mapNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
+#     plotstep(sps,test.binends,test.expNz,style=':',lab=r'$N(E[z])$; $KLD='+str(test.kl_expNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsexpNz)))
+    plotstep(sps,test.binends,np.exp(test.mle),style=':',lab=r'MLE $N(z)$; $KLD='+str(test.kl_mleNz)+r'$')
+    plotstep(sps,test.binends,test.full_interim,a=0.5,lab=r'Interim $N(z)$; $KLD='+str(test.kl_interim)+r'$')# with $\sigma^{2}=$'+str(int(test.vsinterim)))
+#     plotstep(sps,test.binends,test.avgNz,col='y',lab=r'True/Interim Average $N(z)$; $KLD='+str(test.kl_avgNz)+r'$')
 #     sps.step(test.zhis,plotrealistic_Nz,label=r'underlying $N(z)$')
 #     sps.step(test.zhis,test.sampNz,label=r'true $N(z)$')
 #     sps.step(test.binhis,test.stack,label=r'Stacked $N(z)$ with $\sigma^{2}=$'+str(int(test.vsstack)),linestyle='--')
@@ -113,10 +119,10 @@ def plot_pdfs(meta,test):
     sps = f.add_subplot(1,1,1)
     f.suptitle('Observed galaxy posteriors for '+meta.name)
     #sps.set_title('multimodal='+str(meta.shape)+', noisy='+str(meta.noise))
-    randos = np.random.randint(0,test.ngals,len(meta.colors))
-    for r in lrange(randos):
-        plotstep(sps,test.binends,test.pobs[randos[r]],col=meta.colors[r])#,alpha=a)
-        sps.vlines(test.trueZs[randos[r]],0.,max(test.pobs[randos[r]]),color=meta.colors[r],linestyle='--')
+    for r in lrange(test.randos):
+        plotstep(sps,test.binends,test.pobs[test.randos[r]],col=meta.colors[r])#,alpha=a)
+        sps.vlines(test.trueZs[test.randos[r]],0.,max(test.pobs[test.randos[r]]),color=meta.colors[r],linestyle='--')
+        sps.vlines(test.obsZs[test.randos[r]],0.,max(test.pobs[test.randos[r]]),color=meta.colors[r],linestyle=':')
     sps.set_ylabel(r'$p(z|\vec{d})$')
     sps.set_xlabel(r'$z$')
     sps.set_xlim(test.binlos[0]-meta.zdif,test.binhis[-1]+meta.zdif)

@@ -47,7 +47,7 @@ def onerun(inname):
     namesetup(meta)
     return
 
-nps = mp.cpu_count()
+nps = mp.cpu_count()-1
 pool = mp.Pool(nps)
 
 with open(os.path.join(testdir,'tests-sim.txt'),'rb') as testnames:

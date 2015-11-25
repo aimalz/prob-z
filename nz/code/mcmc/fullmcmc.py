@@ -90,8 +90,6 @@ def main():
         runs[run].dist.finish()
         print('ending run of: ' + str(run))
 
-    distribute.run_offthread_sync(plots.final_plots(runs))
-
 if __name__ == '__main__':
     main()
 

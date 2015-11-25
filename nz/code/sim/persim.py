@@ -9,6 +9,9 @@ import os
 import scipy as sp
 from scipy import stats
 import csv
+import itertools
+import timeit
+
 from insim import setup
 from utilsim import *
 
@@ -66,6 +69,7 @@ class pertest(object):
             self.ngals = np.random.poisson(self.seed)
         else:
             self.ngals = self.seed
+        self.randos = np.random.choice(self.ngals,len(self.meta.colors),replace=False)
 
     def choosebins(self):
 
@@ -112,7 +116,7 @@ class pertest(object):
 
         # jitter zs to simulate inaccuracy, choose variance randomly for eah peak
         np.random.seed(seed=0)
-        shiftZs = np.array([[np.random.normal(loc=self.trueZs[j],scale=varZs[j]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+        shiftZs = np.array([[np.random.normal(loc=self.trueZs[j],scale=varZs[j]/np.sqrt(self.meta.allnbins)) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
         # standard deviation of peaks directly dependent on true redshift vs Gaussian
         if self.meta.sigma == True or self.meta.shape == True:
@@ -198,6 +202,7 @@ class pertest(object):
         # generate full Sheldon, et al. 2011 "posterior"
         stackprep = np.sum(np.array(pobs),axis=0)
         self.stack = np.array([max(sys.float_info.epsilon,stackprep[k]) for k in self.binnos])
+#         print(np.dot(self.stack,self.bindifs))
         self.logstack = np.log(self.stack)
 
         # generate MAP N(z)
@@ -205,6 +210,7 @@ class pertest(object):
         mappreps = [np.argmax(l) for l in self.logpobs]
         for z in mappreps:
             self.mapNz[z] += 1./self.bindifs[z]
+#         print(np.dot(self.mapNz,self.bindifs))
         self.logmapNz = np.log(self.mapNz)
 
         # generate expected value N(z)
@@ -214,45 +220,131 @@ class pertest(object):
               for k in xrange(self.nbins):
                   if z > self.binlos[k] and z < self.binhis[k]:
                       self.expNz[k] += 1./self.bindifs[k]
+#         print(np.dot(self.expNz,self.bindifs))
         self.logexpNz = np.log(self.expNz)
 
     # generate summary quantities for plotting
     def fillsummary(self):
 
+        # define interim prior N(z),P(z) for plotting
+        self.full_interim = np.array([max(i,sys.float_info.epsilon) for i in self.interim])#*self.bindifs
+        self.full_loginterim = np.log(self.full_interim)
+
         # define true N(z),P(z) for plotting given number of galaxies
         self.full_trueNz = np.concatenate((np.array([sys.float_info.epsilon]*len(self.binfront)),self.trueNz,np.array([sys.float_info.epsilon]*len(self.binback))),axis=0)
         self.full_logtrueNz = np.log(self.full_trueNz)
+        self.full_truePz = self.full_trueNz/sum(self.full_trueNz)
+        self.full_logtruePz = np.log(self.full_truePz)
 
-        # define interim prior N(z),P(z) for plotting
-        #self.full_flatNz = np.array([self.seed/self.meta.zdif/self.nbins]*self.nbins)
-        #self.full_logflatNz = np.log(self.full_flatNz)
-        self.full_interim = np.array([max(i,sys.float_info.epsilon) for i in self.interim])#*self.bindifs
-        self.full_loginterim = np.log(self.full_interim)
+        phys = self.ngals*self.meta.realistic/sum(self.meta.realistic)
+        logphys = np.log(phys)
+        self.kl_physPz = self.calckl(logphys,self.full_logtrueNz)
+        self.lik_true = self.calclike(self.full_logtrueNz)
 
         # define sampled N(z),P(z) for plotting
         self.full_sampNz = np.concatenate((np.array([sys.float_info.epsilon]*len(self.binfront)),self.sampNz,np.array([sys.float_info.epsilon]*len(self.binback))),axis=0)
         self.full_logsampNz = np.concatenate((np.array([m.log(sys.float_info.epsilon)]*len(self.binfront)),self.logsampNz,np.array([m.log(sys.float_info.epsilon)]*len(self.binback))),axis=0)
+        self.lik_samp = self.calclike(self.full_logsampNz)
+
+        self.avgNz = (self.full_sampNz+self.full_interim)/2.
+        self.logavgNz = np.log(self.avgNz)
+        self.lik_avgNz = self.calclike(self.logavgNz)
+        self.kl_avgNz = self.calckl(self.logavgNz,self.full_logsampNz)
 
         #summary stats
         vsstack = self.stack-self.full_sampNz
         self.vsstack = np.dot(vsstack,vsstack)/self.nbins
         vslogstack = self.logstack-self.full_logsampNz
         self.vslogstack = np.dot(vslogstack,vslogstack)/self.nbins
+        stackPz = self.stack/sum(self.stack)
+        logstackPz = np.log(stackPz)
+        self.kl_stack = self.calckl(self.logstack,self.full_logsampNz)
+        self.lik_stack = self.calclike(self.logstack)
 
         vsmapNz = self.mapNz-self.full_sampNz
         self.vsmapNz = np.dot(vsmapNz,vsmapNz)/self.nbins
         vslogmapNz = self.logmapNz-self.full_logsampNz
         self.vslogmapNz = np.dot(vslogmapNz,vslogmapNz)/self.nbins
+        mapPz = self.mapNz/sum(self.mapNz)
+        logmapPz = np.log(mapPz)
+        self.kl_mapNz = self.calckl(self.logmapNz,self.full_logsampNz)
+        self.lik_mapNz = self.calclike(self.logmapNz)
 
         vsexpNz = self.expNz-self.full_sampNz
         self.vsexpNz = np.dot(vsexpNz,vsexpNz)/self.nbins
         vslogexpNz = self.logexpNz-self.full_logsampNz
         self.vslogexpNz = np.dot(vslogexpNz,vslogexpNz)/self.nbins
+        expPz = self.expNz/sum(self.expNz)
+        logexpPz = np.log(expPz)
+        self.kl_expNz = self.calckl(self.logexpNz,self.full_logsampNz)
+        self.lik_expNz = self.calclike(self.logexpNz)
 
         vsinterim = self.full_interim-self.full_sampNz
         self.vsinterim = np.dot(vsinterim,vsinterim)/self.nbins
         vsloginterim = self.full_loginterim-self.full_logsampNz
         self.vsloginterim = np.dot(vsloginterim,vsloginterim)/self.nbins
+        interimPz = self.interim/sum(self.interim)
+        loginterimPz = np.log(interimPz)
+        self.kl_interim = self.calckl(self.loginterim,self.full_logsampNz)
+        self.lik_interim = self.calclike(self.full_loginterim)
+
+        self.cands = np.array([self.loginterim,self.logstack,self.logmapNz])#,self.logexpNz])
+        self.liks = np.array([self.lik_interim,self.lik_stack,self.lik_mapNz])#,self.lik_expNz])
+        self.start = self.cands[np.argmax(self.liks)]
+
+        self.lik_mleNz,self.mle = self.makemle('slsqp')#'cobyla','slsqp'
+        self.kl_mleNz = self.calckl(self.mle,self.full_logsampNz)
+
+    # KL Divergence test
+    def calckl(self,lpn,lqn):
+        pn = np.exp(lpn)*self.bindifs
+        qn = np.exp(lqn)*self.bindifs
+        p = pn/np.sum(pn)
+        q = qn/np.sum(qn)
+        logp = np.log(p)
+        logq = np.log(q)
+        klpq = np.sum(p*(logp-logq))
+        klqp = np.sum(q*(logq-logp))
+        return(round(klpq,3),round(klqp,3))
+
+    def calclike(self,theta):
+        constterm = np.log(self.bindifs)-self.full_loginterim
+        constterms = theta+constterm
+        sumterm = -1.*np.dot(np.exp(theta),self.bindifs)
+        for j in xrange(self.ngals):
+            logterm = np.log(np.sum(np.exp(self.logpobs[j]+constterms)))
+            sumterm += logterm
+        return sumterm
+
+    def makemle(self,arg):
+        start_time = timeit.default_timer()
+        if arg == 'cobyla':
+            def cons1(theta):
+                return np.dot(np.exp(theta),self.bindifs)-0.5*self.ngals
+            def cons2(theta):
+                return 1.5*self.ngals-np.dot(np.exp(theta),self.bindifs)
+            def cons3(theta):
+                return np.exp(theta)
+            def cons4(theta):
+                return self.ngals-np.exp(theta)
+            def minlf(theta):
+                return -1.*self.calclike(theta)
+            loc = sp.optimize.fmin_cobyla(minlf,self.start,cons=(cons1,cons2,cons3,cons4),maxfun=self.ngals**2)
+            like = self.calclike(loc)
+        if arg == 'slsqp':
+            def cons1(theta):
+                return np.dot(np.exp(theta),self.bindifs)-0.5*self.ngals
+            def cons2(theta):
+                return 1.5*self.ngals-np.dot(np.exp(theta),self.bindifs)
+            def minlf(theta):
+                return -1.*self.calclike(theta)
+            bounds = [(-sys.float_info.epsilon,np.log(self.ngals)) for k in xrange(self.nbins)]
+            loc = sp.optimize.fmin_slsqp(minlf,self.start,ieqcons=([cons1,cons2]),bounds=bounds,iter=self.ngals)#,epsilon=1.)
+            like = self.calclike(loc)
+        print(self.start,loc,self.logsampNz)
+        elapsed = timeit.default_timer() - start_time
+        print(str(self.ngals)+' galaxies for '+self.meta.name+' MLE by '+arg+' in '+str(elapsed))
+        return(like,loc)
 
     def savedat(self):
 
