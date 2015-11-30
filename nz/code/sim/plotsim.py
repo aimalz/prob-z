@@ -164,3 +164,12 @@ def plot_truevmap(meta,test):
     sps.legend(loc='upper left',fontsize='x-small')
     f.savefig(os.path.join(meta.simdir,'truevmap.png'))
     return
+
+# def plot_liktest(meta,test):
+#     f = plt.figure(figsize=(5,5))
+#     sps = f.add_subplot(1,1,1)
+#     f.suptitle(meta.name+' Likelihood Test')
+#     sps.set_ylabel('Likelihood')
+#     sps.set_xlabel(r'Percent \textit{Truth} (100 - Percent \textit{Interim})')
+#     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
+#     sps.set_ylim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)

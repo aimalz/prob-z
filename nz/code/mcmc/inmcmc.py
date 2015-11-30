@@ -120,12 +120,13 @@ class setup(object):
         # number of walkers
         self.nwalkers = 2*self.nbins
 
-        self.logintNz = np.array(alldata[1])
-        self.intNz = np.exp(self.logintNz)
-
         self.logpobs = np.array(alldata[2:])
         self.pobs = np.exp(self.logpobs)
         self.ngals = len(self.logpobs)
+
+        self.logintNz = np.array(alldata[1])
+        self.intNz = np.exp(self.logintNz)
+        self.lik_intNz = self.calclike(self.logintNz)
 
         self.flatNz = np.array([float(self.ngals)/float(self.nbins)/self.bindif]*self.nbins)
         self.logflatNz = np.log(self.flatNz)
@@ -152,7 +153,11 @@ class setup(object):
 
     def make_prior(self,indict):
 
-        self.ml,self.logmleNz = self.makemle(arg='cobyla')#'grid','cobyla','slsqp'
+        self.cands = np.array([self.logintNz,self.logstack,self.logmapNz])#,self.logexpNz])
+        self.liks = np.array([self.lik_intNz,self.lik_stack,self.lik_mapNz])#,self.lik_expNz])
+        self.logstart = self.cands[np.argmax(self.liks)]
+
+        self.ml,self.logmleNz = self.makemle(arg='slsqp')#'grid','cobyla','slsqp'
         self.mleNz = np.exp(self.logmleNz)
 
         self.q = None
@@ -165,20 +170,7 @@ class setup(object):
             covmat = indict['priorcov']
             self.covmat = np.reshape(np.array([float(covmat[i]) for i in range(0,self.nbins**2)]),(self.nbins,self.nbins))
         else:
-#             if 'prior' in indict and bool(int(indict['prior'][0])) == True:
-#                 mean = self.ngals*np.array([z**2*np.exp(-(z/0.5)**1.5) for z in self.binmids])/self.bindifs
-#                 self.mean = np.log(np.array([max(x,0.) for x in mean]))
-#             else:
             self.mean = self.logmleNz#self.logstack#self.logflatNz#self.logintNz
-#             if 'random' in indict and bool(int(indict['random'])) == True:
-#                 print('random '+str(bool(int(indict['random']))))
-#                 q = 1.
-#                 e = 3./self.bindif**2
-#                 tiny = q*1e-6
-#                 self.covmat = np.array([[q*np.exp(-0.5*e*(self.binmids[a]-self.binmids[b])**2.) for a in xrange(0,self.nbins)] for b in xrange(0,self.nbins)])+tiny*np.identity(self.nbins)
-#                 # self.covmat = np.identity(self.nbins)
-#             else:
-#             self.covmat = 1./np.log(np.sqrt(self.ngals))*np.identity(self.nbins)
             self.q = 1.0#self.bindif
             self.e = 100.#1./self.bindif**2
             self.t = self.q*1e-5
@@ -209,11 +201,6 @@ class setup(object):
 
         with open(self.ivals_dir,'wb') as ival_file:
             cpkl.dump(self.ivals,ival_file)
-
-#         # posterior specification for sampler and alternatives
-#         self.logstackdist = mvn(self.logstack,self.covmat)#np.sqrt(np.dot(self.logstack,self.logstack))*np.identity(self.nbins))
-#         self.logmapNzdist = mvn(self.logmapNz,self.covmat)#np.sqrt(np.dot(self.logmapNz,self.logmapNz))*np.identity(self.nbins))
-#         self.logexpNzdist = mvn(self.logexpNz,self.covmat)#np.sqrt(np.dot(self.logexpNz,self.logexpNz))*np.identity(self.nbins))
 
         return
 
@@ -266,7 +253,7 @@ class setup(object):
                 return self.ngals-np.exp(theta)
             def minlf(theta):
                 return -1.*self.calclike(theta)
-            loc = sp.optimize.fmin_cobyla(minlf,self.logstack,cons=(cons1,cons2,cons3,cons4),maxfun=100000)
+            loc = sp.optimize.fmin_cobyla(minlf,self.logstart,cons=(cons1,cons2,cons3,cons4),maxfun=100000)
             like = self.calclike(loc)
         if arg == 'slsqp':
             def cons1(theta):
@@ -276,18 +263,19 @@ class setup(object):
             def minlf(theta):
                 return -1.*self.calclike(theta)
             bounds = [(-sys.float_info.epsilon,np.log(self.ngals)) for k in xrange(self.nbins)]
-            loc = sp.optimize.fmin_slsqp(minlf,self.logstack,ieqcons=([cons1,cons2]),bounds=bounds,iter=100)
+            loc = sp.optimize.fmin_slsqp(minlf,self.logstart,ieqcons=([cons1,cons2]),bounds=bounds,iter=100)
             like = self.calclike(loc)
-        print(self.logtrueNz)
         elapsed = timeit.default_timer() - start_time
         print(str(self.ngals)+' galaxies for '+self.name+' MLE by '+arg+' in '+str(elapsed))
         return(like,loc)
+
     def alternatives(self):
 
         # generate full Sheldon, et al. 2011 "posterior"
         stackprep = np.sum(np.array(self.pobs),axis=0)
         self.stack = np.array([max(sys.float_info.epsilon,stackprep[k]) for k in xrange(self.nbins)])
         self.logstack = np.log(self.stack)
+        self.lik_stack = self.calclike(self.logstack)
 
         # generate MAP N(z)
         self.mapNz = [sys.float_info.epsilon]*self.nbins
@@ -295,6 +283,7 @@ class setup(object):
         for m in mappreps:
               self.mapNz[m] += 1./self.bindifs[m]
         self.logmapNz = np.log(self.mapNz)
+        self.lik_mapNz = self.calclike(self.logmapNz)
 
         # generate expected value N(z)
         expprep = [sum(z) for z in self.binmids*self.pobs*self.bindifs]
@@ -304,6 +293,7 @@ class setup(object):
                   if z > self.binlos[k] and z < self.binhis[k]:
                       self.expNz[k] += 1./self.bindifs[k]
         self.logexpNz = np.log(self.expNz)
+        self.lik_expNz = self.calclike(self.logexpNz)
 
         return
 

@@ -31,22 +31,22 @@ class stat_both(calcstats):
 
         self.ll_stack = self.meta.postdist.lnlike(self.meta.logstack)
         self.ll_mapNz = self.meta.postdist.lnlike(self.meta.logmapNz)
-        self.ll_expNz = self.meta.postdist.lnlike(self.meta.logexpNz)
+#         self.ll_expNz = self.meta.postdist.lnlike(self.meta.logexpNz)
         self.ll_intNz = self.meta.postdist.lnlike(self.meta.logintNz)
         self.ll_mleNz = self.meta.postdist.lnlike(self.meta.logmleNz)
         self.ll_samp = []
         self.mapvals,self.maps = [],[]
 
-        self.llr_stack,self.llr_mapNz,self.llr_expNz,self.llr_intNz,self.llr_mleNz = [],[],[],[],[]
+        self.llr_stack,self.llr_mapNz,self.llr_intNz,self.llr_mleNz = [],[],[],[]
 
         outdict = {'ll_stack': self.ll_stack,
                   'll_mapNz': self.ll_mapNz,
-                  'll_expNz': self.ll_expNz,
+#                   'll_expNz': self.ll_expNz,
                   'll_intNz': self.ll_intNz,
                   'll_mleNz': self.ll_mleNz,
                   'llr_stack': np.array(self.llr_stack),
                   'llr_mapNz': np.array(self.llr_mapNz),
-                  'llr_expNz': np.array(self.llr_expNz),
+#                   'llr_expNz': np.array(self.llr_expNz),
                   'llr_intNz': np.array(self.llr_intNz),
                   'llr_mleNz': np.array(self.llr_mleNz)
                    }
@@ -64,7 +64,8 @@ class stat_both(calcstats):
 
         self.llr_stack = self.calclr(self.llr_stack,self.ll_stack)
         self.llr_mapNz = self.calclr(self.llr_mapNz,self.ll_mapNz)
-        self.llr_expNz = self.calclr(self.llr_expNz,self.ll_expNz)
+#         self.llr_expNz = self.calclr(self.llr_expNz,self.ll_expNz)
+        self.llr_mleNz = self.calclr(self.llr_mleNz,self.ll_mleNz)
 
         if self.meta.logtrueNz is not None:
             self.calclr(self.ll_samp,0.)
@@ -74,7 +75,8 @@ class stat_both(calcstats):
 
         outdict['llr_stack'] = np.array(self.llr_stack)
         outdict['llr_mapNz'] = np.array(self.llr_mapNz)
-        outdict['llr_expNz'] = np.array(self.llr_expNz)
+#         outdict['llr_expNz'] = np.array(self.llr_expNz)
+        outdict['llr_mleNz'] = np.array(self.llr_mleNz)
         outdict['ll_samp'] = np.array(self.ll_samp).flatten()/2.
         outdict['mapvals'] = np.array(self.mapvals)
         outdict['maps'] = np.array(self.maps)
@@ -320,7 +322,8 @@ class stat_probs(calcstats):
 
         self.lp_stack = self.meta.postdist.lnprob(self.meta.logstack)
         self.lp_mapNz = self.meta.postdist.lnprob(self.meta.logmapNz)
-        self.lp_expNz = self.meta.postdist.lnprob(self.meta.logexpNz)
+#         self.lp_expNz = self.meta.postdist.lnprob(self.meta.logexpNz)
+        self.lp_mleNz = self.meta.postdist.lnprob(self.meta.logmleNz)
 
         self.var_y = []
 
@@ -335,7 +338,8 @@ class stat_probs(calcstats):
                  'lp_true': self.lp_true,
                  'lp_stack': self.lp_stack,
                  'lp_mapNz': self.lp_mapNz,
-                 'lp_expNz': self.lp_expNz
+#                  'lp_expNz': self.lp_expNz
+                 'lp_mleNz': self.lp_mleNz
                }
 
 class stat_fracs(calcstats):

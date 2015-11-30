@@ -31,8 +31,8 @@ class pertest(object):
         # define realistic underlying P(z) for this number of parameters
         self.realsum = sum(meta.realistic[:self.ndims])
         self.realistic_pdf = np.array([meta.realistic[k]/self.realsum/meta.zdifs[k] for k in xrange(0,self.ndims)])
-        self.truePz = self.realistic_pdf
-        self.logtruePz = np.array([m.log(max(tPz,sys.float_info.epsilon)) for tPz in self.truePz])
+        self.physPz = self.realistic_pdf
+        self.logphysPz = np.array([m.log(max(pPz,sys.float_info.epsilon)) for pPz in self.physPz])
 
         # define flat P(z) for this number of parameters
         self.avgprob = 1./self.ndims/meta.zdif
@@ -42,8 +42,8 @@ class pertest(object):
 
         # set true value of N(z) for this survey size
         self.seed = meta.survs
-        self.trueNz = self.seed*self.realistic_pdf
-        self.logtrueNz = [m.log(max(x,sys.float_info.epsilon)) for x in self.trueNz]
+        self.physNz = self.seed*self.realistic_pdf
+        self.logphysNz = [m.log(max(x,sys.float_info.epsilon)) for x in self.physNz]
 
         # define flat distribution for N(z)
         self.flat = self.seed*self.avgprob
@@ -65,7 +65,7 @@ class pertest(object):
 
         # sample some number of galaxies, poisson or set
         if self.meta.poisson == True:
-            np.random.seed(seed=0)
+            np.random.seed(seed=1)
             self.ngals = np.random.poisson(self.seed)
         else:
             self.ngals = self.seed
@@ -75,13 +75,13 @@ class pertest(object):
 
         count = [0]*self.ndims
 
-        #test all galaxies in survey have same true redshift vs. sample from truePz
+        #test all galaxies in survey have same true redshift vs. sample from physPz
         if self.meta.random == True:
-            np.random.seed(seed=0)
+            np.random.seed(seed=1)
             for j in range(0,self.ngals):
-                count[choice(xrange(self.ndims), self.truePz)] += 1
+                count[choice(xrange(self.ndims), self.physPz)] += 1
         else:
-            chosenbin = np.argmax(self.truePz)
+            chosenbin = np.argmax(self.physPz)
             count[chosenbin] = self.ngals
 
         self.count = np.array(count)
@@ -96,7 +96,7 @@ class pertest(object):
 
         # assign actual redshifts either uniformly or identically to mean
         if self.meta.uniform == True:
-            np.random.seed(seed=0)
+            np.random.seed(seed=1)
             self.trueZs = np.array([np.random.uniform(self.zlos[k],self.zhis[k]) for k in xrange(self.ndims) for j in xrange(self.count[k])])
         else:
             self.trueZs = np.array([self.zmids[k] for k in xrange(self.ndims) for j in xrange(self.count[k])])
@@ -109,18 +109,18 @@ class pertest(object):
 
         # we can re-calculate npeaks later from shiftZs or sigZs.
         if self.meta.shape == True:
-            np.random.seed(seed=0)
+            np.random.seed(seed=1)
             self.npeaks = np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
         else:
             self.npeaks = [1]*self.ngals
 
         # jitter zs to simulate inaccuracy, choose variance randomly for eah peak
-        np.random.seed(seed=0)
-        shiftZs = np.array([[np.random.normal(loc=self.trueZs[j],scale=varZs[j]/np.sqrt(self.meta.allnbins)) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+        np.random.seed(seed=1)
+        shiftZs = np.array([[np.random.normal(loc=self.trueZs[j],scale=varZs[j]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
         # standard deviation of peaks directly dependent on true redshift vs Gaussian
         if self.meta.sigma == True or self.meta.shape == True:
-            np.random.seed(seed=0)
+            np.random.seed(seed=1)
             sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=varZs[j],scale=varZs[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
         else:
             sigZs = np.array([[varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
@@ -231,15 +231,15 @@ class pertest(object):
         self.full_loginterim = np.log(self.full_interim)
 
         # define true N(z),P(z) for plotting given number of galaxies
-        self.full_trueNz = np.concatenate((np.array([sys.float_info.epsilon]*len(self.binfront)),self.trueNz,np.array([sys.float_info.epsilon]*len(self.binback))),axis=0)
-        self.full_logtrueNz = np.log(self.full_trueNz)
-        self.full_truePz = self.full_trueNz/sum(self.full_trueNz)
-        self.full_logtruePz = np.log(self.full_truePz)
+        self.full_physNz = np.concatenate((np.array([sys.float_info.epsilon]*len(self.binfront)),self.physNz,np.array([sys.float_info.epsilon]*len(self.binback))),axis=0)
+        self.full_logphysNz = np.log(self.full_physNz)
+        self.full_physPz = self.full_physNz/sum(self.full_physNz)
+        self.full_logphysPz = np.log(self.full_physPz)
 
         phys = self.ngals*self.meta.realistic/sum(self.meta.realistic)
         logphys = np.log(phys)
-        self.kl_physPz = self.calckl(logphys,self.full_logtrueNz)
-        self.lik_true = self.calclike(self.full_logtrueNz)
+        self.kl_physPz = self.calckl(logphys,self.full_logphysNz)
+        self.lik_true = self.calclike(self.full_logphysNz)
 
         # define sampled N(z),P(z) for plotting
         self.full_sampNz = np.concatenate((np.array([sys.float_info.epsilon]*len(self.binfront)),self.sampNz,np.array([sys.float_info.epsilon]*len(self.binback))),axis=0)
@@ -358,7 +358,7 @@ class pertest(object):
             out = csv.writer(csvfile,delimiter=' ')
             out.writerow(self.binends)
             out.writerow(self.full_loginterim)
-            #out.writerow(self.full_logtrueNz)
+            #out.writerow(self.full_logphysNz)
             trueZs = [[z] for z in self.trueZs]
             for item in trueZs:
                 out.writerow(item)
