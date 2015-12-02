@@ -65,7 +65,7 @@ class pertest(object):
 
         # sample some number of galaxies, poisson or set
         if self.meta.poisson == True:
-            np.random.seed(seed=1)
+            np.random.seed(seed=self.ndims)
             self.ngals = np.random.poisson(self.seed)
         else:
             self.ngals = self.seed
@@ -77,7 +77,7 @@ class pertest(object):
 
         #test all galaxies in survey have same true redshift vs. sample from physPz
         if self.meta.random == True:
-            np.random.seed(seed=1)
+            np.random.seed(seed=self.ndims)
             for j in range(0,self.ngals):
                 count[choice(xrange(self.ndims), self.physPz)] += 1
         else:
@@ -96,7 +96,7 @@ class pertest(object):
 
         # assign actual redshifts either uniformly or identically to mean
         if self.meta.uniform == True:
-            np.random.seed(seed=1)
+            np.random.seed(seed=self.ndims)
             self.trueZs = np.array([np.random.uniform(self.zlos[k],self.zhis[k]) for k in xrange(self.ndims) for j in xrange(self.count[k])])
         else:
             self.trueZs = np.array([self.zmids[k] for k in xrange(self.ndims) for j in xrange(self.count[k])])
@@ -109,18 +109,18 @@ class pertest(object):
 
         # we can re-calculate npeaks later from shiftZs or sigZs.
         if self.meta.shape == True:
-            np.random.seed(seed=1)
+            np.random.seed(seed=self.ndims)
             self.npeaks = np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
         else:
             self.npeaks = [1]*self.ngals
 
         # jitter zs to simulate inaccuracy, choose variance randomly for eah peak
-        np.random.seed(seed=1)
+        np.random.seed(seed=self.ndims)
         shiftZs = np.array([[np.random.normal(loc=self.trueZs[j],scale=varZs[j]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
         # standard deviation of peaks directly dependent on true redshift vs Gaussian
         if self.meta.sigma == True or self.meta.shape == True:
-            np.random.seed(seed=1)
+            np.random.seed(seed=self.ndims)
             sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=varZs[j],scale=varZs[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
         else:
             sigZs = np.array([[varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
@@ -291,7 +291,6 @@ class pertest(object):
         self.cands = np.array([self.loginterim,self.logstack,self.logmapNz])#,self.logexpNz])
         self.liks = np.array([self.lik_interim,self.lik_stack,self.lik_mapNz])#,self.lik_expNz])
         self.start = self.cands[np.argmax(self.liks)]
-
         self.lik_mleNz,self.mle = self.makemle('slsqp')#'cobyla','slsqp'
         self.kl_mleNz = self.calckl(self.mle,self.full_logsampNz)
 

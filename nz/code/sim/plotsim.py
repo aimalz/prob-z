@@ -37,6 +37,7 @@ def initial_plots(meta, test):
     plot_true(meta,test)
     plot_pdfs(meta,test)
     plot_truevmap(meta,test)
+    plot_liktest(meta,test)
     print(meta.name+' plotted setup')
 
 # plot the underlying P(z) and its components
@@ -87,7 +88,6 @@ def plot_true(meta, test):
 #    plotstep(sps,test.binends,test.logexpNz,style=':',lab=r'$\ln N(E[z])$; $\ln\mathcal{L}='+str(round(test.lik_expNz))+r'$')
     plotstep(sps,test.binends,test.mle,style=':',lab=r'MLE $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_mleNz))+r'$')
     plotstep(sps,test.binends,test.full_loginterim,a=0.5,lab=r'Interim $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_interim))+r'$')
-#     plotstep(sps,test.binends,test.logavgNz,col='y',lab=r'True/Interim Average $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_avgNz))+r'$')
     sps.legend(loc='lower right',fontsize='xx-small')
     sps = f.add_subplot(2,1,2)
     sps.set_title('True $N(z)$')
@@ -95,14 +95,13 @@ def plot_true(meta, test):
     sps.set_ylabel(r'$N(z)$')
     sps.set_ylim(0.,test.seed/meta.zdif)
     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-    plotstep(sps,test.allzs,test.sampNz,style='-',lab=r'true $N(z)$')
+    plotstep(sps,test.allzs,test.sampNz,style='-',lab=r'True $N(z)$')
 #     plotstep(sps,test.allzs,plotrealistic_Nz,a=0.5,lab=r'underlying $N(z)$; $KLD='+str(test.kl_physPz)+r'$')
     plotstep(sps,test.binends,test.stack,style='--',lab=r'Stacked $N(z)$; $KLD='+str(test.kl_stack)+r'$')# with $\sigma^{2}=$'+str(int(test.vsstack)))
     plotstep(sps,test.binends,test.mapNz,style='-.',lab=r'MAP $N(z)$; $KLD='+str(test.kl_mapNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
 #     plotstep(sps,test.binends,test.expNz,style=':',lab=r'$N(E[z])$; $KLD='+str(test.kl_expNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsexpNz)))
     plotstep(sps,test.binends,np.exp(test.mle),style=':',lab=r'MLE $N(z)$; $KLD='+str(test.kl_mleNz)+r'$')
     plotstep(sps,test.binends,test.full_interim,a=0.5,lab=r'Interim $N(z)$; $KLD='+str(test.kl_interim)+r'$')# with $\sigma^{2}=$'+str(int(test.vsinterim)))
-#     plotstep(sps,test.binends,test.avgNz,col='y',lab=r'True/Interim Average $N(z)$; $KLD='+str(test.kl_avgNz)+r'$')
 #     sps.step(test.zhis,plotrealistic_Nz,label=r'underlying $N(z)$')
 #     sps.step(test.zhis,test.sampNz,label=r'true $N(z)$')
 #     sps.step(test.binhis,test.stack,label=r'Stacked $N(z)$ with $\sigma^{2}=$'+str(int(test.vsstack)),linestyle='--')
@@ -165,11 +164,25 @@ def plot_truevmap(meta,test):
     f.savefig(os.path.join(meta.simdir,'truevmap.png'))
     return
 
-# def plot_liktest(meta,test):
-#     f = plt.figure(figsize=(5,5))
-#     sps = f.add_subplot(1,1,1)
-#     f.suptitle(meta.name+' Likelihood Test')
-#     sps.set_ylabel('Likelihood')
-#     sps.set_xlabel(r'Percent \textit{Truth} (100 - Percent \textit{Interim})')
-#     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-#     sps.set_ylim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
+def plot_liktest(meta,test):
+    f = plt.figure(figsize=(15,7.5))
+    sps = [f.add_subplot(1,2,x+1) for x in xrange(0,2)]
+    f.suptitle(meta.name+' Likelihood Test')
+    sps[0].set_ylabel('Likelihood')
+    sps[1].set_ylabel(r'$\ln N(z)$')
+    sps[0].set_xlabel(r'Fraction $\ln\tilde{\vec{\theta}}; (1 -$ Fraction $\ln\vec{\theta}^{0})$')
+    sps[1].set_xlabel(r'$z$')
+    plotstep(sps[1],test.binends,test.mle,lab=r'MLE $\ln N(z)$')
+
+    frac_i = np.arange(0.,1.+test.bindif,test.bindif)
+    print(len(frac_i))
+    frac_t = 1.-frac_i
+
+    for i in xrange(0,test.nbins):
+        logmix = test.full_logsampNz*frac_t[i]+test.full_loginterim*frac_i[i]
+        #mix = test.full_sampNz*frac_t[i]+test.full_interim*frac_i[i]
+        sps[0].scatter(frac_t[i],test.calclike(logmix))
+        plotstep(sps[1],test.binends,logmix,col=meta.colors[i%len(meta.colors)],lab=str(frac_t[i]*100.)+r'\% True $\ln N(z)$, '+str(frac_i[i]*100.)+r'\% Interim Prior')
+
+    sps[1].legend(fontsize='xx-small',loc='lower right')
+    f.savefig(os.path.join(meta.simdir,'liktest.png'))
