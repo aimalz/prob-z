@@ -65,17 +65,17 @@ class setup(object):
             nelem = len(indict['phys'])
             self.real = np.array([float(indict['phys'][i]) for i in range(1,nelem)])
         else:
-            self.real = np.array([[zmin+0.2*zrange, 0.01, 2.5],#2.0],
-                         [zmin+0.4*zrange, 0.01, 1.25],
-                         [zmin+0.5*zrange, 0.1, 5.0],
-                         [zmin+0.6*zrange, 0.01, 1.25],
-                         [zmin+0.8*zrange, 0.001, 1.25]#1.25],
+            self.real = np.array([[zmin+0.2*zrange, 0.1, 1.],#2.0],
+                         [zmin+0.4*zrange, 0.1, 2.],
+                         # [zmin+0.5*zrange, 0.1, 5.0],
+                         [zmin+0.6*zrange, 0.1, 4.],
+                         [zmin+0.8*zrange, 0.1, 3.]#1.25],
                          #[zmin+1.0*zrange, 0.001, 0.75]
                           ])
             #self.real = np.array([[(zmax-zmin)/2.,0.1,1.0]])
-        # put together Gaussian elements
-        self.realistic_comps = np.transpose([[zmid*tup[2]*(2*m.pi*tup[1])**-0.5*m.exp(-(zmid-tup[0])**2/(2*tup[1])) for zmid in self.allzmids] for tup in self.real])
-        self.realistic = np.array([sum(realistic_comp) for realistic_comp in self.realistic_comps])
+        # put together Gaussian elements --> now doing this in persim
+#         self.realistic_comps = np.transpose([[zmid*tup[2]*(2*m.pi*tup[1])**-0.5*m.exp(-(zmid-tup[0])**2/(2*tup[1])) for zmid in self.allzmids] for tup in self.real])
+#         self.realistic = np.array([sum(realistic_comp) for realistic_comp in self.realistic_comps])
 
         # set up info for one test
 
@@ -113,9 +113,9 @@ class setup(object):
 
         # 0 for underlying interim prior, 1 for bad interim prior
         if 'interim' in indict:
-            self.interim = bool(int(indict['interim'][0]))
+            self.interim = indict['interim'][0]#bool(int(indict['interim'][0]))
         else:
-            self.interim = bool(0)
+            self.interim = 'flat'#corresponding to 'flat','unimodal','bimodal','multimodal'#bool(0)
 
         # 0 for breadth of posterior peak being dependent on true redshift, 1 for drawn from Gaussian
         if 'sigma' in indict:

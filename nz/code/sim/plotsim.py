@@ -10,7 +10,7 @@ import sys
 import os
 import math as m
 
-from utilsim import *
+import utilsim as us
 
 np.random.seed(seed=0)
 
@@ -33,37 +33,38 @@ def plotstep(subplot,binends,plot,style='-',col='k',lw=1,lab=' ',a=1.):
 
 # make all the plots
 def initial_plots(meta, test):
-    plot_priorgen(meta)
+    plot_physgen(meta,test)
     plot_true(meta,test)
     plot_pdfs(meta,test)
-    # plot_truevmap(meta,test)
+    plot_truevmap(meta,test)
     plot_liktest(meta,test)
     print(meta.name+' plotted setup')
 
 # plot the underlying P(z) and its components
-def plot_priorgen(metainfo):
+def plot_physgen(meta,test):
 
-    meta = metainfo
-
-    realsum = sum(meta.realistic)
-    realistic_pdf = meta.realistic/meta.zdifs/realsum
-    plotrealistic = np.array([sum(r) for r in meta.realistic_comps])
-    plotrealisticsum = sum(plotrealistic)
-    plotrealistic_comps = np.transpose(meta.realistic_comps/plotrealisticsum)
-    plotrealistic_pdf = plotrealistic/plotrealisticsum
+#     realsum = sum(meta.realistic)
+#     realistic_pdf = meta.realistic/meta.zdifs/realsum
+#     plotrealistic = np.array([sum(r) for r in meta.realistic_comps])
+#     plotrealisticsum = sum(plotrealistic)
+#     plotrealistic_comps = np.transpose(meta.realistic_comps/plotrealisticsum)
+#     plotrealistic_pdf = plotrealistic/plotrealisticsum
 
     f = plt.figure(figsize=(5,5))
     sys.stdout.flush()
     sps = f.add_subplot(1,1,1)
     f.suptitle(meta.name+' True p(z)')
-    sps.semilogy()
-    sps.set_ylim(0.01,1.0)
-    plotstep(sps,meta.allzs,plotrealistic_pdf,lab=r'True $p(z)$')
-    for k in range(0,len(meta.real)):
-        plotstep(sps,meta.allzs,plotrealistic_comps[k],col=meta.colors[k],lab='component '+str(meta.real[k][2])+'N('+str(meta.real[k][0])+','+str(meta.real[k][1])+')')
+    zrange = np.arange(test.allzs[0],test.allzs[-1],1./test.ngals)
+    prange = test.real.sumfullpdf(zrange)
+    sps.plot(zrange,prange,label=r'True $p(z)$',color='k')
+    for k in us.lrange(meta.real):
+        prange = test.real.fullpdf(k,zrange)
+        sps.plot(zrange,prange,color=meta.colors[k],label='component '+str(meta.real[k][2])+'N('+str(meta.real[k][0])+','+str(meta.real[k][1])+')')
+    plotstep(sps,test.binends,test.phsPz,lw=2,col='k')
+    #sps.semilogy()
     sps.set_ylabel(r'$p(z)$')
     sps.set_xlabel(r'$z$')
-    sps.legend(fontsize='x-small',loc='upper left')
+    sps.legend(fontsize='xx-small',loc='upper left')
     f.savefig(os.path.join(meta.simdir,'physPz.png'))
     return
 
@@ -78,8 +79,8 @@ def plot_true(meta, test):
     sps.set_ylabel(r'$\ln N(z)$')
     sps.set_ylim(-1.,m.log(test.seed/meta.zdif))
     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-    plotstep(sps,test.binends,test.logtruNz,style='-',lab=r'True $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_tru))+r'$')
-#     plotstep(sps,test.allzs,test.logphsNz,style='-',a=0.5,lab=r'Underlying $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_true))+r'$')
+    plotstep(sps,test.binends,test.logtruNz,style='-',lw=2.,lab=r'True $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_truNz))+r'$')
+    plotstep(sps,test.binends,test.logphsNz,lab=r'Underlying $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_phsNz))+r'$')
     plotstep(sps,test.binends,test.logstkNz,style='--',lab=r'Stacked $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_stkNz))+r'$')
     plotstep(sps,test.binends,test.logmapNz,style='-.',lab=r'MAP $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_mapNz))+r'$')
 #    plotstep(sps,test.binends,test.full_logexpNz,style=':',lab=r'$\ln N(E[z])$; $\ln\mathcal{L}='+str(round(test.lik_expNz))+r'$')
@@ -92,18 +93,13 @@ def plot_true(meta, test):
     sps.set_ylabel(r'$N(z)$')
     sps.set_ylim(0.,test.seed/meta.zdif)
     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-    plotstep(sps,test.allzs,test.truNz,style='-',lab=r'True $N(z)$')
-#     plotstep(sps,test.allzs,test.phsNz,a=0.5,lab=r'underlying $N(z)$; $KLD='+str(test.kl_physPz)+r'$')
+    plotstep(sps,test.binends,test.truNz,style='-',lw=2.,lab=r'True $N(z)$; $KLD='+str(test.kl_truNz)+r'$')
+    plotstep(sps,test.binends,test.phsNz,lab=r'Underlying $N(z)$; $KLD='+str(test.kl_phsNz)+r'$')
     plotstep(sps,test.binends,test.stkNz,style='--',lab=r'Stacked $N(z)$; $KLD='+str(test.kl_stkNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsstack)))
     plotstep(sps,test.binends,test.mapNz,style='-.',lab=r'MAP $N(z)$; $KLD='+str(test.kl_mapNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
 #     plotstep(sps,test.binends,test.expNz,style=':',lab=r'$N(E[z])$; $KLD='+str(test.kl_expNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsexpNz)))
     plotstep(sps,test.binends,np.exp(test.mle),style=':',lab=r'MLE $N(z)$; $KLD='+str(test.kl_mleNz)+r'$')
     plotstep(sps,test.binends,test.intNz,a=0.5,lab=r'Interim $N(z)$; $KLD='+str(test.kl_intNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsinterim)))
-#     sps.step(test.zhis,test.truNz,label=r'true $N(z)$')
-#     sps.step(test.binhis,test.stack,label=r'Stacked $N(z)$ with $\sigma^{2}=$'+str(int(test.vsstack)),linestyle='--')
-#     sps.step(test.binhis,test.mapNz,label=r'MAP $N(z)$ with $\sigma^{2}=$'+str(int(test.vsmapNz)),linestyle='-.')
-#     sps.step(test.binhis,test.expNz,label=r'$N(E[z])$ with $\sigma^{2}=$'+str(int(test.vsexpNz)),linestyle=':')
-#     sps.step(test.binhis,test.full_interim,label=r'interim $N(z)$ with $\sigma^{2}=$'+str(int(test.vsinterim)))
     sps.legend(loc='upper left',fontsize='xx-small')
     f.savefig(os.path.join(meta.simdir,'trueNz.png'))
     return
@@ -114,7 +110,7 @@ def plot_pdfs(meta,test):
     sps = f.add_subplot(1,1,1)
     f.suptitle('Observed galaxy posteriors for '+meta.name)
     #sps.set_title('multimodal='+str(meta.shape)+', noisy='+str(meta.noise))
-    for r in lrange(test.randos):
+    for r in us.lrange(test.randos):
         plotstep(sps,test.binends,test.pobs[test.randos[r]],col=meta.colors[r])#,alpha=a)
         sps.vlines(test.truZs[test.randos[r]],0.,max(test.pobs[test.randos[r]]),color=meta.colors[r],linestyle='--')
         sps.vlines(test.obsZs[test.randos[r]],0.,max(test.pobs[test.randos[r]]),color=meta.colors[r],linestyle=':')
@@ -130,7 +126,7 @@ def plot_truevmap(meta,test):
     f = plt.figure(figsize=(5,5))
     sps = f.add_subplot(1,1,1)
     f.suptitle(meta.name+' True Redshifts vs. Point Estimates')
-    a = 1./test.ngals/test.bindif
+    a = float(len(meta.colors))/np.sqrt(test.ngals)
     #randos = random.sample(pobs[-1][0],ncolors)
     sps.set_ylabel('Point Estimate')
     sps.set_xlabel(r'True $z$')
@@ -173,7 +169,6 @@ def plot_liktest(meta,test):
     frac_t = np.arange(0.,2.+test.zdif,test.zdif)
     frac_i = 1.-frac_t
 
-    print(len(test.binends),len(test.logtruNz),len(test.logintNz))
     for i in xrange(0,len(frac_t)):
         logmix = test.logtruNz*frac_t[i]+test.logintNz*frac_i[i]
         #mix = test.truNz*frac_t[i]+test.full_interim*frac_i[i]
