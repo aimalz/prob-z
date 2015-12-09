@@ -2,13 +2,14 @@
 full-sim module runs data generation procedure
 """
 
-from insim import setup
-from persim import pertest
-from plotsim import *
 import os
 import multiprocessing as mp
 import traceback
 import cPickle as cpkl
+
+from insim import setup
+from persim import pertest
+from plotsim import *
 
 testdir = os.path.join('..','tests')
 

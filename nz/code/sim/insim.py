@@ -65,11 +65,11 @@ class setup(object):
             nelem = len(indict['phys'])
             self.real = np.array([float(indict['phys'][i]) for i in range(1,nelem)])
         else:
-            self.real = np.array([[zmin+0.2*zrange, 0.1, 1.],#2.0],
-                         [zmin+0.4*zrange, 0.1, 2.],
+            self.real = np.array([[zmin+0.2*zrange, 0.1, 0.1],#2.0],
+                         [zmin+0.4*zrange, 0.1, 0.2],
                          # [zmin+0.5*zrange, 0.1, 5.0],
-                         [zmin+0.6*zrange, 0.1, 4.],
-                         [zmin+0.8*zrange, 0.1, 3.]#1.25],
+                         [zmin+0.6*zrange, 0.1, 0.4],
+                         [zmin+0.8*zrange, 0.1, 0.3]#1.25],
                          #[zmin+1.0*zrange, 0.001, 0.75]
                           ])
             #self.real = np.array([[(zmax-zmin)/2.,0.1,1.0]])
@@ -88,7 +88,7 @@ class setup(object):
 
         # generate number of galaxies in survey/s
         if 'survs' in indict:
-            self.survs = int(indict['survs'][0])
+            self.survs = 10**int(indict['survs'][0])
         else:
             self.survs = 1e3
 

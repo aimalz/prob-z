@@ -25,13 +25,18 @@ class pertest(object):
 
         self.meta = meta
 
+        self.seed = 1
+
+        start_time = timeit.default_timer()
         self.readin()
         self.choosen()
         self.choosetrue()
         self.makedat()
         self.makecat()
-        self.fillsummary()
         self.savedat()
+        elapsed = timeit.default_timer() - start_time
+        print(self.meta.name+' data generated in '+str(elapsed))
+        self.fillsummary()
 
         print(self.meta.name+' simulated data')
 
@@ -48,22 +53,23 @@ class pertest(object):
         self.zavg = sum(self.zmids)/self.ndims
 
         # define target survey size
-        self.seed = self.meta.survs
+        self.surv = self.meta.survs
 
         # define realistic underlying P(z) for this number of parameters and N(z) for this survey size
         self.real = us.gmix(self.meta.real,(self.zlos[0],self.zhis[-1]))
 #         self.phsPz,self.logphsPz = us.normed(self.meta.realistic[:self.ndims],self.zdifs)
-#         self.phsNz = self.seed*self.phsPz
+#         self.phsNz = self.surv*self.phsPz
 #         self.logphsNz = us.safelog(self.phsNz)
 
     def choosen(self):
 
         # sample some number of galaxies, poisson or set
         if self.meta.poisson == True:
-            np.random.seed(seed=self.ndims)
-            self.ngals = np.random.poisson(self.seed)
+            np.random.seed(seed=self.seed)
+            self.ngals = np.random.poisson(self.surv)
         else:
-            self.ngals = self.seed
+            self.ngals = self.surv
+        np.random.seed(seed=self.seed)
         self.randos = np.random.choice(self.ngals,len(self.meta.colors),replace=False)
 
     def choosetrue(self):
@@ -72,7 +78,7 @@ class pertest(object):
 
         #test all galaxies in survey have same true redshift vs. sample from physPz
         if self.meta.random == True:
-            np.random.seed(seed=self.ndims)
+            np.random.seed(seed=self.seed)
 #             for j in range(0,self.ngals):
 #                 count[us.choice(xrange(self.ndims), self.phsPz)] += 1
             self.truZs = self.real.sample(self.ngals)
@@ -80,8 +86,8 @@ class pertest(object):
 #             chosenbin = np.argmax(self.phsPz)
 #             count[chosenbin] = self.ngals
             self.truZs = np.array([(self.allzs[0]+self.allzs[-1])/2.]*self.ngals)
-        random.seed(self.ndims)
-        random.shuffle(self.truZs)
+        np.random.seed(seed=self.seed)
+        np.random.shuffle(self.truZs)
 
 #         self.count = np.array(count)
 
@@ -108,18 +114,18 @@ class pertest(object):
 
         # we can re-calculate npeaks later from shiftZs or sigZs.
         if self.meta.shape == True:
-            np.random.seed(seed=self.ndims)
+            np.random.seed(seed=self.seed)
             self.npeaks = np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
         else:
             self.npeaks = [1]*self.ngals
 
         # jitter zs to simulate inaccuracy, choose variance randomly for eah peak
-        np.random.seed(seed=self.ndims)
+        np.random.seed(seed=self.seed)
         self.obsZs = np.array([[np.random.normal(loc=self.truZs[j],scale=self.varZs[j]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
         # standard deviation of peaks directly dependent on true redshift vs Gaussian
         if self.meta.sigma == True or self.meta.shape == True:
-            np.random.seed(seed=self.ndims)
+            np.random.seed(seed=self.seed)
             self.sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j],scale=self.varZs[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
         else:
             self.sigZs = np.array([[self.varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
@@ -142,20 +148,23 @@ class pertest(object):
 
         # define flat P(z) for this number of parameters and N(z) for this survey size
         self.fltPz,self.logfltPz = us.normed([1.]*self.nbins,self.bindifs)
-        self.fltNz = self.seed*self.fltPz
+        self.fltNz = self.surv*self.fltPz
         self.logfltNz = us.safelog(self.fltNz)
 
         # define underlying P(z) for this number of parameters and N(z) for this survey size
-        self.phsPz = self.real.binned(self.binends)
+        self.z_cont = np.arange(self.allzs[0],self.allzs[-1],1./self.ngals)
+        self.phsPz = self.real.sumfullpdf(self.z_cont)
+#         self.phsPz = self.real.binned(self.binends)
         self.logphsPz = us.safelog(self.phsPz)
-        self.phsNz = self.seed*self.phsPz
+        self.phsNz = self.surv*self.phsPz
         self.logphsNz = us.safelog(self.phsNz)
 
         #nontrivial interim prior
         if self.meta.interim == 'flat':
             intNz = self.logfltNz
         elif self.meta.interim == 'multimodal':
-            intNz = self.logphsNz
+            intPz = self.real.binned(self.binends)
+            intNz = us.safelog(self.surv*intPz)
         elif self.meta.interim == 'unimodal':
             intNz = sp.stats.poisson.pmf(xrange(self.nbins),2.0)
         elif self.meta.interim == 'bimodal':
@@ -241,10 +250,10 @@ class pertest(object):
     # generate summary quantities for plotting
     def fillsummary(self):
 
-        self.kl_phsNz = self.calckl(self.logphsNz,self.logtruNz)
-        self.lik_phsNz = self.calclike(self.logphsNz)
-        self.kl_truNz = self.calckl(self.logtruNz,self.logtruNz)
-        self.lik_truNz = self.calclike(self.logtruNz)
+#         self.kl_phsNz = self.calckl(self.logphsNz,self.logtruNz)
+#         self.lik_phsNz = self.calclike(self.logphsNz)
+#         self.kl_truNz = self.calckl(self.logtruNz,self.logtruNz)
+#         self.lik_truNz = self.calclike(self.logtruNz)
 
         self.vslogstkNz,self.vsstkNz = self.calcvar(self.logstkNz)
         self.kl_stkNz = self.calckl(self.logstkNz,self.logtruNz)
@@ -265,8 +274,9 @@ class pertest(object):
         self.cands = np.array([self.logintNz,self.logstkNz,self.logmapNz])#,self.logexpNz])
         self.liks = np.array([self.lik_intNz,self.lik_stkNz,self.lik_mapNz])#,self.lik_expNz])
         self.start = self.cands[np.argmax(self.liks)]
-        self.lik_mleNz,self.mle = self.makemle('slsqp')#'cobyla','slsqp'
-        self.kl_mleNz = self.calckl(self.mle,self.logtruNz)
+        self.lik_mmlNz,self.logmmlNz = self.makemml('fmin')#'bfgs_b','bfgs','cobyla','fmin','powell','slsqp'
+        self.mmlNz = np.exp(self.logmmlNz)
+        self.kl_mmlNz = self.calckl(self.logmmlNz,self.logtruNz)
 
     # KL Divergence test
     def calckl(self,lpn,lqn):
@@ -287,7 +297,7 @@ class pertest(object):
         for j in xrange(self.ngals):
             logterm = np.log(np.sum(np.exp(self.logpobs[j]+constterms)))
             sumterm += logterm
-        return sumterm
+        return(round(sumterm))
 
     def calcvar(self,theta):
         vslog = theta-self.logtruNz
@@ -296,33 +306,46 @@ class pertest(object):
         vs = np.dot(vs,vs)/self.nbins
         return(vslog,vs)
 
-    def makemle(self,arg):
+    def makemml(self,arg):
         start_time = timeit.default_timer()
+
+        def minlf(theta):
+            return -1.*self.calclike(theta)
+        def maxruns():
+            before = self.nbins
+            for x in xrange(self.nbins):
+                before = before**self.nbins
+            return(before)
+
+        if arg == 'bfgs':
+            loc = sp.optimize.fmin_bfgs(minlf,self.start,maxiter=maxruns())
+        if arg == 'bfgs_b':
+            bounds = [(0.,np.log(self.ngals/min(self.bindifs))) for k in xrange(self.nbins)]
+            loc = sp.optimize.fmin_l_bfgs_b(minlf,self.start,bounds=bounds,maxfun=maxruns(),maxiter=maxruns())
         if arg == 'cobyla':
+#             def cons1(theta):
+#                 return np.dot(np.exp(theta),self.bindifs)-0.5*self.ngals
+#             def cons2(theta):
+#                 return 1.5*self.ngals-np.dot(np.exp(theta),self.bindifs)
             def cons1(theta):
-                return np.dot(np.exp(theta),self.bindifs)-0.5*self.ngals
+                return np.dot(np.exp(theta),self.bindifs)-self.ngals
             def cons2(theta):
-                return 1.5*self.ngals-np.dot(np.exp(theta),self.bindifs)
-            def cons3(theta):
-                return np.exp(theta)
-            def cons4(theta):
-                return self.ngals-np.exp(theta)
-            def minlf(theta):
-                return -1.*self.calclike(theta)
-            loc = sp.optimize.fmin_cobyla(minlf,self.start,cons=(cons1,cons2,cons3,cons4),maxfun=self.ngals**2)
-            like = self.calclike(loc)
+                return self.ngals-np.dot(np.exp(theta),self.bindifs)
+            loc = sp.optimize.fmin_cobyla(minlf,self.start,cons=(cons1,cons2),maxfun=maxruns())
+        if arg == 'fmin':
+            loc = sp.optimize.fmin(minlf,self.start,maxiter=maxruns(),maxfun=maxruns())
+        if arg == 'powell':
+            loc = sp.optimize.fmin_powell(minlf,self.start,maxiter=maxruns(),maxfun=maxruns())
         if arg == 'slsqp':
-            def cons1(theta):
-                return np.dot(np.exp(theta),self.bindifs)-0.5*self.ngals
-            def cons2(theta):
-                return 1.5*self.ngals-np.dot(np.exp(theta),self.bindifs)
-            def minlf(theta):
-                return -1.*self.calclike(theta)
-            bounds = [(-sys.float_info.epsilon,np.log(self.ngals/min(self.bindifs))) for k in xrange(self.nbins)]
-            loc = sp.optimize.fmin_slsqp(minlf,self.start,ieqcons=([cons1,cons2]),bounds=bounds,iter=self.ngals)#,epsilon=1.)
-            like = self.calclike(loc)
+#             def cons1(theta):
+#                 return np.dot(np.exp(theta),self.bindifs)-self.ngals/self.nbins
+#             def cons2(theta):
+#                 return self.ngals*(1.+1./self.nbins)-np.dot(np.exp(theta),self.bindifs)
+            bounds = [(np.log(1./max(self.bindifs)),np.log(self.ngals/min(self.bindifs))) for k in xrange(self.nbins)]
+            loc = sp.optimize.fmin_slsqp(minlf,self.start,bounds=bounds,iter=self.nbins**self.nbins)#,epsilon=1.)
+        like = self.calclike(loc)
         elapsed = timeit.default_timer() - start_time
-        print(str(self.ngals)+' galaxies for '+self.meta.name+' MLE by '+arg+' in '+str(elapsed)+': '+str(loc))
+        print(str(self.ngals)+' galaxies for '+self.meta.name+' MMLE by '+arg+' in '+str(elapsed)+': '+str(loc))
         return(like,loc)
 
     def savedat(self):

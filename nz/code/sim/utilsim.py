@@ -74,24 +74,24 @@ class gmix(object):
         self.ncomps = len(self.comps)
 
         self.weights = np.transpose(self.comps)[2]
-        self.comps = [sp.stats.norm(loc=comp[0],scale=comp[1]) for comp in self.comps]
-        sums = np.array([self.calccdf(c,self.minZ,self.maxZ) for c in lrange(self.comps)])
-        self.weights = self.weights/sum(self.weights/sums)
-        # self.weights = self.weights/sum(self.weights)
+        mincomps = [(self.minZ-comp[0])/comp[1] for comp in self.comps]
+        maxcomps = [(self.maxZ-comp[0])/comp[1] for comp in self.comps]
+        self.comps = [sp.stats.truncnorm(mincomps[c],maxcomps[c],loc=self.comps[c][0],scale=self.comps[c][1]) for c in lrange(self.comps)]
+#         self.weights = np.array([self.calccdf(c,self.minZ,self.maxZ) for c in lrange(self.comps)])
 
     def calcpdf(self,c,z):
-        if z <= self.maxZ and z >= self.minZ:
-            return self.weights[c]*self.comps[c].pdf(z)
-        else:
-            return sys.float_info.epsilon
+#         if z <= self.maxZ and z >= self.minZ:
+        return self.weights[c]*self.comps[c].pdf(z)
+#         else:
+#             return sys.float_info.epsilon
 
     def calccdf(self,c,z1,z2):
-        if z1>z2:
-            z1,z2 = z2,z1
-        if z2 > self.maxZ:
-            z2 = self.maxZ
-        if z1 < self.minZ:
-            z1 = self.minZ
+#         if z1>z2:
+#             z1,z2 = z2,z1
+#         if z2 > self.maxZ:
+#             z2 = self.maxZ
+#         if z1 < self.minZ:
+#             z1 = self.minZ
         return self.weights[c]*(self.comps[c].cdf(z2)-self.comps[c].cdf(z1))
 
     def pdfs(self,z):
@@ -107,23 +107,23 @@ class gmix(object):
         return np.array(output)
 
     def sumpdf(self,z):
-        return sum(self.pdfs(z))
-
-    def sumcdf(self,z1,z2):
-        return sum(self.cdfs(z1,z2))
+        return np.sum(self.pdfs(z))
 
     def fullpdf(self,c,zs):
         output = [sys.float_info.epsilon]*len(zs)
-        for z in lrange(zs):
-            output[z] += self.calcpdf(c,zs[z])
-        return np.array(output/sum(self.weights))
+        for k in lrange(zs):
+            output[k] += self.calcpdf(c,zs[k])
+        return np.array(output)
 
     def sumfullpdf(self,zs):
         output = np.array([sys.float_info.epsilon]*len(zs))
         for c in xrange(self.ncomps):
-            output += self.weights[c]*self.fullpdf(c,zs)
+            output += self.fullpdf(c,zs)
         #output = np.transpose(np.array(output))
         return output#/np.dot(output,zdifs) #np.array([sum(z) for z in output])
+
+    def sumcdf(self,z1,z2):
+        return np.sum(self.cdfs(z1,z2))
 
     def sample(self,N):
         choices = [0]*self.ncomps

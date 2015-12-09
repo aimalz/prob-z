@@ -12,8 +12,6 @@ import math as m
 
 import utilsim as us
 
-np.random.seed(seed=0)
-
 #making a step function plotter because pyplot is stupid
 def plotstep(subplot,binends,plot,style='-',col='k',lw=1,lab=' ',a=1.):
     subplot.hlines(plot,binends[:-1],
@@ -35,9 +33,9 @@ def plotstep(subplot,binends,plot,style='-',col='k',lw=1,lab=' ',a=1.):
 def initial_plots(meta, test):
     plot_physgen(meta,test)
     plot_true(meta,test)
+    plot_liktest(meta,test)
     plot_pdfs(meta,test)
     plot_truevmap(meta,test)
-    plot_liktest(meta,test)
     print(meta.name+' plotted setup')
 
 # plot the underlying P(z) and its components
@@ -60,7 +58,7 @@ def plot_physgen(meta,test):
     for k in us.lrange(meta.real):
         prange = test.real.fullpdf(k,zrange)
         sps.plot(zrange,prange,color=meta.colors[k],label='component '+str(meta.real[k][2])+'N('+str(meta.real[k][0])+','+str(meta.real[k][1])+')')
-    plotstep(sps,test.binends,test.phsPz,lw=2,col='k')
+#     plotstep(sps,test.binends,test.phsPz,lw=3.,col='k',a=1./3.)
     #sps.semilogy()
     sps.set_ylabel(r'$p(z)$')
     sps.set_xlabel(r'$z$')
@@ -77,28 +75,28 @@ def plot_true(meta, test):
     sps.set_title('True $\ln N(z)$')
     sps.set_xlabel(r'binned $z$')
     sps.set_ylabel(r'$\ln N(z)$')
-    sps.set_ylim(-1.,m.log(test.seed/meta.zdif))
+    sps.set_ylim(np.log(1./min(test.bindifs)),np.log(test.ngals/min(test.bindifs)))#(-1.,np.log(test.ngals/min(test.meta.zdifs)))
     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-    plotstep(sps,test.binends,test.logtruNz,style='-',lw=2.,lab=r'True $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_truNz))+r'$')
-    plotstep(sps,test.binends,test.logphsNz,lab=r'Underlying $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_phsNz))+r'$')
-    plotstep(sps,test.binends,test.logstkNz,style='--',lab=r'Stacked $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_stkNz))+r'$')
-    plotstep(sps,test.binends,test.logmapNz,style='-.',lab=r'MAP $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_mapNz))+r'$')
+    plotstep(sps,test.binends,test.logtruNz,style='-',lw=2.,lab=r'True $\ln N(z)$')
+    plotstep(sps,test.z_cont,test.logphsNz,lab=r'Underlying $\ln N(z)$')
+    plotstep(sps,test.binends,test.logstkNz,style='--',lab=r'Stacked $\ln N(z)$; $\ln\mathcal{L}='+str(test.lik_stkNz)+r'$')
+    plotstep(sps,test.binends,test.logmapNz,style='-.',lab=r'MAP $\ln N(z)$; $\ln\mathcal{L}='+str(test.lik_mapNz)+r'$')
 #    plotstep(sps,test.binends,test.full_logexpNz,style=':',lab=r'$\ln N(E[z])$; $\ln\mathcal{L}='+str(round(test.lik_expNz))+r'$')
-    plotstep(sps,test.binends,test.mle,style=':',lab=r'MLE $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_mleNz))+r'$')
-    plotstep(sps,test.binends,test.logintNz,a=0.5,lab=r'Interim $\ln N(z)$; $\ln\mathcal{L}='+str(round(test.lik_intNz))+r'$')
+    plotstep(sps,test.binends,test.logmmlNz,style=':',lab=r'MMLE $\ln N(z)$; $\ln\mathcal{L}='+str(test.lik_mmlNz)+r'$')
+    plotstep(sps,test.binends,test.logintNz,a=0.5,lab=r'Interim $\ln N(z)$; $\ln\mathcal{L}='+str(test.lik_intNz)+r'$')
     sps.legend(loc='lower right',fontsize='xx-small')
     sps = f.add_subplot(2,1,2)
     sps.set_title('True $N(z)$')
     sps.set_xlabel(r'binned $z$')
     sps.set_ylabel(r'$N(z)$')
-    sps.set_ylim(0.,test.seed/meta.zdif)
+    sps.set_ylim(1./min(test.bindifs),test.ngals/min(test.bindifs))#(0.,test.ngals/min(test.meta.zdifs))
     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-    plotstep(sps,test.binends,test.truNz,style='-',lw=2.,lab=r'True $N(z)$; $KLD='+str(test.kl_truNz)+r'$')
-    plotstep(sps,test.binends,test.phsNz,lab=r'Underlying $N(z)$; $KLD='+str(test.kl_phsNz)+r'$')
+    plotstep(sps,test.binends,test.truNz,style='-',lw=2.,lab=r'True $N(z)$')
+    plotstep(sps,test.z_cont,test.phsNz,lab=r'Underlying $N(z)$')
     plotstep(sps,test.binends,test.stkNz,style='--',lab=r'Stacked $N(z)$; $KLD='+str(test.kl_stkNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsstack)))
     plotstep(sps,test.binends,test.mapNz,style='-.',lab=r'MAP $N(z)$; $KLD='+str(test.kl_mapNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
 #     plotstep(sps,test.binends,test.expNz,style=':',lab=r'$N(E[z])$; $KLD='+str(test.kl_expNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsexpNz)))
-    plotstep(sps,test.binends,np.exp(test.mle),style=':',lab=r'MLE $N(z)$; $KLD='+str(test.kl_mleNz)+r'$')
+    plotstep(sps,test.binends,test.mmlNz,style=':',lab=r'MMLE $N(z)$; $KLD='+str(test.kl_mmlNz)+r'$')
     plotstep(sps,test.binends,test.intNz,a=0.5,lab=r'Interim $N(z)$; $KLD='+str(test.kl_intNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsinterim)))
     sps.legend(loc='upper left',fontsize='xx-small')
     f.savefig(os.path.join(meta.simdir,'trueNz.png'))
@@ -126,7 +124,8 @@ def plot_truevmap(meta,test):
     f = plt.figure(figsize=(5,5))
     sps = f.add_subplot(1,1,1)
     f.suptitle(meta.name+' True Redshifts vs. Point Estimates')
-    a = float(len(meta.colors))/np.sqrt(test.ngals)
+    a_point = 10./test.ngals
+    a_bar = float(len(meta.colors))*a_point
     #randos = random.sample(pobs[-1][0],ncolors)
     sps.set_ylabel('Point Estimate')
     sps.set_xlabel(r'True $z$')
@@ -139,16 +138,16 @@ def plot_truevmap(meta,test):
         for j in xrange(test.ngals):
             sps.vlines(test.truZs[j], test.binlos[k], test.binhis[k],
                         color=meta.colors[2],
-                        alpha=plotpobs[j][k]*a,
+                        alpha=plotpobs[j][k]*a_bar,
                         linewidth=2)
     sps.scatter(test.truZs, test.mapzs,
                 c=meta.colors[0],
-                alpha = 0.5,
+                alpha = a_point,
                 label=r'MAP $z$',
                 linewidth=0.1)
     sps.scatter(test.truZs, test.expzs,
                 c=meta.colors[1],
-                alpha = 0.5,
+                alpha = a_bar,
                 label=r'$E(z)$',
                 linewidth=0.1)
     sps.plot([-1],[-1],c=meta.colors[2],alpha=0.5,linewidth=2,label=r'$p(z|\vec{d})$')
@@ -164,7 +163,7 @@ def plot_liktest(meta,test):
     sps[1].set_ylabel(r'$\ln N(z)$')
     sps[0].set_xlabel(r'Fraction $\ln\tilde{\vec{\theta}}; (1 -$ Fraction $\ln\vec{\theta}^{0})$')
     sps[1].set_xlabel(r'$z$')
-    plotstep(sps[1],test.binends,test.mle,lab=r'MLE $\ln N(z)$')
+    plotstep(sps[1],test.binends,test.logmmlNz,lab=r'MMLE $\ln N(z)$')
 
     frac_t = np.arange(0.,2.+test.zdif,test.zdif)
     frac_i = 1.-frac_t
