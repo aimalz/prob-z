@@ -58,7 +58,7 @@ def plot_physgen(meta,test):
     for k in us.lrange(meta.real):
         prange = test.real.fullpdf(k,zrange)
         sps.plot(zrange,prange,color=meta.colors[k],label='component '+str(meta.real[k][2])+'N('+str(meta.real[k][0])+','+str(meta.real[k][1])+')')
-#     plotstep(sps,test.binends,test.phsPz,lw=3.,col='k',a=1./3.)
+#     plotstep(sps,test.z_cont,test.phsPz,lw=3.,col='k',a=1./3.)
     #sps.semilogy()
     sps.set_ylabel(r'$p(z)$')
     sps.set_xlabel(r'$z$')
@@ -109,9 +109,9 @@ def plot_pdfs(meta,test):
     f.suptitle('Observed galaxy posteriors for '+meta.name)
     #sps.set_title('multimodal='+str(meta.shape)+', noisy='+str(meta.noise))
     for r in us.lrange(test.randos):
-        plotstep(sps,test.binends,test.pobs[test.randos[r]],col=meta.colors[r])#,alpha=a)
-        sps.vlines(test.truZs[test.randos[r]],0.,max(test.pobs[test.randos[r]]),color=meta.colors[r],linestyle='--')
-        sps.vlines(test.obsZs[test.randos[r]],0.,max(test.pobs[test.randos[r]]),color=meta.colors[r],linestyle=':')
+        plotstep(sps,test.binends,test.pdfs[test.randos[r]],col=meta.colors[r])#,alpha=a)
+        sps.vlines(test.truZs[test.randos[r]],0.,max(test.pdfs[test.randos[r]]),color=meta.colors[r],linestyle='--')
+        sps.vlines(test.obsZs[test.randos[r]],0.,max(test.pdfs[test.randos[r]]),color=meta.colors[r],linestyle=':')
     sps.set_ylabel(r'$p(z|\vec{d})$')
     sps.set_xlabel(r'$z$')
     sps.set_xlim(test.binlos[0]-meta.zdif,test.binhis[-1]+meta.zdif)
@@ -126,30 +126,30 @@ def plot_truevmap(meta,test):
     f.suptitle(meta.name+' True Redshifts vs. Point Estimates')
     a_point = 10./test.ngals
     a_bar = float(len(meta.colors))*a_point
-    #randos = random.sample(pobs[-1][0],ncolors)
+    #randos = random.sample(pdfs[-1][0],ncolors)
     sps.set_ylabel('Point Estimate')
     sps.set_xlabel(r'True $z$')
     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
     sps.set_ylim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
     sps.plot(test.binmids,test.binmids,c='k')
-    plotpobs = (test.pobs*meta.zdif)
-    plotpobs = plotpobs/np.max(plotpobs)
+    plotpdfs = (test.pdfs*meta.zdif)
+    plotpdfs = plotpdfs/np.max(plotpdfs)
     for k in xrange(test.nbins):
         for j in xrange(test.ngals):
             sps.vlines(test.truZs[j], test.binlos[k], test.binhis[k],
                         color=meta.colors[2],
-                        alpha=plotpobs[j][k]*a_bar,
+                        alpha=plotpdfs[j][k]*a_bar,
                         linewidth=2)
-    sps.scatter(test.truZs, test.mapzs,
+    sps.scatter(test.truZs, test.mapZs,
                 c=meta.colors[0],
                 alpha = a_point,
                 label=r'MAP $z$',
                 linewidth=0.1)
-    sps.scatter(test.truZs, test.expzs,
-                c=meta.colors[1],
-                alpha = a_bar,
-                label=r'$E(z)$',
-                linewidth=0.1)
+#     sps.scatter(test.truZs, test.expZs,
+#                 c=meta.colors[1],
+#                 alpha = a_bar,
+#                 label=r'$E(z)$',
+#                 linewidth=0.1)
     sps.plot([-1],[-1],c=meta.colors[2],alpha=0.5,linewidth=2,label=r'$p(z|\vec{d})$')
     sps.legend(loc='upper left',fontsize='x-small')
     f.savefig(os.path.join(meta.simdir,'truevmap.png'))
@@ -159,21 +159,32 @@ def plot_liktest(meta,test):
     f = plt.figure(figsize=(15,7.5))
     sps = [f.add_subplot(1,2,x+1) for x in xrange(0,2)]
     f.suptitle(meta.name+' Likelihood Test')
-    sps[0].set_ylabel('Likelihood')
+    sps[0].set_ylabel('Log Likelihood')
     sps[1].set_ylabel(r'$\ln N(z)$')
     sps[0].set_xlabel(r'Fraction $\ln\tilde{\vec{\theta}}; (1 -$ Fraction $\ln\vec{\theta}^{0})$')
     sps[1].set_xlabel(r'$z$')
-    plotstep(sps[1],test.binends,test.logmmlNz,lab=r'MMLE $\ln N(z)$')
+
+    plotstep(sps[1],test.binends,test.logmmlNz,lw=3,style=':',lab=r'MMLE $\ln N(z)$')
+    plotstep(sps[1],test.binends,test.logtruNz,lw=3,style='--',lab=r'True $\ln N(z)$')
+    plotstep(sps[1],test.binends,test.logstkNz,lw=3,style='-.',lab=r'Interim Prior $\ln N(z)$')
 
     frac_t = np.arange(0.,2.+test.zdif,test.zdif)
     frac_i = 1.-frac_t
 
     for i in xrange(0,len(frac_t)):
-        logmix = test.logtruNz*frac_t[i]+test.logintNz*frac_i[i]
-        #mix = test.truNz*frac_t[i]+test.full_interim*frac_i[i]
-        sps[0].scatter(frac_t[i],test.calclike(logmix))
+#         logmix = test.logtruNz*frac_t[i]+test.logintNz*frac_i[i]
+        mix = test.truNz*frac_t[i]+test.intNz*frac_i[i]
+        logmix = us.safelog(mix)
+        index = frac_t[i]/(frac_i[i]+frac_t[i])
+        sps[0].scatter(index,test.calclike(logmix),alpha=abs(index)/2.)
         plotstep(sps[1],test.binends,logmix,lab=str(frac_t[i])+r'\ True $\ln N(z)$, '+str(frac_i[i])+r'\ Interim Prior')
-
-    sps[1].set_ylim(-1.,10.)
+    avgNz = test.truNz*0.5+test.intNz*0.5
+    logavgNz = us.safelog(avgNz)#test.logtruNz*0.5+test.logstkNz*0.5
+    sps[0].hlines([test.lik_mmlNz]*len(frac_t),0.,2.,linewidth=2,linestyle=':',label=r'MMLE $\ln N(z)$')
+    sps[0].hlines([test.lik_truNz]*len(frac_t),0.,2.,linewidth=2,linestyle='--',label=r'True $\ln N(z)$')
+    sps[0].hlines([test.lik_intNz]*len(frac_t),0.,2.,linewidth=2,linestyle='-.',label=r'Interim Prior $\ln N(z)$')
+    sps[0].hlines([test.calclike(logavgNz)]*len(frac_t),0.,2.,linewidth=3,linestyle='-',label=r'50-50 Mix of True and Interim Pror $\ln N(z)$')
+    sps[0].legend(fontsize='xx-small',loc='lower right')
     sps[1].legend(fontsize='xx-small',loc='lower right')
+    sps[1].set_ylim(-1.,10.)
     f.savefig(os.path.join(meta.simdir,'liktest.png'))

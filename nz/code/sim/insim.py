@@ -87,10 +87,10 @@ class setup(object):
             self.params = self.allnbins
 
         # generate number of galaxies in survey/s
-        if 'survs' in indict:
-            self.survs = 10**int(indict['survs'][0])
+        if 'surv' in indict:
+            self.surv = 10**int(indict['surv'][0])
         else:
-            self.survs = 1e3
+            self.surv = 1e3
 
         # 0 for set number of galaxies, 1 for statistical sample around survey size
         if 'poisson' in indict:
@@ -168,7 +168,7 @@ class setup(object):
             'topdir': self.topdir,
             'allzs': self.allzs,
             'params': self.params,
-            'survs': self.survs,
+            'surv': self.surv,
             'poisson': self.poisson,
             'random': self.random,
             'uniform': self.uniform,
