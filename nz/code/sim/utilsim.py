@@ -138,7 +138,7 @@ class gmix(object):
 
     def binned(self,zends):
         zdifs = zends[1:]-zends[:-1]
-        output = [sys.float_info.epsilon]*(len(zdifs))
+        output = [0]*(len(zdifs))
         for z in lrange(zdifs):
             output[z] += self.sumcdf(zends[z],zends[z+1])/zdifs[z]
         return np.array(output/np.dot(output,zdifs))

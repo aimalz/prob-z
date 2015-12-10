@@ -172,9 +172,9 @@ def plot_liktest(meta,test):
     frac_i = 1.-frac_t
 
     for i in xrange(0,len(frac_t)):
-#         logmix = test.logtruNz*frac_t[i]+test.logintNz*frac_i[i]
-        mix = test.truNz*frac_t[i]+test.intNz*frac_i[i]
-        logmix = us.safelog(mix)
+        logmix = test.logtruNz*frac_t[i]+test.logintNz*frac_i[i]
+#         mix = test.truNz*frac_t[i]+test.intNz*frac_i[i]
+#         logmix = us.safelog(mix)
         index = frac_t[i]/(frac_i[i]+frac_t[i])
         sps[0].scatter(index,test.calclike(logmix),alpha=abs(index)/2.)
         plotstep(sps[1],test.binends,logmix,lab=str(frac_t[i])+r'\ True $\ln N(z)$, '+str(frac_i[i])+r'\ Interim Prior')
