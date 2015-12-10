@@ -61,7 +61,7 @@ def normed(x,scale):
     x = np.array(x)
     scale = np.array(scale)
     norm = x/np.dot(x,scale)
-    return (norm,safelog(norm))
+    return norm
 
 class gmix(object):
     """

@@ -124,8 +124,8 @@ class pertest(object):
 
     def setup_pdfs(self):
 
-        self.binfront = np.array([min(self.zlos)+x*self.zdif for x in range(int(m.floor((self.minobs-min(self.zlos))/self.zdif)),0)])#np.array([])
-        self.binback = np.array([max(self.zhis)+x*self.zdif for x in range(1,int(m.ceil((self.maxobs-max(self.zhis))/self.zdif)))])#np.array([])
+        self.binfront = np.array([])#np.array([min(self.zlos)+x*self.zdif for x in range(int(m.floor((self.minobs-min(self.zlos))/self.zdif)),0)])#np.array([])
+        self.binback = np.array([])#np.array([max(self.zhis)+x*self.zdif for x in range(1,int(m.ceil((self.maxobs-max(self.zhis))/self.zdif)))])#np.array([])
         self.binends = np.unique(np.concatenate((self.binfront,self.allzs,self.binback),axis=0))
         self.binlos = self.binends[:-1]
         self.binhis = self.binends[1:]
@@ -135,30 +135,33 @@ class pertest(object):
         self.bindif = sum(self.bindifs)/self.nbins
 
 #         define flat P(z) for this number of parameters and N(z) for this survey size
-        self.fltPz,self.logfltPz = us.normed([1.]*self.nbins,self.bindifs)
+        self.fltPz = us.normed([1.]*self.nbins,self.bindifs)
+        self.logfltPz = us.safelog(self.fltPz)
         self.fltNz = self.ngals*self.fltPz
         self.logfltNz = us.safelog(self.fltNz)
 
         self.truNz,bins = np.histogram(self.truZs,bins=self.binends)
-        self.truNz = self.truNz/self.bindifs
+        self.truPz = us.normed(self.truNz,self.bindifs)
+        self.logtruPz = us.safelog(self.truPz)
+        self.truNz = self.ngals*self.truPz
         self.logtruNz = us.safelog(self.truNz)
-        self.truPz,self.logtruPz = us.normed(self.truNz,self.bindifs)
 
         #nontrivial interim prior
         if self.meta.interim == 'flat':
-            intNz = self.fltPz
+            intP = self.fltPz
         elif self.meta.interim == 'multimodal':
-            intNz = self.real.binned(self.binends)
+            intP = self.real.binned(self.binends)
         elif self.meta.interim == 'unimodal':
-            intNz = sp.stats.poisson.pmf(xrange(self.nbins),2.0)
+            intP = sp.stats.poisson.pmf(xrange(self.nbins),2.0)
         elif self.meta.interim == 'bimodal':
             x = self.nbins
-            intNz = sp.stats.pareto.pdf(np.arange(1.,2.,1./x),x)+sp.stats.pareto.pdf(np.arange(1.,2.,1./x)[::-1],x)
+            intP = sp.stats.pareto.pdf(np.arange(1.,2.,1./x),x)+sp.stats.pareto.pdf(np.arange(1.,2.,1./x)[::-1],x)
 
-        self.intNz = float(self.ngals)*intNz/np.dot(intNz,self.bindifs)
+        self.intPz = us.normed(intP,self.bindifs)
+        self.logintPz = us.safelog(self.intPz)
+        self.intNz = float(self.ngals)*self.intPz
         self.logintNz = us.safelog(self.intNz)
-        self.intPz,self.logintPz = us.normed(self.intNz,self.bindifs)
-        print(np.dot(self.intNz,self.bindifs))
+        print(self.intNz,np.dot(self.intNz,self.bindifs))
 
     def makecat(self):
 
@@ -170,7 +173,7 @@ class pertest(object):
 #         expZs = []
 
         for j in xrange(self.ngals):
-            allsummed = np.array([sys.float_info.epsilon]*self.nbins)
+            allsummed = np.array([0.]*self.nbins)
             for pn in xrange(self.npeaks[j]):
                 minlim = (self.allzs[0]-self.obsZs[j][pn])/self.sigZs[j][pn]
                 maxlim = (self.allzs[-1]-self.obsZs[j][pn])/self.sigZs[j][pn]
@@ -208,8 +211,9 @@ class pertest(object):
 
         # generate full Sheldon, et al. 2011 "posterior"
         self.stkNz = np.sum(np.array(pdfs),axis=0)
-        self.logstkNz = np.log(self.stkNz)
-        self.stkPz,self.logstkPz = us.normed(self.stkNz,self.bindifs)
+        self.logstkNz = us.safelog(self.stkNz)
+        self.stkPz = us.normed(self.stkNz,self.bindifs)
+        self.logstkPz = us.safelog(self.stkPz)
 
         # generate MAP N(z)
         self.mapNz = [0]*self.nbins
@@ -218,7 +222,8 @@ class pertest(object):
             self.mapNz[z] += 1
         self.mapNz = self.mapNz/self.bindifs
         self.logmapNz = us.safelog(self.mapNz)
-        self.mapPz,self.logmapPz = us.normed(self.mapNz,self.bindifs)
+        self.mapPz = us.normed(self.mapNz,self.bindifs)
+        self.logmapPz = us.safelog(self.mapPz)
 
 #         # generate expected value N(z)
 #         expprep = [sum(z) for z in self.binmids*self.pdfs*self.bindifs]

@@ -35,7 +35,7 @@ def initial_plots(meta, test):
     plot_true(meta,test)
     plot_liktest(meta,test)
     plot_pdfs(meta,test)
-    plot_truevmap(meta,test)
+#     plot_truevmap(meta,test)
     print(meta.name+' plotted setup')
 
 # plot the underlying P(z) and its components
@@ -164,20 +164,21 @@ def plot_liktest(meta,test):
     sps[0].set_xlabel(r'Fraction $\ln\tilde{\vec{\theta}}; (1 -$ Fraction $\ln\vec{\theta}^{0})$')
     sps[1].set_xlabel(r'$z$')
 
-    plotstep(sps[1],test.binends,test.logmmlNz,lw=3,style=':',lab=r'MMLE $\ln N(z)$')
-    plotstep(sps[1],test.binends,test.logtruNz,lw=3,style='--',lab=r'True $\ln N(z)$')
-    plotstep(sps[1],test.binends,test.logstkNz,lw=3,style='-.',lab=r'Interim Prior $\ln N(z)$')
+    plotstep(sps[1],test.binends,test.mmlNz,lw=3,style=':',lab=r'MMLE $N(z)$')
+    plotstep(sps[1],test.binends,test.truNz,lw=3,style='--',lab=r'True $N(z)$')
+    plotstep(sps[1],test.binends,test.intNz,lw=3,style='-.',lab=r'Interim Prior $N(z)$')
 
     frac_t = np.arange(0.,2.+test.zdif,test.zdif)
-    frac_i = 1.-frac_t
+    frac_i = 1.1*(1.-frac_t)
 
     for i in xrange(0,len(frac_t)):
         logmix = test.logtruNz*frac_t[i]+test.logintNz*frac_i[i]
+        mix = np.exp(logmix)
 #         mix = test.truNz*frac_t[i]+test.intNz*frac_i[i]
 #         logmix = us.safelog(mix)
         index = frac_t[i]/(frac_i[i]+frac_t[i])
-        sps[0].scatter(index,test.calclike(logmix),alpha=abs(index)/2.)
-        plotstep(sps[1],test.binends,logmix,lab=str(frac_t[i])+r'\ True $\ln N(z)$, '+str(frac_i[i])+r'\ Interim Prior')
+        sps[0].scatter(index,test.calclike(logmix))
+        plotstep(sps[1],test.binends,mix,lab=str(frac_t[i])+r'\ True $\ln N(z)$, '+str(frac_i[i])+r'\ Interim Prior')
     avgNz = test.truNz*0.5+test.intNz*0.5
     logavgNz = us.safelog(avgNz)#test.logtruNz*0.5+test.logstkNz*0.5
     sps[0].hlines([test.lik_mmlNz]*len(frac_t),0.,2.,linewidth=2,linestyle=':',label=r'MMLE $\ln N(z)$')
@@ -186,5 +187,4 @@ def plot_liktest(meta,test):
     sps[0].hlines([test.calclike(logavgNz)]*len(frac_t),0.,2.,linewidth=3,linestyle='-',label=r'50-50 Mix of True and Interim Pror $\ln N(z)$')
     sps[0].legend(fontsize='xx-small',loc='lower right')
     sps[1].legend(fontsize='xx-small',loc='lower right')
-    sps[1].set_ylim(-1.,10.)
     f.savefig(os.path.join(meta.simdir,'liktest.png'))
