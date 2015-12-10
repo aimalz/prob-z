@@ -131,7 +131,7 @@ class pertest(object):
 
         #nontrivial interim prior
         if self.meta.interim == 'flat':
-            intNz = self.logfltNz
+            intNz = self.fltNz
         elif self.meta.interim == 'multimodal':
 #             intPz = self.real.binned(self.binends)
 #             intNz = us.safelog(self.surv*intPz)
@@ -185,14 +185,14 @@ class pertest(object):
         self.bindifs = self.binhis-self.binlos
         self.bindif = sum(self.bindifs)/self.nbins
 
-#         # define flat P(z) for this number of parameters and N(z) for this survey size
-# #         self.fltPz,self.logfltPz = us.normed([1.]*self.nbins,self.bindifs)
-# #         self.fltNz = self.surv*self.fltPz
-# #         self.logfltNz = us.safelog(self.fltNz)
-        self.fltPz = us.extend(self.fltPz,self.binfront,self.binback)
-        self.logfltPz = us.extend(self.logfltPz,self.binfront,self.binback)
-        self.fltNz = us.extend(self.fltNz,self.binfront,self.binback)
-        self.logfltNz = us.extend(self.logfltNz,self.binfront,self.binback)
+#         define flat P(z) for this number of parameters and N(z) for this survey size
+        self.fltPz,self.logfltPz = us.normed([1.]*self.nbins,self.bindifs)
+        self.fltNz = self.ngals*self.fltPz
+        self.logfltNz = us.safelog(self.fltNz)
+#         self.fltPz = us.extend(self.fltPz,self.binfront,self.binback)
+#         self.logfltPz = us.extend(self.logfltPz,self.binfront,self.binback)
+#         self.fltNz = us.extend(self.fltNz,self.binfront,self.binback)
+#         self.logfltNz = us.extend(self.logfltNz,self.binfront,self.binback)
 
 # #         self.truNz,bins = np.histogram(self.truZs,bins=self.binends)
 # #         self.truNz = self.truNz/self.bindifs
@@ -207,9 +207,10 @@ class pertest(object):
 #         self.logintPz = us.extend(self.logintPz,self.binfront,self.binback)
 #         self.intNz = us.extend(self.intNz,self.binfront,self.binback)
 #         self.logintNz = us.extend(self.logintNz,self.binfront,self.binback)
+
         #nontrivial interim prior
         if self.meta.interim == 'flat':
-            intNz = self.logfltPz
+            intNz = self.fltPz
         elif self.meta.interim == 'multimodal':
 #             intPz = self.real.binned(self.binends)
 #             intNz = us.safelog(self.surv*intPz)
