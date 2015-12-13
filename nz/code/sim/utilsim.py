@@ -63,6 +63,35 @@ def normed(x,scale):
     norm = x/np.dot(x,scale)
     return norm
 
+class tnorm(object):
+    def __init__(self,mu,sig,ends):
+        self.mu = mu
+        self.sig = sig
+        (self.min,self.max) = ends
+        self.lo = self.loc(self.min)
+        self.hi = self.loc(self.max)
+
+    def loc(self,z):
+        return (z-self.mu)/self.sig
+
+    def phi(self,z):
+        x = z/np.sqrt(2)
+        term = sp.special.erf(x)
+        return (1.+term)/2.
+
+    def norm(self):
+        return self.phi(self.hi)-self.phi(self.lo)
+
+    def pdf(self,z):
+        x = self.loc(z)
+        pdf = sp.stats.norm.pdf(x)
+        return pdf/(self.sig*self.norm())
+
+    def cdf(self,z):
+        x = self.loc(z)
+        cdf = self.phi(x)-self.phi(self.lo)
+        return cdf/self.norm()
+
 class gmix(object):
     """
     gmix object takes a numpy array of Gaussian parameters and enables computation of PDF
@@ -77,53 +106,26 @@ class gmix(object):
         mincomps = [(self.minZ-comp[0])/comp[1] for comp in self.comps]
         maxcomps = [(self.maxZ-comp[0])/comp[1] for comp in self.comps]
         self.comps = [sp.stats.truncnorm(mincomps[c],maxcomps[c],loc=self.comps[c][0],scale=self.comps[c][1]) for c in lrange(self.comps)]
+#         self.comps = [tnorm(comp[0],comp[1],(self.minZ,self.maxZ)) for comp in self.comps]
 #         self.weights = np.array([self.calccdf(c,self.minZ,self.maxZ) for c in lrange(self.comps)])
 
-    def calcpdf(self,c,z):
-#         if z <= self.maxZ and z >= self.minZ:
-        return self.weights[c]*self.comps[c].pdf(z)
-#         else:
-#             return sys.float_info.epsilon
+    def pdfs(self,zs):
+        out = np.array([self.weights[c]*np.array([self.comps[c].pdf(z) for z in zs]) for c in xrange(self.ncomps)])
+        return out
 
-    def calccdf(self,c,z1,z2):
-#         if z1>z2:
-#             z1,z2 = z2,z1
-#         if z2 > self.maxZ:
-#             z2 = self.maxZ
-#         if z1 < self.minZ:
-#             z1 = self.minZ
-        return self.weights[c]*(self.comps[c].cdf(z2)-self.comps[c].cdf(z1))
+    def pdf(self,zs):
+        return np.sum(self.pdfs(zs),axis=0)
 
-    def pdfs(self,z):
-        output = []
-        for c in xrange(self.ncomps):
-            output.append(self.calcpdf(c,z))
-        return np.array(output)
+    def cdfs(self,zs):
+        out = np.array([self.weights[c]*np.array([self.comps[c].cdf(z) for z in zs]) for c in xrange(self.ncomps)])
+        return out
 
-    def cdfs(self,z1,z2):
-        output = []
-        for c in xrange(self.ncomps):
-            output.append(self.calccdf(c,z1,z2))
-        return np.array(output)
+    def cdf(self,zs):
+        return np.sum(self.cdfs(zs),axis=0)
 
-    def sumpdf(self,z):
-        return np.sum(self.pdfs(z))
-
-    def fullpdf(self,c,zs):
-        output = [sys.float_info.epsilon]*len(zs)
-        for k in lrange(zs):
-            output[k] += self.calcpdf(c,zs[k])
-        return np.array(output)
-
-    def sumfullpdf(self,zs):
-        output = np.array([sys.float_info.epsilon]*len(zs))
-        for c in xrange(self.ncomps):
-            output += self.fullpdf(c,zs)
-        #output = np.transpose(np.array(output))
-        return output#/np.dot(output,zdifs) #np.array([sum(z) for z in output])
-
-    def sumcdf(self,z1,z2):
-        return np.sum(self.cdfs(z1,z2))
+    def binned(self,zs):
+        thing = self.cdf(zs)
+        return thing[1:]-thing[:-1]
 
     def sample(self,N):
         choices = [0]*self.ncomps
@@ -135,10 +137,3 @@ class gmix(object):
             Zs = self.comps[c].rvs(size=j)
             samps = np.concatenate((samps,Zs))
         return np.array(samps)
-
-    def binned(self,zends):
-        zdifs = zends[1:]-zends[:-1]
-        output = [0]*(len(zdifs))
-        for z in lrange(zdifs):
-            output[z] += self.sumcdf(zends[z],zends[z+1])/zdifs[z]
-        return np.array(output/np.dot(output,zdifs))

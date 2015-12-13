@@ -29,15 +29,35 @@ class pertest(object):
 
         start_time = timeit.default_timer()
         self.readin()
-        self.choosen()
-        self.choosetrue()
-#         self.prepinterim()
-        self.makedat()
-        self.makecat()
-        self.savedat()
         elapsed = timeit.default_timer() - start_time
-        print(self.meta.name+' data generated in '+str(elapsed))
+        print(self.meta.name+' constructed true N(z) in '+str(elapsed))
+        start_time = timeit.default_timer()
+        self.choosen()
+        elapsed = timeit.default_timer() - start_time
+        print(self.meta.name+' N chosen in '+str(elapsed))
+        start_time = timeit.default_timer()
+        self.choosetrue()
+        elapsed = timeit.default_timer() - start_time
+        print(self.meta.name+' true zs chosen in '+str(elapsed))
+#         self.prepinterim()
+        start_time = timeit.default_timer()
+        self.makedat()
+        elapsed = timeit.default_timer() - start_time
+        print(self.meta.name+' parameters chosen in '+str(elapsed))
+        start_time = timeit.default_timer()
+        self.makecat()
+        elapsed = timeit.default_timer() - start_time
+        print(self.meta.name+' catalog constructed in '+str(elapsed))
+        start_time = timeit.default_timer()
+        self.savedat()
+#         elapsed = timeit.default_timer() - start_time
+#         print(self.meta.name+' data generated in '+str(elapsed))
+        elapsed = timeit.default_timer() - start_time
+        print(self.meta.name+' data saved in '+str(elapsed))
+        start_time = timeit.default_timer()
         self.fillsummary()
+        elapsed = timeit.default_timer() - start_time
+        print(self.meta.name+' summary stats calculated in '+str(elapsed))
 
         print(self.meta.name+' simulated data')
 
@@ -57,16 +77,16 @@ class pertest(object):
         self.surv = self.meta.surv
 
         # define realistic underlying P(z) for this number of parameters and N(z) for this survey size
-        self.real = us.gmix(self.meta.real,(self.zlos[0],self.zhis[-1]))
+        self.real = us.gmix(self.meta.real,(self.allzs[0],self.allzs[-1]))
 #         self.phsPz,self.logphsPz = us.normed(self.meta.realistic[:self.ndims],self.zdifs)
 #         self.phsNz = self.surv*self.phsPz
 #         self.logphsNz = us.safelog(self.phsNz)
 
         # define underlying P(z) for this number of parameters and N(z) for this survey size
-        self.z_cont = np.arange(self.allzs[0],self.allzs[-1],1./self.surv)
-        self.phsPz = self.real.sumfullpdf(self.z_cont)
-#         self.phsPz = self.real.binned(self.binends)
-        self.logphsPz = us.safelog(self.phsPz)
+#         self.z_cont = np.arange(self.allzs[0],self.allzs[-1],1./self.surv)
+#         self.phsPz = self.real.pdf(self.z_cont)
+# #         self.phsPz = self.real.binned(self.binends)
+#         self.logphsPz = us.safelog(self.phsPz)
 
     def choosen(self):
 
@@ -79,8 +99,8 @@ class pertest(object):
         np.random.seed(seed=self.seed)
         self.randos = np.random.choice(self.ngals,len(self.meta.colors),replace=False)
 
-        self.phsNz = self.ngals*self.phsPz
-        self.logphsNz = us.safelog(self.phsNz)
+#         self.phsNz = self.ngals*self.phsPz
+#         self.logphsNz = us.safelog(self.phsNz)
 
     def choosetrue(self):
 
@@ -161,7 +181,6 @@ class pertest(object):
         self.logintPz = us.safelog(self.intPz)
         self.intNz = float(self.ngals)*self.intPz
         self.logintNz = us.safelog(self.intNz)
-        print(self.intNz,np.dot(self.intNz,self.bindifs))
 
     def makecat(self):
 
@@ -175,14 +194,16 @@ class pertest(object):
         for j in xrange(self.ngals):
             allsummed = np.array([0.]*self.nbins)
             for pn in xrange(self.npeaks[j]):
-                minlim = (self.allzs[0]-self.obsZs[j][pn])/self.sigZs[j][pn]
-                maxlim = (self.allzs[-1]-self.obsZs[j][pn])/self.sigZs[j][pn]
-                func = sp.stats.truncnorm(minlim,maxlim,loc=self.obsZs[j][pn],scale=self.sigZs[j][pn])
+#                 minlim = (self.allzs[0]-self.obsZs[j][pn])/self.sigZs[j][pn]
+#                 maxlim = (self.allzs[-1]-self.obsZs[j][pn])/self.sigZs[j][pn]
+                func = us.tnorm(self.obsZs[j][pn],self.sigZs[j][pn],(self.allzs[0],self.allzs[-1]))
+#                 func = sp.stats.truncnorm(minlim,maxlim,loc=self.obsZs[j][pn],scale=self.sigZs[j][pn])
 #                 func = sp.stats.norm(loc=self.obsZs[j][pn],scale=self.sigZs[j][pn])
                 # these should be two slices of the same array, rather than having two separate list comprehensions
-                lo = np.array([max(sys.float_info.epsilon,func.cdf(binend)) for binend in self.binends[:-1]])
-                hi = np.array([max(sys.float_info.epsilon,func.cdf(binend)) for binend in self.binends[1:]])
-                spread = (hi-lo)#abs(self.obsZs[j][pn]-self.truZs[j])*(hi-lo)
+                cdfs = np.array([func.cdf(binend) for binend in self.binends])
+#                 lo = np.array([max(sys.float_info.epsilon,func.cdf(binend)) for binend in self.binends[:-1]])
+#                 hi = np.array([max(sys.float_info.epsilon,func.cdf(binend)) for binend in self.binends[1:]])
+                spread = cdfs[1:]-cdfs[:-1]#(hi-lo)#abs(self.obsZs[j][pn]-self.truZs[j])*(hi-lo)
 
                 # normalize probabilities to integrate (not sum)) to 1
                 allsummed += spread
