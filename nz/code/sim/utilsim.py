@@ -31,7 +31,7 @@ def extend(arr,front,back):
     """
     return np.concatenate((np.array([sys.float_info.epsilon]*len(front)),arr,np.array([sys.float_info.epsilon]*len(back))),axis=0)
 
-# tools for sampling an arbitrary distribution, used in data generation
+# tools for sampling an arbitrary discrete distribution, used in data generation
 def cdf(weights):
     """
     cdf takes weights and makes them a normalized CDF
@@ -92,6 +92,10 @@ class tnorm(object):
         cdf = self.phi(x)-self.phi(self.lo)
         return cdf/self.norm()
 
+    def rvs(self,J):
+        func = sp.stats.truncnorm(self.lo,self.hi,loc=self.mu,scale=self.sig)
+        return func.rvs(size=J)
+
 class gmix(object):
     """
     gmix object takes a numpy array of Gaussian parameters and enables computation of PDF
@@ -103,9 +107,9 @@ class gmix(object):
         self.ncomps = len(self.comps)
 
         self.weights = np.transpose(self.comps)[2]
-        mincomps = [(self.minZ-comp[0])/comp[1] for comp in self.comps]
-        maxcomps = [(self.maxZ-comp[0])/comp[1] for comp in self.comps]
-        self.comps = [sp.stats.truncnorm(mincomps[c],maxcomps[c],loc=self.comps[c][0],scale=self.comps[c][1]) for c in lrange(self.comps)]
+#         mincomps = [(self.minZ-comp[0])/comp[1] for comp in self.comps]
+#         maxcomps = [(self.maxZ-comp[0])/comp[1] for comp in self.comps]
+        self.comps = [tnorm(comp[0],comp[1],(self.minZ,self.maxZ)) for comp in self.comps]#[sp.stats.truncnorm(mincomps[c],maxcomps[c],loc=self.comps[c][0],scale=self.comps[c][1]) for c in lrange(self.comps)]
 #         self.comps = [tnorm(comp[0],comp[1],(self.minZ,self.maxZ)) for comp in self.comps]
 #         self.weights = np.array([self.calccdf(c,self.minZ,self.maxZ) for c in lrange(self.comps)])
 
@@ -134,6 +138,6 @@ class gmix(object):
         samps = np.array([])
         for c in xrange(self.ncomps):
             j = choices[c]
-            Zs = self.comps[c].rvs(size=j)
+            Zs = self.comps[c].rvs(j)
             samps = np.concatenate((samps,Zs))
         return np.array(samps)

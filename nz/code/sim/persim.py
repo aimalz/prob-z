@@ -31,29 +31,33 @@ class pertest(object):
         self.readin()
         elapsed = timeit.default_timer() - start_time
         print(self.meta.name+' constructed true N(z) in '+str(elapsed))
+
         start_time = timeit.default_timer()
         self.choosen()
         elapsed = timeit.default_timer() - start_time
         print(self.meta.name+' N chosen in '+str(elapsed))
+
         start_time = timeit.default_timer()
         self.choosetrue()
         elapsed = timeit.default_timer() - start_time
         print(self.meta.name+' true zs chosen in '+str(elapsed))
 #         self.prepinterim()
+
         start_time = timeit.default_timer()
         self.makedat()
         elapsed = timeit.default_timer() - start_time
         print(self.meta.name+' parameters chosen in '+str(elapsed))
+
         start_time = timeit.default_timer()
         self.makecat()
         elapsed = timeit.default_timer() - start_time
         print(self.meta.name+' catalog constructed in '+str(elapsed))
+
         start_time = timeit.default_timer()
         self.savedat()
-#         elapsed = timeit.default_timer() - start_time
-#         print(self.meta.name+' data generated in '+str(elapsed))
         elapsed = timeit.default_timer() - start_time
         print(self.meta.name+' data saved in '+str(elapsed))
+
         start_time = timeit.default_timer()
         self.fillsummary()
         elapsed = timeit.default_timer() - start_time
@@ -104,14 +108,15 @@ class pertest(object):
 
     def choosetrue(self):
 
-#         count = [0]*self.ndims
-
         #test all galaxies in survey have same true redshift vs. sample from physPz
         if self.meta.random == True:
             np.random.seed(seed=self.seed)
             self.truZs = self.real.sample(self.ngals)
         else:
-            self.truZs = np.array([(self.allzs[0]+self.allzs[-1])/2.]*self.ngals)
+            center = (self.allzs[0]+self.allzs[-1])/2.
+            self.meta.real = np.array([np.array([center,1./self.surv,1.])])
+            self.real = us.gmix(self.meta.real,(self.allzs[0],self.allzs[-1]))
+            self.truZs = np.array([center]*self.ngals)
         np.random.seed(seed=self.seed)
         np.random.shuffle(self.truZs)
 
@@ -194,29 +199,22 @@ class pertest(object):
         for j in xrange(self.ngals):
             allsummed = np.array([0.]*self.nbins)
             for pn in xrange(self.npeaks[j]):
-#                 minlim = (self.allzs[0]-self.obsZs[j][pn])/self.sigZs[j][pn]
-#                 maxlim = (self.allzs[-1]-self.obsZs[j][pn])/self.sigZs[j][pn]
                 func = us.tnorm(self.obsZs[j][pn],self.sigZs[j][pn],(self.allzs[0],self.allzs[-1]))
-#                 func = sp.stats.truncnorm(minlim,maxlim,loc=self.obsZs[j][pn],scale=self.sigZs[j][pn])
-#                 func = sp.stats.norm(loc=self.obsZs[j][pn],scale=self.sigZs[j][pn])
-                # these should be two slices of the same array, rather than having two separate list comprehensions
                 cdfs = np.array([func.cdf(binend) for binend in self.binends])
-#                 lo = np.array([max(sys.float_info.epsilon,func.cdf(binend)) for binend in self.binends[:-1]])
-#                 hi = np.array([max(sys.float_info.epsilon,func.cdf(binend)) for binend in self.binends[1:]])
-                spread = cdfs[1:]-cdfs[:-1]#(hi-lo)#abs(self.obsZs[j][pn]-self.truZs[j])*(hi-lo)
+                spread = cdfs[1:]-cdfs[:-1]
 
-                # normalize probabilities to integrate (not sum)) to 1
                 allsummed += spread
 
             pdf = self.intPz*allsummed
+            # normalize probabilities to integrate (not sum)) to 1
             pdf = pdf/np.dot(pdf,self.bindifs)
 
-            # sample posterior if noisy observation
-            if self.meta.noise == True:
-                spdf = [0]*self.nbins
-                for k in xrange(self.nbins):
-                    spdf[us.choice(xrange(self.nbins), pdf)] += 1
-                pdf = np.array(spdf)/np.dot(spdf,self.bindifs)
+#             # sample posterior if noisy observation
+#             if self.meta.noise == True:
+#                 spdf = [0]*self.nbins
+#                 for k in xrange(self.nbins):
+#                     spdf[us.choice(xrange(self.nbins), pdf)] += 1
+#                 pdf = np.array(spdf)/np.dot(spdf,self.bindifs)
 
             mapZ = self.binmids[np.argmax(pdf)]
 #             expZ = sum(self.binmids*self.bindifs*pdf)
@@ -321,44 +319,19 @@ class pertest(object):
         def minlf(theta):
             return -1.*self.calclike(theta)
         def maxruns():
-#             before = self.nbins
-#             #print('before->', before)
-#             for x in xrange(self.nbins):
-#                 before = before**self.nbins
-#                 print('before->', before)
-
-#             #print ('maxruns->', before)
             return(2**32)
 
-#         if arg == 'bfgs':
-#             loc = sp.optimize.fmin_bfgs(minlf,self.start,maxiter=maxruns())
-# #         if arg == 'bfgs_b':
-# #             bounds = [(0.,np.log(self.ngals/min(self.bindifs))) for k in xrange(self.nbins)]
-# #             loc = sp.optimize.fmin_l_bfgs_b(minlf,self.start,bounds=bounds,maxfun=maxruns(),maxiter=maxruns())
-# #         if arg == 'cobyla':
-# # #             def cons1(theta):
-# # #                 return np.dot(np.exp(theta),self.bindifs)-0.5*self.ngals
-# # #             def cons2(theta):
-# # #                 return 1.5*self.ngals-np.dot(np.exp(theta),self.bindifs)
-# #             def cons1(theta):
-# #                 return np.dot(np.exp(theta),self.bindifs)-self.ngals
-# #             def cons2(theta):
-#                 return self.ngals-np.dot(np.exp(theta),self.bindifs)
-#             loc = sp.optimize.fmin_cobyla(minlf,self.start,cons=(cons1,cons2),maxfun=maxruns())
         if arg == 'fmin':
             loc = sp.optimize.fmin(minlf,self.start,maxiter=maxruns(),maxfun=maxruns(), disp=True)
-#         if arg == 'powell':
-#             loc = sp.optimize.fmin_powell(minlf,self.start,maxiter=maxruns(),maxfun=maxruns())
-#         if arg == 'slsqp':
-#             def cons1(theta):
-#                 return np.dot(np.exp(theta),self.bindifs)-0.5*self.ngals
-#             def cons2(theta):
-#                 return 1.5*self.ngals-np.dot(np.exp(theta),self.bindifs)
-#             bounds = [(-sys.float_info.epsilon,np.log(self.ngals/min(self.bindifs))) for k in xrange(self.nbins)]
-#             loc = sp.optimize.fmin_slsqp(minlf,self.start,bounds=bounds,iter=self.nbins**self.nbins)#,epsilon=1.)
         like = self.calclike(loc)
         elapsed = timeit.default_timer() - start_time
         print(str(self.ngals)+' galaxies for '+self.meta.name+' MMLE by '+arg+' in '+str(elapsed)+': '+str(loc))
+
+        with open(os.path.join(self.meta.simdir,'logmmle.csv'),'wb') as csvfile:
+            out = csv.writer(csvfile,delimiter=' ')
+            out.writerow([like])
+            out.writerow(loc)
+
         return(like,loc)
 
     def savedat(self):

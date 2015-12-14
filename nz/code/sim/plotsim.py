@@ -47,13 +47,6 @@ def initial_plots(meta, test):
 # plot the underlying P(z) and its components
 def plot_physgen(meta,test):
 
-#     realsum = sum(meta.realistic)
-#     realistic_pdf = meta.realistic/meta.zdifs/realsum
-#     plotrealistic = np.array([sum(r) for r in meta.realistic_comps])
-#     plotrealisticsum = sum(plotrealistic)
-#     plotrealistic_comps = np.transpose(meta.realistic_comps/plotrealisticsum)
-#     plotrealistic_pdf = plotrealistic/plotrealisticsum
-
     f = plt.figure(figsize=(5,5))
     sys.stdout.flush()
     sps = f.add_subplot(1,1,1)
@@ -189,10 +182,10 @@ def plot_liktest(meta,test):
         plotstep(sps[1],test.binends,mix,lab=str(frac_t[i])+r'\ True $\ln N(z)$, '+str(frac_i[i])+r'\ Interim Prior')
     avgNz = test.truNz*0.5+test.intNz*0.5
     logavgNz = us.safelog(avgNz)#test.logtruNz*0.5+test.logstkNz*0.5
-    sps[0].hlines([test.lik_mmlNz]*len(frac_t),0.,2.,linewidth=2,linestyle=':',label=r'MMLE $\ln N(z)$')
-    sps[0].hlines([test.lik_truNz]*len(frac_t),0.,2.,linewidth=2,linestyle='--',label=r'True $\ln N(z)$')
-    sps[0].hlines([test.lik_intNz]*len(frac_t),0.,2.,linewidth=2,linestyle='-.',label=r'Interim Prior $\ln N(z)$')
-    sps[0].hlines([test.calclike(logavgNz)]*len(frac_t),0.,2.,linewidth=3,linestyle='-',label=r'50-50 Mix of True and Interim Pror $\ln N(z)$')
+    sps[0].hlines([test.lik_mmlNz]*len(frac_t),0.,2.,linewidth=1.,linestyle=':',label=r'MMLE $\ln N(z)$')
+    sps[0].hlines([test.lik_truNz]*len(frac_t),0.,2.,linewidth=1.,linestyle='--',label=r'True $\ln N(z)$')
+    sps[0].hlines([test.lik_intNz]*len(frac_t),0.,2.,linewidth=1.,linestyle='-.',label=r'Interim Prior $\ln N(z)$')
+    sps[0].hlines([test.calclike(logavgNz)]*len(frac_t),0.,2.,linewidth=1.,linestyle='-',label=r'50-50 Mix of True and Interim Pror $\ln N(z)$')
     sps[0].legend(fontsize='xx-small',loc='lower right')
     sps[1].legend(fontsize='xx-small',loc='lower right')
     f.savefig(os.path.join(meta.simdir,'liktest.png'))

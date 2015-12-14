@@ -23,16 +23,16 @@ def namesetup(meta):
     if os.path.isfile(td):
           with open(os.path.join(meta.testdir,'topdirs.p'),'rb') as topdir:
               topdirs = cpkl.load(topdir)#cPickle.dump(self.topdir,topdir)
-              print('reading '+str(topdirs))
+#               print('reading '+str(topdirs))
               topdirs[inadd] = meta.topdir
           with open(os.path.join(meta.testdir,'topdirs.p'),'wb') as topdir:
               cpkl.dump(topdirs,topdir)
-              print('writing '+str(topdirs))
+#               print('writing '+str(topdirs))
     else:
           topdirs = {inadd:meta.topdir}
           with open(os.path.join(meta.testdir,'topdirs.p'),'wb') as topdir:
                 cpkl.dump(topdirs,topdir)
-                print('writing '+str(topdirs))
+#                 print('writing '+str(topdirs))
     return
 
 global alltests
