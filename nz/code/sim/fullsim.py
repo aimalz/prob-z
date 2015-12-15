@@ -53,12 +53,3 @@ pool = mp.Pool(nps)
 
 with open(os.path.join(testdir,'tests-sim.txt'),'rb') as testnames:
     pool.map(onerun, testnames)
-
-# for meta in alltests.values():
-#     namesetup(meta)
-
-#     for nameplusline in testnames:
-#         testname = nameplusline[:-1]
-#         meta = setup(testname)
-#         test = pertest(meta)
-#         initial_plots(meta,test)

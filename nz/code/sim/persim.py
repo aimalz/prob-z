@@ -319,7 +319,7 @@ class pertest(object):
         def minlf(theta):
             return -1.*self.calclike(theta)
         def maxruns():
-            return(2**32)
+            return(self.surv)#**2)
 
         if arg == 'fmin':
             loc = sp.optimize.fmin(minlf,self.start,maxiter=maxruns(),maxfun=maxruns(), disp=True)
