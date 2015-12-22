@@ -27,11 +27,19 @@ class consumer(object):
         print "BAD: Generic finish called."
 
 def run_offthread(func, *args):
-    proc = mp.Process(target=func, args=args)
-    proc.start()
-    return proc
+   proc = mp.Process(target=func, args=args)
+   proc.start()
+   return proc
 def run_offthread_sync(func, *args):
-    run_offthread(func, *args).join()
+   run_offthread(func, *args).join()
+
+# def run_offthread(pool, func, *args):
+#     proc = pool.apply_async(func, args)
+#     return proc
+# def run_offthread_sync(pool, func, *args):
+#     print 'func: ' + str(func)
+#     return pool.apply(func, args)
+
 
 # plot results of one run in loop
 def do_consume(ctor, q, args):

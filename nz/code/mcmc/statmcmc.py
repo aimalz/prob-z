@@ -7,6 +7,7 @@ import numpy as np
 import cPickle as cpkl
 import os
 import scipy as sp
+import csv
 
 # unite stats for each output
 class calcstats(object):
@@ -29,26 +30,27 @@ class stat_both(calcstats):
 
         self.name = 'both'
 
-        self.ll_stack = self.meta.postdist.lnlike(self.meta.logstack)
-        self.ll_mapNz = self.meta.postdist.lnlike(self.meta.logmapNz)
+#         self.ll_stkNz = self.meta.postdist.lnlike(self.meta.logstkNz)
+#         self.ll_mapNz = self.meta.postdist.lnlike(self.meta.logmapNz)
 #         self.ll_expNz = self.meta.postdist.lnlike(self.meta.logexpNz)
         self.ll_intNz = self.meta.postdist.lnlike(self.meta.logintNz)
-        self.ll_mleNz = self.meta.postdist.lnlike(self.meta.logmleNz)
-        self.ll_samp = []
-        self.mapvals,self.maps = [],[]
+        self.ll_mmlNz = self.meta.postdist.lnlike(self.meta.logmmlNz)
+        self.ll_smpNz = []
+#         self.mapvals,self.maps = [],[]
 
-        self.llr_stack,self.llr_mapNz,self.llr_intNz,self.llr_mleNz = [],[],[],[]
+#         self.llr_stkNz,self.llr_mapNz,
+        self.llr_intNz,self.llr_mmlNz = [],[]
 
-        outdict = {'ll_stack': self.ll_stack,
-                  'll_mapNz': self.ll_mapNz,
+        outdict = {#'ll_stkNz': self.ll_stkNz,
+#                   'll_mapNz': self.ll_mapNz,
 #                   'll_expNz': self.ll_expNz,
                   'll_intNz': self.ll_intNz,
-                  'll_mleNz': self.ll_mleNz,
-                  'llr_stack': np.array(self.llr_stack),
-                  'llr_mapNz': np.array(self.llr_mapNz),
+                  'll_mmlNz': self.ll_mmlNz,
+#                   'llr_stkNz': np.array(self.llr_stkNz),
+#                   'llr_mapNz': np.array(self.llr_mapNz),
 #                   'llr_expNz': np.array(self.llr_expNz),
                   'llr_intNz': np.array(self.llr_intNz),
-                  'llr_mleNz': np.array(self.llr_mleNz)
+                  'llr_mmlNz': np.array(self.llr_mmlNz)
                    }
         with open(os.path.join(self.meta.topdir,'stat_both.p'),'wb') as statboth:
             cpkl.dump(outdict,statboth)
@@ -58,28 +60,28 @@ class stat_both(calcstats):
         self.probs = ydata['probs']
         self.chains = ydata['chains']
 
-        where = np.unravel_index(np.argmax(self.probs),(self.meta.nwalkers,self.meta.ntimes))
-        self.mapvals.append(self.chains[where])
-        self.maps.append(self.probs[where])
+#         where = np.unravel_index(np.argmax(self.probs),(self.meta.nwalkers,self.meta.ntimes))
+#         self.mapvals.append(self.chains[where])
+#         self.maps.append(self.probs[where])
 
-        self.llr_stack = self.calclr(self.llr_stack,self.ll_stack)
-        self.llr_mapNz = self.calclr(self.llr_mapNz,self.ll_mapNz)
+#         self.llr_stkNz = self.calclr(self.llr_stkNz,self.ll_stkNz)
+#         self.llr_mapNz = self.calclr(self.llr_mapNz,self.ll_mapNz)
 #         self.llr_expNz = self.calclr(self.llr_expNz,self.ll_expNz)
-        self.llr_mleNz = self.calclr(self.llr_mleNz,self.ll_mleNz)
+        self.llr_mmlNz = self.calclr(self.llr_mmlNz,self.ll_mmlNz)
 
-        if self.meta.logtrueNz is not None:
-            self.calclr(self.ll_samp,0.)
+        if self.meta.logtruNz is not None:
+            self.calclr(self.ll_smpNz,0.)
 
         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as indict:
             outdict = cpkl.load(indict)
 
-        outdict['llr_stack'] = np.array(self.llr_stack)
-        outdict['llr_mapNz'] = np.array(self.llr_mapNz)
+#         outdict['llr_stkNz'] = np.array(self.llr_stkNz)
+#         outdict['llr_mapNz'] = np.array(self.llr_mapNz)
 #         outdict['llr_expNz'] = np.array(self.llr_expNz)
-        outdict['llr_mleNz'] = np.array(self.llr_mleNz)
-        outdict['ll_samp'] = np.array(self.ll_samp).flatten()/2.
-        outdict['mapvals'] = np.array(self.mapvals)
-        outdict['maps'] = np.array(self.maps)
+        outdict['llr_mmlNz'] = np.array(self.llr_mmlNz)
+        outdict['ll_smpNz'] = np.array(self.ll_smpNz).flatten()/2.
+#         outdict['mapvals'] = np.array(self.mapvals)
+#         outdict['maps'] = np.array(self.maps)
 
         with open(os.path.join(self.meta.topdir,'stat_both.p'),'wb') as statboth:
             cpkl.dump(outdict,statboth)
@@ -90,11 +92,11 @@ class stat_both(calcstats):
 
         for w in xrange(self.meta.nwalkers):
             for x in xrange(self.meta.ntimes):
-                ll_samp = self.probs[w][x]-self.meta.postdist.priorprob(self.chains[w][x])
-                var.append(2.*(ll_samp-ll))
-#                 self.llr_stack.append(2.*ll_samp-2.*self.ll_stack)
-#                 self.llr_mapNz.append(2.*ll_samp-2.*self.ll_mapNz)
-#                 self.llr_expNz.append(2.*ll_samp-2.*self.ll_expNz)
+                ll_smpNz = self.probs[w][x]-self.meta.postdist.priorprob(self.chains[w][x])
+                var.append(2.*(ll_smpNz-ll))
+#                 self.llr_stkNz.append(2.*ll_smpNz-2.*self.ll_stkNz)
+#                 self.llr_mapNz.append(2.*ll_smpNz-2.*self.ll_mapNz)
+#                 self.llr_expNz.append(2.*ll_smpNz-2.*self.ll_expNz)
         return(var)
 
 # statistics involving parameter values
@@ -109,84 +111,84 @@ class stat_chains(calcstats):
 
         self.var_ls = []
         self.var_s = []
-        self.vslogstack = None
-        self.vslogmapNz = None
-        self.vslogexpNz = None
-        self.vsstack = None
-        self.vsmapNz = None
-        self.vsexpNz = None
+#         self.vslogstkNz = None
+#         self.vslogmapNz = None
+# #         self.vslogexpNz = None
+#         self.vsstkNz = None
+#         self.vsmapNz = None
+# #         self.vsexpNz = None
 
         self.chi_ls = []
         self.chi_s = []
-        self.cslogstack = None
-        self.cslogmapNz = None
-        self.cslogexpNz = None
-        self.csstack = None
-        self.csmapNz = None
-        self.csexpNz = None
+#         self.cslogstkNz = None
+#         self.cslogmapNz = None
+# #         self.cslogexpNz = None
+#         self.csstkNz = None
+#         self.csmapNz = None
+# #         self.csexpNz = None
 
-        self.kl_stackvtrue,self.kl_truevstack = None,None
-        self.kl_mapNzvtrue,self.kl_truevmapNz = None,None
-        self.kl_expNzvtrue,self.kl_truevexpNz = None,None
-        self.kl_intNzvtrue,self.kl_truevintNz = None,None
-        self.kl_mleNzvtrue,self.kl_truevmleNz = None,None
-        self.kl_sampvtrue,self.kl_truevsamp = None,None
+#         self.kl_stkNzvtruNz,self.kl_truNzvstkNz = None,None
+#         self.kl_mapNzvtruNz,self.kl_truNzvmapNz = None,None
+# #         self.kl_expNzvtruNz,self.kl_truNzvexpNz = None,None
+        self.kl_intNzvtruNz,self.kl_truNzvintNz = None,None
+        self.kl_mmlNzvtruNz,self.kl_truNzvmmlNz = None,None
+        self.kl_smpNzvtruNz,self.kl_truNzvsmpNz = None,None
 
-        if self.meta.logtrueNz is not None:
-            vslogstack = self.meta.logstack-self.meta.logtrueNz
-            self.vslogstack = np.dot(vslogstack,vslogstack)
-            vslogmapNz = self.meta.logmapNz-self.meta.logtrueNz
-            self.vslogmapNz = np.dot(vslogmapNz,vslogmapNz)
-            vslogexpNz = self.meta.logexpNz-self.meta.logtrueNz
-            self.vslogexpNz = np.dot(vslogexpNz,vslogexpNz)
+        if self.meta.logtruNz is not None:
+#             vslogstkNz = self.meta.logstkNz-self.meta.logtruNz
+#             self.vslogstkNz = np.dot(vslogstkNz,vslogstkNz)
+#             vslogmapNz = self.meta.logmapNz-self.meta.logtruNz
+#             self.vslogmapNz = np.dot(vslogmapNz,vslogmapNz)
+# #             vslogexpNz = self.meta.logexpNz-self.meta.logtruNz
+# #             self.vslogexpNz = np.dot(vslogexpNz,vslogexpNz)
 
-            self.cslogstack = np.average((self.meta.logstack-self.meta.logtrueNz)**2)
-            self.cslogmapNz = np.average((self.meta.logmapNz-self.meta.logtrueNz)**2)
-            self.cslogexpNz = np.average((self.meta.logexpNz-self.meta.logtrueNz)**2)
+#             self.cslogstkNz = np.average((self.meta.logstkNz-self.meta.logtruNz)**2)
+#             self.cslogmapNz = np.average((self.meta.logmapNz-self.meta.logtruNz)**2)
+# #             self.cslogexpNz = np.average((self.meta.logexpNz-self.meta.logtruNz)**2)
 
-            self.kl_stackvtrue,self.kl_truevstack = self.calckl(self.meta.logstack,self.meta.logtrueNz)
-            self.kl_mapNzvtrue,self.kl_truevmapNz = self.calckl(self.meta.logmapNz,self.meta.logtrueNz)
-            self.kl_expNzvtrue,self.kl_truevexpNz = self.calckl(self.meta.logexpNz,self.meta.logtrueNz)
-            self.kl_intNzvtrue,self.kl_truevintNz = self.calckl(self.meta.logintNz,self.meta.logtrueNz)
-            self.kl_mleNzvtrue,self.kl_truevmleNz = self.calckl(self.meta.logmleNz,self.meta.logtrueNz)
-            self.kl_sampvtrue,self.kl_truevsamp = [],[]
+#             self.kl_stkNzvtruNz,self.kl_truNzvstkNz = self.calckl(self.meta.logstkNz,self.meta.logtruNz)
+#             self.kl_mapNzvtruNz,self.kl_truNzvmapNz = self.calckl(self.meta.logmapNz,self.meta.logtruNz)
+# #             self.kl_expNzvtruNz,self.kl_truNzvexpNz = self.calckl(self.meta.logexpNz,self.meta.logtruNz)
+            self.kl_intNzvtruNz,self.kl_truNzvintNz = self.calckl(self.meta.logintNz,self.meta.logtruNz)
+            self.kl_mmlNzvtruNz,self.kl_truNzvmmlNz = self.calckl(self.meta.logmmlNz,self.meta.logtruNz)
+            self.kl_smpNzvtruNz,self.kl_truNzvsmpNz = [],[]
 
-        if self.meta.trueNz is not None:
-            vsstack = meta.stack-meta.trueNz
-            self.vsstack = np.dot(vsstack,vsstack)
-            vsmapNz = meta.mapNz-meta.trueNz
-            self.vsmapNz = np.dot(vsmapNz,vsmapNz)
-            vsexpNz = meta.expNz-meta.trueNz
-            self.vsexpNz = np.dot(vsexpNz,vsexpNz)
+#         if self.meta.truNz is not None:
+#             vsstkNz = meta.stkNz-meta.truNz
+#             self.vsstkNz = np.dot(vsstkNz,vsstkNz)
+#             vsmapNz = meta.mapNz-meta.truNz
+#             self.vsmapNz = np.dot(vsmapNz,vsmapNz)
+# #             vsexpNz = meta.expNz-meta.truNz
+# #             self.vsexpNz = np.dot(vsexpNz,vsexpNz)
 
-            self.csstack = np.average((self.meta.stack-self.meta.trueNz)**2)
-            self.csmapNz = np.average((self.meta.mapNz-self.meta.trueNz)**2)
-            self.csexpNz = np.average((self.meta.expNz-self.meta.trueNz)**2)
+#             self.csstkNz = np.average((self.meta.stkNz-self.meta.truNz)**2)
+#             self.csmapNz = np.average((self.meta.mapNz-self.meta.truNz)**2)
+#             self.csexpNz = np.average((self.meta.expNz-self.meta.truNz)**2)
 
-        outdict = {'vslogstack': self.vslogstack,
-                   'vsstack': self.vsstack,
-                   'vslogmapNz': self.vslogmapNz,
-                   'vsmapNz': self.vsmapNz,
-                   'vslogexpNz': self.vslogexpNz,
-                   'vsexpNz': self.vsexpNz,
-                   'cslogstack': self.cslogstack,
-                   'csstack': self.csstack,
-                   'cslogmapNz': self.cslogmapNz,
-                   'csmapNz': self.csmapNz,
-                   'cslogexpNz': self.cslogexpNz,
-                   'csexpNz': self.csexpNz,
-                   'kl_stackvtrue': self.kl_stackvtrue,
-                   'kl_mapNzvtrue': self.kl_mapNzvtrue,
-                   'kl_expNzvtrue': self.kl_expNzvtrue,
-                   'kl_sampvtrue': self.kl_sampvtrue,
-                   'kl_intNzvtrue': self.kl_intNzvtrue,
-                   'kl_mleNzvtrue': self.kl_mleNzvtrue,
-                   'kl_truevstack': self.kl_truevstack,
-                   'kl_truevmapNz': self.kl_truevmapNz,
-                   'kl_truevexpNz': self.kl_truevexpNz,
-                   'kl_truevsamp': self.kl_truevsamp,
-                   'kl_truevintNz': self.kl_truevintNz,
-                   'kl_truevmleNz': self.kl_truevmleNz
+        outdict = {#'vslogstkNz': self.vslogstkNz,
+#                    'vsstkNz': self.vsstkNz,
+#                    'vslogmapNz': self.vslogmapNz,
+#                    'vsmapNz': self.vsmapNz,
+# #                    'vslogexpNz': self.vslogexpNz,
+# #                    'vsexpNz': self.vsexpNz,
+#                    'cslogstkNz': self.cslogstkNz,
+#                    'csstkNz': self.csstkNz,
+#                    'cslogmapNz': self.cslogmapNz,
+#                    'csmapNz': self.csmapNz,
+# #                    'cslogexpNz': self.cslogexpNz,
+# #                    'csexpNz': self.csexpNz,
+#                    'kl_stkNzvtruNz': self.kl_stkNzvtruNz,
+#                    'kl_mapNzvtruNz': self.kl_mapNzvtruNz,
+# #                    'kl_expNzvtruNz': self.kl_expNzvtruNz,
+                   'kl_smpNzvtruNz': self.kl_smpNzvtruNz,
+                   'kl_intNzvtruNz': self.kl_intNzvtruNz,
+                   'kl_mmlNzvtruNz': self.kl_mmlNzvtruNz,
+#                    'kl_truNzvstkNz': self.kl_truNzvstkNz,
+#                    'kl_truNzvmapNz': self.kl_truNzvmapNz,
+# #                    'kl_truNzvexpNz': self.kl_truNzvexpNz,
+                   'kl_truNzvsmpNz': self.kl_truNzvsmpNz,
+                   'kl_truNzvintNz': self.kl_truNzvintNz,
+                   'kl_truNzvmmlNz': self.kl_truNzvmmlNz
               }
 
         with open(os.path.join(self.meta.topdir,'stat_chains.p'),'wb') as statchains:
@@ -199,21 +201,28 @@ class stat_chains(calcstats):
         y = np.swapaxes(self.ydata.T,0,1).T#nwalkers*nbins*ntimes
         ey = np.swapaxes(self.eydata.T,0,1).T#np.exp(y)
 
-        if self.meta.logtrueNz is None:
+        if self.meta.logtruNz is None:
             my = np.array([[[sum(by)/len(by)]*self.meta.ntimes for by in wy] for wy in y])#nwalkers*nbins*ntimes
             mey = np.array([[[sum(bey)/len(bey)]*self.meta.ntimes for bey in wey] for wey in ey])#nwalkers*nbins*ntimes
         else:
-            my = np.array([[[k]*self.meta.ntimes for k in self.meta.logtrueNz]]*self.meta.nwalkers)#nwalkers*nbins*ntimes
-            mey = np.array([[[k]*self.meta.ntimes for k in self.meta.trueNz]]*self.meta.nwalkers)#nwalkers*nbins*ntimes
+            my = np.array([[[k]*self.meta.ntimes for k in self.meta.logtruNz]]*self.meta.nwalkers)#nwalkers*nbins*ntimes
+            mey = np.array([[[k]*self.meta.ntimes for k in self.meta.truNz]]*self.meta.nwalkers)#nwalkers*nbins*ntimes
 
             for w in xrange(self.meta.nwalkers):
+
+                with open(os.path.join(self.meta.topdir,'samples.csv'),'ab') as csvfile:
+#                   print(type(self.ydata))
+#                   print(type(self.ydata[0]))
+                    out = csv.writer(csvfile,delimiter=' ')
+                    out.writerows(self.ydata[w])#[[x for x in row] for row in self.ydata])
+
                 for x in xrange(self.meta.ntimes):
                     #ulog = np.exp(self.chains[w][x])
                     #ulogpz = ulog/sum(ulog)
                     #logpz = np.log(ulogpz)
-                    pq,qp = self.calckl(self.ydata[w][x],self.meta.logtrueNz)
-                    self.kl_sampvtrue.append(pq)
-                    self.kl_truevsamp.append(qp)
+                    pq,qp = self.calckl(self.ydata[w][x],self.meta.logtruNz)
+                    self.kl_smpNzvtruNz.append(pq)
+                    self.kl_truNzvsmpNz.append(qp)
 
         self.sy = np.swapaxes((y-my),1,2)#nwalkers*ntimes*nbins to #nwalkers*nbins*ntimes
         self.sey = np.swapaxes((ey-mey),1,2)
@@ -226,8 +235,8 @@ class stat_chains(calcstats):
         with open(os.path.join(self.meta.topdir,'stat_chains.p'),'rb') as indict:
             outdict = cpkl.load(indict)
 
-        outdict['kl_sampvtrue'] = np.array(self.kl_sampvtrue)
-        outdict['kl_truevsamp'] = np.array(self.kl_truevsamp)
+        outdict['kl_smpNzvtruNz'] = np.array(self.kl_smpNzvtruNz)
+        outdict['kl_truNzvsmpNz'] = np.array(self.kl_truNzvsmpNz)
         #outdict['tot_var_ls'] = self.tot_var_ls
         #outdict['tot_var_s'] = self.tot_var_s
         outdict['var_ls'] = self.var_ls
@@ -240,9 +249,8 @@ class stat_chains(calcstats):
         with open(os.path.join(self.meta.topdir,'stat_chains.p'),'wb') as indict:
             cpkl.dump(outdict,indict)
             #print('after addition'+str(outdict))
-
-#         return { 'vslogstack': self.vslogstack,
-#                'vsstack': self.vsstack,
+#         return { 'vslogstkNz': self.vslogstkNz,
+#                'vsstkNz': self.vsstkNz,
 #                'vslogmapNz': self.vslogmapNz,
 #                'vsmapNz': self.vsmapNz,
 #                'vslogexpNz': self.vslogexpNz,
@@ -313,33 +321,33 @@ class stat_probs(calcstats):
         self.name = 'probs'
 
 #         # calculating log likelihood ratio test statistic for each relative to truth (and true relative to prior)
-        if self.meta.logtrueNz is not None:
-            self.lp_true = self.meta.postdist.lnprob(self.meta.logtrueNz)
-            self.lik_true = self.meta.postdist.lnlike(self.meta.logtrueNz)
+        if self.meta.logtruNz is not None:
+            self.lp_truNz = self.meta.postdist.lnprob(self.meta.logtruNz)
+            self.lik_truNz = self.meta.postdist.lnlike(self.meta.logtruNz)
         else:
-            self.lp_true = self.meta.postdist.lnprob(self.meta.mean)
-            self.lik_true = self.meta.postdist.lnlike(self.meta.mean)
+            self.lp_truNz = self.meta.postdist.lnprob(self.meta.mean)
+            self.lik_truNz = self.meta.postdist.lnlike(self.meta.mean)
 
-        self.lp_stack = self.meta.postdist.lnprob(self.meta.logstack)
-        self.lp_mapNz = self.meta.postdist.lnprob(self.meta.logmapNz)
-#         self.lp_expNz = self.meta.postdist.lnprob(self.meta.logexpNz)
-        self.lp_mleNz = self.meta.postdist.lnprob(self.meta.logmleNz)
+#         self.lp_stkNz = self.meta.postdist.lnprob(self.meta.logstkNz)
+#         self.lp_mapNz = self.meta.postdist.lnprob(self.meta.logmapNz)
+# #         self.lp_expNz = self.meta.postdist.lnprob(self.meta.logexpNz)
+        self.lp_mmlNz = self.meta.postdist.lnprob(self.meta.logmmlNz)
 
         self.var_y = []
 
     def compute(self, ydata):
         y = np.swapaxes(ydata,0,1).T
         var_y = sum([statistics.variance(y[w]) for w in xrange(self.meta.nwalkers)])/self.meta.nwalkers
-        #self.llr_samp.append((2.*np.max(lik_y)-2.*self.ll_true))
+        #self.llr_smpNz.append((2.*np.max(lik_y)-2.*self.ll_truNz))
         self.var_y.append(var_y)
         # self.summary = self.summary+var_y
         return { #'summary': self.summary,
                  'var_y': self.var_y,
-                 'lp_true': self.lp_true,
-                 'lp_stack': self.lp_stack,
-                 'lp_mapNz': self.lp_mapNz,
-#                  'lp_expNz': self.lp_expNz
-                 'lp_mleNz': self.lp_mleNz
+                 'lp_truNz': self.lp_truNz,
+#                  'lp_stkNz': self.lp_stkNz,
+#                  'lp_mapNz': self.lp_mapNz,
+# #                  'lp_expNz': self.lp_expNz
+                 'lp_mmlNz': self.lp_mmlNz
                }
 
 class stat_fracs(calcstats):

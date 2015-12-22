@@ -13,6 +13,24 @@ def lrange(l):
     """
     return xrange(len(l))
 
+def safelog(xarr):
+    """
+    safelog takes log of array with zeroes
+    """
+    shape = np.shape(xarr)
+    flat = xarr.flatten()
+    logged = np.log(np.array([max(x,sys.float_info.epsilon) for x in flat]))
+    return logged.reshape(shape)
+
+def normed(x,scale):
+    """
+    normed takes a numpy array and returns a normalized version of it that integrates to 1
+    """
+    x = np.array(x)
+    scale = np.array(scale)
+    norm = x/np.dot(x,scale)
+    return norm
+
 class mvn(object):
     """
     mvn object is multivariate normal distribution, to be used in data generation and prior to emcee
@@ -61,13 +79,20 @@ class post(object):
         self.lndifs = np.log(self.difs)#np.array([m.log(max(self.difs[k],sys.float_info.epsilon)) for k in self.dims])
         self.postprobs = yprobs
         self.constterm = self.lndifs-self.interim#self.priormean
+        self.lnprob_ext = post_lnprob
 
     # this is proportional to log prior probability
     def priorprob(self,theta):
         return self.prior.logpdf(theta)
 
     def lnlike(self,theta):
-        return self.lnprob(theta)-self.priorprob(theta)
+        #return self.lnprob(theta)-self.priorprob(theta)
+        constterms = theta+self.constterm
+        sumterm = -1.*np.dot(np.exp(theta),self.difs)
+        for j in lrange(self.postprobs):
+            logterm = np.log(np.sum(np.exp(self.postprobs[j]+constterms)))
+            sumterm += logterm
+        return sumterm
 
     def mlnlike(self,theta):
         return -1.*self.lnlike(theta)
@@ -75,20 +100,19 @@ class post(object):
     # calculate log posterior probability
     # speed this up some more with matrix magic?
     def lnprob(self,theta):
-        constterms = theta+self.constterm
-        sumterm = self.priorprob(theta)-np.dot(np.exp(theta),self.difs)#this should sufficiently penalize poor samples but somehow fails on large datasets
-        for j in lrange(self.postprobs):
-            #logterm = sp.misc.logsumexp(self.postprobs[j]+constterms)#shockingly slower!
-            #logterm = np.logaddexp(self.postprobs[j]+constterms)#only works for two terms
-            logterm = np.log(np.sum(np.exp(self.postprobs[j]+constterms)))
-            sumterm += logterm
-        #have been getting positive lnprob values (i.e. probabilities>1), get reasonable samples if capped at 0 but still investigating
-        #in run from which plots were generated, the following was uncommented!
-        #if sumterm <= 0.:
-        #    return sumterm
-        #else:
-        #    return 0.
-        return sumterm
+#         constterms = theta+self.constterm
+#         sumterm = self.priorprob(theta)-np.dot(np.exp(theta),self.difs)#this should sufficiently penalize poor samples but somehow fails on large datasets
+#         for j in lrange(self.postprobs):
+#             #logterm = sp.misc.logsumexp(self.postprobs[j]+constterms)#shockingly slower!
+#             #logterm = np.logaddexp(self.postprobs[j]+constterms)#only works for two terms
+#             logterm = np.log(np.sum(np.exp(self.postprobs[j]+constterms)))
+#             sumterm += logterm
+#         return sumterm
+        return self.lnlike(theta)+self.priorprob(theta)
+
+def post_lnprob(theta, other_self):
+  ret = other_self.lnprob(theta)
+  return ret
 
 class path(object):
     """

@@ -7,6 +7,8 @@ import statistics
 from subprocess import call
 import timeit
 import psutil
+import csv
+
 import statmcmc as stats
 from utilmcmc import *
 import keymcmc as key
@@ -43,9 +45,8 @@ class pertest(object):
         self.burns = 0
         self.runs = 0
 
-        with open(self.meta.calctime,'w') as calctimer:
+        with open(self.meta.calctime,'a') as calctimer:
             calctimer.write(str(timeit.default_timer())+' icalc \n')
-            calctimer.close()
 
         # what outputs of emcee will we be saving?
         self.stats = [ stats.stat_both(self.meta),
@@ -64,12 +65,14 @@ class pertest(object):
         ntimes = self.meta.ntimes
         start_time = timeit.default_timer()
         sampler.reset()
+        print 'running mcmc'
         pos, prob, state = sampler.run_mcmc(ivals,miniters,thin=thinto)
+        print 'done running mcmc'
         ovals = [walk[-1] for walk in sampler.chain]
         chains = sampler.chain#nsteps*nwalkers*nbins
         probs = sampler.lnprobability#nsteps*nwalkers
         fracs = sampler.acceptance_fraction#nwalkers
-        times = stats.acors(chains,self.meta.mode)#nwalkers#sampler.get_autocorr_time(window = ntimes/2)#nbins
+        times = sampler.get_autocorr_time()#stats.acors(chains,self.meta.mode)#nwalkers#sampler.get_autocorr_time(window = ntimes/2)#nbins
         both = {'probs':probs,'chains':chains}
         outputs = { 'times':times,
                     'fracs':fracs,
@@ -114,7 +117,7 @@ class pertest(object):
     # once burn-in complete, know total number of runs remaining
     def atburn(self, b, outputs):
         print(str(b*self.meta.miniters)+' iterations of burn-in for '+self.meta.name)
-        self.nsteps = self.meta.factor*b+1
+        self.nsteps = b+1#self.meta.factor*b+1
         self.maxiters = self.nsteps*self.meta.miniters
         self.alliternos = range(0,self.maxiters)
         self.alltimenos = range(0,self.maxiters/self.meta.thinto,self.meta.thinto)

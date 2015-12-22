@@ -52,19 +52,21 @@ testdir = os.path.join('..','tests')
 #topdir = open(os.path.join(testdir,'topdirs.p'),'rb')
 
 def main():
+
+
     runs  = {}
     with open(os.path.join(testdir,'tests-mcmc.txt'),'rb') as names:#open(os.path.join(testdir,'topdirs.p'),'rb') as names:
         #names = cpkl.load(names)
         for name in names:
             meta = setup(name[:-1])
             runs[name[:-4]] = meta
+
     # make initial plots
-    distribute.run_offthread_sync(plots.initial_plots(runs))
+#     distribute.run_offthread_sync(plots.initial_plots(runs))
     #runs = {'runs':tests}
     global init_runs
     init_runs = runs
 
-    nps = mp.cpu_count()-1
     # fork off all of the plotter threads,
     for run_name in runs.keys():
         print ('starting run of ' + str(run_name))
@@ -76,7 +78,9 @@ def main():
         runs[run_name].dist = dist
         print ('setting dist on {} to {}'.format(run_name, runs[run_name].dist))
 
+    nps = mp.cpu_count()-1
     pool = mp.Pool(nps)
+    meta.pool = pool
 
     # may add back plot-only functionality later
     #keys = runs.keys() #[run.key.add(t=name) for name in lrange(names)]
@@ -84,7 +88,6 @@ def main():
     start_time = timeit.default_timer()
     pool.map(fsamp, runs.keys())
     elapsed = timeit.default_timer() - start_time
-    print(elapsed)
 
     for run in runs.keys():
         runs[run].dist.finish()

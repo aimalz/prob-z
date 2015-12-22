@@ -13,8 +13,12 @@ import shutil
 import emcee
 import itertools
 import timeit
+import sklearn as skl
+import sys
+import csv
+import multiprocessing as mp
 
-from utilmcmc import *
+import utilmcmc as um
 import keymcmc as key
 from permcmc import pertest
 import statmcmc as stats
@@ -24,8 +28,8 @@ class setup(object):
     """
     setup object specifies all parameters controlling one run of p(z) inference program
     """
-    def __init__(self,input_address):
-
+    def __init__(self, input_address):
+#         self.pool = pool
         # name the test for which this is setup object
         self.key = key.key(t=input_address)
 
@@ -36,8 +40,11 @@ class setup(object):
             indict   = {defn[0]:defn[1] for defn in lines}
 
         # load top directory location
-        with open(os.path.join(self.testdir,'topdirs.p')) as topdirs:
-            self.topdir = cpkl.load(topdirs)[input_address]
+#         with open(os.path.join(self.testdir,'topdirs.p')) as topdirs:
+#             self.topdir = cpkl.load(topdirs)[input_address]
+        self.inadd = input_address[:-4]
+        self.testdir = os.path.join('..','tests')
+        self.topdir = os.path.join(self.testdir,self.inadd)
         self.datadir = os.path.join(self.topdir,'data')
 
         # make directory into which to put output of this test
@@ -45,6 +52,17 @@ class setup(object):
         if os.path.exists(self.topdir):
             shutil.rmtree(self.topdir)
         os.makedirs(self.topdir)
+
+        # create files for outputting timing data for performance evaluation
+        self.calctime = os.path.join(self.topdir, 'calctimer.txt')
+#         if os.path.exists(self.calctime):
+#             os.remove(self.calctime)
+        self.plottime = os.path.join(self.topdir, 'plottimer.txt')
+#         if os.path.exists(self.plottime):
+#             os.remove(self.plottime)
+#         self.iotime = os.path.join(self.testdir, 'iotimer.txt')
+#         if os.path.exists(self.iotime):
+#             os.remove(self.iotime)
 
         # load and parse data
         self.proc_data()
@@ -61,8 +79,8 @@ class setup(object):
         else:
             self.inits = 'gs'#corresponding to 'ps', 'gm'
 
-        # construct alternative estimators
-        self.alternatives()
+#         # construct alternative estimators
+#         self.alternatives()
 
         # generate prior distribution
         self.make_prior(indict)
@@ -77,7 +95,7 @@ class setup(object):
         outdict = {
             'topdir': self.topdir,
             'binends': self.binends,
-            'logpobs': self.logpobs,
+            'logpdfs': self.logpdfs,
             'inits': self.inits,
             'miniters': self.miniters,
             'thinto': self.thinto,
@@ -89,17 +107,6 @@ class setup(object):
         with open(os.path.join(self.topdir,'README.md'), 'a') as readme:
             readme.write('\n')
             readme.write(repr(outdict))
-
-        # create files for outputting timing data for performance evaluation
-        self.calctime = os.path.join(self.testdir, 'calctimer.txt')
-        if os.path.exists(self.calctime):
-            os.remove(self.calctime)
-        self.plottime = os.path.join(self.testdir, 'plottimer.txt')
-        if os.path.exists(self.plottime):
-            os.remove(self.plottime)
-#         self.iotime = os.path.join(self.testdir, 'iotimer.txt')
-#         if os.path.exists(self.iotime):
-#             os.remove(self.iotime)
 
         print(self.name+' ingested inputs and initialized sampling')
 
@@ -120,45 +127,61 @@ class setup(object):
         # number of walkers
         self.nwalkers = 2*self.nbins
 
-        self.logpobs = np.array(alldata[2:])
-        self.pobs = np.exp(self.logpobs)
-        self.ngals = len(self.logpobs)
+        self.logpdfs = np.array(alldata[2:])
+        self.pdfs = np.exp(self.logpdfs)
+        self.ngals = len(self.logpdfs)
 
         self.logintNz = np.array(alldata[1])
         self.intNz = np.exp(self.logintNz)
         self.lik_intNz = self.calclike(self.logintNz)
 
-        self.flatNz = np.array([float(self.ngals)/float(self.nbins)/self.bindif]*self.nbins)
-        self.logflatNz = np.log(self.flatNz)
+        self.fltNz = np.array([float(self.ngals)/float(self.nbins)/self.bindif]*self.nbins)
+        self.logfltNz = np.log(self.fltNz)
 
-        self.trueZs = None
-        self.trueNz,self.logtrueNz = None,None
-        self.truePz,self.logtruePz = None,None
+        self.truZs = None
+        self.truNz,self.logtruNz = None,None
+        self.truPz,self.logtruPz = None,None
+        self.zrange = np.arange(self.binends[0],self.binends[-1],1./self.ngals)[:, np.newaxis]
+
         if os.path.exists(os.path.join(self.datadir,'logtrue.csv')):
             with open(os.path.join(self.datadir,'logtrue.csv'),'rb') as csvfile:
                 tuples = (line.split(None) for line in csvfile)
-                trudata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
-            self.trueZs = np.array(trudata[2:])
+                trudata = [float(pair[k]) for k in range(0,len(pair)) for pair in tuples]
+            self.truZs = np.array(trudata)
 
-            trueNz = [sys.float_info.epsilon]*self.nbins
-            for z in self.trueZs:
+            bw=0.04
+            kde = skl.neighbors.KernelDensity(kernel='gaussian', bandwidth=bw)
+            self.trange = self.truZs[:, np.newaxis]
+            self.trukde = kde.fit(self.trange)
+            self.lPz_range = self.trukde.score_samples(self.zrange)
+            self.Pz_range = np.exp(self.lPz_range)
+            self.Nz_range = self.ngals*self.Pz_range
+            self.lNz_range = um.safelog(self.Nz_range)
+
+            truNz = [sys.float_info.epsilon]*self.nbins
+            for z in self.truZs:
                 for k in xrange(self.nbins):
-                    if z[0] > self.binlos[k] and z[0] < self.binhis[k]:
-                        trueNz[k] += 1./self.bindifs[k]
-            self.trueNz = np.array(trueNz)
-            self.logtrueNz = np.log(self.trueNz)
-            self.truePz = self.trueNz/np.sum(self.trueNz)
-            self.logtruePz = np.log(self.truePz)
+                    if z > self.binlos[k] and z < self.binhis[k]:
+                        truNz[k] += 1./self.bindifs[k]
+            self.truNz = np.array(truNz)
+            self.logtruNz = np.log(self.truNz)
+            self.truPz = self.truNz/np.sum(self.truNz)
+            self.logtruPz = np.log(self.truPz)
+
+        self.samples = os.path.join(self.topdir, 'samples.csv')
+        with open(self.samples,'wb') as csvfile:
+            out = csv.writer(csvfile,delimiter=' ')
+            out.writerow(self.binends)
+
         return
 
     def make_prior(self,indict):
 
-        self.cands = np.array([self.logintNz,self.logstack,self.logmapNz])#,self.logexpNz])
-        self.liks = np.array([self.lik_intNz,self.lik_stack,self.lik_mapNz])#,self.lik_expNz])
-        self.logstart = self.cands[np.argmax(self.liks)]
-
-        self.ml,self.logmleNz = self.makemle(arg='slsqp')#'grid','cobyla','slsqp'
-        self.mleNz = np.exp(self.logmleNz)
+#         self.cands = [self.logintNz,self.logstkNz,self.logmapNz]#,self.logexpNz])
+#         self.liks = [self.lik_intNz,self.lik_stkNz,self.lik_mapNz]#,self.lik_expNz])
+        self.start = self.logintNz#self.cands[np.argmax(np.array(self.liks))]
+        self.lik_mmlNz,self.logmmlNz = self.makemml()
+        self.mmlNz = np.exp(self.logmmlNz)
 
         self.q = None
         self.e = None
@@ -170,20 +193,21 @@ class setup(object):
             covmat = indict['priorcov']
             self.covmat = np.reshape(np.array([float(covmat[i]) for i in range(0,self.nbins**2)]),(self.nbins,self.nbins))
         else:
-            self.mean = self.logmleNz#self.logstack#self.logflatNz#self.logintNz
+            self.mean = self.logintNz#self.logmmlNz#self.logstkNz#self.logfltNz
             self.q = 1.0#self.bindif
             self.e = 100.#1./self.bindif**2
             self.t = self.q*1e-5
             self.covmat = np.array([[self.q*np.exp(-0.5*self.e*(self.binmids[a]-self.binmids[b])**2.) for a in xrange(0,self.nbins)] for b in xrange(0,self.nbins)])+self.t*np.identity(self.nbins)
 
-        self.priordist = mvn(self.mean,self.covmat)
+        self.priordist = um.mvn(self.mean,self.covmat)
 
         # posterior specification for sampler and alternatives
-        self.postdist = post(self.priordist, self.binends, self.logpobs,self.logintNz)
+        self.postdist = um.post(self.priordist, self.binends, self.logpdfs,self.logintNz)
 
         # sampler specification
-        self.sampler = emcee.EnsembleSampler(self.nwalkers, self.nbins, self.postdist.lnprob)
-
+        self.nps = mp.cpu_count()
+#         print 'lnprob_ext: ' + str(self.postdist.lnprob_ext)
+        self.sampler = emcee.EnsembleSampler(self.nwalkers, self.nbins, self.postdist.lnprob_ext, args=[self.postdist])#, threads=self.nps, pool=self.pool)
         #generate initial values for walkers
         if self.inits == 'ps':
             self.ivals,self.mean = self.priordist.sample_ps(self.nwalkers)
@@ -202,6 +226,20 @@ class setup(object):
         with open(self.ivals_dir,'wb') as ival_file:
             cpkl.dump(self.ivals,ival_file)
 
+#         start_time = timeit.default_timer()
+#         print('starting optimization at '+str(start_time))
+#         self.cands,self.liks = [],[]
+#         for samp in self.priordist.sample_ps(self.nwalkers)[0]:
+#             self.cands.append(samp)
+#             self.liks.append(self.postdist.lnlike(samp))
+#         print(self.liks)
+#         self.logstart = self.cands[np.argmax(np.array(self.liks))]
+#         print(self.logstart)
+#         self.lik_mml,self.mml = self.makemml('slsqp')
+#         print(self.mml)
+#         elapsed = timeit.default_timer() - start_time
+#         print('optimized '+str(self.ngals)+' in '+str(elapsed))
+
         return
 
     def calclike(self,theta):
@@ -209,93 +247,66 @@ class setup(object):
         constterms = theta+constterm
         sumterm = -1.*np.dot(np.exp(theta),self.bindifs)
         for j in xrange(self.ngals):
-            logterm = np.log(np.sum(np.exp(self.logpobs[j]+constterms)))
+            logterm = np.log(np.sum(np.exp(self.logpdfs[j]+constterms)))
             sumterm += logterm
         return sumterm
 
-    def makemle(self,arg):
-        start_time = timeit.default_timer()
-        if arg == 'grid':
-            def cons1(theta):
-                if np.dot(np.exp(theta),self.bindifs) >= 0.5*self.ngals:
-                    return True
-                else:
-                    return False
-            def cons2(theta):
-                if np.dot(np.exp(theta),self.bindifs) <= 1.5*self.ngals:
-                    return True
-                else:
-                    return False
-            r = 0.5
-            grid = np.arange(0.,np.log(self.ngals/self.bindif)+r,r)
-            vals = itertools.combinations_with_replacement(grid,self.nbins)
-            grids = []
-            for g in vals:
-                if cons1(g) and cons2(g):
-                    grids.append(g)
-            locs,likes = [],[]
-            for val in grids:
-                locs.append(val)
-                likes.append(self.calclike(val))
-            locs = np.array(locs)
-            likes = np.array(likes)
-            ind = np.argmax(likes)
-            like = likes[ind]
-            loc = locs[ind]
-        if arg == 'cobyla':
-            def cons1(theta):
-                return np.dot(np.exp(theta),self.bindifs)-0.5*self.ngals
-            def cons2(theta):
-                return 1.5*self.ngals-np.dot(np.exp(theta),self.bindifs)
-            def cons3(theta):
-                return np.exp(theta)
-            def cons4(theta):
-                return self.ngals-np.exp(theta)
+    def makemml(self):
+
+        if os.path.exists(os.path.join(self.datadir,'logmmle.csv')):
+            with open(os.path.join(self.datadir,'logmmle.csv'),'rb') as csvfile:
+                tuples = (line.split(None) for line in csvfile)
+                mmldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
+            elapsed = mmldata[0]
+            like = mmldata[1]
+            loc = np.array(mmldata[2])
+        else:
             def minlf(theta):
                 return -1.*self.calclike(theta)
-            loc = sp.optimize.fmin_cobyla(minlf,self.logstart,cons=(cons1,cons2,cons3,cons4),maxfun=100000)
+            def maxruns():
+                return(self.ngals*2**self.nbins)
+            start_time = timeit.default_timer()
+            loc = sp.optimize.fmin(minlf,self.start,maxiter=maxruns(),maxfun=maxruns(), disp=True)
             like = self.calclike(loc)
-        if arg == 'slsqp':
-            def cons1(theta):
-                return np.dot(np.exp(theta),self.bindifs)-0.5*self.ngals
-            def cons2(theta):
-                return 1.5*self.ngals-np.dot(np.exp(theta),self.bindifs)
-            def minlf(theta):
-                return -1.*self.calclike(theta)
-            bounds = [(-sys.float_info.epsilon,np.log(self.ngals)) for k in xrange(self.nbins)]
-            loc = sp.optimize.fmin_slsqp(minlf,self.logstart,ieqcons=([cons1,cons2]),bounds=bounds,iter=100)
-            like = self.calclike(loc)
-        elapsed = timeit.default_timer() - start_time
-        print(str(self.ngals)+' galaxies for '+self.name+' MLE by '+arg+' in '+str(elapsed))
+            elapsed = timeit.default_timer() - start_time
+            with open(os.path.join(self.datadir,'logmmle.csv'),'wb') as csvfile:
+                out = csv.writer(csvfile,delimiter=' ')
+                out.writerow([elapsed])
+                out.writerow([like])
+                out.writerow(loc)
+            with open(self.calctime,'w') as calctimer:
+                calctimer.write(str(elapsed)+' MMLE for '+str(self.nbins)+'\n')
+                calctimer.close()
+              #print(str(self.ngals)+' galaxies for '+self.name+' MMLE in '+str(elapsed)+': '+str(loc))
         return(like,loc)
 
-    def alternatives(self):
+#     def alternatives(self):
 
-        # generate full Sheldon, et al. 2011 "posterior"
-        stackprep = np.sum(np.array(self.pobs),axis=0)
-        self.stack = np.array([max(sys.float_info.epsilon,stackprep[k]) for k in xrange(self.nbins)])
-        self.logstack = np.log(self.stack)
-        self.lik_stack = self.calclike(self.logstack)
+#         # generate full Sheldon, et al. 2011 "posterior"
+#         stkprep = np.sum(np.array(self.pdfs),axis=0)
+#         self.stkNz = np.array([max(sys.float_info.epsilon,stkprep[k]) for k in xrange(self.nbins)])
+#         self.logstkNz = np.log(self.stkNz)
+#         self.lik_stkNz = self.calclike(self.logstkNz)
 
-        # generate MAP N(z)
-        self.mapNz = [sys.float_info.epsilon]*self.nbins
-        mappreps = [np.argmax(l) for l in self.logpobs]
-        for m in mappreps:
-              self.mapNz[m] += 1./self.bindifs[m]
-        self.logmapNz = np.log(self.mapNz)
-        self.lik_mapNz = self.calclike(self.logmapNz)
+#         # generate MAP N(z)
+#         self.mapNz = [sys.float_info.epsilon]*self.nbins
+#         mappreps = [np.argmax(l) for l in self.logpdfs]
+#         for m in mappreps:
+#               self.mapNz[m] += 1./self.bindifs[m]
+#         self.logmapNz = np.log(self.mapNz)
+#         self.lik_mapNz = self.calclike(self.logmapNz)
 
-        # generate expected value N(z)
-        expprep = [sum(z) for z in self.binmids*self.pobs*self.bindifs]
-        self.expNz = [sys.float_info.epsilon]*self.nbins
-        for z in expprep:
-              for k in xrange(self.nbins):
-                  if z > self.binlos[k] and z < self.binhis[k]:
-                      self.expNz[k] += 1./self.bindifs[k]
-        self.logexpNz = np.log(self.expNz)
-        self.lik_expNz = self.calclike(self.logexpNz)
+# #         # generate expected value N(z)
+# #         expprep = [sum(z) for z in self.binmids*self.pdfs*self.bindifs]
+# #         self.expNz = [sys.float_info.epsilon]*self.nbins
+# #         for z in expprep:
+# #               for k in xrange(self.nbins):
+# #                   if z > self.binlos[k] and z < self.binhis[k]:
+# #                       self.expNz[k] += 1./self.bindifs[k]
+# #         self.logexpNz = np.log(self.expNz)
+# #         self.lik_expNz = self.calclike(self.logexpNz)
 
-        return
+#         return
 
     def setup_mcmc(self,indict):
 
