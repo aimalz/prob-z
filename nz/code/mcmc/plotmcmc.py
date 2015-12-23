@@ -12,8 +12,6 @@ import sys
 import os
 import timeit
 import random
-import math as m
-import statistics
 import psutil
 import cPickle as cpkl
 import sklearn as skl
@@ -253,7 +251,7 @@ class plotter_probs(plotter):
     def __init__(self, meta):
         self.meta = meta
         self.ncolors = len(self.meta.colors)
-        self.a_probs = 1./self.meta.factor#self.meta.nwalkers
+        self.a_probs = 1.#/self.meta.factor#self.meta.nwalkers
         self.f = plt.figure(figsize=(5,5))
         self.f.suptitle(self.meta.name)
         sps = self.f.add_subplot(1,1,1)
@@ -276,7 +274,6 @@ class plotter_probs(plotter):
                           plot_y[w],
                           c=self.meta.colors[w%self.ncolors],
                           alpha=self.a_probs,
-                          linewidth=0.1,
                           rasterized=True)
 
         self.f.savefig(os.path.join(self.meta.topdir,'probs.png'),dpi=100)
@@ -588,13 +585,14 @@ class plotter_samps(plotter):
         with open(os.path.join(self.meta.topdir,'samples.csv'),'rb') as csvfile:
             tuples = (line.split(None) for line in csvfile)
             alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
-            alldata = np.array(alldata[1:])
+            alldata = np.array(alldata).T
         for k in xrange(self.meta.nbins):
-            x_all = alldata[k].flatten()
-            loc,scale = sp.stats.norm.fit_loc_scale(x_all)
+            y_all = alldata[k].flatten()
+            loc,scale = sp.stats.norm.fit_loc_scale(y_all)
             sps_samp_log.hlines(loc,self.meta.binends[k],self.meta.binends[k+1],color='k',linestyle='--',linewidth=2.)
-            x = np.arange(self.meta.binends[k],self.meta.binends[k+1],0.01)
-            sps_samp_log.fill_between(x,loc-scale,loc+scale,color='k',alpha=0.5)
+            sps_samp.hlines(np.exp(loc),self.meta.binends[k],self.meta.binends[k+1],color='k',linestyle='--',linewidth=2.)
+            sps_samp_log.fill_between([self.meta.binends[k],self.meta.binends[k+1]],loc-scale,loc+scale,color='k',alpha=0.1)
+            sps_samp.fill_between([self.meta.binends[k],self.meta.binends[k+1]],np.exp(loc-scale),np.exp(loc+scale),color='k',alpha=0.1)
 
         sps_samp_log.legend(fontsize='xx-small', loc='lower right')
         sps_samp.legend(fontsize='xx-small', loc='upper left')
@@ -619,7 +617,7 @@ class plotter_chains(plotter):
         for k in xrange(self.meta.nbins):
             sps_chain = self.sps_chains[k]
             sps_chain.plot([0],[0],color = 'k',label = 'Mean Sample Value',rasterized = True)
-            sps_chain.set_ylim(-m.log(self.meta.ngals), m.log(self.meta.ngals / self.meta.bindif)+1)
+            sps_chain.set_ylim(-np.log(self.meta.ngals), np.log(self.meta.ngals / self.meta.bindif)+1)
             sps_chain.set_xlabel('iteration number')
             sps_chain.set_ylabel(r'$\ln N_{'+str(k+1)+r'}(z)$')
             sps_chain.set_title(r'$\ln N(z)$ Parameter {} of {}'.format(k+1, self.meta.nbins))
@@ -646,6 +644,7 @@ class plotter_chains(plotter):
 
 
         for k in xrange(self.meta.nbins):
+            sps_pdf = self.sps_pdfs[k]
             mean = np.sum(plot_y_c[k])/(self.meta.ntimes*self.meta.nwalkers)
             self.sps_chains[k].plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,#i_run.eachtimenos[r],
                                     [mean]*self.meta.ntimes,
@@ -657,7 +656,7 @@ class plotter_chains(plotter):
             kde = skl.neighbors.KernelDensity(kernel='gaussian', bandwidth=1.0).fit(x_kde)
             x_plot = np.arange(np.min(plot_y_c[k]),np.max(plot_y_c[k]),0.1)[:, np.newaxis]
             log_dens = kde.score_samples(x_plot)
-            self.sps_pdfs[k].plot(x_plot[:, 0],np.exp(log_dens),color=self.meta.colors[key.r%self.ncolors],rasterized=True)
+            sps_pdf.plot(x_plot[:, 0],np.exp(log_dens),color=self.meta.colors[key.r%self.ncolors],rasterized=True)
             for x in randsteps:
                 for w in self.randwalks:
                     self.sps_chains[k].plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,#i_run.eachtimenos[r],
@@ -665,6 +664,10 @@ class plotter_chains(plotter):
                                             color = self.meta.colors[w%self.ncolors],
                                             alpha = self.a_chain,
                                             rasterized = True)
+
+            loc,scale = sp.stats.norm.fit_loc_scale(x_all)
+            sps_pdf.vlines(loc,0.,1.,color=self.meta.colors[key.r%self.ncolors],linestyle='--')
+#             sps_pdf.axvspan(loc-scale,loc+scale,color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
 
         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
               both = cpkl.load(statboth)
@@ -689,6 +692,12 @@ class plotter_chains(plotter):
     def finish(self):
         timesaver(self.meta,'chains-start',key)
 
+        with open(os.path.join(self.meta.topdir,'samples.csv'),'rb') as csvfile:
+            tuples = (line.split(None) for line in csvfile)
+            alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
+            alldata = np.array(alldata).T
+            print('data shape '+str(np.shape(alldata)))
+
         maxsteps = self.last_key.r+2
         maxiternos = np.arange(0,maxsteps)
         for k in xrange(self.meta.nbins):
@@ -710,6 +719,11 @@ class plotter_chains(plotter):
 #             sps_pdf.vlines(self.meta.logmapNz[k],0.,1.,linestyle='-.',lw=2.,label='MAP value')
 # #             sps_pdf.vlines(self.meta.logexpNz[k],0.,1.,linestyle=':',lw=2.,label=r'$E(z)$ value')
             sps_pdf.vlines(self.meta.logmmlNz[k],0.,1.,linestyle=':',lw=2.,label='MMLE value')
+
+            y_all = alldata[k]
+            loc,scale = sp.stats.norm.fit_loc_scale(y_all)
+            sps_pdf.vlines(loc,0.,1.,color='k',linestyle='--',linewidth=2.,label='Best Fit value')
+            sps_pdf.axvspan(loc-scale,loc+scale,color='k',alpha=0.1)
 
             sps_pdf.legend(fontsize='xx-small',loc='upper left')
             sps_chain.legend(fontsize='xx-small', loc='lower right')

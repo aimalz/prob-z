@@ -44,14 +44,23 @@ class setup(object):
 #             self.topdir = cpkl.load(topdirs)[input_address]
         self.inadd = input_address[:-4]
         self.testdir = os.path.join('..','tests')
-        self.topdir = os.path.join(self.testdir,self.inadd)
-        self.datadir = os.path.join(self.topdir,'data')
+        self.updir = os.path.join(self.testdir,self.inadd)
+        self.datadir = os.path.join(self.updir,'data')
 
         # make directory into which to put output of this test
-        self.topdir = os.path.join(self.topdir,'mcmc')
+        self.topdir = os.path.join(self.updir,'mcmc')
         if os.path.exists(self.topdir):
             shutil.rmtree(self.topdir)
+#             os.remove(os.path.join(self.topdir,'samples.csv'))
+#             os.remove(os.path.join(self.topdir,'calctimer.txt'))
+#             os.remove(os.path.join(self.topdir,'plottimer.txt'))
+#         else:
         os.makedirs(self.topdir)
+
+        iterplace = os.path.join(self.topdir,'iterno.p')
+        if os.path.exists(iterplace):
+            iterfile = open(iterplace)
+            self.iterno = cpkl.load(iterfile)
 
         # create files for outputting timing data for performance evaluation
         self.calctime = os.path.join(self.topdir, 'calctimer.txt')
@@ -169,9 +178,9 @@ class setup(object):
             self.logtruPz = np.log(self.truPz)
 
         self.samples = os.path.join(self.topdir, 'samples.csv')
-        with open(self.samples,'wb') as csvfile:
-            out = csv.writer(csvfile,delimiter=' ')
-            out.writerow(self.binends)
+#         with open(self.samples,'wb') as csvfile:
+#             out = csv.writer(csvfile,delimiter=' ')
+#             out.writerow(self.binends)
 
         return
 

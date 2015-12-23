@@ -53,7 +53,6 @@ testdir = os.path.join('..','tests')
 
 def main():
 
-
     runs  = {}
     with open(os.path.join(testdir,'tests-mcmc.txt'),'rb') as names:#open(os.path.join(testdir,'topdirs.p'),'rb') as names:
         #names = cpkl.load(names)
