@@ -1,3 +1,7 @@
+"""
+full-mcmc module runs tests in parallel, forking off plots
+"""
+
 # import cProfile
 # import pstats
 # import StringIO
@@ -44,9 +48,8 @@ def fsamp(idinfo):
     finally:
         print ('Done with '+str(idinfo))
 
-#def fplot(runs,key):
-#    runs[key].dist.finish()
-#    return
+# initialize all plotters
+all_plotters = [plots.plotter_chains,plots.plotter_samps,plots.plotter_probs,plots.plotter_times]
 
 testdir = os.path.join('..','tests')
 #topdir = open(os.path.join(testdir,'topdirs.p'),'rb')
@@ -69,7 +72,7 @@ def main():
     # fork off all of the plotter threads,
     for run_name in runs.keys():
         print ('starting run of ' + str(run_name))
-        dist = distribute.distribute(plots.all_plotters,
+        dist = distribute.distribute(all_plotters,
                                      start = True,
                                      meta = runs[run_name])
         print ('plotter threads for: '+ run_name + ' started')

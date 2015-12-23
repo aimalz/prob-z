@@ -134,10 +134,21 @@ class setup(object):
         self.binmids = (self.binlos+self.binhis)/2.
 
         # number of walkers
-        self.nwalkers = 2*self.nbins
+        self.nwalkers = 2*2*self.nbins
 
+        # read in and normalize PDFS
         self.logpdfs = np.array(alldata[2:])
         self.pdfs = np.exp(self.logpdfs)
+        sums = np.sum(self.pdfs*self.bindifs,axis=1)
+        self.pdfs = np.divide(self.pdfs,sums[:, np.newaxis])
+        self.logpdfs = um.safelog(self.pdfs)
+
+#         sums = self.logpdfs.sum(axis=0)
+#         for gal in self.logpdfs:
+#             gal = gal/self.bindifs
+#             gal = gal/sum(gal*self.bindifs)
+#             assert sum(gal*self.bindifs)==1.
+
         self.ngals = len(self.logpdfs)
 
         self.logintNz = np.array(alldata[1])

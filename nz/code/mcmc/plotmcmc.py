@@ -1,9 +1,8 @@
 """
-plot-mcmc module makes all plots including multiprocessed
+plot-mcmc module makes all plots including multiprocessed info
 """
 
 # TO DO: split up datagen and pre-run plots
-import distribute
 import matplotlib as mpl
 mpl.use('PS')
 import matplotlib.pyplot as plt
@@ -18,6 +17,7 @@ import sklearn as skl
 from sklearn import neighbors
 import scipy as sp
 
+import distribute
 from utilmcmc import *
 from keymcmc import key
 
@@ -264,17 +264,27 @@ class plotter_probs(plotter):
     def plot(self,key):
 
         data = key.load_state(self.meta.topdir)['probs']
-        plot_y = np.swapaxes(data,0,1).T
+        plot_y = np.swapaxes(data,0,1)#ntimes*nwalkers#.T#nwalkers*ntimes
 #         if key.r != 0:
-        self.medy.append(np.median([np.median(plot_y[w]) for w in xrange(self.meta.nwalkers)]))
+#         self.medy.append(np.median([np.median(plot_y[w]) for w in xrange(self.meta.nwalkers)]))
 
-        randwalks = random.sample(xrange(self.meta.nwalkers),1)#xrange(self.meta.nwalkers)
-        for w in randwalks:
-            self.sps.plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,
-                          plot_y[w],
-                          c=self.meta.colors[w%self.ncolors],
-                          alpha=self.a_probs,
-                          rasterized=True)
+        locs,scales = [],[]
+        for x in xrange(self.meta.ntimes):
+            loc,scale = sp.stats.norm.fit_loc_scale(plot_y[x])
+            locs.append(loc)
+            scales.append(scale)
+        locs = np.array(locs)
+        scales = np.array(scales)
+        self.sps.plot(xrange(self.meta.ntimes),locs,color='k',rasterized=True)
+#         self.sps.vlines(xrange(self.meta.ntimes+1),(locs-scales),(locs+scales),color='k',alpha=0.5,linewidth=2.,rasterized=True)
+        self.sps.fill_between(xrange(self.meta.ntimes),locs-scales,locs+scales,color='k',alpha=0.1)
+#         randwalks = random.sample(xrange(self.meta.nwalkers),1)#xrange(self.meta.nwalkers)
+#         for w in randwalks:
+#             self.sps.plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,
+#                           plot_y[w],
+#                           c=self.meta.colors[w%self.ncolors],
+#                           alpha=self.a_probs,
+#                           rasterized=True)
 
         self.f.savefig(os.path.join(self.meta.topdir,'probs.png'),dpi=100)
 
@@ -285,15 +295,16 @@ class plotter_probs(plotter):
         with open(os.path.join(self.meta.topdir,'stat_probs.p'),'rb') as statprobs:
             probs = cpkl.load(statprobs)
 
-        yrange = self.medy#np.array(self.medy+[probs['lp_truNz'],probs['lp_stkNz'],probs['lp_mapNz'],probs['lp_expNz']])
-        miny = np.min(yrange)-np.log(self.meta.ngals)
-        maxy = np.max(yrange)+np.log(self.meta.ngals)
+#         yrange = self.medy#np.array(self.medy+[probs['lp_truNz'],probs['lp_stkNz'],probs['lp_mapNz'],probs['lp_expNz']])
+#         miny = np.min(yrange)-np.log(self.meta.ngals)
+#         maxy = np.max(yrange)+np.log(self.meta.ngals)
 
         if self.meta.logtruNz is not None:
-            self.sps.plot(self.meta.miniters*np.arange(0,self.last_key.r+2),
+            self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
                       [int(probs['lp_truNz'])]*(self.last_key.r+2),
                       label=r'True $\vec{\theta}$',
                       color='k',linewidth=2,linestyle='-')
+#             self.plotone(probs['lp_truNz'],r'True $\vec{\theta}$',lw=2.,ls='-')
 #         self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
 #                       [int(probs['lp_stkNz'])]*(self.last_key.r+2),
 #                       label=r'Stacked $\vec{\theta}$',
@@ -310,6 +321,7 @@ class plotter_probs(plotter):
                       [int(probs['lp_mmlNz'])]*(self.last_key.r+2),
                       label=r'MMLE $\vec{\theta}$',
                       color='k',linewidth=2,linestyle=':')
+#         self.plotone(probs['lp_mmlNz'],r'MMLE $\vec{\theta}$',lw=2.,ls=':')
 #         self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
 #                       [int(probs['lp_truNz'])]*(self.last_key.r+2),
 #                       label=r'Sampled $\vec{\theta}$',
@@ -317,7 +329,7 @@ class plotter_probs(plotter):
 
         self.sps.legend(fontsize='xx-small', loc='upper right')
         self.sps.set_xlim(-1*self.meta.miniters,(self.last_key.r+2)*self.meta.miniters)
-        self.sps.set_ylim(miny,maxy)
+#         self.sps.set_ylim(miny,maxy)
         self.f.savefig(os.path.join(self.meta.topdir,'probs.png'),dpi=100)
 
 #         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
@@ -402,6 +414,16 @@ class plotter_probs(plotter):
         sps.semilogx()
 
         f.savefig(os.path.join(self.meta.topdir,'kld.png'),dpi=100)
+
+    def plotone(self,plot_y,ylabel,a=1.,c='k',lw=1.,ls='-'):
+        self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
+                     [plot_y]*(self.last_key.r+2),
+                     color=c,
+                     linewidth=lw,
+                     linestyle=ls,
+                     alpha=a,
+                     label=ylabel)
+        return
 
 # plot full posterior samples
 class plotter_samps(plotter):
@@ -696,7 +718,6 @@ class plotter_chains(plotter):
             tuples = (line.split(None) for line in csvfile)
             alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
             alldata = np.array(alldata).T
-            print('data shape '+str(np.shape(alldata)))
 
         maxsteps = self.last_key.r+2
         maxiternos = np.arange(0,maxsteps)
@@ -732,10 +753,3 @@ class plotter_chains(plotter):
         self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.png'),dpi=100)
 
         timesaver(self.meta,'chains-done',key)
-
-# initialize all plotters
-all_plotters = [plotter_chains
-                ,plotter_samps
-                ,plotter_probs
-                ,plotter_times
-                ]
