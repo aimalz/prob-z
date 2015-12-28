@@ -17,8 +17,9 @@ class calcstats(object):
     def __init__(self, meta):
         self.meta = meta
     def update(self, ydata):
-        stats = self.compute(ydata)
-        self.meta.key.add_stats(self.meta.topdir, self.name, stats)
+        if self.meta.plotonly == False:
+            stats = self.compute(ydata)
+            self.meta.key.add_stats(self.meta.topdir, self.name, stats)
 
 # statistics involving both log posterior probabilities and parameter values
 class stat_both(calcstats):
@@ -46,14 +47,16 @@ class stat_both(calcstats):
 #                   'll_expNz': self.ll_expNz,
                   'll_intNz': self.ll_intNz,
                   'll_mmlNz': self.ll_mmlNz,
+                  'll_smpNz': self.ll_smpNz,
 #                   'llr_stkNz': np.array(self.llr_stkNz),
 #                   'llr_mapNz': np.array(self.llr_mapNz),
 #                   'llr_expNz': np.array(self.llr_expNz),
                   'llr_intNz': np.array(self.llr_intNz),
                   'llr_mmlNz': np.array(self.llr_mmlNz)
                    }
-        with open(os.path.join(self.meta.topdir,'stat_both.p'),'wb') as statboth:
-            cpkl.dump(outdict,statboth)
+        if self.meta.plotonly == False:
+            with open(os.path.join(self.meta.topdir,'stat_both.p'),'wb') as statboth:
+                cpkl.dump(outdict,statboth)
 
     def compute(self,ydata):
 
@@ -130,9 +133,9 @@ class stat_chains(calcstats):
 #         self.kl_stkNzvtruNz,self.kl_truNzvstkNz = None,None
 #         self.kl_mapNzvtruNz,self.kl_truNzvmapNz = None,None
 # #         self.kl_expNzvtruNz,self.kl_truNzvexpNz = None,None
-        self.kl_intNzvtruNz,self.kl_truNzvintNz = None,None
-        self.kl_mmlNzvtruNz,self.kl_truNzvmmlNz = None,None
-        self.kl_smpNzvtruNz,self.kl_truNzvsmpNz = None,None
+        self.kl_intNzvtruNz,self.kl_truNzvintNz = float('inf'),float('inf')
+        self.kl_mmlNzvtruNz,self.kl_truNzvmmlNz = float('inf'),float('inf')
+        self.kl_smpNzvtruNz,self.kl_truNzvsmpNz = float('inf'),float('inf')
 
         if self.meta.logtruNz is not None:
 #             vslogstkNz = self.meta.logstkNz-self.meta.logtruNz
@@ -190,9 +193,9 @@ class stat_chains(calcstats):
                    'kl_truNzvintNz': self.kl_truNzvintNz,
                    'kl_truNzvmmlNz': self.kl_truNzvmmlNz
               }
-
-        with open(os.path.join(self.meta.topdir,'stat_chains.p'),'wb') as statchains:
-            cpkl.dump(outdict,statchains)
+        if self.meta.plotonly == False:
+            with open(os.path.join(self.meta.topdir,'stat_chains.p'),'wb') as statchains:
+                cpkl.dump(outdict,statchains)
 
     def compute(self, ydata):#ntimes*nwalkers*nbins
 
@@ -335,20 +338,38 @@ class stat_probs(calcstats):
 
         self.var_y = []
 
+        outdict = {'var_y': self.var_y,
+                 'lp_truNz': self.lp_truNz,
+                 'lp_mmlNz': self.lp_mmlNz
+              }
+
+        if self.meta.plotonly == False:
+            with open(os.path.join(self.meta.topdir,'stat_probs.p'),'wb') as statprobs:
+                cpkl.dump(outdict,statprobs)
+
     def compute(self, ydata):
         y = np.swapaxes(ydata,0,1).T
         var_y = sum([statistics.variance(y[w]) for w in xrange(self.meta.nwalkers)])/self.meta.nwalkers
         #self.llr_smpNz.append((2.*np.max(lik_y)-2.*self.ll_truNz))
         self.var_y.append(var_y)
         # self.summary = self.summary+var_y
-        return { #'summary': self.summary,
-                 'var_y': self.var_y,
-                 'lp_truNz': self.lp_truNz,
-#                  'lp_stkNz': self.lp_stkNz,
-#                  'lp_mapNz': self.lp_mapNz,
-# #                  'lp_expNz': self.lp_expNz
-                 'lp_mmlNz': self.lp_mmlNz
-               }
+
+        with open(os.path.join(self.meta.topdir,'stat_probs.p'),'rb') as indict:
+            outdict = cpkl.load(indict)
+
+        outdict['var_y'] = self.var_y
+
+        with open(os.path.join(self.meta.topdir,'stat_probs.p'),'wb') as statprobs:
+            cpkl.dump(outdict,statprobs)
+
+#         return { #'summary': self.summary,
+#                  'var_y': self.var_y,
+#                  'lp_truNz': self.lp_truNz,
+# #                  'lp_stkNz': self.lp_stkNz,
+# #                  'lp_mapNz': self.lp_mapNz,
+# # #                  'lp_expNz': self.lp_expNz
+#                  'lp_mmlNz': self.lp_mmlNz
+#                }
 
 class stat_fracs(calcstats):
     """

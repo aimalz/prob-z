@@ -18,7 +18,7 @@ class consumer(object):
     def loop(self, queue):
         while (True):
             key = queue.get()
-#             print('got key '+str(key))
+            print('got key '+str(key))
             if (key=='done'):
                 self.finish()
                 return
@@ -62,6 +62,10 @@ class distribute(object):
     # consumers is list of consumers called and added to queue whenever a new key is complete
     def __init__(self, consumers, start = True, **args):
         self.queues = [mp.Queue() for _ in consumers]
+#         for q in self.queues:
+#             key = q.get()
+#             print('original key '+str(key))
+
         self.consumer_lambdas = consumers
         self.consumers = [run_consumer(c,q, args) for (c,q) in zip(self.consumer_lambdas, self.queues)]
         self.started = False
@@ -70,7 +74,7 @@ class distribute(object):
     def complete_chunk(self, key):
         for q in self.queues:
             q.put(key)
-#             print('put key '+str(key))
+            print('put key '+str(key))
 
     # called when all producers are done
     def finish(self):

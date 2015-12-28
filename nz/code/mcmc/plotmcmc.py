@@ -275,9 +275,10 @@ class plotter_probs(plotter):
             scales.append(scale)
         locs = np.array(locs)
         scales = np.array(scales)
-        self.sps.plot(xrange(self.meta.ntimes),locs,color='k',rasterized=True)
+        x_all = np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto
+        self.sps.plot(x_all,locs,color='k',rasterized=True)
 #         self.sps.vlines(xrange(self.meta.ntimes+1),(locs-scales),(locs+scales),color='k',alpha=0.5,linewidth=2.,rasterized=True)
-        self.sps.fill_between(xrange(self.meta.ntimes),locs-scales,locs+scales,color='k',alpha=0.1)
+        self.sps.fill_between(x_all,locs-scales,locs+scales,color='k',alpha=0.1)
 #         randwalks = random.sample(xrange(self.meta.nwalkers),1)#xrange(self.meta.nwalkers)
 #         for w in randwalks:
 #             self.sps.plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,
@@ -484,10 +485,13 @@ class plotter_samps(plotter):
         randwalks = random.sample(xrange(self.meta.nwalkers),1)#xrange(self.meta.nwalkers)#self.ncolors)
             #self.a_samp = (key.r+1)/self.meta.nbins
 
+        sps_samp_log = self.sps_samps[0]
+        sps_samp = self.sps_samps[1]
+
         for w in randwalks:
             for x in randsteps:
-                plotstep(self.sps_samps[0],self.meta.binends,plot_y_ls[x][w],a=self.a_samp,col=self.meta.colors[key.r%self.ncolors])
-                plotstep(self.sps_samps[1],self.meta.binends,plot_y_s[x][w],a=self.a_samp,col=self.meta.colors[key.r%self.ncolors])
+                plotstep(sps_samp_log,self.meta.binends,plot_y_ls[x][w],a=self.a_samp,col=self.meta.colors[key.r%self.ncolors])
+                plotstep(sps_samp,self.meta.binends,plot_y_s[x][w],a=self.a_samp,col=self.meta.colors[key.r%self.ncolors])
 #                 self.sps_samps[0].step(self.meta.binlos,plot_y_ls[x][w],color=self.meta.colors[key.r%self.ncolors],alpha=self.a_samp,rasterized=True)#,label=str(self.meta.miniters*(key.r+1)))
 #                 self.sps_samps[1].step(self.meta.binlos,plot_y_s[x][w],color=self.meta.colors[key.r%self.ncolors],alpha=self.a_samp,rasterized=True)#,label=str(self.meta.miniters*(key.r+1)))
 #                 self.sps_samps[0].hlines(plot_y_ls[x][w],
@@ -503,6 +507,12 @@ class plotter_samps(plotter):
 #                                              alpha=self.a_samp,
 #                                              rasterized=True)
 
+        for k in xrange(self.meta.nbins):
+            y_all = plot_y_ls.T[k].flatten()
+            loc,scale = sp.stats.norm.fit_loc_scale(y_all)
+            sps_samp_log.fill_between([self.meta.binends[k],self.meta.binends[k+1]],loc-scale,loc+scale,color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
+            sps_samp.fill_between([self.meta.binends[k],self.meta.binends[k+1]],np.exp(loc-scale),np.exp(loc+scale),color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
+
         self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),dpi=100)
 
         timesaver(self.meta,'samps',key)
@@ -516,7 +526,7 @@ class plotter_samps(plotter):
             gofs = cpkl.load(statchains)#self.meta.key.load_stats(self.meta.topdir,'chains',self.last_key.r+1)[0]
 
         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
-              both = cpkl.load(statboth)
+            both = cpkl.load(statboth)
 
 #         for v in lrange(both['mapvals']):
 #             plotstep(sps_samp_log,self.meta.binends,both['mapvals'][v],lw=2,col=self.meta.colors[v%self.ncolors])
@@ -608,13 +618,19 @@ class plotter_samps(plotter):
             tuples = (line.split(None) for line in csvfile)
             alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
             alldata = np.array(alldata).T
+        locs,scales = [],[]
         for k in xrange(self.meta.nbins):
             y_all = alldata[k].flatten()
             loc,scale = sp.stats.norm.fit_loc_scale(y_all)
-            sps_samp_log.hlines(loc,self.meta.binends[k],self.meta.binends[k+1],color='k',linestyle='--',linewidth=2.)
-            sps_samp.hlines(np.exp(loc),self.meta.binends[k],self.meta.binends[k+1],color='k',linestyle='--',linewidth=2.)
+            locs.append(loc)
+            scales.append(scale)
+#             sps_samp_log.hlines(loc,self.meta.binends[k],self.meta.binends[k+1],color='k',linestyle='--',linewidth=2.)
+#             sps_samp.hlines(np.exp(loc),self.meta.binends[k],self.meta.binends[k+1],color='k',linestyle='--',linewidth=2.)
             sps_samp_log.fill_between([self.meta.binends[k],self.meta.binends[k+1]],loc-scale,loc+scale,color='k',alpha=0.1)
             sps_samp.fill_between([self.meta.binends[k],self.meta.binends[k+1]],np.exp(loc-scale),np.exp(loc+scale),color='k',alpha=0.1)
+        loc = np.array(locs)
+        plotstep(sps_samp_log,self.meta.binends,locs,style='--',lw=2,lab=r'Best Fit $\ln N(z)$')
+        plotstep(sps_samp,self.meta.binends,np.exp(locs),style='--',lw=2,lab=r'Best Fit $N(z)$')
 
         sps_samp_log.legend(fontsize='xx-small', loc='lower right')
         sps_samp.legend(fontsize='xx-small', loc='upper left')

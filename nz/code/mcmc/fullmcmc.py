@@ -23,11 +23,12 @@ import StringIO
 from inmcmc import setup
 from permcmc import pertest
 import plotmcmc as plots
+import keymcmc as key
 
 # define producer functions
 def samplings(runs, idinfo):
-    meta = runs[idinfo]
-    for _ in meta.samplings():
+    run = runs[idinfo]
+    for _ in run.samplings():
         print('sampling ' + str(idinfo) + ": this should probably return something")
 #     print('ending run of: ' + str(idinfo))
 #     meta.dist.finish()

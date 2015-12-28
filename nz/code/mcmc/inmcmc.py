@@ -32,6 +32,7 @@ class setup(object):
 #         self.pool = pool
         # name the test for which this is setup object
         self.key = key.key(t=input_address)
+        print('initial key = '+str(self.key))
 
         # read input parameters
         self.testdir = os.path.join('..','tests')
@@ -49,13 +50,14 @@ class setup(object):
 
         # make directory into which to put output of this test
         self.topdir = os.path.join(self.updir,'mcmc')
-        if os.path.exists(self.topdir):
-            shutil.rmtree(self.topdir)
-#             os.remove(os.path.join(self.topdir,'samples.csv'))
-#             os.remove(os.path.join(self.topdir,'calctimer.txt'))
-#             os.remove(os.path.join(self.topdir,'plottimer.txt'))
-#         else:
-        os.makedirs(self.topdir)
+#         if os.path.exists(self.topdir):
+#             shutil.rmtree(self.topdir)
+# #             os.remove(os.path.join(self.topdir,'samples.csv'))
+# #             os.remove(os.path.join(self.topdir,'calctimer.txt'))
+# #             os.remove(os.path.join(self.topdir,'plottimer.txt'))
+# #         else:
+        if not os.path.exists(self.topdir):
+            os.makedirs(self.topdir)
 
         iterplace = os.path.join(self.topdir,'iterno.p')
         if os.path.exists(iterplace):
@@ -134,7 +136,7 @@ class setup(object):
         self.binmids = (self.binlos+self.binhis)/2.
 
         # number of walkers
-        self.nwalkers = 2*2*self.nbins
+        self.nwalkers = 2*self.nbins
 
         # read in and normalize PDFS
         self.logpdfs = np.array(alldata[2:])
@@ -330,8 +332,16 @@ class setup(object):
 
     def setup_mcmc(self,indict):
 
+        # enable plotting without sampling
+        if 'plotonly' in indict:
+            self.plotonly = bool(int(indict['plotonly'][0]))
+            if self.plotonly == True:
+                self.iterno = self.key.load_iterno(self.topdir)
+        else:
+            self.plotonly = bool(0)
+
         if 'miniters' in indict:
-            self.miniters = int(indict['miniters'])
+            self.miniters = 10**int(indict['miniters'])
         else:
             self.miniters = int(1e3)
 
@@ -407,3 +417,6 @@ class setup(object):
     # sample this using information defined for each run of MCMC
     def samplings(self):
         return pertest(self).samplings()
+
+    def plotonlues(self):
+        return pertest(self).plotonlies()

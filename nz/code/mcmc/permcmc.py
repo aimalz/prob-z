@@ -39,6 +39,7 @@ class pertest(object):
 
     def __init__(self, meta):
 
+        print('defining setup object methods')
         self.meta = meta
         self.vals = self.meta.ivals
         self.sampler = self.meta.sampler
@@ -135,19 +136,28 @@ class pertest(object):
         # if os.path.exists(self.statename):
         #   self = self.state()
         # else:
-        outputs = self.preburn(self.burns)
-        print('zeroth run done for '+self.meta.name)
+        if self.meta.plotonly == False:
+            outputs = self.preburn(self.burns)
+            print('zeroth run done for '+self.meta.name)
 
-        while burntest(outputs,self):
-            yield self
-            self.burns += 1
-            self.runs += 1
-            outputs = self.preburn(self.runs)
-        else:
-            self.atburn(self.runs, outputs)
-            while self.runs <= self.nsteps:
+            while burntest(outputs,self):
                 yield self
+                self.burns += 1
                 self.runs += 1
-                self.postburn(self.runs)
-
-        return
+                outputs = self.preburn(self.runs)
+            else:
+                self.atburn(self.runs, outputs)
+                while self.runs <= self.nsteps:
+                    yield self
+                    self.runs += 1
+                    self.postburn(self.runs)
+            return
+        else:
+            while self.runs <= self.meta.iterno:
+                tempkey = self.meta.key.add(r=self.runs,burnin=False)
+                print('tempkey '+str(tempkey))
+                yield self
+                self.meta.dist.complete_chunk(tempkey)
+                print('run number '+str(self.runs))
+                self.runs += 1
+            return
