@@ -65,6 +65,10 @@ miniters
 thinto
   Specifies chain thinning factor of MCMC runs such that every thinto number of samples is saved
   Input integer number such that miniters (defaults to 1000) is evenly divisible by thinto
+  
+mode
+  Specifies whether autocorrelation times are calculated per bin or per walker
+  Input bins or walkers
 
 Ex:
 allzs 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0
