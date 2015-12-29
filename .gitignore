@@ -1,0 +1,15 @@
+*.log
+*.aux
+*.pdf
+.#*
+*.bbl
+*.blg
+*~
+*.gz
+*.zip
+
+.ipynb_checkpoints
+*-editing.tex
+
+nz/code/tests
+zpdftw
