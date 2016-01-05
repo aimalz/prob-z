@@ -4,14 +4,11 @@ per-mcmc module is variable object for MCMC sub-runs
 
 import os
 import statistics
-from subprocess import call
 import timeit
 import psutil
-import csv
+import numpy as np
 
 import statmcmc as stats
-from utilmcmc import *
-import keymcmc as key
 
 # test whether burning in or done with that, true if burning in
 def burntest(outputs,run):# of dimensions nwalkers*miniters
@@ -63,7 +60,7 @@ class pertest(object):
         ivals = self.vals
         miniters = self.meta.miniters
         thinto = self.meta.thinto
-        ntimes = self.meta.ntimes
+        # ntimes = self.meta.ntimes
         start_time = timeit.default_timer()
         sampler.reset()
         print 'running mcmc'

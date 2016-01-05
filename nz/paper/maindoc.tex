@@ -43,7 +43,7 @@ centered, draw=black]%, fill=green!30]
 
 \author{D.W. Hogg\altaffilmark{1}}
 \altaffiltext{1}{CCPP}
-\email{david.w.hogg@nyu.edu}
+\email{david.hogg@nyu.edu}
 
 \begin{abstract}
 Upcoming galaxy surveys aim to produce posterior probability distribution 
@@ -140,8 +140,8 @@ parameters via the weak lensing shear power spectrum.  \citep{mas15}
 \begin{itemize}
 %\item \citet{bau62} first proposes the concept of photometric estimation of 
 redshifts.
-\item \citet{ben98} presents the BPZ template-based method of obtaining zPDFs 
-and publishes code that produces the top three MAP values of the full 
+\item \citet{ben98} presents the BPZ template-based method of obtaining 
+photo-zs and publishes code that produces the top three MAP values of the full 
 posterior.  
 \item \citet{hog99} reviews the definitions of several distance measures used 
 in cosmology.
@@ -151,33 +151,36 @@ catalogs.
 %\item \citet{lim08} uses the stacking method
 %\item \citet{bal08}
 \item \citet{bud08} is an extremely comprehensive review of photo-zs from 
-Bayesian perspective that motivates the production of zPDFs. They also produce 
-zPDFs for SDSS galaxies using KDE in magnitude space rather than a grid and 
-stratified sampling of the training set in magnitude space to improve support 
-in areas dense in the test set but sparse in the training set.
+Bayesian perspective that motivates the production of photo-z posterior 
+distributions. They also produce photo-z posterior distributions for SDSS 
+galaxies using KDE in magnitude space rather than a grid and stratified 
+sampling of the training set in magnitude space to improve support in areas 
+dense in the test set but sparse in the training set.
+%\item \citet{mye09}
 %\item \citet{abe09}
 %\item \citet{car10}
 %\item \citet{hog10}
-\item \citet{she11} obtains and publishes a catalog of zPDFs for SDSS DR8 via a 
-$k-$ nearest neighbors algorithm corrected by a factor of the redshift 
-distribution function of a spectroscopically confirmed sub-sample.  They also 
-calculate $N(z)$ using a stacking method.
-\item \citet{hil11} obtains zPDFs via BPZ (minimally modifying its default 
-prior) and publishes a catalog based on CFHTLenS photometry.  They also compare 
-calculating N(z) via stacked zPDFs to a histogram of the MAP redshifts and 
-conclude stacking is superior to using point estimates.
-\item \citet{kel12} obtains zPDFs via BPZ (with the same modification as 
-\citet{hil11}) and does inference of WL shear with them.  They also stack the 
-individual zPDFs to obtain $N(z)$.
+\item \citet{she11} obtains and publishes a catalog of photo-z posteriors for 
+SDSS DR8 via a $k-$ nearest neighbors algorithm corrected by a factor of the 
+redshift distribution function of a spectroscopically confirmed sub-sample.  
+They also calculate $N(z)$ using a stacking method.
+\item \citet{hil11} obtains photo-z likelihoods via BPZ (minimally modifying 
+its default prior) and publishes a catalog based on CFHTLenS photometry.  They 
+also compare calculating N(z) via stacked photo-z probability distribution 
+functions to a histogram of the MAP redshifts and conclude stacking is superior 
+to using point estimates.
+\item \citet{kel12} obtains photo-z likelihoods via BPZ (with the same 
+modification as \citet{hil11}) and does inference of WL shear with them.  They 
+also stack the individual zPDFs to obtain $N(z)$.
 %\item \citet{for12}
 \item \citet{hog12} reviews Bayesian probability, including rectifying some 
 common pitfalls.
-\item \citet{app12} does inference on the WL shear estimator with zPDFs from 
-\citet{kel12}.  They mistakenly refer to the products of BPZ as likelihoods 
-rather than posteriors, and something's a little fishy in the math.
+\item \citet{app12} does inference on the WL shear estimator with photo-z 
+likelihoods from \citet{kel12}.  I believe something may be a little fishy in 
+the math regarding likelihoods vs. posteriors.
 \item \citet{ben12} calculates $N(z)$ for WL tomography by the stacking method. 
- They compare stacked zPDFs to a spectroscopically confirmed sample and a 
-reweighting thereof.
+ They compare stacked photo-z probability distribution functions to a 
+spectroscopically confirmed sample and a reweighting thereof.
 \item \citet{gor13} presents a likelihood ratio test to identify and remove 
 from inference catastrophic outliers in point-estimate photo-zs.
 %\item \citet{men13}
@@ -190,10 +193,15 @@ estimate $N(z)$.
 %\item \citet{for14}
 %\item \citet{lop14}
 %\item \citet{vii15}
-%\item \citet{sad15}
+\item \citet{sad15} develops code producing photo-z probability distribution 
+functions, although likelihoods and posteriors are used interchangeably and 
+only some of their methods give the interim prior.  There is a good review of 
+papers presenting methods for generating photo-z probability distribution 
+functions.
 \item \citet{bon15} compares $N(z)$ found via several photo-z fitting methods, 
-including the reduction of zPDFs to point estimates via the mean in order to 
-recommend a method for the output of DES, without considering zPDFs as valuable 
+including the reduction of photo-z probability distribution functions to point 
+estimates via the mean in order to recommend a method for the output of DES, 
+without considering the full probability distribution functions as valuable 
 data products.
 \item \citet{mas15} uses self-organizing maps to obtain photometric redshift 
 point estimates where template-based methods are inappropriate (for poorly 
@@ -590,7 +598,17 @@ Fig. \ref{fig:nullpzs}.
 \label{sec:data}
 
 We also test this method on a random subset of the published redshift 
-posteriors of SDSS III DR 10.  
+posteriors of SDSS III DR 10.  A random sampling of the provided redshift 
+posteriors of dimension $K=35$ for $z_{min}=0.3$ and $z_{max}=1.4$ is shown in 
+Fig. \ref{fig:datapzs}.  The interim prior used for this set of interim 
+redshift posteriors is calculated using the method of \citet{she11} and was 
+reproduced here since the final result was not published elsewhere.
+
+\begin{figure}
+%\includegraphics[width=0.5\textwidth]{null/samplepzs.png}
+\caption{}
+\label{fig:datapzs}
+\end{figure}
 
 \clearpage
 \subsection{Implementation}
@@ -980,7 +998,14 @@ galaxies that were unobserved in such a survey are more likely be dimmer,
 making them more likely to be at higher redshifts.  Since the interim prior is 
 not compatible with our beliefs about the true redshift distribution, the 
 resulting interim redshift posteriors will be inappropriate.  In this test, we 
-choose an interim prior with most of its weight at low redshifts.
+choose an interim prior with most of its weight at low redshifts.  The results 
+of the inference are shown in Fig. \ref{fig:uparam}.
+
+\begin{figure}
+%\includegraphics[width=0.5\textwidth]{int-u/samps.png}
+\caption{}
+\label{fig:uparam}
+\end{figure}
 
 \clearpage
 \subsection{Mid-z Disfavoring Interim Prior}
@@ -992,14 +1017,28 @@ $N(z)$ distributions obtained from reliable photometric surveys in the past.
 This is also problematic because the sum of redshift distributions for two or 
 more surveys does not reflect our beliefs about the true distribution for a 
 single survey.  To simulate this, we choose an interim prior with more weight 
-at high and low redshifts than for mid-range redshifts.
+at high and low redshifts than for mid-range redshifts.  The results of the 
+inference are shown in Fig. \ref{fig:bparam}.
+
+\begin{figure}
+%\includegraphics[width=0.5\textwidth]{int-b/samps.png}
+\caption{}
+\label{fig:bparam}
+\end{figure}
 
 \clearpage
 \section{Real Test}
 \label{sec:boss}
 
 In addition to simulated tests, we also apply this method to data described in 
-Sec. \ref{sec:data}.
+Sec. \ref{sec:data}.  The results of the inference are shown in Fig. 
+\ref{fig:dataparam}.
+
+\begin{figure}
+%\includegraphics[width=0.5\textwidth]{data/samps.png}
+\caption{}
+\label{fig:dataparam}
+\end{figure}
 
 \clearpage
 \section{Discussion}
