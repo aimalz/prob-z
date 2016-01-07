@@ -79,136 +79,143 @@ selection effects between the magnitude-spaces of galaxies for which photo-zs
 are desired and galaxies with spectroscopically confirmed redshifts used to 
 calibrate photo-z estimators.
 
-Since their conception \citep{bau62}, much effort has been dedicated to 
+Since their conception \citep{Baum1962}, much effort has been dedicated to 
 improving photo-zs, though they are still most commonly obtained by a maximum 
 likelihood estimator (MLE) based on libraries of galaxy spectral energy 
 distribution (SED) templates with conservative approaches to error estimation.  
 Recent work has focused on identifying and removing catastrophic outliers when 
-using photo-zs for inference.  \citep{gor13}  Sophisticated Bayesian techniques 
-and cutting-edge machine learning methods have been employed to improve 
-precision \citep{car10} and accuracy \citep{sad15}. 
+using photo-zs for inference.  \citep{Gorecki2014}  Sophisticated Bayesian 
+techniques and cutting-edge machine learning methods have been employed to 
+improve precision \citep{Carliles2010} and accuracy \citep{Sadeh2015}. 
 
 An alternative to point estimates of photo-zs is redshift probability 
 distribution function (zPDF) estimation, in which the full posterior 
 probability function of the redshift of a galaxy is produced rather than MLEs.  
-\citep{bud08}  This option is favorable because it contains more potentially 
-useful information than a point estimate while addressing all the problems 
-associated with point estimates discussed above.  For example, there is no need 
-to identify and remove catastrophic outliers because their zPDFs would be 
-automatically downweighted in inference.  zPDFs are not without their own 
-weaknesses, the foremost of which are the computation time and storage space 
-necessary to calculate and record zPDFs for large galaxy surveys.  
-\citep{car14b}  The Bayesian prior used in such calculations may be based on 
-either empirical training sets of spectroscopically confirmed galaxies but must 
-nonetheless be made with great caution.
+\citep{Budavari2009}  This option is favorable because it contains more 
+potentially useful information than a point estimate while addressing all the 
+problems associated with point estimates discussed above.  For example, there 
+is no need to identify and remove catastrophic outliers because their zPDFs 
+would be automatically downweighted in inference.  zPDFs are not without their 
+own weaknesses, the foremost of which are the computation time and storage 
+space necessary to calculate and record zPDFs for large galaxy surveys.  
+\citep{CarrascoKind2014}  The Bayesian prior used in such calculations may be 
+based on either empirical training sets of spectroscopically confirmed galaxies 
+but must nonetheless be made with great caution.
 
 There is not yet consensus on the best way to obtain zPDFs, and many methods 
 have been proposed and tested in the literature.  An extension of the BPZ 
-method of \citet{ben98} that produces full posteriors (as opposed to a 
+method of \citet{Benitez2000} that produces full posteriors (as opposed to a 
 selection of local maxima) from an SED template library has been employed.  
-\citep{hil11, kel12, lop14}  zPDFs have also been obtained by a variety of 
-trustworthy data-driven approaches in the literature: $k$-nearest neighbor 
-algorithms with \citep{bal08} and without \citep{she11} inclusion of 
-photometric measurement errors, neural networks \citep{bon13}, self-organizing 
-maps \citep{car14a}, prediction tree and random forest classification 
-techniques \citep{car10, car13}.  
+\citep{Hildebrandt2012, Kelly2014, Lopez-Sanjuan2015}  zPDFs have also been 
+obtained by a variety of trustworthy data-driven approaches in the literature: 
+$k$-nearest neighbor algorithms with \citep{Ball2008} and without 
+\citep{Sheldon2012} inclusion of photometric measurement errors, neural 
+networks \citep{Bonnett2015a}, self-organizing maps \citep{CarrascoKind2014a}, 
+prediction tree and random forest classification techniques 
+\citep{Carliles2010, CarrascoKind2013}.  
 
-zPDFs have been produced by completed surveys \citep{hil11, she11} and will be 
-produced by upcoming surveys \citep{abe09, car14a}.  Though their potential to 
-improve estimates of physical parameters is tremendous, full posteriors have 
-seldom been used to infer physical parameters.  (Notable exceptions include 
-\citet{app12}.)  Furthermore, no implementation of inference with zPDFs has 
-been presented with a mathematically consistent methodology.  The goal of this 
-paper is to clearly present and validate a technique for the use of zPDFs in 
-inference.  For simplicity, we consider only one-point statistics relevant to 
-cosmology, though future work will extend this technique to higher-order 
-statistics.
+zPDFs have been produced by completed surveys \citep{Hildebrandt2012, 
+Sheldon2012} and will be produced by upcoming surveys 
+\citep{LSSTScienceCollaboration2009, CarrascoKind2014a}.  Though their 
+potential to improve estimates of physical parameters is tremendous, full 
+posteriors have seldom been used to infer physical parameters.  (Notable 
+exceptions include \citet{Applegate2014}.)  Furthermore, no implementation of 
+inference with zPDFs has been presented with a mathematically consistent 
+methodology.  The goal of this paper is to clearly present and validate a 
+technique for the use of zPDFs in inference.  For simplicity, we consider only 
+one-point statistics relevant to cosmology, though future work will extend this 
+technique to higher-order statistics.
 
 The redshift distribution function $N(z)$ serves as an ideal statistic upon 
 which to demonstrate such an approach, in large part because it has been the 
-subject of inference using zPDFs before.  \citep{she11, kel12, ben12, bon13, 
-vii15}  $N(z)$ for observed galaxies can be used to validate survey selection 
-functions used in generation of realistic mock catalogs used for many purposes. 
- \citep{nor01}  $N(z)$ is also trivially related to the comoving distance 
-density function $n(\chi)$ \citep{hog99}, which is necessary for calculations 
-of weak lensing tomography that are directly used to probe cosmological 
-parameters via the weak lensing shear power spectrum.  \citep{mas15}
+subject of inference using zPDFs before.  \citep{Sheldon2012, Kelly2014, 
+Benjamin2013, Bonnett2015a, Viironen2015}  $N(z)$ for observed galaxies can be 
+used to validate survey selection functions used in generation of realistic 
+mock catalogs used for many purposes.  \citep{Norberg2002}  $N(z)$ is also 
+trivially related to the comoving distance density function $n(\chi)$ 
+\citep{Hogg1999}, which is necessary for calculations of weak lensing 
+tomography that are directly used to probe cosmological parameters via the weak 
+lensing shear power spectrum.  \citep{Masters2015}
 
 \clearpage
 \subsection*{Temporary Notes}
 
 \begin{itemize}
-%\item \citet{bau62} first proposes the concept of photometric estimation of 
+\item \citet{Baum1962} first proposes the concept of photometric estimation of 
 redshifts.
-\item \citet{ben98} presents the BPZ template-based method of obtaining 
+\item \citet{Benitez2000} presents the BPZ template-based method of obtaining 
 photo-zs and publishes code that produces the top three MAP values of the full 
 posterior.  
-\item \citet{hog99} reviews the definitions of several distance measures used 
-in cosmology.
-\item \citet{nor01} calculates $N(z)$ (or is it $n(z)$?) for 2dFGRS galaxies 
-and use it to validate the selection function they used to generate mock 
-catalogs.
-%\item \citet{lim08} uses the stacking method
-%\item \citet{bal08}
-\item \citet{bud08} is an extremely comprehensive review of photo-zs from 
-Bayesian perspective that motivates the production of photo-z posterior 
+\item \citet{Hogg1999} reviews the definitions of several distance measures 
+used in cosmology.
+\item \citet{Norberg2002} calculates $N(z)$ (or is it $n(z)$?) for 2dFGRS 
+galaxies and use it to validate the selection function they used to generate 
+mock catalogs.
+%\item \citet{Sheth2007} uses zPDFs
+%\item \citet{Mandelbaum2008} uses zPDFs
+%\item \citet{Lima2008} uses the stacking method
+%\item \citet{Ball2008}
+\item \citet{Budavari2009} is an extremely comprehensive review of photo-zs 
+from Bayesian perspective that motivates the production of photo-z posterior 
 distributions. They also produce photo-z posterior distributions for SDSS 
 galaxies using KDE in magnitude space rather than a grid and stratified 
 sampling of the training set in magnitude space to improve support in areas 
 dense in the test set but sparse in the training set.
-%\item \citet{mye09}
-%\item \citet{abe09}
-%\item \citet{car10}
-%\item \citet{hog10}
-\item \citet{she11} obtains and publishes a catalog of photo-z posteriors for 
-SDSS DR8 via a $k-$ nearest neighbors algorithm corrected by a factor of the 
-redshift distribution function of a spectroscopically confirmed sub-sample.  
-They also calculate $N(z)$ using a stacking method.
-\item \citet{hil11} obtains photo-z likelihoods via BPZ (minimally modifying 
-its default prior) and publishes a catalog based on CFHTLenS photometry.  They 
-also compare calculating N(z) via stacked photo-z probability distribution 
-functions to a histogram of the MAP redshifts and conclude stacking is superior 
-to using point estimates.
-\item \citet{kel12} obtains photo-z likelihoods via BPZ (with the same 
-modification as \citet{hil11}) and does inference of WL shear with them.  They 
-also stack the individual zPDFs to obtain $N(z)$.
-%\item \citet{for12}
-\item \citet{hog12} reviews Bayesian probability, including rectifying some 
+%\item \citet{VanBreukelen2009} uses zPDFs
+%\item \citet{Myers2009} uses zPDFs
+%\item \citet{LSSTScienceCollaboration2009}
+%\item \citet{Carliles2010}
+%\item \citet{Hogg2010}
+\item \citet{Sheldon2012} obtains and publishes a catalog of photo-z posteriors 
+for SDSS DR8 via a $k-$ nearest neighbors algorithm corrected by a factor of 
+the redshift distribution function of a spectroscopically confirmed sub-sample. 
+ They also calculate $N(z)$ using a stacking method.
+\item \citet{Hildebrandt2012} obtains photo-z likelihoods via BPZ (minimally 
+modifying its default prior) and publishes a catalog based on CFHTLenS 
+photometry.  They also compare calculating N(z) via stacked photo-z probability 
+distribution functions to a histogram of the MAP redshifts and conclude 
+stacking is superior to using point estimates.
+\item \citet{Kelly2014} obtains photo-z likelihoods via BPZ (with the same 
+modification as \citet{Hildebrandt2012}) and does inference of WL shear with 
+them.  They also stack the individual zPDFs to obtain $N(z)$.
+%\item \citet{Foreman-Mackey2013}
+\item \citet{Hogg2012} reviews Bayesian probability, including rectifying some 
 common pitfalls.
-\item \citet{app12} does inference on the WL shear estimator with photo-z 
-likelihoods from \citet{kel12}.  I believe something may be a little fishy in 
-the math regarding likelihoods vs. posteriors.
-\item \citet{ben12} calculates $N(z)$ for WL tomography by the stacking method. 
- They compare stacked photo-z probability distribution functions to a 
+\item \citet{Applegate2014} does inference on the WL shear estimator with 
+photo-z likelihoods from \citet{Kelly2014}.  I believe something may be a 
+little fishy in the math regarding likelihoods vs. posteriors.
+\item \citet{Benjamin2013} calculates $N(z)$ for WL tomography by the stacking 
+method.  They compare stacked photo-z probability distribution functions to a 
 spectroscopically confirmed sample and a reweighting thereof.
-\item \citet{gor13} presents a likelihood ratio test to identify and remove 
-from inference catastrophic outliers in point-estimate photo-zs.
-%\item \citet{men13}
-%\item \citet{car13}
-%\item \citet{rho13}
-\item \citet{bon13} obtains zPDFs via a neural network and stacks them to 
-estimate $N(z)$.
-%\item \citet{car14a}
-%\item \citet{car14b}
-%\item \citet{for14}
-%\item \citet{lop14}
-%\item \citet{vii15}
-\item \citet{sad15} develops code producing photo-z probability distribution 
-functions, although likelihoods and posteriors are used interchangeably and 
-only some of their methods give the interim prior.  There is a good review of 
-papers presenting methods for generating photo-z probability distribution 
-functions.
-\item \citet{bon15} compares $N(z)$ found via several photo-z fitting methods, 
-including the reduction of photo-z probability distribution functions to point 
-estimates via the mean in order to recommend a method for the output of DES, 
-without considering the full probability distribution functions as valuable 
-data products.
-\item \citet{mas15} uses self-organizing maps to obtain photometric redshift 
-point estimates where template-based methods are inappropriate (for poorly 
-characterized high redshift populations) and emphasizes the applications to 
-$N(z)$ and weak lensing.
-\item \citet{mar15} outlines a hierarchical model for parameter estimation in 
-the context of the halo occupation distribution.
+\item \citet{Gorecki2014} presents a likelihood ratio test to identify and 
+remove from inference catastrophic outliers in point-estimate photo-zs.
+%\item \citet{Menard2013}
+%\item \citet{CarrascoKind2013}
+%\item \citet{Rhodes2013}
+\item \citet{Bonnett2015a} obtains zPDFs via a neural network and stacks them 
+to estimate $N(z)$.
+%\item \citet{CarrascoKind2014a}
+%\item \citet{CarrascoKind2014}
+%\item \citet{Foreman-Mackey2014}
+%\item \citet{Lopez-Sanjuan2015}
+%\item \citet{Viironen2015}
+\item \citet{Sadeh2015} develops code producing photo-z probability 
+distribution functions, although likelihoods and posteriors are used 
+interchangeably and only some of their methods give the interim prior.  There 
+is a good review of papers presenting methods for generating photo-z 
+probability distribution functions.
+\item \citet{Bonnett2015} compares $N(z)$ found via several photo-z fitting 
+methods, including the reduction of photo-z probability distribution functions 
+to point estimates via the mean in order to recommend a method for the output 
+of DES, without considering the full probability distribution functions as 
+valuable data products.
+\item \citet{Masters2015} uses self-organizing maps to obtain photometric 
+redshift point estimates where template-based methods are inappropriate (for 
+poorly characterized high redshift populations) and emphasizes the applications 
+to $N(z)$ and weak lensing.
+\item \citet{Marshall2015} outlines a hierarchical model for parameter 
+estimation in the context of the halo occupation distribution.
+\item \citet{Asorey2016}
 \end{itemize}
 
 \clearpage
@@ -248,7 +255,7 @@ illustrated by the directed acyclic graph of Fig. \ref{fig:flow}.
 
 The redshift distribution function $N(z)$ shown in Eq. \ref{eq:distribution} 
 gives the number of galaxies per unit redshift, effectively quantifying 
-evolution in the number of galaxies.  \citep{men13}  According to Eq. 
+evolution in the number of galaxies.  \citep{Menard2013}  According to Eq. 
 \ref{eq:density}, the redshift distribution function is related to the redshift 
 density function $n(z)$, which gives the number of galaxies per unit redshift 
 per unit volume.  The redshift density function provides additional information 
@@ -324,7 +331,7 @@ of $N(z)$.  Additionally, $J$ itself is a Poisson random variable with expected
 value $J'$.  The combination of these is given by Eq. \ref{eq:indie}  It is 
 important to note that $\int N(z)\ dz$ is not constrained to equal $J'$ but 
 instead $J$, which can be thought of as another parameter.  A detailed 
-discussion of this matter may be found in \citet{for14}.
+discussion of this matter may be found in \citet{Foreman-Mackey2014}.
 
 \begin{eqnarray}
 \label{eq:indie}
@@ -356,7 +363,7 @@ nuisance parameters contained in $\vec{\theta}^{0}$ related to the generative
 model for photometry from redshifts, encapsulated by 
 $p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})$.  These may include some parameters 
 defining intrinsic galaxy spectra and instrumental effects, for example. (See 
-\citet{ben98} for more detail.)  In the case of estimating $N(z)$ 
+\citet{Benitez2000} for more detail.)  In the case of estimating $N(z)$ 
 photometrically it is common to use $\vec{\theta}^{0}$ corresponding to $N(z)$ 
 derived from some different, spectroscopically confirmed sample or from a 
 cosmological simulation.  For statistical purposes, we would like any interim 
@@ -364,10 +371,10 @@ prior to be uninformative, but this is rarely achievable.
 
 %If we were to attempt to calculate likelihoods 
 $p(\vec{d}_{j}|z_{j},\vec{\theta}^{0})$, we would be unable to integrate out 
-these nuisance parameters.  (See \citet{hog12} for a comprehensive presentation 
-of the mathematics behind why this is the case.)  However, posteriors 
-$p(z_{j},\vec{\theta}^{0}|\vec{d}_{j})$ could be transformed to zPDFs 
-$p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})$ by integrating 
+these nuisance parameters.  (See \citet{Hogg2012} for a comprehensive 
+presentation of the mathematics behind why this is the case.)  However, 
+posteriors $p(z_{j},\vec{\theta}^{0}|\vec{d}_{j})$ could be transformed to 
+zPDFs $p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})$ by integrating 
 $p(z_{j},\vec{\theta}^{0}|\vec{d}_{j})\ p(\vec{\theta}^{0})$ with respect to 
 $\vec{\theta}^{0}$, given the prior  $p(\vec{\theta}^{0})$ of those parameters. 
  
@@ -377,13 +384,14 @@ Instead, we would like to work with posteriors rather than likelihoods in Eq.
 zPDF $p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})$ is calculated so the approach to 
 producing zPDFs will not be discussed; though the matter is outside the scope 
 of this paper, various methods have been presented in the literature. 
-\citep{she11, bal08, car13, car14a}  However, we will need an explicit 
-statement of this interim prior $\vec{\theta}^{0}$ for whatever method is 
-chosen to produce zPDFs.  To perform the necessary transformation from 
-likelihoods to posteriors, we follow the reasoning of \citet{mar15}.  Let us 
-consider the probability of the parameters $z_{j}$ conditioned on the data 
-$\vec{d}_{j}$ and an interim prior $\vec{\theta}^{0}$ and rewrite the 
-problematic likelihood of Eq. \ref{eq:posterior} as Eq. \ref{eq:trick}.  
+\citep{Sheldon2012, Ball2008, CarrascoKind2013, CarrascoKind2014a}  However, we 
+will need an explicit statement of this interim prior $\vec{\theta}^{0}$ for 
+whatever method is chosen to produce zPDFs.  To perform the necessary 
+transformation from likelihoods to posteriors, we follow the reasoning of 
+\citet{Marshall2015}.  Let us consider the probability of the parameters 
+$z_{j}$ conditioned on the data $\vec{d}_{j}$ and an interim prior 
+$\vec{\theta}^{0}$ and rewrite the problematic likelihood of Eq. 
+\ref{eq:posterior} as Eq. \ref{eq:trick}.  
 
 \begin{eqnarray}
 \label{eq:trick}
@@ -503,8 +511,9 @@ been obtained by two popular alternatives used in the literature.
 
 The first, hereafter referred to as stacking, directly calculates the posterior 
 for the entire dataset using the posteriors for each galaxy according to Eq. 
-\ref{eq:stack}.  \citep{lim08}  It must be noted here that Eq. \ref{eq:stack} 
-is not mathematically valid.  (See \citet{hog12} for details.)  
+\ref{eq:stack}.  \citep{Lima2008}  It must be noted here that Eq. 
+\ref{eq:stack} is not mathematically valid.  (See \citet{Hogg2012} for 
+details.)  
 
 \begin{eqnarray}
 \label{eq:stack}
@@ -533,8 +542,8 @@ p(B_{k}|\vec{d}_{j},\vec{\theta}^{0}) &=&
 p(B_{k}|\vec{d}_{j},\vec{\theta}^{0}) dk\\0&else\end{array}\right\}
 \end{eqnarray}
 
-These two approaches have been compared to one another by \citet{hil11} and 
-\citet{ben12}.
+These two approaches have been compared to one another by 
+\citet{Hildebrandt2012} and \citet{Benjamin2013}.
 
 \clearpage
 \section{Experiments}
@@ -601,8 +610,8 @@ We also test this method on a random subset of the published redshift
 posteriors of SDSS III DR 10.  A random sampling of the provided redshift 
 posteriors of dimension $K=35$ for $z_{min}=0.3$ and $z_{max}=1.4$ is shown in 
 Fig. \ref{fig:datapzs}.  The interim prior used for this set of interim 
-redshift posteriors is calculated using the method of \citet{she11} and was 
-reproduced here since the final result was not published elsewhere.
+redshift posteriors is calculated using the method of \citet{Sheldon2012} and 
+was reproduced here since the final result was not published elsewhere.
 
 \begin{figure}
 %\includegraphics[width=0.5\textwidth]{null/samplepzs.png}
@@ -622,13 +631,13 @@ length $K$ in the given basis.  The assumed prior distribution is described in
 Sec. \ref{sec:prior}.
 
 The \texttt{emcee} implementation of the Metropolis-Hastings algorithm is 
-applied to sample the full posterior of Eq. \ref{eq:logpost}.   \citep{for12}   
-The sampler is initialized with $W=2K$ walkers each with a value chosen from a 
-Gaussian distribution of identity covariance around a sample from the prior 
-distribution.  At each iteration $i$, a proposal distribution 
-$\vec{\theta}^{i}$ generated from this prior distribution and evaluated for 
-acceptance to or rejection from the desired posterior distribution according to 
-the algorithm outlined below.  
+applied to sample the full posterior of Eq. \ref{eq:logpost}.   
+\citep{Foreman-Mackey2013}   The sampler is initialized with $W=2K$ walkers 
+each with a value chosen from a Gaussian distribution of identity covariance 
+around a sample from the prior distribution.  At each iteration $i$, a proposal 
+distribution $\vec{\theta}^{i}$ generated from this prior distribution and 
+evaluated for acceptance to or rejection from the desired posterior 
+distribution according to the algorithm outlined below.  
 
 \begin{enumerate}
 \item \label{it:randsamp} Randomly sample the prior $p(\vec{\theta})$ to 
@@ -703,10 +712,10 @@ the prior are shown in Fig. \ref{fig:nullprior} for $K=???$.
 
 The results of the computation described in Sec. \ref{sec:mcmc} are evaluated 
 on the basis of several diagnostics measures, briefly described below.  See 
-\citet{for12} for a more complete exploration of the metrics discussed in Sec. 
-\ref{sec:acorr}.  The tests conducted here are also compared to the results one 
-would obtain from alternative methods found in the literature, outlined in 
-\ref{sec:sheldon}.
+\citet{Foreman-Mackey2013} for a more complete exploration of the metrics 
+discussed in Sec. \ref{sec:acorr}.  The tests conducted here are also compared 
+to the results one would obtain from alternative methods found in the 
+literature, outlined in \ref{sec:sheldon}.
 
 \clearpage
 \subsubsection{Autocorrelation Time}
@@ -978,8 +987,8 @@ studies used for this purpose are spectroscopically confirmed and objects for
 which photometric redshifts are relied upon make up a population that cannot be 
 spectroscopically confirmed, such an interim prior is rarely appropriate.  Some 
 efforts have been made to modify an observationally informed interim prior so 
-that it is more representative of the data set.  \citep{she11}  However, any 
-interim prior of this kind imparts information into the interim redshift 
+that it is more representative of the data set.  \citep{Sheldon2012}  However, 
+any interim prior of this kind imparts information into the interim redshift 
 posteriors.  Ideally, an uninformative interim prior would be used, although it 
 may be complicated to compute from the covariances of the raw data.  In this 
 test, we consider two obviously inappropriate interim priors and compare it to 
@@ -1158,8 +1167,8 @@ dz_{j}\ d\vec{L}_{j}
 
 %Fig. \ref{fig:sheldon} compares the result of summing the posteriors as in Eq. 
 \ref{eq:sheldon} with the result of the MCMC solutions of Eq. \ref{eq:bayes}.  
-The method of \citet{she11} underestimates the probability of observing low 
-redshifts.  As one would expect, the MCMC estimate irreversibly loses some 
+The method of \citet{Sheldon2012} underestimates the probability of observing 
+low redshifts.  As one would expect, the MCMC estimate irreversibly loses some 
 substructure because of the shifting error added to the simulated data.
 
 %\begin{figure}
@@ -1169,8 +1178,8 @@ substructure because of the shifting error added to the simulated data.
 average accepted posterior sample from the method presented here is shown in 
 blue, and $p(z)$ for the observable redshifts of Eq. \ref{eq:zshift} is shown 
 in black.  The sum of squared differences between the result of each method and 
-the true value are also shown; one can see that the \citet{she11} approach has 
-larger errors.}
+the true value are also shown; one can see that the \citet{Sheldon2012} 
+approach has larger errors.}
 %\end{figure}
 
 %\acknowledgments
@@ -1201,6 +1210,6 @@ N(z^{s}_{j},\bar{\Delta}(1+z^{s}_{j}))$ with variances $\sigma_{j}\sim
 N(z^{s}_{j},\bar{\Delta}(1+z^{s}_{j}))$. 
 
 \bibliographystyle{apj}
-\bibliography{references}
+\bibliography{zPDF}
 
 \end{document}
