@@ -1,0 +1,5 @@
+name ImprecisionTest
+nbins 35
+surv 4
+sigma 1
+thinto 10

@@ -1,0 +1,6 @@
+name ToyModelTest
+nbins 35
+surv 4
+random 0
+uniform 0
+thinto 10

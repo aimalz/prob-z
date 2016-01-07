@@ -1,0 +1,5 @@
+name MultimodalTest
+nbins 35
+surv 4
+shape 1
+thinto 10

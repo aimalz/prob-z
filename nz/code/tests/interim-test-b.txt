@@ -1,0 +1,5 @@
+name BInterimPriorTest
+nbins 35
+surv 4
+interim bimodal
+thinto 10

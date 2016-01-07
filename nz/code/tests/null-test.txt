@@ -1,0 +1,4 @@
+name FiducialTest
+nbins 35
+surv 4
+thinto 10
