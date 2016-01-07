@@ -80,7 +80,7 @@ class tnorm(object):
         return (1.+term)/2.
 
     def norm(self):
-        return self.phi(self.hi)-self.phi(self.lo)
+        return max(sys.float_info.epsilon,self.phi(self.hi)-self.phi(self.lo))
 
     def pdf(self,z):
         x = self.loc(z)
@@ -139,5 +139,40 @@ class gmix(object):
         for c in xrange(self.ncomps):
             j = choices[c]
             Zs = self.comps[c].rvs(j)
+            samps = np.concatenate((samps,Zs))
+        return np.array(samps)
+
+class cont(object):
+    """
+    cont object takes a numpy array of normalized discrete distribution and its range and enables computation of PDF
+    """
+    def __init__(self,inarr,bounds):
+
+        self.ndim = len(inarr)
+        self.Zs = bounds
+        self.difs = self.Zs[1:]-self.Zs[:-1]
+        self.weights = inarr/np.dot(inarr,self.difs)
+#         mincomps = [(self.minZ-comp[0])/comp[1] for comp in self.comps]
+#         maxcomps = [(self.maxZ-comp[0])/comp[1] for comp in self.comps]
+        self.dims = [uniform(loc=self.Zs[k],scale=self.difs[k]) for k in xrange(self.ndim)]#[sp.stats.truncnorm(mincomps[c],maxcomps[c],loc=self.comps[c][0],scale=self.comps[c][1]) for c in lrange(self.comps)]
+#         self.comps = [tnorm(comp[0],comp[1],(self.minZ,self.maxZ)) for comp in self.comps]
+#         self.weights = np.array([self.calccdf(c,self.minZ,self.maxZ) for c in lrange(self.comps)])
+
+    def pdf(self,zs):
+        out = np.array([self.weights[k]*np.array([self.dims[k].pdf(z) for z in zs]) for k in xrange(self.ndim)])
+        return out
+
+    def cdf(self,zs):
+        out = np.array([self.weights[k]*np.array([self.dims[k].cdf(z) for z in zs]) for k in xrange(self.ndim)])
+        return out
+
+    def sample(self,N):
+        choices = [0]*self.ndim
+        for j in xrange(N):
+            choices[choice(xrange(self.ndim), self.weights)] += 1
+        samps = np.array([])
+        for k in xrange(self.ndim):
+            j = choices[k]
+            Zs = self.dims[k].rvs(j)
             samps = np.concatenate((samps,Zs))
         return np.array(samps)
