@@ -207,7 +207,7 @@ class pertest(object):
 
             pdf = self.intPz*allsummed
             # normalize probabilities to integrate (not sum)) to 1
-            pdf = pdf/np.dot(pdf,self.bindifs)
+            pdf = pdf/max(sys.float_info.epsilon,np.dot(pdf,self.bindifs))
 
 #             # sample posterior if noisy observation
 #             if self.meta.noise == True:

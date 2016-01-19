@@ -5,6 +5,7 @@ plot-sim module makes plots of data generation
 # TO DO: split up datagen and pre-run plots
 
 import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
@@ -17,12 +18,15 @@ title = 20
 label = 15
 mpl.rcParams['axes.titlesize'] = title
 mpl.rcParams['axes.labelsize'] = label
+#print('set font sizes')
 mpl.rcParams['figure.subplot.left'] = 0.2
 mpl.rcParams['figure.subplot.right'] = 0.9
 mpl.rcParams['figure.subplot.bottom'] = 0.2
 mpl.rcParams['figure.subplot.top'] = 0.9
+#print('set figure sizes')
 mpl.rcParams['figure.subplot.wspace'] = 0.5
 mpl.rcParams['figure.subplot.hspace'] = 0.5
+#print('set spaces')
 
 #making a step function plotter because pyplot is stupid
 def plotstep(subplot,binends,plot,style='-',col='k',lw=1,lab=' ',a=1.):
@@ -49,6 +53,7 @@ def initial_plots(meta, test):
     pranges = test.real.pdfs(zrange)
     global prange
     prange = np.sum(pranges,axis=0)
+    print('will plots work?')
     plot_physgen(meta,test)
     plot_true(meta,test)
     plot_liktest(meta,test)

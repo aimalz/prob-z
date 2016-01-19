@@ -278,10 +278,10 @@ class setup(object):
         if os.path.exists(os.path.join(self.datadir,'logmmle.csv')):
             with open(os.path.join(self.datadir,'logmmle.csv'),'rb') as csvfile:
                 tuples = (line.split(None) for line in csvfile)
-                mmldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
-            elapsed = mmldata[0]
-            like = mmldata[1]
-            loc = np.array(mmldata[2])
+                mmldata = np.array([[float(pair[k]) for k in range(0,len(pair))] for pair in tuples])
+                print(np.shape(mmldata))
+            like = mmldata[0]
+            loc = mmldata[1]
         else:
             def minlf(theta):
                 return -1.*self.calclike(theta)
