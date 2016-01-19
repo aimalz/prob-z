@@ -58,7 +58,7 @@ def footer(subplot):
 def timesaver(meta,name,key):
     with open(meta.plottime,'a') as plottimer:
         process = psutil.Process(os.getpid())
-        plottimer.write(name+' '+str(timeit.default_timer())+' '+str(key)+' mem:'+str(process.get_memory_info())+'\n')
+        plottimer.write(name+' '+str(timeit.default_timer())+' '+str(key)+'\n')#' mem:'+str(process.get_memory_info())+'\n')
     return
 
 # make all plots not needing MCMC

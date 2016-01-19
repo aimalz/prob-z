@@ -17,8 +17,8 @@ class consumer(object):
         pass
     def loop(self, queue):
         while (True):
+            print('getting key '+str(queue.get()))
             key = queue.get()
-            print('got key '+str(key))
             if (key=='done'):
                 self.finish()
                 return

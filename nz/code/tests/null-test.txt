@@ -1,4 +1,4 @@
 name FiducialTest
-nbins 35
-surv 4
+nbins 10
+surv 3
 thinto 10

@@ -1,5 +1,5 @@
 name ImprecisionTest
-nbins 35
-surv 4
+nbins 10
+surv 3
 sigma 1
 thinto 10

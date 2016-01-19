@@ -1,5 +1,5 @@
 name MultimodalTest
-nbins 35
-surv 4
+nbins 10
+surv 3
 shape 1
 thinto 10
