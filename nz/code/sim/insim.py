@@ -61,6 +61,7 @@ class setup(object):
         zrange = max(self.allzs)-min(self.allzs)
         zmin = min(self.allzs)
         zmax = max(self.allzs)
+
         if 'phys' in indict:
             nelem = len(indict['phys'])
             self.real = np.array([float(indict['phys'][i]) for i in range(1,nelem)])

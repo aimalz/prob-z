@@ -265,7 +265,7 @@ class setup(object):
         return
 
     def calclike(self,theta):
-        constterm = np.log(self.bindifs)-self.logintNz
+        constterm = um.safelog(self.bindifs)-self.logintNz
         constterms = theta+constterm
         sumterm = -1.*np.dot(np.exp(theta),self.bindifs)
         for j in xrange(self.ngals):
@@ -279,9 +279,9 @@ class setup(object):
             with open(os.path.join(self.datadir,'logmmle.csv'),'rb') as csvfile:
                 tuples = (line.split(None) for line in csvfile)
                 mmldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
-            elapsed = mmldata[0]
-            like = mmldata[1]
-            loc = np.array(mmldata[2])
+#             elapsed = mmldata[0]
+            like = mmldata[0]
+            loc = np.array(mmldata[1])
         else:
             def minlf(theta):
                 return -1.*self.calclike(theta)
