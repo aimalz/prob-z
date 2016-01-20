@@ -1,4 +1,6 @@
 name FiducialTest
 nbins 35
 surv 4
+miniters 3
 thinto 10
+plotonly 0

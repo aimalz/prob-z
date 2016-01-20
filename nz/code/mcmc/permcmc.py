@@ -103,7 +103,7 @@ class pertest(object):
         # record time of calculation for monitoring progress
         with open(self.meta.calctime,'a') as calctimer:
             process = psutil.Process(os.getpid())
-            calctimer.write(str(timeit.default_timer())+' '+str(self.key)+' '+str(elapsed)+' mem:'+str(process.get_memory_info())+'\n')
+            calctimer.write(str(timeit.default_timer())+' '+str(self.key)+' '+str(elapsed)+'\n')#'' mem:'+str(process.get_memory_info())+'\n')
             calctimer.close()
 
         return outputs
