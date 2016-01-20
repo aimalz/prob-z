@@ -90,8 +90,8 @@ class setup(object):
         else:
             self.inits = 'gs'#corresponding to 'ps', 'gm'
 
-#         # construct alternative estimators
-#         self.alternatives()
+        # construct alternative estimators
+        self.alternatives()
 
         # generate prior distribution
         self.make_prior(indict)
@@ -279,7 +279,6 @@ class setup(object):
             with open(os.path.join(self.datadir,'logmmle.csv'),'rb') as csvfile:
                 tuples = (line.split(None) for line in csvfile)
                 mmldata = np.array([[float(pair[k]) for k in range(0,len(pair))] for pair in tuples])
-                print(np.shape(mmldata))
             like = mmldata[0]
             loc = mmldata[1]
         else:
@@ -302,13 +301,13 @@ class setup(object):
               #print(str(self.ngals)+' galaxies for '+self.name+' MMLE in '+str(elapsed)+': '+str(loc))
         return(like,loc)
 
-#     def alternatives(self):
+    def alternatives(self):
 
 #         # generate full Sheldon, et al. 2011 "posterior"
-#         stkprep = np.sum(np.array(self.pdfs),axis=0)
-#         self.stkNz = np.array([max(sys.float_info.epsilon,stkprep[k]) for k in xrange(self.nbins)])
-#         self.logstkNz = np.log(self.stkNz)
-#         self.lik_stkNz = self.calclike(self.logstkNz)
+        stkprep = np.sum(np.array(self.pdfs),axis=0)
+        self.stkNz = np.array([max(sys.float_info.epsilon,stkprep[k]) for k in xrange(self.nbins)])
+        self.logstkNz = np.log(self.stkNz)
+        self.lik_stkNz = self.calclike(self.logstkNz)
 
 #         # generate MAP N(z)
 #         self.mapNz = [sys.float_info.epsilon]*self.nbins
