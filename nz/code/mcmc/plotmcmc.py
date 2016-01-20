@@ -132,7 +132,7 @@ def plot_true(meta):
     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
 #     plotstep(sps,test.binends,test.logtruNz,style='-',lab=r'Sampled $\ln N(z)$')
     plotstep(sps,meta.zrange,meta.lNz_range,lw=2.,lab=r'True $\ln N(z)$')
-#     plotstep(sps,meta.binends,meta.logstkNz,style='--',lw=3.,lab=r'Stacked $\ln N(z)$')
+    plotstep(sps,meta.binends,meta.logstkNz,style='--',lw=3.,lab=r'Stacked $\ln N(z)$')
 #     plotstep(sps,meta.binends,meta.logmapNz,style='-.',lw=3.,lab=r'MAP $\ln N(z)$')
 #    plotstep(sps,meta.binends,test.full_logexpNz,style=':',lab=r'$\ln N(E[z])$')
     plotstep(sps,meta.binends,meta.logmmlNz,style=':',lw=3.,lab=r'MMLE $\ln N(z)$')
@@ -146,7 +146,7 @@ def plot_true(meta):
     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
 #     plotstep(sps,test.binends,test.truNz,style='-',lab=r'Sampled $N(z)$')
     plotstep(sps,meta.zrange,meta.Nz_range,lw=2.,lab=r'True $N(z)$')
-#     plotstep(sps,meta.binends,meta.stkNz,style='--',lw=3.,lab=r'Stacked $N(z)$')# with $\sigma^{2}=$'+str(int(test.vsstack)))
+    plotstep(sps,meta.binends,meta.stkNz,style='--',lw=3.,lab=r'Stacked $N(z)$')# with $\sigma^{2}=$'+str(int(test.vsstack)))
 #     plotstep(sps,meta.binends,meta.mapNz,style='-.',lw=3.,lab=r'MAP $N(z)$')# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
 #     plotstep(sps,meta.binends,meta.expNz,style=':',lab=r'$N(E[z])$')# with $\sigma^{2}=$'+str(int(test.vsexpNz)))
     plotstep(sps,meta.binends,meta.mmlNz,style=':',lw=3.,lab=r'MMLE $N(z)$')
@@ -308,7 +308,7 @@ class plotter_probs(plotter):
 #             self.plotone(probs['lp_truNz'],r'True $\vec{\theta}$',lw=2.,ls='-')
 #         self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
 #                       [int(probs['lp_stkNz'])]*(self.last_key.r+2),
-#                       label=r'Stacked $\vec{\theta}$',
+#                      label=r'Stacked $\vec{\theta}$',
 #                       color='k',linewidth=2,linestyle='--')
 #         self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
 #                       [int(probs['lp_mapNz'])]*(self.last_key.r+2),
@@ -454,8 +454,8 @@ class plotter_samps(plotter):
 
 #         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,style='-',lw=2,lab=r'True $\ln N(z)$')
 #         plotstep(sps_samp,self.meta.binends,self.meta.truNz,style='-',lw=2,lab=r'True $N(z)$')
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logstkNz,style='--',lw=2)
-#         plotstep(sps_samp,self.meta.binends,self.meta.stkNz,style='--',lw=2)
+        plotstep(sps_samp_log,self.meta.binends,self.meta.logstkNz,style='--',lw=2)
+        plotstep(sps_samp,self.meta.binends,self.meta.stkNz,style='--',lw=2)
 #         plotstep(sps_samp_log,self.meta.binends,self.meta.logmapNz,style='-.',lw=2)
 #         plotstep(sps_samp,self.meta.binends,self.meta.mapNz,style='-.',lw=2)
 #         plotstep(sps_samp_log,self.meta.binends,self.meta.logexpNz,style=':',lw=2,lab=r'$\ln N(E(z))$'+logexplabel)
@@ -474,7 +474,7 @@ class plotter_samps(plotter):
 
     def plot(self,key):
 
-#         if key.burnin == False:
+      if key.burnin == False:
 
         data = key.load_state(self.meta.topdir)['chains']
 
@@ -510,8 +510,8 @@ class plotter_samps(plotter):
         for k in xrange(self.meta.nbins):
             y_all = plot_y_ls.T[k].flatten()
             loc,scale = sp.stats.norm.fit_loc_scale(y_all)
-            sps_samp_log.fill_between([self.meta.binends[k],self.meta.binends[k+1]],loc-scale,loc+scale,color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
-            sps_samp.fill_between([self.meta.binends[k],self.meta.binends[k+1]],np.exp(loc-scale),np.exp(loc+scale),color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
+#             sps_samp_log.fill_between([self.meta.binends[k],self.meta.binends[k+1]],loc-scale,loc+scale,color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
+#             sps_samp.fill_between([self.meta.binends[k],self.meta.binends[k+1]],np.exp(loc-scale),np.exp(loc+scale),color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
 
         self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),dpi=100)
 
@@ -539,8 +539,8 @@ class plotter_samps(plotter):
 # #             #lr_stkNzprep = str(int(np.log10(np.exp(gof['llr_stkNz']))))
 # #             stkNzprep_v = str(int(gofs['vsstkNz']))
 # #             stkNzprep_c = str(int(gofs['csstkNz']))
-#             logstklabel = r'; $\ln \mathcal{L}='+str(round(both['ll_stkNz']))+r'$'#r'; $\sigma^{2}=$'+logstkNzprep_v+r'; $\chi^{2}=$'+logstkNzprep_c#+r'; $\ln(r)=$'+llr_stkNzprep
-#             stklabel = r'; $KLD=('+str(gofs['kl_stkNzvtruNz'])+','+str(gofs['kl_truNzvstkNz'])+r')$'#r'; $\sigma^{2}=$'+stkNzprep_v+r'; $\chi^{2}=$'+stkNzprep_c#+r'; $\log(r)=$'+lr_stkNzprep
+            logstklabel = r'; $\ln \mathcal{L}='+str(round(both['ll_stkNz']))+r'$'#r'; $\sigma^{2}=$'+logstkNzprep_v+r'; $\chi^{2}=$'+logstkNzprep_c#+r'; $\ln(r)=$'+llr_stkNzprep
+            stklabel = r'; $KLD=('+str(gofs['kl_stkNzvtruNz'])+','+str(gofs['kl_truNzvstkNz'])+r')$'#r'; $\sigma^{2}=$'+stkNzprep_v+r'; $\chi^{2}=$'+stkNzprep_c#+r'; $\log(r)=$'+lr_stkNzprep
 
 # #             #llr_mapNzprep = str(int(gof['llr_mapNz']))
 # #             logmapNzprep_v = str(int(gofs['vslogmapNz']))
@@ -576,8 +576,8 @@ class plotter_samps(plotter):
             mmllabel = r'; $KLD=('+str(gofs['kl_mmlNzvtruNz'])+','+str(gofs['kl_truNzvmmlNz'])+r')$'
 
         else:
-#             logstklabel = ' '
-#             stklabel = ' '
+            logstklabel = ' '
+            stklabel = ' '
 #             logmaplabel = ' '
 #             maplabel = ' '
 # #             logexplabel = ' '
@@ -598,8 +598,8 @@ class plotter_samps(plotter):
 #             plotstep(sps_samp,self.meta.binends,self.meta.truNz,style='-',lw=2)
 #         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,style='-',lw=2,lab=r'True $\ln N(z)$')
 #         plotstep(sps_samp,self.meta.binends,self.meta.truNz,style='-',lw=2,lab=r'True $N(z)$')
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logstkNz,style='--',lw=2,lab=r'Stacked $\ln N(z)$'+logstklabel)
-#         plotstep(sps_samp,self.meta.binends,self.meta.stkNz,style='--',lw=2,lab=r'Stacked $N(z)$'+stklabel)
+        plotstep(sps_samp_log,self.meta.binends,self.meta.logstkNz,style='--',lw=2,lab=r'Stacked $\ln N(z)$'+logstklabel)
+        plotstep(sps_samp,self.meta.binends,self.meta.stkNz,style='--',lw=2,lab=r'Stacked $N(z)$'+stklabel)
 #         plotstep(sps_samp_log,self.meta.binends,self.meta.logmapNz,style='-.',lw=2,lab=r'MAP $\ln N(z)$'+logmaplabel)
 #         plotstep(sps_samp,self.meta.binends,self.meta.mapNz,style='-.',lw=2,lab=r'MAP $N(z)$'+maplabel)
 #         plotstep(sps_samp_log,self.meta.binends,self.meta.logexpNz,style=':',lw=2,lab=r'$\ln N(E(z))$'+logexplabel)
@@ -665,7 +665,7 @@ class plotter_chains(plotter):
             sps_pdf.set_xlabel(r'$\theta_{'+str(k+1)+r'}$')
             sps_pdf.set_ylabel('kernel density estimate')
             sps_pdf.set_title(r'Distribution of $\theta_{'+str(k+1)+r'}$ Values')
-#             sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle='--',lw=2.)
+            sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle='--',lw=2.)
 #             sps_pdf.vlines(self.meta.logmapNz[k],0.,1.,linestyle='-.',lw=2.)
 # #             sps_pdf.vlines(self.meta.logexpNz[k],0.,1.,linestyle=':',lw=2.,label=r'$E(z)$ value')
             sps_pdf.vlines(self.meta.logmmlNz[k],0.,1.,linestyle=':',lw=2.)
@@ -673,6 +673,8 @@ class plotter_chains(plotter):
                 sps_pdf.vlines(self.meta.logtruNz[k],0.,1.,linestyle='-',lw=2.,label='True value')
 
     def plot(self,key):
+
+      if key.burnin == False:
 
         data = key.load_state(self.meta.topdir)['chains']
 
@@ -741,7 +743,7 @@ class plotter_chains(plotter):
             sps_chain = self.sps_chains[k]
             sps_chain.set_xlim(-1*self.meta.miniters,(maxsteps+1)*self.meta.miniters)
             sps_chain = self.sps_chains[k]
-#             self.plotone(sps_chain,maxiternos*self.meta.miniters,[self.meta.logstkNz[k]]*maxsteps,'--','Stacked value')
+            self.plotone(sps_chain,maxiternos*self.meta.miniters,[self.meta.logstkNz[k]]*maxsteps,'--','Stacked value')
 #             self.plotone(sps_chain,maxiternos*self.meta.miniters,[self.meta.logmapNz[k]]*maxsteps,'-.','MAP value')
 # #             self.plotone(sps_chain,maxiternos*self.meta.miniters,[self.meta.logexpNz[k]]*maxsteps,':',r'$E(z)$ value')
             self.plotone(sps_chain,maxiternos*self.meta.miniters,[self.meta.logmmlNz[k]]*maxsteps,':','MMLE value')
@@ -752,7 +754,7 @@ class plotter_chains(plotter):
             sps_pdf = self.sps_pdfs[k]
             if self.meta.logtruNz is not None:
                 sps_pdf.vlines(self.meta.logtruNz[k],0.,1.,linestyle='-',lw=2.,label='True value')
-#             sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle='--',lw=2.,label='Stacked value')
+            sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle='--',lw=2.,label='Stacked value')
 #             sps_pdf.vlines(self.meta.logmapNz[k],0.,1.,linestyle='-.',lw=2.,label='MAP value')
 # #             sps_pdf.vlines(self.meta.logexpNz[k],0.,1.,linestyle=':',lw=2.,label=r'$E(z)$ value')
             sps_pdf.vlines(self.meta.logmmlNz[k],0.,1.,linestyle=':',lw=2.,label='MMLE value')
