@@ -48,12 +48,16 @@ def plotstep(subplot,binends,plot,style='-',col='k',lw=1,lab=' ',a=1.):
 # make all the plots
 def initial_plots(meta, test):
     global zrange
+<<<<<<< HEAD
+    zrange = np.arange(meta.allzs[0],meta.allzs[-1],1./meta.surv)
+=======
     zrange = np.arange(test.allzs[0],test.allzs[-1],1./meta.surv)
     global pranges
     pranges = test.real.pdfs(zrange)
     global prange
     prange = np.sum(pranges,axis=0)
     print('will plots work?')
+>>>>>>> 6eac38c5ec59afd725df4b4866fcc2d73735cab1
     plot_physgen(meta,test)
     plot_true(meta,test)
     plot_liktest(meta,test)
@@ -63,6 +67,11 @@ def initial_plots(meta, test):
 
 # plot the underlying P(z) and its components
 def plot_physgen(meta,test):
+
+    global pranges
+    pranges = test.real.pdfs(zrange)
+    global prange
+    prange = np.sum(pranges,axis=0)
 
     f = plt.figure(figsize=(5,5))
     sys.stdout.flush()
@@ -92,13 +101,13 @@ def plot_true(meta, test):
     sps.set_ylabel(r'$\ln N(z)$')
     sps.set_ylim(np.log(1./min(test.bindifs)),np.log(test.ngals/min(test.bindifs)))#(-1.,np.log(test.ngals/min(test.meta.zdifs)))
     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-#     plotstep(sps,test.binends,test.logtruNz,style='-',lab=r'Sampled $\ln N(z)$')
+    plotstep(sps,test.binends,test.logtruNz,style='-',lab=r'Sampled $\ln N(z)$')
     plotstep(sps,zrange,lnrange,lw=2.,lab=r'True $\ln N(z)$')
-    plotstep(sps,test.binends,test.logstkNz,style='--',lw=3.,lab=r'Stacked $\ln N(z)$; $\ln\mathcal{L}='+str(test.lik_stkNz)+r'$')
-    plotstep(sps,test.binends,test.logmapNz,style='-.',lw=3.,lab=r'MAP $\ln N(z)$; $\ln\mathcal{L}='+str(test.lik_mapNz)+r'$')
+#     plotstep(sps,test.binends,test.logstkNz,style='--',lw=3.,lab=r'Stacked $\ln N(z)$; $\ln\mathcal{L}='+str(test.lik_stkNz)+r'$')
+#     plotstep(sps,test.binends,test.logmapNz,style='-.',lw=3.,lab=r'MAP $\ln N(z)$; $\ln\mathcal{L}='+str(test.lik_mapNz)+r'$')
 #    plotstep(sps,test.binends,test.full_logexpNz,style=':',lab=r'$\ln N(E[z])$; $\ln\mathcal{L}='+str(round(test.lik_expNz))+r'$')
-    plotstep(sps,test.binends,test.logmmlNz,style=':',lw=3.,lab=r'MMLE $\ln N(z)$; $\ln\mathcal{L}='+str(test.lik_mmlNz)+r'$')
-    plotstep(sps,test.binends,test.logintNz,a=0.5,lw=2.,lab=r'Interim $\ln N(z)$; $\ln\mathcal{L}='+str(test.lik_intNz)+r'$')
+    plotstep(sps,test.binends,test.logmmlNz,style=':',lw=3.,lab=r'MMLE $\ln N(z)$')#; $\ln\mathcal{L}='+str(test.lik_mmlNz)+r'$')
+    plotstep(sps,test.binends,test.logintNz,col='k',a=0.5,lw=2.,lab=r'Interim $\ln N(z)$')#; $\ln\mathcal{L}='+str(test.lik_intNz)+r'$')
     sps.legend(loc='lower right',fontsize='x-small')
     sps = f.add_subplot(2,1,2)
     sps.set_title('True $N(z)$')
@@ -106,13 +115,13 @@ def plot_true(meta, test):
     sps.set_ylabel(r'$N(z)$')
 #     sps.set_ylim(0.,test.ngals/min(test.bindifs))#(0.,test.ngals/min(test.meta.zdifs))
     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-#     plotstep(sps,test.binends,test.truNz,style='-',lab=r'Sampled $N(z)$')
+    plotstep(sps,test.binends,test.truNz,style='-',lab=r'Sampled $N(z)$')
     plotstep(sps,zrange,nrange,lw=2.,lab=r'True $N(z)$')
-    plotstep(sps,test.binends,test.stkNz,style='--',lw=3.,lab=r'Stacked $N(z)$'+'\n'+r'$KLD='+str(test.kl_stkNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsstack)))
-    plotstep(sps,test.binends,test.mapNz,style='-.',lw=3.,lab=r'MAP $N(z)$'+'\n'+r'$KLD='+str(test.kl_mapNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
+#     plotstep(sps,test.binends,test.stkNz,style='--',lw=3.,lab=r'Stacked $N(z)$'+'\n'+r'$KLD='+str(test.kl_stkNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsstack)))
+#     plotstep(sps,test.binends,test.mapNz,style='-.',lw=3.,lab=r'MAP $N(z)$'+'\n'+r'$KLD='+str(test.kl_mapNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
 #     plotstep(sps,test.binends,test.expNz,style=':',lab=r'$N(E[z])$'+'\n'+r'$KLD='+str(test.kl_expNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsexpNz)))
-    plotstep(sps,test.binends,test.mmlNz,style=':',lw=3.,lab=r'MMLE $N(z)$'+'\n'+r'$KLD='+str(test.kl_mmlNz)+r'$')
-    plotstep(sps,test.binends,test.intNz,a=0.5,lw=2.,lab=r'Interim $N(z)$'+'\n'+r'$KLD='+str(test.kl_intNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsinterim)))
+    plotstep(sps,test.binends,test.mmlNz,style=':',lw=3.,lab=r'MMLE $N(z)$')#+'\n'+r'$KLD='+str(test.kl_mmlNz)+r'$')
+    plotstep(sps,test.binends,test.intNz,col='k',a=0.5,lw=2.,lab=r'Interim $N(z)$')#+'\n'+r'$KLD='+str(test.kl_intNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsinterim)))
     sps.legend(loc='upper left',fontsize='x-small')
 
     f.savefig(os.path.join(meta.simdir,'trueNz.png'))

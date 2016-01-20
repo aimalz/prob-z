@@ -61,6 +61,7 @@ class setup(object):
         zrange = max(self.allzs)-min(self.allzs)
         zmin = min(self.allzs)
         zmax = max(self.allzs)
+
         if 'phys' in indict:
             nelem = len(indict['phys'])
             self.real = np.array([float(indict['phys'][i]) for i in range(1,nelem)])
@@ -72,10 +73,6 @@ class setup(object):
                          [zmin+0.8*zrange, 0.1, 0.3]#1.25],
                          #[zmin+1.0*zrange, 0.001, 0.75]
                           ])
-            #self.real = np.array([[(zmax-zmin)/2.,0.1,1.0]])
-        # put together Gaussian elements --> now doing this in persim
-#         self.realistic_comps = np.transpose([[zmid*tup[2]*(2*m.pi*tup[1])**-0.5*m.exp(-(zmid-tup[0])**2/(2*tup[1])) for zmid in self.allzmids] for tup in self.real])
-#         self.realistic = np.array([sum(realistic_comp) for realistic_comp in self.realistic_comps])
 
         # set up info for one test
 

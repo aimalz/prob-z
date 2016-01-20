@@ -158,6 +158,7 @@ class pertest(object):
         self.binmids = (self.binhis+self.binlos)/2.
         self.bindifs = self.binhis-self.binlos
         self.bindif = sum(self.bindifs)/self.nbins
+        self.binrange = self.binends[-1]-self.binends[0]
 
 #         define flat P(z) for this number of parameters and N(z) for this survey size
         self.fltPz = us.normed([1.]*self.nbins,self.bindifs)
@@ -174,13 +175,17 @@ class pertest(object):
         #nontrivial interim prior
         if self.meta.interim == 'flat':
             intP = self.fltPz
+#             intP = sp.stats.uniform(loc=self.binends[0],scale=self.binrange)
         elif self.meta.interim == 'multimodal':
             intP = self.real.binned(self.binends)
+#             intP = self.real
         elif self.meta.interim == 'unimodal':
             intP = sp.stats.poisson.pmf(xrange(self.nbins),2.0)
+#             intP = sp.stats.poisson(2.0)
         elif self.meta.interim == 'bimodal':
             x = self.nbins
             intP = sp.stats.pareto.pdf(np.arange(1.,2.,1./x),x)+sp.stats.pareto.pdf(np.arange(1.,2.,1./x)[::-1],x)
+#             intP = sp.stats.pareto(self.nbins)
 
         self.intPz = us.normed(intP,self.bindifs)
         self.logintPz = us.safelog(self.intPz)
@@ -207,7 +212,11 @@ class pertest(object):
 
             pdf = self.intPz*allsummed
             # normalize probabilities to integrate (not sum)) to 1
+<<<<<<< HEAD
+            pdf = pdf/max(np.dot(pdf,self.bindifs),sys.float_info.epsilon)
+=======
             pdf = pdf/max(sys.float_info.epsilon,np.dot(pdf,self.bindifs))
+>>>>>>> 6eac38c5ec59afd725df4b4866fcc2d73735cab1
 
 #             # sample posterior if noisy observation
 #             if self.meta.noise == True:
@@ -344,9 +353,6 @@ class pertest(object):
                 out.writerow(line)
         with open(os.path.join(self.meta.simdir,'logtrue.csv'),'wb') as csvfile:
             out = csv.writer(csvfile,delimiter=' ')
-            out.writerow(self.binends)
-            out.writerow(self.logintNz)
-            #out.writerow(self.full_logphsNz)
             truZs = [[z] for z in self.truZs]
             for item in truZs:
                 out.writerow(item)

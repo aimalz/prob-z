@@ -1,6 +1,6 @@
 name BInterimPriorTest
-nbins 35
-surv 4
+nbins 10
+surv 3
 interim bimodal
 miniters 3
 thinto 10

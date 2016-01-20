@@ -1,6 +1,11 @@
 name FiducialTest
+<<<<<<< HEAD
 nbins 35
 surv 4
 miniters 3
+=======
+nbins 10
+surv 3
+>>>>>>> bea97c3c2d26f29f7d39832f9f78cdd0a1cd494f
 thinto 10
 plotonly 0

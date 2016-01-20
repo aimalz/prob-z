@@ -1,6 +1,6 @@
 name ToyModelTest
-nbins 35
-surv 4
+nbins 10
+surv 3
 random 0
 uniform 0
 miniters 3
