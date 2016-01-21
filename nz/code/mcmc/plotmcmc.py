@@ -21,6 +21,7 @@ import distribute
 from utilmcmc import *
 from keymcmc import key
 
+# set up for better looking plots
 title = 15
 label = 15
 mpl.rcParams['axes.titlesize'] = title
@@ -32,24 +33,50 @@ mpl.rcParams['figure.subplot.top'] = 0.9
 mpl.rcParams['figure.subplot.wspace'] = 0.5
 mpl.rcParams['figure.subplot.hspace'] = 0.5
 
+global lnz,nz,tv,t
+lnz,nz,tv,t = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$'
+# setting up unified appearance parameters
+global s_tru,w_tru,a_tru,c_tru,l_tru
+s_tru,w_tru,a_tru,c_tru,l_tru = '-',2.,1.,'k','True '
+global s_int,w_int,a_int,c_int,l_int
+s_int,w_int,a_int,c_int,l_int = ':',1.5,0.5,'k','Interim '
+global s_stk,w_stk,a_stk,c_stk,l_stk
+s_stk,w_stk,a_stk,c_stk,l_stk = '-.',1.5,1.,'k','Stacked '
+# global s_map,w_map,a_map,c_map,l_map
+# s_map,w_map,a_map,c_map,l_map = '-.',1.5,0.75,'k','MMAP '
+# global s_exp,w_exp,a_exp,c_exp,l_exp
+# s_exp,w_exp,a_exp,c_exp,l_exp = '-.',1.5,0.25,'k','MExp '
+global s_mml,w_mml,a_mml,c_mml,l_mml
+s_mml,w_mml,a_mml,c_mml,l_mml = '-.',1.5,0.5,'k','MMLE '
+global s_smp,w_smp,a_smp,c_smp,l_smp
+s_smp,w_smp,a_smp,c_smp,l_smp = '-',1.,1.,'k','Sampled '
+global s_bfe,w_bfe,a_bfe,c_bfe,l_bfe
+s_bfe,w_bfe,a_bfe,c_bfe,l_bfe = '--',1.5,1.,'k','Best Fit '
+
 #making a step function plotter because pyplot is stupid
-def plotstep(subplot,binends,plot,style='-',col='k',a=1,lw=1,lab=None):
+def plotstep(subplot,binends,plot,s='-',c='k',a=1,w=1,l=None):
+    ploth(subplot,binends,plot,s,c,a,w,l)
+    plotv(subplot,binends,plot,s,c,a,w)
+
+def ploth(subplot,binends,plot,s='-',c='k',a=1,w=1,l=None):
     subplot.hlines(plot,
                    binends[:-1],
                    binends[1:],
-                   linewidth=lw,
-                   linestyle=style,
-                   color=col,
+                   linewidth=w,
+                   linestyle=s,
+                   color=c,
                    alpha=a,
-                   label=lab,
+                   label=l,
                    rasterized=True)
+def plotv(subplot,binends,plot,s='-',c='k',a=1,w=1,l=None):
     subplot.vlines(binends[1:-1],
                    plot[:-1],
                    plot[1:],
-                   linewidth=lw,
-                   linestyle=style,
-                   color=col,
+                   linewidth=w,
+                   linestyle=s,
+                   color=c,
                    alpha=a,
+                   label=l,
                    rasterized=True)
 
 def footer(subplot):
@@ -81,7 +108,7 @@ def plot_pdfs(meta):
     #sps.set_title('shape='+str(meta.shape)+', noise='+str(meta.noise))
     randos = random.sample(xrange(meta.ngals),len(meta.colors))
     for r in lrange(randos):
-        plotstep(sps,meta.binends,meta.pdfs[randos[r]],col=meta.colors[r%len(meta.colors)])
+        plotstep(sps,meta.binends,meta.pdfs[randos[r]],c=meta.colors[r%len(meta.colors)])
     sps.set_ylabel(r'$p(z|\vec{d})$')
     sps.set_xlabel(r'$z$')
     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
@@ -99,9 +126,9 @@ def plot_priorsamps(meta):
     sps.set_xlabel(r'$z$')
     sps.set_ylabel(r'$\ln N(z)$')
     sps.set_xlim(meta.binends[0]-meta.bindif,meta.binends[-1]+meta.bindif)#,s_run.seed)#max(n_run.full_logfltNz)+m.log(s_run.seed/meta.zdif)))
-    plotstep(sps,meta.binends,meta.logfltNz,lab=r'flat $\ln N(z)$')
+    plotstep(sps,meta.binends,meta.logfltNz,l=r'flat $\ln N(z)$')
     for c in lrange(meta.colors):
-        plotstep(sps,meta.binends,priorsamps[c],col=meta.colors[c])
+        plotstep(sps,meta.binends,priorsamps[c],c=meta.colors[c])
     sps.legend(loc='upper left',fontsize='x-small')
     f.savefig(os.path.join(meta.topdir, 'priorsamps.png'))
     return
@@ -117,7 +144,7 @@ def plot_ivals(meta):
     sps.set_title(meta.init_names)
     plotstep(sps,meta.binends,meta.mean)
     for i in lrange(meta.ivals):
-        plotstep(sps,meta.binends,meta.ivals[i],a=1./meta.factor,col=meta.colors[i%len(meta.colors)])
+        plotstep(sps,meta.binends,meta.ivals[i],a=1./meta.factor,c=meta.colors[i%len(meta.colors)])
     f.savefig(os.path.join(meta.topdir,'initializations.png'),dpi=100)
     return
 
@@ -130,13 +157,13 @@ def plot_true(meta):
     sps.set_ylabel(r'$\ln N(z)$')
     sps.set_ylim(np.log(1./min(meta.bindifs)),np.log(meta.ngals/min(meta.bindifs)))#(-1.,np.log(test.ngals/min(test.meta.zdifs)))
     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
-#     plotstep(sps,test.binends,test.logtruNz,style='-',lab=r'Sampled $\ln N(z)$')
-    plotstep(sps,meta.zrange,meta.lNz_range,lw=2.,lab=r'True $\ln N(z)$')
-#     plotstep(sps,meta.binends,meta.logstkNz,style='--',lw=3.,lab=r'Stacked $\ln N(z)$')
-#     plotstep(sps,meta.binends,meta.logmapNz,style='-.',lw=3.,lab=r'MAP $\ln N(z)$')
-#    plotstep(sps,meta.binends,test.full_logexpNz,style=':',lab=r'$\ln N(E[z])$')
-    plotstep(sps,meta.binends,meta.logmmlNz,style=':',lw=3.,lab=r'MMLE $\ln N(z)$')
-#     plotstep(sps,meta.binends,meta.logintNz,a=0.5,lw=2.,lab=r'Interim $\ln N(z)$')
+#     plotstep(sps,test.binends,test.logtruNz,s=s_smp,w=w_smp,a=a_smp,c=c_smp,l=l_smp+lnz)
+    plotstep(sps,meta.zrange,meta.lNz_range,s=s_tru,w=w_tru,a=a_tru,c=c_tru,l=l_tru+lnz)
+#     plotstep(sps,meta.binends,meta.logstkNz,s=s_stk,w=w_stk,a=a_tru,c=c_tru,l=l_stk+lnz)
+#     plotstep(sps,meta.binends,meta.logmapNz,s=s_map,w=w_map,a=a_tru,c=c_tru,l=l_map+lnz)
+#    plotstep(sps,meta.binends,meta.logexpNz,s=s_exp,w=w_exp,a=a_tru,c=c_tru,l=l_exp+lnz)
+    plotstep(sps,meta.binends,meta.logmmlNz,s=s_mml,w=w_mml,a=a_tru,c=c_tru,l=l_mml+lnz)
+#     plotstep(sps,meta.binends,meta.logintNz,s=s_int,w=w_int,a=a_tru,c=c_tru,l=l_int+lnz)
     sps.legend(loc='lower right',fontsize='x-small')
     sps = f.add_subplot(2,1,2)
     sps.set_title('True $N(z)$')
@@ -144,13 +171,13 @@ def plot_true(meta):
     sps.set_ylabel(r'$N(z)$')
 #     sps.set_ylim(0.,test.ngals/min(test.bindifs))#(0.,test.ngals/min(test.meta.zdifs))
     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
-#     plotstep(sps,test.binends,test.truNz,style='-',lab=r'Sampled $N(z)$')
-    plotstep(sps,meta.zrange,meta.Nz_range,lw=2.,lab=r'True $N(z)$')
-#     plotstep(sps,meta.binends,meta.stkNz,style='--',lw=3.,lab=r'Stacked $N(z)$')# with $\sigma^{2}=$'+str(int(test.vsstack)))
-#     plotstep(sps,meta.binends,meta.mapNz,style='-.',lw=3.,lab=r'MAP $N(z)$')# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
-#     plotstep(sps,meta.binends,meta.expNz,style=':',lab=r'$N(E[z])$')# with $\sigma^{2}=$'+str(int(test.vsexpNz)))
-    plotstep(sps,meta.binends,meta.mmlNz,style=':',lw=3.,lab=r'MMLE $N(z)$')
-#     plotstep(sps,meta.binends,meta.intNz,a=0.5,lw=2.,lab=r'Interim $N(z)$')# with $\sigma^{2}=$'+str(int(test.vsinterim)))
+#     plotstep(sps,test.binends,test.truNz,s=s_smp,w=w_smp,a=a_smp,c=c_smp,l=l_smp+nz)
+    plotstep(sps,meta.zrange,meta.Nz_range,s=s_tru,w=w_tru,a=a_tru,c=c_tru,l=l_tru+nz)
+#     plotstep(sps,meta.binends,meta.stkNz,s=s_stk,w=w_stk,a=a_tru,c=c_tru,l=l_stk+nz)# with $\sigma^{2}=$'+str(int(test.vsstack)))
+#     plotstep(sps,meta.binends,meta.mapNz,s=s_map,w=w_map,a=a_tru,c=c_tru,l=l_map+nz)# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
+#     plotstep(sps,meta.binends,meta.expNz,s=s_exp,w=w_exp,a=a_tru,c=c_tru,l=l_exp+nz)# with $\sigma^{2}=$'+str(int(test.vsexpNz)))
+    plotstep(sps,meta.binends,meta.mmlNz,s=s_mml,w=w_mml,a=a_tru,c=c_tru,l=l_mml+nz)
+#     plotstep(sps,meta.binends,meta.intNz,s=s_int,w=w_int,a=a_tru,c=c_tru,l=l_int+nz)# with $\sigma^{2}=$'+str(int(test.vsinterim)))
     sps.legend(loc='upper left',fontsize='x-small')
 
     footer(sps)
@@ -278,7 +305,7 @@ class plotter_probs(plotter):
         x_all = np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto
         self.sps.plot(x_all,locs,color='k',rasterized=True)
 #         self.sps.vlines(xrange(self.meta.ntimes+1),(locs-scales),(locs+scales),color='k',alpha=0.5,linewidth=2.,rasterized=True)
-        self.sps.fill_between(x_all,locs-scales,locs+scales,color='k',alpha=0.1)
+        self.sps.fill_between(x_all,locs-scales,locs+scales,color='k',alpha=0.1,linewidth=0.)
 #         randwalks = random.sample(xrange(self.meta.nwalkers),1)#xrange(self.meta.nwalkers)
 #         for w in randwalks:
 #             self.sps.plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,
@@ -301,32 +328,36 @@ class plotter_probs(plotter):
 #         maxy = np.max(yrange)+np.log(self.meta.ngals)
 
         if self.meta.logtruNz is not None:
-            self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
-                      [int(probs['lp_truNz'])]*(self.last_key.r+2),
-                      label=r'True $\vec{\theta}$',
-                      color='k',linewidth=2,linestyle='-')
-#             self.plotone(probs['lp_truNz'],r'True $\vec{\theta}$',lw=2.,ls='-')
+#             self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
+#                       [int(probs['lp_truNz'])]*(self.last_key.r+2),
+#                       label=r'True $\vec{\theta}$',
+#                       color='k',linewidth=2,linestyle='-')
+            self.plotone(probs['lp_truNz'],w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+tv)
 #         self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
 #                       [int(probs['lp_stkNz'])]*(self.last_key.r+2),
 #                       label=r'Stacked $\vec{\theta}$',
 #                       color='k',linewidth=2,linestyle='--')
+            self.plotone(probs['lp_stkNz'],w=w_stk,s=s_stk,a=a_stk,c=c_stk,l=l_stk+tv)
 #         self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
 #                       [int(probs['lp_mapNz'])]*(self.last_key.r+2),
 #                       label=r'MAP $\vec{\theta}$',
 #                       color='k',linewidth=2,linestyle='-.')
+#             self.plotone(probs['lp_mapNz'],w=w_map,s=s_map,a=a_map,c=c_map,l=l_map+tv)
 # #         self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
 # #                       [int(probs['lp_expNz'])]*(self.last_key.r+2),
 # #                       label=r'$E[z]$ $\vec{\theta}$',
 # #                       color='k',linewidth=2,linestyle=':')
-        self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
-                      [int(probs['lp_mmlNz'])]*(self.last_key.r+2),
-                      label=r'MMLE $\vec{\theta}$',
-                      color='k',linewidth=2,linestyle=':')
-#         self.plotone(probs['lp_mmlNz'],r'MMLE $\vec{\theta}$',lw=2.,ls=':')
+# #           self.plotone(probs['lp_expNz'],w=w_exp,s=s_exp,a=a_exp,c=c_exp,l=l_exp+tv)
+#         self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
+#                       [int(probs['lp_mmlNz'])]*(self.last_key.r+2),
+#                       label=r'MMLE $\vec{\theta}$',
+#                       color='k',linewidth=2,linestyle=':')
+            self.plotone(probs['lp_mmlNz'],w=w_mml,s=s_mml,a=a_mml,c=c_mml,l=l_mml+tv)#r'MMLE $\vec{\theta}$',w=2.,s=':')
 #         self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
 #                       [int(probs['lp_truNz'])]*(self.last_key.r+2),
 #                       label=r'Sampled $\vec{\theta}$',
 #                       color='k',linewidth=1,linestyle='-')
+#           self.plotone(probs['lp_intNz'],w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+tv
 
         self.sps.legend(fontsize='xx-small', loc='upper right')
         self.sps.set_xlim(-1*self.meta.miniters,(self.last_key.r+2)*self.meta.miniters)
@@ -350,81 +381,81 @@ class plotter_probs(plotter):
 
         timesaver(self.meta,'probs-done',key)
 
-    def plot_llr(self):
-        with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
-            both = cpkl.load(statboth)
-        with open(os.path.join(self.meta.topdir,'stat_chains.p'),'rb') as statchains:
-            gofs = cpkl.load(statchains)#self.meta.key.load_stats(self.meta.topdir,'chains',self.last_key.r+1)[0]
+#     def plot_llr(self):
+#         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
+#             both = cpkl.load(statboth)
+#         with open(os.path.join(self.meta.topdir,'stat_chains.p'),'rb') as statchains:
+#             gofs = cpkl.load(statchains)#self.meta.key.load_stats(self.meta.topdir,'chains',self.last_key.r+1)[0]
 
-        f = plt.figure(figsize=(5,5))
-        f.suptitle(self.meta.name)
+#         f = plt.figure(figsize=(5,5))
+#         f.suptitle(self.meta.name)
 
-        sps = f.add_subplot(1,1,1)#[f.add_subplot(1,2,l+1) for l in xrange(0,2)]
+#         sps = f.add_subplot(1,1,1)#[f.add_subplot(1,2,l+1) for l in xrange(0,2)]
 
-#         alldata = np.concatenate((both['llr_stkNz'],both['llr_mapNz'],both['llr_mmlNz']))
-#         min_llr = np.min(alldata)
-#         max_llr = np.max(alldata)
-#         datarange = np.linspace(min_llr,max_llr,10*self.meta.nwalkers)[:, np.newaxis]
-#         kde_stkNz = sklearn.neighbors.KernelDensity(kernel='gaussian',bandwidth=30.).fit(both['llr_stkNz'][:, np.newaxis])
-#         plot_stkNz = kde_stkNz.score_samples(datarange)
-#         kde_mapNz = sklearn.neighbors.KernelDensity(kernel='gaussian',bandwidth=30.).fit(both['llr_mapNz'][:, np.newaxis])
-#         plot_mapNz = kde_mapNz.score_samples(datarange)
-# #         kde_expNz = sklearn.neighbors.KernelDensity(kernel='gaussian',bandwidth=30.).fit(both['llr_expNz'][:, np.newaxis])
-# #         plot_expNz = kde_expNz.score_samples(datarange)
-#         kde_mmlNz = sklearn.neighbors.KernelDensity(kernel='gaussian',bandwidth=30.).fit(both['llr_mmlNz'][:, np.newaxis])
-#         plot_mmlNz = kde_mmlNz.score_samples(datarange)
+# #         alldata = np.concatenate((both['llr_stkNz'],both['llr_mapNz'],both['llr_mmlNz']))
+# #         min_llr = np.min(alldata)
+# #         max_llr = np.max(alldata)
+# #         datarange = np.linspace(min_llr,max_llr,10*self.meta.nwalkers)[:, np.newaxis]
+# #         kde_stkNz = sklearn.neighbors.KernelDensity(kernel='gaussian',bandwidth=30.).fit(both['llr_stkNz'][:, np.newaxis])
+# #         plot_stkNz = kde_stkNz.score_samples(datarange)
+# #         kde_mapNz = sklearn.neighbors.KernelDensity(kernel='gaussian',bandwidth=30.).fit(both['llr_mapNz'][:, np.newaxis])
+# #         plot_mapNz = kde_mapNz.score_samples(datarange)
+# # #         kde_expNz = sklearn.neighbors.KernelDensity(kernel='gaussian',bandwidth=30.).fit(both['llr_expNz'][:, np.newaxis])
+# # #         plot_expNz = kde_expNz.score_samples(datarange)
+# #         kde_mmlNz = sklearn.neighbors.KernelDensity(kernel='gaussian',bandwidth=30.).fit(both['llr_mmlNz'][:, np.newaxis])
+# #         plot_mmlNz = kde_mmlNz.score_samples(datarange)
 
-#         sps[0].set_title('Log Likelihood Ratio')
-#         sps[0].semilogy()
-#         sps[0].plot(datarange[:,0],np.exp(plot_stkNz),color='k',linestyle='--',label=r'Stacked $R$, $\max(R)='+str(round(np.max(both['llr_stkNz']),3))+r'$')
-#         sps[0].plot(datarange[:,0],np.exp(plot_mapNz),color='k',linestyle='-.',label=r'MAP $R$, $\max(R)='+str(round(np.max(both['llr_mapNz']),3))+r'$')
-# #         sps[0].plot(datarange[:,0],np.exp(plot_expNz),color='k',linestyle=':',label=r'$N(E[z])$ $R$, $\max(R)='+str(round(np.max(both['llr_expNz']),3))+r'$')
-#         sps[0].plot(datarange[:,0],np.exp(plot_mmlNz),color='k',linestyle=':',label=r'MMLE $R$, $\max(R)='+str(round(np.max(both['llr_mmlNz']),3))+r'$')
-#         sps[0].legend(fontsize='xx-small', loc='upper left')
-#         sps[0].set_ylim(1e-10,1)
-#         sps[0].set_xlabel('log likelihood ratio')
-#         sps[0].set_ylabel('kernel density estimate')
+# #         sps[0].set_title('Log Likelihood Ratio')
+# #         sps[0].semilogy()
+# #         sps[0].plot(datarange[:,0],np.exp(plot_stkNz),color='k',linestyle='--',label=r'Stacked $R$, $\max(R)='+str(round(np.max(both['llr_stkNz']),3))+r'$')
+# #         sps[0].plot(datarange[:,0],np.exp(plot_mapNz),color='k',linestyle='-.',label=r'MAP $R$, $\max(R)='+str(round(np.max(both['llr_mapNz']),3))+r'$')
+# # #         sps[0].plot(datarange[:,0],np.exp(plot_expNz),color='k',linestyle=':',label=r'$N(E[z])$ $R$, $\max(R)='+str(round(np.max(both['llr_expNz']),3))+r'$')
+# #         sps[0].plot(datarange[:,0],np.exp(plot_mmlNz),color='k',linestyle=':',label=r'MMLE $R$, $\max(R)='+str(round(np.max(both['llr_mmlNz']),3))+r'$')
+# #         sps[0].legend(fontsize='xx-small', loc='upper left')
+# #         sps[0].set_ylim(1e-10,1)
+# #         sps[0].set_xlabel('log likelihood ratio')
+# #         sps[0].set_ylabel('kernel density estimate')
 
-        alldata = np.concatenate((gofs['kl_smpNzvtruNz'],gofs['kl_truNzvsmpNz']))
-        min_kl = np.min(alldata)
-        max_kl = np.max(alldata)
-        datarange = np.linspace(min_kl,max_kl,10*self.meta.nwalkers)[:, np.newaxis]
-        kde_smpNzvtruNz = skl.neighbors.KernelDensity(kernel='gaussian',bandwidth=1.).fit(gofs['kl_smpNzvtruNz'][:, np.newaxis])
-        plot_smpNzvtruNz = kde_smpNzvtruNz.score_samples(datarange)
-        kde_truNzvsmpNz = skl.neighbors.KernelDensity(kernel='gaussian',bandwidth=1.).fit(gofs['kl_truNzvsmpNz'][:, np.newaxis])
-        plot_truNzvsmpNz = kde_truNzvsmpNz.score_samples(datarange)
+#         alldata = np.concatenate((gofs['kl_smpNzvtruNz'],gofs['kl_truNzvsmpNz']))
+#         min_kl = np.min(alldata)
+#         max_kl = np.max(alldata)
+#         datarange = np.linspace(min_kl,max_kl,10*self.meta.nwalkers)[:, np.newaxis]
+#         kde_smpNzvtruNz = skl.neighbors.KernelDensity(kernel='gaussian',bandwidth=1.).fit(gofs['kl_smpNzvtruNz'][:, np.newaxis])
+#         plot_smpNzvtruNz = kde_smpNzvtruNz.score_samples(datarange)
+#         kde_truNzvsmpNz = skl.neighbors.KernelDensity(kernel='gaussian',bandwidth=1.).fit(gofs['kl_truNzvsmpNz'][:, np.newaxis])
+#         plot_truNzvsmpNz = kde_truNzvsmpNz.score_samples(datarange)
 
-        sps.set_title('Kullback-Leibler Divergence')
-        yrange = np.concatenate((np.exp(plot_smpNzvtruNz),np.exp(plot_truNzvsmpNz)))
+#         sps.set_title('Kullback-Leibler Divergence')
+#         yrange = np.concatenate((np.exp(plot_smpNzvtruNz),np.exp(plot_truNzvsmpNz)))
 
-        sps.vlines(gofs['kl_stkNzvtruNz'],0.,1.,color='k',linestyle='--',label=r'Stacked $KLD=('+str(gofs['kl_stkNzvtruNz'])+','+str(gofs['kl_truNzvstkNz'])+r')$')
-        sps.vlines(gofs['kl_truNzvstkNz'],0.,1.,color='k',linestyle='--')
-        sps.vlines(gofs['kl_mapNzvtruNz'],0.,1.,color='k',linestyle='-.',label=r'MAP $KLD=('+str(gofs['kl_mapNzvtruNz'])+','+str(gofs['kl_truNzvmapNz'])+r')$')
-        sps.vlines(gofs['kl_truNzvmapNz'],0.,1.,color='k',linestyle='-.')
-#         sps[1].vlines(gofs['kl_expNzvtruNz'],0.,1.,color='k',linestyle=':',label=r'$E[z]$ $KLD=('+str(gofs['kl_expNzvtruNz'])+','+str(gofs['kl_truNzvexpNz'])+r')$')
-#         sps[1].vlines(gofs['kl_truNzvexpNz'],0.,1.,color='k',linestyle=':')
-        sps.vlines(gofs['kl_mmlNzvtruNz'],0.,1.,color='k',linestyle=':',label=r'MMLE $KLD=('+str(gofs['kl_mmlNzvtruNz'])+','+str(gofs['kl_truNzvmmlNz'])+r')$')
-        sps.vlines(gofs['kl_truNzvmmlNz'],0.,1.,color='k',linestyle=':')
-        sps.vlines(gofs['kl_intNzvtruNz'],0.,1.,alpha=0.5,color='k',linestyle='-',label=r'Interim $KLD=('+str(gofs['kl_intNzvtruNz'])+','+str(gofs['kl_truNzvintNz'])+r')$')
-        sps.vlines(gofs['kl_truNzvintNz'],0.,1.,alpha=0.5,color='k',linestyle='-')
-        sps.plot(datarange[:,0],np.exp(plot_smpNzvtruNz),color='k',linewidth=2,label=r'Sampled $\min KLD=('+str(np.min(gofs['kl_smpNzvtruNz'].flatten()))+','+str(np.min(gofs['kl_truNzvsmpNz'].flatten()))+r')$')
-        sps.plot(datarange[:,0],np.exp(plot_truNzvsmpNz),color='k',linewidth=2)
-        sps.legend(fontsize='xx-small', loc='upper left')
-        sps.set_xlabel('Kullback-Leibler divergence')
-        sps.set_ylabel('kernel density estimate')
-        sps.semilogx()
+#         sps.vlines(gofs['kl_stkNzvtruNz'],0.,1.,color='k',linestyle='--',label=r'Stacked $KLD=('+str(gofs['kl_stkNzvtruNz'])+','+str(gofs['kl_truNzvstkNz'])+r')$')
+#         sps.vlines(gofs['kl_truNzvstkNz'],0.,1.,color='k',linestyle='--')
+#         sps.vlines(gofs['kl_mapNzvtruNz'],0.,1.,color='k',linestyle='-.',label=r'MAP $KLD=('+str(gofs['kl_mapNzvtruNz'])+','+str(gofs['kl_truNzvmapNz'])+r')$')
+#         sps.vlines(gofs['kl_truNzvmapNz'],0.,1.,color='k',linestyle='-.')
+# #         sps[1].vlines(gofs['kl_expNzvtruNz'],0.,1.,color='k',linestyle=':',label=r'$E[z]$ $KLD=('+str(gofs['kl_expNzvtruNz'])+','+str(gofs['kl_truNzvexpNz'])+r')$')
+# #         sps[1].vlines(gofs['kl_truNzvexpNz'],0.,1.,color='k',linestyle=':')
+#         sps.vlines(gofs['kl_mmlNzvtruNz'],0.,1.,color='k',linestyle=':',label=r'MMLE $KLD=('+str(gofs['kl_mmlNzvtruNz'])+','+str(gofs['kl_truNzvmmlNz'])+r')$')
+#         sps.vlines(gofs['kl_truNzvmmlNz'],0.,1.,color='k',linestyle=':')
+#         sps.vlines(gofs['kl_intNzvtruNz'],0.,1.,alpha=0.5,color='k',linestyle='-',label=r'Interim $KLD=('+str(gofs['kl_intNzvtruNz'])+','+str(gofs['kl_truNzvintNz'])+r')$')
+#         sps.vlines(gofs['kl_truNzvintNz'],0.,1.,alpha=0.5,color='k',linestyle='-')
+#         sps.plot(datarange[:,0],np.exp(plot_smpNzvtruNz),color='k',linewidth=2,label=r'Sampled $\min KLD=('+str(np.min(gofs['kl_smpNzvtruNz'].flatten()))+','+str(np.min(gofs['kl_truNzvsmpNz'].flatten()))+r')$')
+#         sps.plot(datarange[:,0],np.exp(plot_truNzvsmpNz),color='k',linewidth=2)
+#         sps.legend(fontsize='xx-small', loc='upper left')
+#         sps.set_xlabel('Kullback-Leibler divergence')
+#         sps.set_ylabel('kernel density estimate')
+#         sps.semilogx()
 
-        f.savefig(os.path.join(self.meta.topdir,'kld.png'),dpi=100)
+#         f.savefig(os.path.join(self.meta.topdir,'kld.png'),dpi=100)
 
-    def plotone(self,plot_y,ylabel,a=1.,c='k',lw=1.,ls='-'):
-        self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
-                     [plot_y]*(self.last_key.r+2),
-                     color=c,
-                     linewidth=lw,
-                     linestyle=ls,
-                     alpha=a,
-                     label=ylabel)
-        return
+    def plotone(self,plot_y,l=None,a=1.,c='k',w=1.,s='-'):
+#         self.sps.plot(self.meta.miniters*np.arange(0.,self.last_key.r+2),
+#                      [int(plot_y)]*(self.last_key.r+2),
+#                      color=c,
+#                      linewidth=w,
+#                      linestyle=s,
+#                      alpha=a,
+#                      label=l)
+        ploth(self.sps,self.meta.miniters*np.arange(0.,self.last_key.r+2),plot_y,s,c,a,w,l)
 
 # plot full posterior samples
 class plotter_samps(plotter):
@@ -452,25 +483,31 @@ class plotter_samps(plotter):
 
         self.ll_smpNz = []
 
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,style='-',lw=2,lab=r'True $\ln N(z)$')
-#         plotstep(sps_samp,self.meta.binends,self.meta.truNz,style='-',lw=2,lab=r'True $N(z)$')
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logstkNz,style='--',lw=2)
-#         plotstep(sps_samp,self.meta.binends,self.meta.stkNz,style='--',lw=2)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logmapNz,style='-.',lw=2)
-#         plotstep(sps_samp,self.meta.binends,self.meta.mapNz,style='-.',lw=2)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logexpNz,style=':',lw=2,lab=r'$\ln N(E(z))$'+logexplabel)
-#         plotstep(sps_samp,self.meta.binends,self.meta.expNz,style=':',lw=2,lab=r'$N(E(z))$'+explabel)
-        plotstep(sps_samp_log,self.meta.binends,self.meta.logmmlNz,style=':',lw=2)
-        plotstep(sps_samp,self.meta.binends,self.meta.mmlNz,style=':',lw=2)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logintNz,style='-',a=0.5,lw=1)
-#         plotstep(sps_samp,self.meta.binends,self.meta.intNz,style='-',a=0.5,lw=1)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,style='-',lw=0.5)
-#         plotstep(sps_samp,self.meta.binends,self.meta.truNz,style='-',lw=0.5)
+#         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,s='-',w=2,l=r'True $\ln N(z)$')
+#         plotstep(sps_samp,self.meta.binends,self.meta.truNz,s='-',w=2,l=r'True $N(z)$')
+#         self.plotone(self.meta.logtruNz,self.meta.truNz,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru)
+#         plotstep(sps_samp_log,self.meta.binends,self.meta.logstkNz,s='--',w=2)
+#         plotstep(sps_samp,self.meta.binends,self.meta.stkNz,s='--',w=2)
+        self.plotone(self.meta.logstkNz,self.meta.stkNz,w=w_stk,s=s_stk,a=a_stk,c=c_stk,l=l_stk)
+#         plotstep(sps_samp_log,self.meta.binends,self.meta.logmapNz,s='-.',w=2)
+#         plotstep(sps_samp,self.meta.binends,self.meta.mapNz,s='-.',w=2)
+#         self.plotone(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,l=l_map)
+#         plotstep(sps_samp_log,self.meta.binends,self.meta.logexpNz,s=':',w=2,l=r'$\ln N(E(z))$'+logexplabel)
+#         plotstep(sps_samp,self.meta.binends,self.meta.expNz,s=':',w=2,l=r'$N(E(z))$'+explabel)
+#         self.plotone(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,l=l_exp)
+#         plotstep(sps_samp_log,self.meta.binends,self.meta.logmmlNz,s=':',w=2)
+#         plotstep(sps_samp,self.meta.binends,self.meta.mmlNz,s=':',w=2)
+        self.plotone(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,l=l_mml)
+#         plotstep(sps_samp_log,self.meta.binends,self.meta.logintNz,s='-',a=0.5,w=1)
+#         plotstep(sps_samp,self.meta.binends,self.meta.intNz,s='-',a=0.5,w=1)
+        self.plotone(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int)
+#         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,s='-',w=0.5)
+#         plotstep(sps_samp,self.meta.binends,self.meta.truNz,s='-',w=0.5)
         if self.meta.logtruNz is not None:
-            plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,lw=2.,style='-')
-            plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,lw=2.,style='-')
-#             plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,style='-',lw=2)
-#             plotstep(sps_samp,self.meta.binends,self.meta.truNz,style='-',lw=2)
+            plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+lnz)
+            plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+nz)
+#             plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,s='-',w=2)
+#             plotstep(sps_samp,self.meta.binends,self.meta.truNz,s='-',w=2)
 
     def plot(self,key):
 
@@ -490,8 +527,9 @@ class plotter_samps(plotter):
 
         for w in randwalks:
             for x in randsteps:
-                plotstep(sps_samp_log,self.meta.binends,plot_y_ls[x][w],a=self.a_samp,col=self.meta.colors[key.r%self.ncolors])
-                plotstep(sps_samp,self.meta.binends,plot_y_s[x][w],a=self.a_samp,col=self.meta.colors[key.r%self.ncolors])
+                plotstep(sps_samp_log,self.meta.binends,plot_y_ls[x][w],s=s_smp,w=w_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
+                plotstep(sps_samp,self.meta.binends,plot_y_s[x][w],s=s_smp,w=w_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
+#                 self.plotone(plot_y_ls[x][w],plot_y_s[x][w],w=w_smp,s=s_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
 #                 self.sps_samps[0].step(self.meta.binlos,plot_y_ls[x][w],color=self.meta.colors[key.r%self.ncolors],alpha=self.a_samp,rasterized=True)#,label=str(self.meta.miniters*(key.r+1)))
 #                 self.sps_samps[1].step(self.meta.binlos,plot_y_s[x][w],color=self.meta.colors[key.r%self.ncolors],alpha=self.a_samp,rasterized=True)#,label=str(self.meta.miniters*(key.r+1)))
 #                 self.sps_samps[0].hlines(plot_y_ls[x][w],
@@ -510,8 +548,8 @@ class plotter_samps(plotter):
         for k in xrange(self.meta.nbins):
             y_all = plot_y_ls.T[k].flatten()
             loc,scale = sp.stats.norm.fit_loc_scale(y_all)
-            sps_samp_log.fill_between([self.meta.binends[k],self.meta.binends[k+1]],loc-scale,loc+scale,color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
-            sps_samp.fill_between([self.meta.binends[k],self.meta.binends[k+1]],np.exp(loc-scale),np.exp(loc+scale),color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
+#             sps_samp_log.fill_between([self.meta.binends[k],self.meta.binends[k+1]],loc-scale,loc+scale,color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
+#             sps_samp.fill_between([self.meta.binends[k],self.meta.binends[k+1]],np.exp(loc-scale),np.exp(loc+scale),color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
 
         self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),dpi=100)
 
@@ -529,87 +567,87 @@ class plotter_samps(plotter):
             both = cpkl.load(statboth)
 
 #         for v in lrange(both['mapvals']):
-#             plotstep(sps_samp_log,self.meta.binends,both['mapvals'][v],lw=2,col=self.meta.colors[v%self.ncolors])
-#             plotstep(sps_samp,self.meta.binends,np.exp(both['mapvals'][v]),lw=2,col=self.meta.colors[v%self.ncolors])
+#             plotstep(sps_samp_log,self.meta.binends,both['mapvals'][v],w=2,c=self.meta.colors[v%self.ncolors])
+#             plotstep(sps_samp,self.meta.binends,np.exp(both['mapvals'][v]),w=2,c=self.meta.colors[v%self.ncolors])
 
-        if self.meta.logtruNz is not None:
-# #             #llr_stkNzprep = str(int(gof['llr_stkNz']))
-# #             logstkNzprep_v = str(int(gofs['vslogstkNz']))
-# #             logstkNzprep_c = str(int(gofs['cslogstkNz']))
-# #             #lr_stkNzprep = str(int(np.log10(np.exp(gof['llr_stkNz']))))
-# #             stkNzprep_v = str(int(gofs['vsstkNz']))
-# #             stkNzprep_c = str(int(gofs['csstkNz']))
-#             logstklabel = r'; $\ln \mathcal{L}='+str(round(both['ll_stkNz']))+r'$'#r'; $\sigma^{2}=$'+logstkNzprep_v+r'; $\chi^{2}=$'+logstkNzprep_c#+r'; $\ln(r)=$'+llr_stkNzprep
-#             stklabel = r'; $KLD=('+str(gofs['kl_stkNzvtruNz'])+','+str(gofs['kl_truNzvstkNz'])+r')$'#r'; $\sigma^{2}=$'+stkNzprep_v+r'; $\chi^{2}=$'+stkNzprep_c#+r'; $\log(r)=$'+lr_stkNzprep
+#         if self.meta.logtruNz is not None:
+# # #             #llr_stkNzprep = str(int(gof['llr_stkNz']))
+# # #             logstkNzprep_v = str(int(gofs['vslogstkNz']))
+# # #             logstkNzprep_c = str(int(gofs['cslogstkNz']))
+# # #             #lr_stkNzprep = str(int(np.log10(np.exp(gof['llr_stkNz']))))
+# # #             stkNzprep_v = str(int(gofs['vsstkNz']))
+# # #             stkNzprep_c = str(int(gofs['csstkNz']))
+# #             logstklabel = r'; $\ln \mathcal{L}='+str(round(both['ll_stkNz']))+r'$'#r'; $\sigma^{2}=$'+logstkNzprep_v+r'; $\chi^{2}=$'+logstkNzprep_c#+r'; $\ln(r)=$'+llr_stkNzprep
+# #             stklabel = r'; $KLD=('+str(gofs['kl_stkNzvtruNz'])+','+str(gofs['kl_truNzvstkNz'])+r')$'#r'; $\sigma^{2}=$'+stkNzprep_v+r'; $\chi^{2}=$'+stkNzprep_c#+r'; $\log(r)=$'+lr_stkNzprep
 
-# #             #llr_mapNzprep = str(int(gof['llr_mapNz']))
-# #             logmapNzprep_v = str(int(gofs['vslogmapNz']))
-# #             logmapNzprep_c = str(int(gofs['cslogmapNz']))
-# #             #lr_mapNzprep = str(int(np.log10(np.exp(gof['llr_mapNz']))))
-# #             mapNzprep_v = str(int(gofs['vsmapNz']))
-# #             mapNzprep_c = str(int(gofs['csmapNz']))
-#             logmaplabel = r'; $\ln \mathcal{L}='+str(round(both['ll_mapNz']))+r'$'#r'; $\sigma^{2}=$'+logmapNzprep_v+r'; $\chi^{2}=$'+logmapNzprep_c#+r'; $\ln(r)=$'+llr_mapNzprep
-#             maplabel = r'; $KLD=('+str(gofs['kl_mapNzvtruNz'])+','+str(gofs['kl_truNzvmapNz'])+r')$'#r'; $\sigma^{2}=$'+mapNzprep_v+r'; $\chi^{2}=$'+mapNzprep_c#+r'; $\log(r)=$'+lr_mapNzprep
+# # #             #llr_mapNzprep = str(int(gof['llr_mapNz']))
+# # #             logmapNzprep_v = str(int(gofs['vslogmapNz']))
+# # #             logmapNzprep_c = str(int(gofs['cslogmapNz']))
+# # #             #lr_mapNzprep = str(int(np.log10(np.exp(gof['llr_mapNz']))))
+# # #             mapNzprep_v = str(int(gofs['vsmapNz']))
+# # #             mapNzprep_c = str(int(gofs['csmapNz']))
+# #             logmaplabel = r'; $\ln \mathcal{L}='+str(round(both['ll_mapNz']))+r'$'#r'; $\sigma^{2}=$'+logmapNzprep_v+r'; $\chi^{2}=$'+logmapNzprep_c#+r'; $\ln(r)=$'+llr_mapNzprep
+# #             maplabel = r'; $KLD=('+str(gofs['kl_mapNzvtruNz'])+','+str(gofs['kl_truNzvmapNz'])+r')$'#r'; $\sigma^{2}=$'+mapNzprep_v+r'; $\chi^{2}=$'+mapNzprep_c#+r'; $\log(r)=$'+lr_mapNzprep
 
-# # #             #llr_expNzprep = str(int(gof['llr_expNz']))
-# # #             logexpNzprep_v = str(int(gofs['vslogexpNz']))
-# # #             logexpNzprep_c = str(int(gofs['cslogexpNz']))
-# # #             #lr_expNzprep = str(int(np.log10(np.exp(gof['llr_expNz']))))
-# # #             expNzprep_v = str(int(gofs['vsexpNz']))
-# # #             expNzprep_c = str(int(gofs['csexpNz']))
-# #             logexplabel = r'; $\ln \mathcal{L}='+str(both['ll_expNz'])+r'$'#r'; $\sigma^{2}=$'+logexpNzprep_v+r'; $\chi^{2}=$'+logexpNzprep_c#+r'; $\ln(r)=$'+llr_expNzprep
-# #             explabel = r'; $KLD=('+str(gofs['kl_expNzvtruNz'])+','+str(gofs['kl_truNzvexpNz'])+r')$'#r'; $\sigma^{2}=$'+expNzprep_v+r'; $\chi^{2}=$'+expNzprep_c#+r'; $\log(r)=$'+lr_expNzprep
+# # # #             #llr_expNzprep = str(int(gof['llr_expNz']))
+# # # #             logexpNzprep_v = str(int(gofs['vslogexpNz']))
+# # # #             logexpNzprep_c = str(int(gofs['cslogexpNz']))
+# # # #             #lr_expNzprep = str(int(np.log10(np.exp(gof['llr_expNz']))))
+# # # #             expNzprep_v = str(int(gofs['vsexpNz']))
+# # # #             expNzprep_c = str(int(gofs['csexpNz']))
+# # #             logexplabel = r'; $\ln \mathcal{L}='+str(both['ll_expNz'])+r'$'#r'; $\sigma^{2}=$'+logexpNzprep_v+r'; $\chi^{2}=$'+logexpNzprep_c#+r'; $\ln(r)=$'+llr_expNzprep
+# # #             explabel = r'; $KLD=('+str(gofs['kl_expNzvtruNz'])+','+str(gofs['kl_truNzvexpNz'])+r')$'#r'; $\sigma^{2}=$'+expNzprep_v+r'; $\chi^{2}=$'+expNzprep_c#+r'; $\log(r)=$'+lr_expNzprep
 
-#             #llr_smpNzprep = str(int(np.average(self.ll_smpNz)))
-#             logsmpNzprep_v = str(int(min(gofs['var_ls'])))#/(self.last_key.r+1.)
-#             logsmpNzprep_c = str(int(min(gofs['chi_ls'])))#/(self.last_key.r+1.)
-#             #lr_smpNzprep = str(int(np.log10(np.exp(np.average(self.ll_smpNz)))))
-#             smpNzprep_v = str(int(min(gofs['var_s'])))#/(self.last_key.r+1.)
-#             smpNzprep_c = str(int(min(gofs['chi_s'])))#/(self.last_key.r+1.)
-            logsmplabel = r'; $\max\ln \mathcal{L}='+str(round(max(both['ll_smpNz'])))+r'$'#r'; $\sigma^{2}=$'+logsmpNzprep_v+r'; $\chi^{2}=$'+logsmpNzprep_c#+r'; $\ln(r)=$'+llr_smpNzprep#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
-            smplabel = r'; $\min KLD=('+str(min(gofs['kl_smpNzvtruNz']))+','+str(min(gofs['kl_truNzvsmpNz']))+r')$'#r'; $\sigma^{2}=$'+smpNzprep_v+r'; $\chi^{2}=$'+smpNzprep_c#+r'; $\log(r)=$'+lr_smpNzprep#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
+# #             #llr_smpNzprep = str(int(np.average(self.ll_smpNz)))
+# #             logsmpNzprep_v = str(int(min(gofs['var_ls'])))#/(self.last_key.r+1.)
+# #             logsmpNzprep_c = str(int(min(gofs['chi_ls'])))#/(self.last_key.r+1.)
+# #             #lr_smpNzprep = str(int(np.log10(np.exp(np.average(self.ll_smpNz)))))
+# #             smpNzprep_v = str(int(min(gofs['var_s'])))#/(self.last_key.r+1.)
+# #             smpNzprep_c = str(int(min(gofs['chi_s'])))#/(self.last_key.r+1.)
+#             logsmplabel = r'; $\max\ln \mathcal{L}='+str(round(max(both['ll_smpNz'])))+r'$'#r'; $\sigma^{2}=$'+logsmpNzprep_v+r'; $\chi^{2}=$'+logsmpNzprep_c#+r'; $\ln(r)=$'+llr_smpNzprep#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
+#             smplabel = r'; $\min KLD=('+str(min(gofs['kl_smpNzvtruNz']))+','+str(min(gofs['kl_truNzvsmpNz']))+r')$'#r'; $\sigma^{2}=$'+smpNzprep_v+r'; $\chi^{2}=$'+smpNzprep_c#+r'; $\log(r)=$'+lr_smpNzprep#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
 
-            logintlabel = r'; $\ln \mathcal{L}='+str(round(both['ll_intNz']))+r'$'
-            intlabel = r'; $KLD=('+str(gofs['kl_intNzvtruNz'])+','+str(gofs['kl_truNzvintNz'])+r')$'
+#             logintlabel = r'; $\ln \mathcal{L}='+str(round(both['ll_intNz']))+r'$'
+#             intlabel = r'; $KLD=('+str(gofs['kl_intNzvtruNz'])+','+str(gofs['kl_truNzvintNz'])+r')$'
 
-            logmmllabel = r'; $\ln \mathcal{L}='+str(round(both['ll_mmlNz']))+r'$'
-            mmllabel = r'; $KLD=('+str(gofs['kl_mmlNzvtruNz'])+','+str(gofs['kl_truNzvmmlNz'])+r')$'
+#             logmmllabel = r'; $\ln \mathcal{L}='+str(round(both['ll_mmlNz']))+r'$'
+#             mmllabel = r'; $KLD=('+str(gofs['kl_mmlNzvtruNz'])+','+str(gofs['kl_truNzvmmlNz'])+r')$'
 
-        else:
-#             logstklabel = ' '
-#             stklabel = ' '
-#             logmaplabel = ' '
-#             maplabel = ' '
-# #             logexplabel = ' '
-# #             explabel = ' '
-            logintlabel = ' '
-            intlabel = ' '
-            logmmllabel = ' '
-            mmllabel = ' '
-            logsmplabel = ' '#r' $\sigma^{2}=$'+str(int(min(gofs['var_ls'])))#gofs['tot_var_ls']/(self.last_key.r+1.)))
-            smplabel = ' '#r' $\sigma^{2}=$'+str(int(min(gofs['var_ls'])))#gofs['tot_var_s']/(self.last_key.r+1.)))
-            self.meta.logtruNz = [-1.]*self.meta.nbins
-            self.meta.truNz = [-1.]*self.meta.nbins
+#         else:
+# #             logstklabel = ' '
+# #             stklabel = ' '
+# #             logmaplabel = ' '
+# #             maplabel = ' '
+# # #             logexplabel = ' '
+# # #             explabel = ' '
+#             logintlabel = ' '
+#             intlabel = ' '
+#             logmmllabel = ' '
+#             mmllabel = ' '
+#             logsmplabel = ' '#r' $\sigma^{2}=$'+str(int(min(gofs['var_ls'])))#gofs['tot_var_ls']/(self.last_key.r+1.)))
+#             smplabel = ' '#r' $\sigma^{2}=$'+str(int(min(gofs['var_ls'])))#gofs['tot_var_s']/(self.last_key.r+1.)))
+#             self.meta.logtruNz = [-1.]*self.meta.nbins
+#             self.meta.truNz = [-1.]*self.meta.nbins
 
-        if self.meta.logtruNz is not None:
-            plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,lw=2.,style='-',lab=r'True $\ln N(z)$')
-            plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,lw=2.,style='-',lab=r'True $N(z)$')
-#             plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,style='-',lw=2)
-#             plotstep(sps_samp,self.meta.binends,self.meta.truNz,style='-',lw=2)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,style='-',lw=2,lab=r'True $\ln N(z)$')
-#         plotstep(sps_samp,self.meta.binends,self.meta.truNz,style='-',lw=2,lab=r'True $N(z)$')
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logstkNz,style='--',lw=2,lab=r'Stacked $\ln N(z)$'+logstklabel)
-#         plotstep(sps_samp,self.meta.binends,self.meta.stkNz,style='--',lw=2,lab=r'Stacked $N(z)$'+stklabel)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logmapNz,style='-.',lw=2,lab=r'MAP $\ln N(z)$'+logmaplabel)
-#         plotstep(sps_samp,self.meta.binends,self.meta.mapNz,style='-.',lw=2,lab=r'MAP $N(z)$'+maplabel)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logexpNz,style=':',lw=2,lab=r'$\ln N(E(z))$'+logexplabel)
-#         plotstep(sps_samp,self.meta.binends,self.meta.expNz,style=':',lw=2,lab=r'$N(E(z))$'+explabel)
-        plotstep(sps_samp_log,self.meta.binends,self.meta.logmmlNz,style=':',lw=2,lab=r'MMLE $\ln N(z)$'+logmmllabel)
-        plotstep(sps_samp,self.meta.binends,self.meta.mmlNz,style=':',lw=2,lab=r'MMLE $N(z)$'+mmllabel)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logintNz,style='-',a=0.5,lw=1,lab=r'Interim $\ln N(z)$'+logintlabel)
-#         plotstep(sps_samp,self.meta.binends,self.meta.intNz,style='-',a=0.5,lw=1,lab=r'Interim $N(z)$'+intlabel)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,style='-',lw=0.5,lab=r'Sampled $\ln N(z)$'+logsmplabel)
-#         plotstep(sps_samp,self.meta.binends,self.meta.truNz,style='-',lw=0.5,lab=r'Sampled $N(z)$'+smplabel)
+#         if self.meta.logtruNz is not None:
+#             plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,w=2.,s='-',l=r'True $\ln N(z)$')
+#             plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,w=2.,s='-',l=r'True $N(z)$')
+# #             plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,s='-',w=2)
+# #             plotstep(sps_samp,self.meta.binends,self.meta.truNz,s='-',w=2)
+# #         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,s='-',w=2,l=r'True $\ln N(z)$')
+# #         plotstep(sps_samp,self.meta.binends,self.meta.truNz,s='-',w=2,l=r'True $N(z)$')
+# #         plotstep(sps_samp_log,self.meta.binends,self.meta.logstkNz,s='--',w=2,l=r'Stacked $\ln N(z)$'+logstklabel)
+# #         plotstep(sps_samp,self.meta.binends,self.meta.stkNz,s='--',w=2,l=r'Stacked $N(z)$'+stklabel)
+# #         plotstep(sps_samp_log,self.meta.binends,self.meta.logmapNz,s='-.',w=2,l=r'MAP $\ln N(z)$'+logmaplabel)
+# #         plotstep(sps_samp,self.meta.binends,self.meta.mapNz,s='-.',w=2,l=r'MAP $N(z)$'+maplabel)
+# #         plotstep(sps_samp_log,self.meta.binends,self.meta.logexpNz,s=':',w=2,l=r'$\ln N(E(z))$'+logexplabel)
+# #         plotstep(sps_samp,self.meta.binends,self.meta.expNz,s=':',w=2,l=r'$N(E(z))$'+explabel)
+#         plotstep(sps_samp_log,self.meta.binends,self.meta.logmmlNz,s=':',w=2,l=r'MMLE $\ln N(z)$'+logmmllabel)
+#         plotstep(sps_samp,self.meta.binends,self.meta.mmlNz,s=':',w=2,l=r'MMLE $N(z)$'+mmllabel)
+# #         plotstep(sps_samp_log,self.meta.binends,self.meta.logintNz,s='-',a=0.5,w=1,l=r'Interim $\ln N(z)$'+logintlabel)
+# #         plotstep(sps_samp,self.meta.binends,self.meta.intNz,s='-',a=0.5,w=1,l=r'Interim $N(z)$'+intlabel)
+# #         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,s='-',w=0.5,l=r'Sampled $\ln N(z)$'+logsmplabel)
+# #         plotstep(sps_samp,self.meta.binends,self.meta.truNz,s='-',w=0.5,l=r'Sampled $N(z)$'+smplabel)
 
 #         self.plotone(sps_samp_log,self.meta.logmml,'-',3,r'MMLE $\ln N(z)$')
 #         self.plotone(sps_samp,self.meta.mml,'-',3,r'MMLE $N(z)$')
@@ -626,11 +664,12 @@ class plotter_samps(plotter):
             scales.append(scale)
 #             sps_samp_log.hlines(loc,self.meta.binends[k],self.meta.binends[k+1],color='k',linestyle='--',linewidth=2.)
 #             sps_samp.hlines(np.exp(loc),self.meta.binends[k],self.meta.binends[k+1],color='k',linestyle='--',linewidth=2.)
-            sps_samp_log.fill_between([self.meta.binends[k],self.meta.binends[k+1]],loc-scale,loc+scale,color='k',alpha=0.1)
-            sps_samp.fill_between([self.meta.binends[k],self.meta.binends[k+1]],np.exp(loc-scale),np.exp(loc+scale),color='k',alpha=0.1)
+            sps_samp_log.fill_between([self.meta.binends[k],self.meta.binends[k+1]],loc-scale,loc+scale,color='k',alpha=0.1,linewidth=0.)
+            sps_samp.fill_between([self.meta.binends[k],self.meta.binends[k+1]],np.exp(loc-scale),np.exp(loc+scale),color='k',alpha=0.1,linewidth=0.)
         loc = np.array(locs)
-        plotstep(sps_samp_log,self.meta.binends,locs,style='--',lw=2,lab=r'Best Fit $\ln N(z)$')
-        plotstep(sps_samp,self.meta.binends,np.exp(locs),style='--',lw=2,lab=r'Best Fit $N(z)$')
+        self.plotone(locs,np.exp(locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,l=l_bfe)
+#         plotstep(sps_samp_log,self.meta.binends,locs,s='--',w=2,l=r'Best Fit $\ln N(z)$')
+#         plotstep(sps_samp,self.meta.binends,np.exp(locs),s='--',w=2,l=r'Best Fit $N(z)$')
 
         sps_samp_log.legend(fontsize='xx-small', loc='lower right')
         sps_samp.legend(fontsize='xx-small', loc='upper left')
@@ -638,6 +677,12 @@ class plotter_samps(plotter):
         self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),dpi=100)
 
         timesaver(self.meta,'samps-done',key)
+
+    def plotone(self,logy,y,w=1.,s='-',a=1.,c='k',l=' '):
+        sps_samp_log = self.sps_samps[0]
+        sps_samp = self.sps_samps[1]
+        plotstep(sps_samp_log,self.meta.binends,logy,w=w,s=s,a=a,c=c,l=l+lnz)
+        plotstep(sps_samp,self.meta.binends,y,w=w,s=s,a=a,c=c,l=l+nz)
 
 #plot full posterior chain evolution
 class plotter_chains(plotter):
@@ -665,12 +710,20 @@ class plotter_chains(plotter):
             sps_pdf.set_xlabel(r'$\theta_{'+str(k+1)+r'}$')
             sps_pdf.set_ylabel('kernel density estimate')
             sps_pdf.set_title(r'Distribution of $\theta_{'+str(k+1)+r'}$ Values')
-#             sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle='--',lw=2.)
-#             sps_pdf.vlines(self.meta.logmapNz[k],0.,1.,linestyle='-.',lw=2.)
-# #             sps_pdf.vlines(self.meta.logexpNz[k],0.,1.,linestyle=':',lw=2.,label=r'$E(z)$ value')
-            sps_pdf.vlines(self.meta.logmmlNz[k],0.,1.,linestyle=':',lw=2.)
+#             self.yrange = [-1.,0.,1.,2.]
+            sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle=s_stk,linewidth=w_stk,color=c_stk,alpha=a_stk,label=l_stk+t+r'$_{k}$')
+#             plotv(sps_pdf,self.meta.logstkNz[k],yrange,s=s_stk,w=w_stk,c=c_stk,a=a_stk,l=l_stk+t+r'$_{k}$')
+#             sps_pdf.vlines(self.meta.logmapNz[k],0.,1.,linestyle='-.',w=2.)
+#           plotv(sps_pdf,self.meta.logmapNz[k],yrange,s=s_map,w=w_map,c=c_map,a=a_map,l=l_map+t+r'$_{k}$')
+# #             sps_pdf.vlines(self.meta.logexpNz[k],0.,1.,linestyle=':',w=2.,label=r'$E(z)$ value')
+# #             plotv(sps_pdf,self.meta.logexpNz[k],yrange,s=s_exp,w=w_exp,c=c_exp,a=a_exp,l=l_exp+t+r'$_{k}$')
+            sps_pdf.vlines(self.meta.logmmlNz[k],0.,1.,linestyle=s_mml,linewidth=w_mml,color=c_mml,alpha=a_mml,label=l_mml+t+r'$_{k}$')
+#             plotv(sps_pdf,self.meta.logmmlNz[k],yrange,s=s_mml,w=w_mml,c=c_mml,a=a_mml,l=l_mml+t+r'$_{k}$')
+            sps_pdf.vlines(self.meta.logintNz[k],0.,1.,linestyle=s_int,linewidth=w_int,color=c_int,alpha=a_int,label=l_int+t+r'$_{k}$')
+#             plotv(sps_pdf,self.meta.logintNz[k],yrange,s=s_int,w=w_int,c=c_int,a=a_int,l=l_int+t+r'$_{k}$')
             if self.meta.logtruNz is not None:
-                sps_pdf.vlines(self.meta.logtruNz[k],0.,1.,linestyle='-',lw=2.,label='True value')
+                sps_pdf.vlines(self.meta.logtruNz[k],0.,1.,linestyle=s_tru,linewidth=w_tru,color=c_tru,alpha=a_tru,label=l_tru+t+r'$_{k}$')
+#                 plotv(sps_pdf,self.meta.logtruNz[k],yrange,s=s_tru,w=w_tru,c=c_tru,a=a_tru,l=l_tru+t+r'$_{k}$')
 
     def plot(self,key):
 
@@ -679,7 +732,6 @@ class plotter_chains(plotter):
         plot_y_c = np.swapaxes(data,0,1).T
 
         randsteps = xrange(self.meta.ntimes)#random.sample(xrange(self.meta.ntimes),self.meta.ncolors)
-
 
         for k in xrange(self.meta.nbins):
             sps_pdf = self.sps_pdfs[k]
@@ -704,7 +756,8 @@ class plotter_chains(plotter):
                                             rasterized = True)
 
             loc,scale = sp.stats.norm.fit_loc_scale(x_all)
-            sps_pdf.vlines(loc,0.,1.,color=self.meta.colors[key.r%self.ncolors],linestyle='--')
+            sps_pdf.vlines(loc,0.,1.,color=self.meta.colors[key.r%self.ncolors],linestyle=s_smp,linewidth=w_smp,alpha=a_smp)
+#             plotv(sps_pdf,yrange,loc,s=s_smp,w=w_smp,c=self.meta.colors[key.r%self.ncolors],a=a_chain)
 #             sps_pdf.axvspan(loc-scale,loc+scale,color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
 
         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
@@ -717,12 +770,12 @@ class plotter_chains(plotter):
 
         timesaver(self.meta,'chains',key)
 
-    def plotone(self,subplot,plot_x,plot_y,style,ylabel,a=1.):
+    def plotone(self,subplot,plot_x,plot_y,s,ylabel,a=1.):
         subplot.plot(plot_x,
                      plot_y,
                      color='k',
                      linewidth=2,
-                     linestyle=style,
+                     linestyle=s,
                      alpha=a,
                      label=ylabel)
         return
@@ -746,20 +799,24 @@ class plotter_chains(plotter):
 # #             self.plotone(sps_chain,maxiternos*self.meta.miniters,[self.meta.logexpNz[k]]*maxsteps,':',r'$E(z)$ value')
             self.plotone(sps_chain,maxiternos*self.meta.miniters,[self.meta.logmmlNz[k]]*maxsteps,':','MMLE value')
 
-            if self.meta.logtruNz is not None:
-                self.plotone(sps_chain,maxiternos*self.meta.miniters,[self.meta.logtruNz[k]]*maxsteps,'-','True value')
+#             if self.meta.logtruNz is not None:
+#                 self.plotone(sps_chain,maxiternos*self.meta.miniters,[self.meta.logtruNz[k]]*maxsteps,'-','True value')
 
             sps_pdf = self.sps_pdfs[k]
-            if self.meta.logtruNz is not None:
-                sps_pdf.vlines(self.meta.logtruNz[k],0.,1.,linestyle='-',lw=2.,label='True value')
-#             sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle='--',lw=2.,label='Stacked value')
-#             sps_pdf.vlines(self.meta.logmapNz[k],0.,1.,linestyle='-.',lw=2.,label='MAP value')
-# #             sps_pdf.vlines(self.meta.logexpNz[k],0.,1.,linestyle=':',lw=2.,label=r'$E(z)$ value')
-            sps_pdf.vlines(self.meta.logmmlNz[k],0.,1.,linestyle=':',lw=2.,label='MMLE value')
+#             yrange = [-1.,0.,1.,2.]
+#             if self.meta.logtruNz is not None:
+#                 plotv(sps_pdf,self.meta.logtruNz[k],yrange,s=s_tru,w=w_tru,c=c_tru,a=a_tru,l=l_tru+t+r'$_{k}$')
+# #                 sps_pdf.vlines(self.meta.logtruNz[k],0.,1.,linestyle='-',w=2.,label='True value')
+# #             sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle='--',w=2.,label='Stacked value')
+# #             sps_pdf.vlines(self.meta.logmapNz[k],0.,1.,linestyle='-.',w=2.,label='MAP value')
+# # #             sps_pdf.vlines(self.meta.logexpNz[k],0.,1.,linestyle=':',w=2.,label=r'$E(z)$ value')
+#             sps_pdf.vlines(self.meta.logmmlNz[k],0.,1.,linestyle=':',w=2.,label='MMLE value')
 
             y_all = alldata[k]
             loc,scale = sp.stats.norm.fit_loc_scale(y_all)
-            sps_pdf.vlines(loc,0.,1.,color='k',linestyle='--',linewidth=2.,label='Best Fit value')
+            yrange = [-1.,0.,1.,2.]
+#             plotv(sps_pdf,loc,yrange,s=s_bfe,w=w_bfe,c=c_bfe,a=a_bfe,l=l_bfe+t+r'$_{k}$')
+            sps_pdf.vlines(loc,0.,1.,linestyle=s_bfe,linewidth=w_bfe,color=c_bfe,alpha=a_bfe,label=l_bfe+t+r'$_{k}$')
             sps_pdf.axvspan(loc-scale,loc+scale,color='k',alpha=0.1)
 
             sps_pdf.legend(fontsize='xx-small',loc='upper left')

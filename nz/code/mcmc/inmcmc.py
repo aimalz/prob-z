@@ -91,7 +91,7 @@ class setup(object):
             self.inits = 'gs'#corresponding to 'ps', 'gm'
 
 #         # construct alternative estimators
-#         self.alternatives()
+        self.alternatives()
 
         # generate prior distribution
         self.make_prior(indict)
@@ -278,17 +278,9 @@ class setup(object):
         if os.path.exists(os.path.join(self.datadir,'logmmle.csv')):
             with open(os.path.join(self.datadir,'logmmle.csv'),'rb') as csvfile:
                 tuples = (line.split(None) for line in csvfile)
-<<<<<<< HEAD
                 mmldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
-#             elapsed = mmldata[0]
             like = mmldata[0]
             loc = np.array(mmldata[1])
-=======
-                mmldata = np.array([[float(pair[k]) for k in range(0,len(pair))] for pair in tuples])
-                print(np.shape(mmldata))
-            like = mmldata[0]
-            loc = mmldata[1]
->>>>>>> 6eac38c5ec59afd725df4b4866fcc2d73735cab1
         else:
             def minlf(theta):
                 return -1.*self.calclike(theta)
@@ -309,13 +301,13 @@ class setup(object):
               #print(str(self.ngals)+' galaxies for '+self.name+' MMLE in '+str(elapsed)+': '+str(loc))
         return(like,loc)
 
-#     def alternatives(self):
+    def alternatives(self):
 
-#         # generate full Sheldon, et al. 2011 "posterior"
-#         stkprep = np.sum(np.array(self.pdfs),axis=0)
-#         self.stkNz = np.array([max(sys.float_info.epsilon,stkprep[k]) for k in xrange(self.nbins)])
-#         self.logstkNz = np.log(self.stkNz)
-#         self.lik_stkNz = self.calclike(self.logstkNz)
+        # generate full Sheldon, et al. 2011 "posterior"
+        stkprep = np.sum(np.array(self.pdfs),axis=0)
+        self.stkNz = np.array([max(sys.float_info.epsilon,stkprep[k]) for k in xrange(self.nbins)])
+        self.logstkNz = np.log(self.stkNz)
+        self.lik_stkNz = self.calclike(self.logstkNz)
 
 #         # generate MAP N(z)
 #         self.mapNz = [sys.float_info.epsilon]*self.nbins
@@ -335,7 +327,7 @@ class setup(object):
 # #         self.logexpNz = np.log(self.expNz)
 # #         self.lik_expNz = self.calclike(self.logexpNz)
 
-#         return
+        return
 
     def setup_mcmc(self,indict):
 

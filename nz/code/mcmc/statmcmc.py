@@ -331,7 +331,8 @@ class stat_probs(calcstats):
             self.lp_truNz = self.meta.postdist.lnprob(self.meta.mean)
             self.lik_truNz = self.meta.postdist.lnlike(self.meta.mean)
 
-#         self.lp_stkNz = self.meta.postdist.lnprob(self.meta.logstkNz)
+        self.lp_intNz = self.meta.postdist.lnprob(self.meta.logintNz)
+        self.lp_stkNz = self.meta.postdist.lnprob(self.meta.logstkNz)
 #         self.lp_mapNz = self.meta.postdist.lnprob(self.meta.logmapNz)
 # #         self.lp_expNz = self.meta.postdist.lnprob(self.meta.logexpNz)
         self.lp_mmlNz = self.meta.postdist.lnprob(self.meta.logmmlNz)
@@ -339,9 +340,11 @@ class stat_probs(calcstats):
         self.var_y = []
 
         outdict = {'var_y': self.var_y,
-                 'lp_truNz': self.lp_truNz,
-                 'lp_mmlNz': self.lp_mmlNz
-              }
+                   'lp_truNz': self.lp_truNz,
+                   'lp_intNz': self.lp_intNz,
+                   'lp_stkNz': self.lp_stkNz,
+                   'lp_mmlNz': self.lp_mmlNz
+                  }
 
         if self.meta.plotonly == False:
             with open(os.path.join(self.meta.topdir,'stat_probs.p'),'wb') as statprobs:
