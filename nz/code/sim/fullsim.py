@@ -43,7 +43,9 @@ def onerun(inname):
     meta = setup(testname)
     alltests[testname] = meta
     test = pertest(meta)
+    print('will plots fail?')
     initial_plots(meta,test)
+    print('plots did not fail!')
     namesetup(meta)
     return
 

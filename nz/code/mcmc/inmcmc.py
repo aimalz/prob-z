@@ -90,7 +90,11 @@ class setup(object):
         else:
             self.inits = 'gs'#corresponding to 'ps', 'gm'
 
+<<<<<<< HEAD
 #         # construct alternative estimators
+=======
+        # construct alternative estimators
+>>>>>>> 450c69398c3be5fa7c34bbb67cd451d39d088723
         self.alternatives()
 
         # generate prior distribution
@@ -281,6 +285,14 @@ class setup(object):
                 mmldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
             like = mmldata[0]
             loc = np.array(mmldata[1])
+<<<<<<< HEAD
+=======
+=======
+                mmldata = np.array([[float(pair[k]) for k in range(0,len(pair))] for pair in tuples])
+            like = mmldata[0]
+            loc = mmldata[1]
+>>>>>>> 6eac38c5ec59afd725df4b4866fcc2d73735cab1
+>>>>>>> 450c69398c3be5fa7c34bbb67cd451d39d088723
         else:
             def minlf(theta):
                 return -1.*self.calclike(theta)
@@ -303,7 +315,11 @@ class setup(object):
 
     def alternatives(self):
 
+<<<<<<< HEAD
         # generate full Sheldon, et al. 2011 "posterior"
+=======
+#         # generate full Sheldon, et al. 2011 "posterior"
+>>>>>>> 450c69398c3be5fa7c34bbb67cd451d39d088723
         stkprep = np.sum(np.array(self.pdfs),axis=0)
         self.stkNz = np.array([max(sys.float_info.epsilon,stkprep[k]) for k in xrange(self.nbins)])
         self.logstkNz = np.log(self.stkNz)

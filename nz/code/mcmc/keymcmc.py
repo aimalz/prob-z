@@ -48,7 +48,7 @@ def safe_store_h(path, o):
     f.close()
 
 # define templates for path
-state_builder = path("{topdir}/state-{r}.hkl")
+state_builder = path("{topdir}/state-{r}.p")#hkl")
 iterno_builder = path("{topdir}/iterno.p")
 statistics_builder = path("{topdir}/stat_{stat_name}.p")
 
@@ -126,10 +126,10 @@ class key(distribute.distribute_key):
     # state is mutable permcmc object at each stage
     def load_state(self, topdir):
         filepath = state_builder.construct(**self.to_dict({'topdir':topdir}))
-        return safe_load_h(filepath)
+        return safe_load_c(filepath)#safe_load_h(filepath)
     def store_state(self, topdir, o):
         filepath = state_builder.construct(**self.to_dict({'topdir':topdir}))
-        safe_store_h(filepath, o)
+        safe_store_c(filepath,o)#safe_store_h(filepath, o)
 
     # need to know iterno for progress
     def load_iterno(self, topdir):

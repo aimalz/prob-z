@@ -2,4 +2,6 @@ name MultimodalTest
 nbins 10
 surv 3
 shape 1
+miniters 3
 thinto 10
+plotonly 0
