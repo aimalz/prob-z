@@ -157,23 +157,13 @@ def plot_true(meta):
     sps.set_ylabel(r'$\ln N(z)$')
     sps.set_ylim(np.log(1./min(meta.bindifs)),np.log(meta.ngals/min(meta.bindifs)))#(-1.,np.log(test.ngals/min(test.meta.zdifs)))
     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
-<<<<<<< HEAD
 #     plotstep(sps,test.binends,test.logtruNz,s=s_smp,w=w_smp,a=a_smp,c=c_smp,l=l_smp+lnz)
     plotstep(sps,meta.zrange,meta.lNz_range,s=s_tru,w=w_tru,a=a_tru,c=c_tru,l=l_tru+lnz)
-#     plotstep(sps,meta.binends,meta.logstkNz,s=s_stk,w=w_stk,a=a_tru,c=c_tru,l=l_stk+lnz)
+    plotstep(sps,meta.binends,meta.logstkNz,s=s_stk,w=w_stk,a=a_tru,c=c_tru,l=l_stk+lnz)
 #     plotstep(sps,meta.binends,meta.logmapNz,s=s_map,w=w_map,a=a_tru,c=c_tru,l=l_map+lnz)
 #    plotstep(sps,meta.binends,meta.logexpNz,s=s_exp,w=w_exp,a=a_tru,c=c_tru,l=l_exp+lnz)
     plotstep(sps,meta.binends,meta.logmmlNz,s=s_mml,w=w_mml,a=a_tru,c=c_tru,l=l_mml+lnz)
-#     plotstep(sps,meta.binends,meta.logintNz,s=s_int,w=w_int,a=a_tru,c=c_tru,l=l_int+lnz)
-=======
-#     plotstep(sps,test.binends,test.logtruNz,style='-',lab=r'Sampled $\ln N(z)$')
-    plotstep(sps,meta.zrange,meta.lNz_range,lw=2.,lab=r'True $\ln N(z)$')
-    plotstep(sps,meta.binends,meta.logstkNz,style='--',lw=3.,lab=r'Stacked $\ln N(z)$')
-#     plotstep(sps,meta.binends,meta.logmapNz,style='-.',lw=3.,lab=r'MAP $\ln N(z)$')
-#    plotstep(sps,meta.binends,test.full_logexpNz,style=':',lab=r'$\ln N(E[z])$')
-    plotstep(sps,meta.binends,meta.logmmlNz,style=':',lw=3.,lab=r'MMLE $\ln N(z)$')
-#     plotstep(sps,meta.binends,meta.logintNz,a=0.5,lw=2.,lab=r'Interim $\ln N(z)$')
->>>>>>> 450c69398c3be5fa7c34bbb67cd451d39d088723
+    plotstep(sps,meta.binends,meta.logintNz,s=s_int,w=w_int,a=a_tru,c=c_tru,l=l_int+lnz)
     sps.legend(loc='lower right',fontsize='x-small')
     sps = f.add_subplot(2,1,2)
     sps.set_title('True $N(z)$')
@@ -181,23 +171,13 @@ def plot_true(meta):
     sps.set_ylabel(r'$N(z)$')
 #     sps.set_ylim(0.,test.ngals/min(test.bindifs))#(0.,test.ngals/min(test.meta.zdifs))
     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
-<<<<<<< HEAD
 #     plotstep(sps,test.binends,test.truNz,s=s_smp,w=w_smp,a=a_smp,c=c_smp,l=l_smp+nz)
     plotstep(sps,meta.zrange,meta.Nz_range,s=s_tru,w=w_tru,a=a_tru,c=c_tru,l=l_tru+nz)
-#     plotstep(sps,meta.binends,meta.stkNz,s=s_stk,w=w_stk,a=a_tru,c=c_tru,l=l_stk+nz)# with $\sigma^{2}=$'+str(int(test.vsstack)))
+    plotstep(sps,meta.binends,meta.stkNz,s=s_stk,w=w_stk,a=a_tru,c=c_tru,l=l_stk+nz)# with $\sigma^{2}=$'+str(int(test.vsstack)))
 #     plotstep(sps,meta.binends,meta.mapNz,s=s_map,w=w_map,a=a_tru,c=c_tru,l=l_map+nz)# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
 #     plotstep(sps,meta.binends,meta.expNz,s=s_exp,w=w_exp,a=a_tru,c=c_tru,l=l_exp+nz)# with $\sigma^{2}=$'+str(int(test.vsexpNz)))
     plotstep(sps,meta.binends,meta.mmlNz,s=s_mml,w=w_mml,a=a_tru,c=c_tru,l=l_mml+nz)
-#     plotstep(sps,meta.binends,meta.intNz,s=s_int,w=w_int,a=a_tru,c=c_tru,l=l_int+nz)# with $\sigma^{2}=$'+str(int(test.vsinterim)))
-=======
-#     plotstep(sps,test.binends,test.truNz,style='-',lab=r'Sampled $N(z)$')
-    plotstep(sps,meta.zrange,meta.Nz_range,lw=2.,lab=r'True $N(z)$')
-    plotstep(sps,meta.binends,meta.stkNz,style='--',lw=3.,lab=r'Stacked $N(z)$')# with $\sigma^{2}=$'+str(int(test.vsstack)))
-#     plotstep(sps,meta.binends,meta.mapNz,style='-.',lw=3.,lab=r'MAP $N(z)$')# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
-#     plotstep(sps,meta.binends,meta.expNz,style=':',lab=r'$N(E[z])$')# with $\sigma^{2}=$'+str(int(test.vsexpNz)))
-    plotstep(sps,meta.binends,meta.mmlNz,style=':',lw=3.,lab=r'MMLE $N(z)$')
-#     plotstep(sps,meta.binends,meta.intNz,a=0.5,lw=2.,lab=r'Interim $N(z)$')# with $\sigma^{2}=$'+str(int(test.vsinterim)))
->>>>>>> 450c69398c3be5fa7c34bbb67cd451d39d088723
+   plotstep(sps,meta.binends,meta.intNz,s=s_int,w=w_int,a=a_tru,c=c_tru,l=l_int+nz)# with $\sigma^{2}=$'+str(int(test.vsinterim)))
     sps.legend(loc='upper left',fontsize='x-small')
 
     footer(sps)
@@ -503,7 +483,6 @@ class plotter_samps(plotter):
 
         self.ll_smpNz = []
 
-<<<<<<< HEAD
 #         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,s='-',w=2,l=r'True $\ln N(z)$')
 #         plotstep(sps_samp,self.meta.binends,self.meta.truNz,s='-',w=2,l=r'True $N(z)$')
 #         self.plotone(self.meta.logtruNz,self.meta.truNz,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru)
@@ -524,22 +503,6 @@ class plotter_samps(plotter):
         self.plotone(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int)
 #         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,s='-',w=0.5)
 #         plotstep(sps_samp,self.meta.binends,self.meta.truNz,s='-',w=0.5)
-=======
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,style='-',lw=2,lab=r'True $\ln N(z)$')
-#         plotstep(sps_samp,self.meta.binends,self.meta.truNz,style='-',lw=2,lab=r'True $N(z)$')
-        plotstep(sps_samp_log,self.meta.binends,self.meta.logstkNz,style='--',lw=2)
-        plotstep(sps_samp,self.meta.binends,self.meta.stkNz,style='--',lw=2)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logmapNz,style='-.',lw=2)
-#         plotstep(sps_samp,self.meta.binends,self.meta.mapNz,style='-.',lw=2)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logexpNz,style=':',lw=2,lab=r'$\ln N(E(z))$'+logexplabel)
-#         plotstep(sps_samp,self.meta.binends,self.meta.expNz,style=':',lw=2,lab=r'$N(E(z))$'+explabel)
-        plotstep(sps_samp_log,self.meta.binends,self.meta.logmmlNz,style=':',lw=2)
-        plotstep(sps_samp,self.meta.binends,self.meta.mmlNz,style=':',lw=2)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logintNz,style='-',a=0.5,lw=1)
-#         plotstep(sps_samp,self.meta.binends,self.meta.intNz,style='-',a=0.5,lw=1)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,style='-',lw=0.5)
-#         plotstep(sps_samp,self.meta.binends,self.meta.truNz,style='-',lw=0.5)
->>>>>>> 450c69398c3be5fa7c34bbb67cd451d39d088723
         if self.meta.logtruNz is not None:
             plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+lnz)
             plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+nz)
@@ -604,7 +567,6 @@ class plotter_samps(plotter):
             both = cpkl.load(statboth)
 
 #         for v in lrange(both['mapvals']):
-<<<<<<< HEAD
 #             plotstep(sps_samp_log,self.meta.binends,both['mapvals'][v],w=2,c=self.meta.colors[v%self.ncolors])
 #             plotstep(sps_samp,self.meta.binends,np.exp(both['mapvals'][v]),w=2,c=self.meta.colors[v%self.ncolors])
 
@@ -686,89 +648,6 @@ class plotter_samps(plotter):
 # #         plotstep(sps_samp,self.meta.binends,self.meta.intNz,s='-',a=0.5,w=1,l=r'Interim $N(z)$'+intlabel)
 # #         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,s='-',w=0.5,l=r'Sampled $\ln N(z)$'+logsmplabel)
 # #         plotstep(sps_samp,self.meta.binends,self.meta.truNz,s='-',w=0.5,l=r'Sampled $N(z)$'+smplabel)
-=======
-#             plotstep(sps_samp_log,self.meta.binends,both['mapvals'][v],lw=2,col=self.meta.colors[v%self.ncolors])
-#             plotstep(sps_samp,self.meta.binends,np.exp(both['mapvals'][v]),lw=2,col=self.meta.colors[v%self.ncolors])
-
-        if self.meta.logtruNz is not None:
-# #             #llr_stkNzprep = str(int(gof['llr_stkNz']))
-# #             logstkNzprep_v = str(int(gofs['vslogstkNz']))
-# #             logstkNzprep_c = str(int(gofs['cslogstkNz']))
-# #             #lr_stkNzprep = str(int(np.log10(np.exp(gof['llr_stkNz']))))
-# #             stkNzprep_v = str(int(gofs['vsstkNz']))
-# #             stkNzprep_c = str(int(gofs['csstkNz']))
-            logstklabel = r'; $\ln \mathcal{L}='+str(round(both['ll_stkNz']))+r'$'#r'; $\sigma^{2}=$'+logstkNzprep_v+r'; $\chi^{2}=$'+logstkNzprep_c#+r'; $\ln(r)=$'+llr_stkNzprep
-            stklabel = r'; $KLD=('+str(gofs['kl_stkNzvtruNz'])+','+str(gofs['kl_truNzvstkNz'])+r')$'#r'; $\sigma^{2}=$'+stkNzprep_v+r'; $\chi^{2}=$'+stkNzprep_c#+r'; $\log(r)=$'+lr_stkNzprep
-
-# #             #llr_mapNzprep = str(int(gof['llr_mapNz']))
-# #             logmapNzprep_v = str(int(gofs['vslogmapNz']))
-# #             logmapNzprep_c = str(int(gofs['cslogmapNz']))
-# #             #lr_mapNzprep = str(int(np.log10(np.exp(gof['llr_mapNz']))))
-# #             mapNzprep_v = str(int(gofs['vsmapNz']))
-# #             mapNzprep_c = str(int(gofs['csmapNz']))
-#             logmaplabel = r'; $\ln \mathcal{L}='+str(round(both['ll_mapNz']))+r'$'#r'; $\sigma^{2}=$'+logmapNzprep_v+r'; $\chi^{2}=$'+logmapNzprep_c#+r'; $\ln(r)=$'+llr_mapNzprep
-#             maplabel = r'; $KLD=('+str(gofs['kl_mapNzvtruNz'])+','+str(gofs['kl_truNzvmapNz'])+r')$'#r'; $\sigma^{2}=$'+mapNzprep_v+r'; $\chi^{2}=$'+mapNzprep_c#+r'; $\log(r)=$'+lr_mapNzprep
-
-# # #             #llr_expNzprep = str(int(gof['llr_expNz']))
-# # #             logexpNzprep_v = str(int(gofs['vslogexpNz']))
-# # #             logexpNzprep_c = str(int(gofs['cslogexpNz']))
-# # #             #lr_expNzprep = str(int(np.log10(np.exp(gof['llr_expNz']))))
-# # #             expNzprep_v = str(int(gofs['vsexpNz']))
-# # #             expNzprep_c = str(int(gofs['csexpNz']))
-# #             logexplabel = r'; $\ln \mathcal{L}='+str(both['ll_expNz'])+r'$'#r'; $\sigma^{2}=$'+logexpNzprep_v+r'; $\chi^{2}=$'+logexpNzprep_c#+r'; $\ln(r)=$'+llr_expNzprep
-# #             explabel = r'; $KLD=('+str(gofs['kl_expNzvtruNz'])+','+str(gofs['kl_truNzvexpNz'])+r')$'#r'; $\sigma^{2}=$'+expNzprep_v+r'; $\chi^{2}=$'+expNzprep_c#+r'; $\log(r)=$'+lr_expNzprep
-
-#             #llr_smpNzprep = str(int(np.average(self.ll_smpNz)))
-#             logsmpNzprep_v = str(int(min(gofs['var_ls'])))#/(self.last_key.r+1.)
-#             logsmpNzprep_c = str(int(min(gofs['chi_ls'])))#/(self.last_key.r+1.)
-#             #lr_smpNzprep = str(int(np.log10(np.exp(np.average(self.ll_smpNz)))))
-#             smpNzprep_v = str(int(min(gofs['var_s'])))#/(self.last_key.r+1.)
-#             smpNzprep_c = str(int(min(gofs['chi_s'])))#/(self.last_key.r+1.)
-            logsmplabel = r'; $\max\ln \mathcal{L}='+str(round(max(both['ll_smpNz'])))+r'$'#r'; $\sigma^{2}=$'+logsmpNzprep_v+r'; $\chi^{2}=$'+logsmpNzprep_c#+r'; $\ln(r)=$'+llr_smpNzprep#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
-            smplabel = r'; $\min KLD=('+str(min(gofs['kl_smpNzvtruNz']))+','+str(min(gofs['kl_truNzvsmpNz']))+r')$'#r'; $\sigma^{2}=$'+smpNzprep_v+r'; $\chi^{2}=$'+smpNzprep_c#+r'; $\log(r)=$'+lr_smpNzprep#[(self.last_key.r+1.)/2:])/(self.last_key.r+1.)))
-
-            logintlabel = r'; $\ln \mathcal{L}='+str(round(both['ll_intNz']))+r'$'
-            intlabel = r'; $KLD=('+str(gofs['kl_intNzvtruNz'])+','+str(gofs['kl_truNzvintNz'])+r')$'
-
-            logmmllabel = r'; $\ln \mathcal{L}='+str(round(both['ll_mmlNz']))+r'$'
-            mmllabel = r'; $KLD=('+str(gofs['kl_mmlNzvtruNz'])+','+str(gofs['kl_truNzvmmlNz'])+r')$'
-
-        else:
-            logstklabel = ' '
-            stklabel = ' '
-#             logmaplabel = ' '
-#             maplabel = ' '
-# #             logexplabel = ' '
-# #             explabel = ' '
-            logintlabel = ' '
-            intlabel = ' '
-            logmmllabel = ' '
-            mmllabel = ' '
-            logsmplabel = ' '#r' $\sigma^{2}=$'+str(int(min(gofs['var_ls'])))#gofs['tot_var_ls']/(self.last_key.r+1.)))
-            smplabel = ' '#r' $\sigma^{2}=$'+str(int(min(gofs['var_ls'])))#gofs['tot_var_s']/(self.last_key.r+1.)))
-            self.meta.logtruNz = [-1.]*self.meta.nbins
-            self.meta.truNz = [-1.]*self.meta.nbins
-
-        if self.meta.logtruNz is not None:
-            plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,lw=2.,style='-',lab=r'True $\ln N(z)$')
-            plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,lw=2.,style='-',lab=r'True $N(z)$')
-#             plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,style='-',lw=2)
-#             plotstep(sps_samp,self.meta.binends,self.meta.truNz,style='-',lw=2)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,style='-',lw=2,lab=r'True $\ln N(z)$')
-#         plotstep(sps_samp,self.meta.binends,self.meta.truNz,style='-',lw=2,lab=r'True $N(z)$')
-        plotstep(sps_samp_log,self.meta.binends,self.meta.logstkNz,style='--',lw=2,lab=r'Stacked $\ln N(z)$'+logstklabel)
-        plotstep(sps_samp,self.meta.binends,self.meta.stkNz,style='--',lw=2,lab=r'Stacked $N(z)$'+stklabel)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logmapNz,style='-.',lw=2,lab=r'MAP $\ln N(z)$'+logmaplabel)
-#         plotstep(sps_samp,self.meta.binends,self.meta.mapNz,style='-.',lw=2,lab=r'MAP $N(z)$'+maplabel)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logexpNz,style=':',lw=2,lab=r'$\ln N(E(z))$'+logexplabel)
-#         plotstep(sps_samp,self.meta.binends,self.meta.expNz,style=':',lw=2,lab=r'$N(E(z))$'+explabel)
-        plotstep(sps_samp_log,self.meta.binends,self.meta.logmmlNz,style=':',lw=2,lab=r'MMLE $\ln N(z)$'+logmmllabel)
-        plotstep(sps_samp,self.meta.binends,self.meta.mmlNz,style=':',lw=2,lab=r'MMLE $N(z)$'+mmllabel)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logintNz,style='-',a=0.5,lw=1,lab=r'Interim $\ln N(z)$'+logintlabel)
-#         plotstep(sps_samp,self.meta.binends,self.meta.intNz,style='-',a=0.5,lw=1,lab=r'Interim $N(z)$'+intlabel)
-#         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,style='-',lw=0.5,lab=r'Sampled $\ln N(z)$'+logsmplabel)
-#         plotstep(sps_samp,self.meta.binends,self.meta.truNz,style='-',lw=0.5,lab=r'Sampled $N(z)$'+smplabel)
->>>>>>> 450c69398c3be5fa7c34bbb67cd451d39d088723
 
 #         self.plotone(sps_samp_log,self.meta.logmml,'-',3,r'MMLE $\ln N(z)$')
 #         self.plotone(sps_samp,self.meta.mml,'-',3,r'MMLE $N(z)$')
@@ -831,7 +710,6 @@ class plotter_chains(plotter):
             sps_pdf.set_xlabel(r'$\theta_{'+str(k+1)+r'}$')
             sps_pdf.set_ylabel('kernel density estimate')
             sps_pdf.set_title(r'Distribution of $\theta_{'+str(k+1)+r'}$ Values')
-<<<<<<< HEAD
 #             self.yrange = [-1.,0.,1.,2.]
             sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle=s_stk,linewidth=w_stk,color=c_stk,alpha=a_stk,label=l_stk+t+r'$_{k}$')
 #             plotv(sps_pdf,self.meta.logstkNz[k],yrange,s=s_stk,w=w_stk,c=c_stk,a=a_stk,l=l_stk+t+r'$_{k}$')
@@ -843,12 +721,6 @@ class plotter_chains(plotter):
 #             plotv(sps_pdf,self.meta.logmmlNz[k],yrange,s=s_mml,w=w_mml,c=c_mml,a=a_mml,l=l_mml+t+r'$_{k}$')
             sps_pdf.vlines(self.meta.logintNz[k],0.,1.,linestyle=s_int,linewidth=w_int,color=c_int,alpha=a_int,label=l_int+t+r'$_{k}$')
 #             plotv(sps_pdf,self.meta.logintNz[k],yrange,s=s_int,w=w_int,c=c_int,a=a_int,l=l_int+t+r'$_{k}$')
-=======
-            sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle='--',lw=2.)
-#             sps_pdf.vlines(self.meta.logmapNz[k],0.,1.,linestyle='-.',lw=2.)
-# #             sps_pdf.vlines(self.meta.logexpNz[k],0.,1.,linestyle=':',lw=2.,label=r'$E(z)$ value')
-            sps_pdf.vlines(self.meta.logmmlNz[k],0.,1.,linestyle=':',lw=2.)
->>>>>>> 450c69398c3be5fa7c34bbb67cd451d39d088723
             if self.meta.logtruNz is not None:
                 sps_pdf.vlines(self.meta.logtruNz[k],0.,1.,linestyle=s_tru,linewidth=w_tru,color=c_tru,alpha=a_tru,label=l_tru+t+r'$_{k}$')
 #                 plotv(sps_pdf,self.meta.logtruNz[k],yrange,s=s_tru,w=w_tru,c=c_tru,a=a_tru,l=l_tru+t+r'$_{k}$')
@@ -933,7 +805,6 @@ class plotter_chains(plotter):
 #                 self.plotone(sps_chain,maxiternos*self.meta.miniters,[self.meta.logtruNz[k]]*maxsteps,'-','True value')
 
             sps_pdf = self.sps_pdfs[k]
-<<<<<<< HEAD
 #             yrange = [-1.,0.,1.,2.]
 #             if self.meta.logtruNz is not None:
 #                 plotv(sps_pdf,self.meta.logtruNz[k],yrange,s=s_tru,w=w_tru,c=c_tru,a=a_tru,l=l_tru+t+r'$_{k}$')
@@ -942,14 +813,6 @@ class plotter_chains(plotter):
 # #             sps_pdf.vlines(self.meta.logmapNz[k],0.,1.,linestyle='-.',w=2.,label='MAP value')
 # # #             sps_pdf.vlines(self.meta.logexpNz[k],0.,1.,linestyle=':',w=2.,label=r'$E(z)$ value')
 #             sps_pdf.vlines(self.meta.logmmlNz[k],0.,1.,linestyle=':',w=2.,label='MMLE value')
-=======
-            if self.meta.logtruNz is not None:
-                sps_pdf.vlines(self.meta.logtruNz[k],0.,1.,linestyle='-',lw=2.,label='True value')
-            sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle='--',lw=2.,label='Stacked value')
-#             sps_pdf.vlines(self.meta.logmapNz[k],0.,1.,linestyle='-.',lw=2.,label='MAP value')
-# #             sps_pdf.vlines(self.meta.logexpNz[k],0.,1.,linestyle=':',lw=2.,label=r'$E(z)$ value')
-            sps_pdf.vlines(self.meta.logmmlNz[k],0.,1.,linestyle=':',lw=2.,label='MMLE value')
->>>>>>> 450c69398c3be5fa7c34bbb67cd451d39d088723
 
             y_all = alldata[k]
             loc,scale = sp.stats.norm.fit_loc_scale(y_all)
