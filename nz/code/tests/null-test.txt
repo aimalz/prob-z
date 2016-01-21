@@ -2,3 +2,4 @@ name FiducialTest
 nbins 10
 surv 3
 thinto 10
+plotonly 1
