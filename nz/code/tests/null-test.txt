@@ -1,5 +1,6 @@
 name FiducialTest
-nbins 10
-surv 3
-thinto 10
+nbins 35
+surv 4
+miniters 3
+thinto 100
 plotonly 1

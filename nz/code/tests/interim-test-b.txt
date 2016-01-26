@@ -4,4 +4,4 @@ surv 3
 interim bimodal
 miniters 3
 thinto 10
-plotonly 0
+plotonly 1

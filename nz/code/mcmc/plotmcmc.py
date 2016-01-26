@@ -37,21 +37,21 @@ global lnz,nz,tv,t
 lnz,nz,tv,t = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$'
 # setting up unified appearance parameters
 global s_tru,w_tru,a_tru,c_tru,l_tru
-s_tru,w_tru,a_tru,c_tru,l_tru = '-',2.,1.,'k','True '
+s_tru,w_tru,a_tru,c_tru,l_tru = '-',2.5,1.,'k','True '
 global s_int,w_int,a_int,c_int,l_int
-s_int,w_int,a_int,c_int,l_int = ':',1.5,0.5,'k','Interim '
+s_int,w_int,a_int,c_int,l_int = ':',1.,0.5,'k','Interim '
 global s_stk,w_stk,a_stk,c_stk,l_stk
-s_stk,w_stk,a_stk,c_stk,l_stk = '-.',1.5,1.,'k','Stacked '
+s_stk,w_stk,a_stk,c_stk,l_stk = '-.',1.5,0.5,'k','Stacked '
 # global s_map,w_map,a_map,c_map,l_map
 # s_map,w_map,a_map,c_map,l_map = '-.',1.5,0.75,'k','MMAP '
 # global s_exp,w_exp,a_exp,c_exp,l_exp
 # s_exp,w_exp,a_exp,c_exp,l_exp = '-.',1.5,0.25,'k','MExp '
 global s_mml,w_mml,a_mml,c_mml,l_mml
-s_mml,w_mml,a_mml,c_mml,l_mml = '-.',1.5,0.5,'k','MMLE '
+s_mml,w_mml,a_mml,c_mml,l_mml = ':',1.5,1.0,'k','MMLE '
 global s_smp,w_smp,a_smp,c_smp,l_smp
 s_smp,w_smp,a_smp,c_smp,l_smp = '-',1.,1.,'k','Sampled '
 global s_bfe,w_bfe,a_bfe,c_bfe,l_bfe
-s_bfe,w_bfe,a_bfe,c_bfe,l_bfe = '--',1.5,1.,'k','Best Fit '
+s_bfe,w_bfe,a_bfe,c_bfe,l_bfe = '-.',2.,1.,'k','Sample Mean '
 
 #making a step function plotter because pyplot is stupid
 def plotstep(subplot,binends,plot,s='-',c='k',a=1,w=1,l=None):
@@ -524,7 +524,10 @@ class plotter_samps(plotter):
 
         sps_samp_log = self.sps_samps[0]
         sps_samp = self.sps_samps[1]
-
+        print("ntimes: " + str(self.meta.ntimes))
+        print("nwalkers: " + str(self.meta.nwalkers))
+        print("#plot_y_ls: " + str(len(plot_y_ls)))
+        print("#plot_y_ls[0]: " + str(len(plot_y_ls[0])))
         for w in randwalks:
             for x in randsteps:
                 plotstep(sps_samp_log,self.meta.binends,plot_y_ls[x][w],s=s_smp,w=w_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
@@ -664,8 +667,12 @@ class plotter_samps(plotter):
             scales.append(scale)
 #             sps_samp_log.hlines(loc,self.meta.binends[k],self.meta.binends[k+1],color='k',linestyle='--',linewidth=2.)
 #             sps_samp.hlines(np.exp(loc),self.meta.binends[k],self.meta.binends[k+1],color='k',linestyle='--',linewidth=2.)
-            sps_samp_log.fill_between([self.meta.binends[k],self.meta.binends[k+1]],loc-scale,loc+scale,color='k',alpha=0.1,linewidth=0.)
-            sps_samp.fill_between([self.meta.binends[k],self.meta.binends[k+1]],np.exp(loc-scale),np.exp(loc+scale),color='k',alpha=0.1,linewidth=0.)
+            x_cor = [self.meta.binends[k],self.meta.binends[k],self.meta.binends[k+1],self.meta.binends[k+1]]
+            y_cor = np.array([loc-scale,loc+scale,loc+scale,loc-scale])
+            sps_samp_log.fill(x_cor,y_cor,color='k',alpha=0.1,linewidth=0.)
+            sps_samp.fill(x_cor,np.exp(y_cor),color='k',alpha=0.1,linewidth=0.)
+            # sps_samp_log.fill_between([self.meta.binends[k],self.meta.binends[k+1]],loc-scale,loc+scale,color='k',alpha=0.25,linewidth=0.)
+            # sps_samp.fill_between([self.meta.binends[k],self.meta.binends[k+1]],np.exp(loc-scale),np.exp(loc+scale),color='k',alpha=0.25,linewidth=0.)
         loc = np.array(locs)
         self.plotone(locs,np.exp(locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,l=l_bfe)
 #         plotstep(sps_samp_log,self.meta.binends,locs,s='--',w=2,l=r'Best Fit $\ln N(z)$')
