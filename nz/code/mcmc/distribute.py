@@ -17,8 +17,8 @@ class consumer(object):
         pass
     def loop(self, queue):
         while (True):
-            print('getting key '+str(queue.get()))
             key = queue.get()
+            print('getting key '+str(key))
             if (key=='done'):
                 self.finish()
                 return
@@ -74,7 +74,7 @@ class distribute(object):
     def complete_chunk(self, key):
         for q in self.queues:
             q.put(key)
-            print('put key '+str(key))
+            print('putting key '+str(key))
 
     # called when all producers are done
     def finish(self):

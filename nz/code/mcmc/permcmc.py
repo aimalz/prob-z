@@ -152,9 +152,8 @@ class pertest(object):
         else:
             while self.runs <= self.meta.iterno:
                 tempkey = self.meta.key.add(r=self.runs,burnin=False)
-                print('tempkey '+str(tempkey))
-                yield self
                 self.meta.dist.complete_chunk(tempkey)
-                print('run number '+str(self.runs))
+                yield self
                 self.runs += 1
+                print('tempkey '+str(tempkey))
             return

@@ -177,7 +177,7 @@ def plot_true(meta):
 #     plotstep(sps,meta.binends,meta.mapNz,s=s_map,w=w_map,a=a_tru,c=c_tru,l=l_map+nz)# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
 #     plotstep(sps,meta.binends,meta.expNz,s=s_exp,w=w_exp,a=a_tru,c=c_tru,l=l_exp+nz)# with $\sigma^{2}=$'+str(int(test.vsexpNz)))
     plotstep(sps,meta.binends,meta.mmlNz,s=s_mml,w=w_mml,a=a_tru,c=c_tru,l=l_mml+nz)
-   plotstep(sps,meta.binends,meta.intNz,s=s_int,w=w_int,a=a_tru,c=c_tru,l=l_int+nz)# with $\sigma^{2}=$'+str(int(test.vsinterim)))
+    plotstep(sps,meta.binends,meta.intNz,s=s_int,w=w_int,a=a_tru,c=c_tru,l=l_int+nz)# with $\sigma^{2}=$'+str(int(test.vsinterim)))
     sps.legend(loc='upper left',fontsize='x-small')
 
     footer(sps)
