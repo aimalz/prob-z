@@ -508,6 +508,8 @@ class plotter_samps(plotter):
             plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+nz)
 #             plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,s='-',w=2)
 #             plotstep(sps_samp,self.meta.binends,self.meta.truNz,s='-',w=2)
+            sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
+            sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals/self.meta.nbins)
 
     def plot(self,key):
 
@@ -524,10 +526,6 @@ class plotter_samps(plotter):
 
         sps_samp_log = self.sps_samps[0]
         sps_samp = self.sps_samps[1]
-        print("ntimes: " + str(self.meta.ntimes))
-        print("nwalkers: " + str(self.meta.nwalkers))
-        print("#plot_y_ls: " + str(len(plot_y_ls)))
-        print("#plot_y_ls[0]: " + str(len(plot_y_ls[0])))
         for w in randwalks:
             for x in randsteps:
                 plotstep(sps_samp_log,self.meta.binends,plot_y_ls[x][w],s=s_smp,w=w_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
@@ -678,6 +676,8 @@ class plotter_samps(plotter):
 #         plotstep(sps_samp_log,self.meta.binends,locs,s='--',w=2,l=r'Best Fit $\ln N(z)$')
 #         plotstep(sps_samp,self.meta.binends,np.exp(locs),s='--',w=2,l=r'Best Fit $N(z)$')
 
+        # sps_samp_log.set_ylim(np.log(self.meta.ngals/10.)-1.,np.log(self.meta.ngals*10.)-1.)
+        # sps_samp.set_ylim(0,self.meta.nbins*self.meta.ngals/10.)
         sps_samp_log.legend(fontsize='xx-small', loc='lower right')
         sps_samp.legend(fontsize='xx-small', loc='upper left')
 
