@@ -24,6 +24,7 @@ from keymcmc import key
 # set up for better looking plots
 title = 15
 label = 15
+mpl.rcParams['text.usetex'] = True
 mpl.rcParams['axes.titlesize'] = title
 mpl.rcParams['axes.labelsize'] = label
 mpl.rcParams['figure.subplot.left'] = 0.2
@@ -37,21 +38,21 @@ global lnz,nz,tv,t
 lnz,nz,tv,t = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$'
 # setting up unified appearance parameters
 global s_tru,w_tru,a_tru,c_tru,l_tru
-s_tru,w_tru,a_tru,c_tru,l_tru = '-',2.5,1.,'k','True '
+s_tru,w_tru,a_tru,c_tru,l_tru = '-',1.,1.,'k','True '
 global s_int,w_int,a_int,c_int,l_int
-s_int,w_int,a_int,c_int,l_int = ':',1.,0.5,'k','Interim '
+s_int,w_int,a_int,c_int,l_int = '-',1.,0.5,'k','Interim '
 global s_stk,w_stk,a_stk,c_stk,l_stk
-s_stk,w_stk,a_stk,c_stk,l_stk = '-.',1.5,0.5,'k','Stacked '
+s_stk,w_stk,a_stk,c_stk,l_stk = ':',2.,1.,'k','Stacked '
 # global s_map,w_map,a_map,c_map,l_map
 # s_map,w_map,a_map,c_map,l_map = '-.',1.5,0.75,'k','MMAP '
 # global s_exp,w_exp,a_exp,c_exp,l_exp
 # s_exp,w_exp,a_exp,c_exp,l_exp = '-.',1.5,0.25,'k','MExp '
 global s_mml,w_mml,a_mml,c_mml,l_mml
-s_mml,w_mml,a_mml,c_mml,l_mml = ':',1.5,1.0,'k','MMLE '
+s_mml,w_mml,a_mml,c_mml,l_mml = '--',1.,1.,'k','MMLE '
 global s_smp,w_smp,a_smp,c_smp,l_smp
 s_smp,w_smp,a_smp,c_smp,l_smp = '-',1.,1.,'k','Sampled '
 global s_bfe,w_bfe,a_bfe,c_bfe,l_bfe
-s_bfe,w_bfe,a_bfe,c_bfe,l_bfe = '-.',2.,1.,'k','Sample Mean '
+s_bfe,w_bfe,a_bfe,c_bfe,l_bfe = '-',2.,1.,'k','Mean of Samples\' '
 
 #making a step function plotter because pyplot is stupid
 def plotstep(subplot,binends,plot,s='-',c='k',a=1,w=1,l=None):
@@ -104,7 +105,7 @@ def initial_plots(runs):
 def plot_pdfs(meta):
     f = plt.figure(figsize=(5,5))
     sps = f.add_subplot(1,1,1)
-    f.suptitle('Observed galaxy posteriors for '+meta.name)
+#     f.suptitle('Observed galaxy posteriors for '+meta.name)
     #sps.set_title('shape='+str(meta.shape)+', noise='+str(meta.noise))
     randos = random.sample(xrange(meta.ngals),len(meta.colors))
     for r in lrange(randos):
@@ -113,16 +114,16 @@ def plot_pdfs(meta):
     sps.set_xlabel(r'$z$')
     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
 #     sps.set_ylim(0.,1./meta.bindif)
-    f.savefig(os.path.join(meta.topdir,'samplepzs.png'))
+    f.savefig(os.path.join(meta.topdir,'samplepzs.pdf'))
     return
 
 # plot some samples from prior for one instantiation of survey
 def plot_priorsamps(meta):
     priorsamps = np.array(meta.priordist.sample_ps(len(meta.colors))[0])
     f = plt.figure(figsize=(5,5))
-    f.suptitle(r'Prior samples for '+meta.name+':')
+#     f.suptitle(r'Prior samples for '+meta.name+':')
     sps = f.add_subplot(1,1,1)
-    sps.set_title(r'$q='+str(meta.q)+r'$, $e='+str(meta.e)+r'$, $t='+str(meta.t)+r'$')
+#     sps.set_title(r'$q='+str(meta.q)+r'$, $e='+str(meta.e)+r'$, $t='+str(meta.t)+r'$')
     sps.set_xlabel(r'$z$')
     sps.set_ylabel(r'$\ln N(z)$')
     sps.set_xlim(meta.binends[0]-meta.bindif,meta.binends[-1]+meta.bindif)#,s_run.seed)#max(n_run.full_logfltNz)+m.log(s_run.seed/meta.zdif)))
@@ -130,29 +131,29 @@ def plot_priorsamps(meta):
     for c in lrange(meta.colors):
         plotstep(sps,meta.binends,priorsamps[c],c=meta.colors[c])
     sps.legend(loc='upper left',fontsize='x-small')
-    f.savefig(os.path.join(meta.topdir, 'priorsamps.png'))
+    f.savefig(os.path.join(meta.topdir, 'priorsamps.pdf'))
     return
 
 # plot initial values for all initialization procedures
 def plot_ivals(meta):
     f = plt.figure(figsize=(5, 5))#plt.subplots(1, nsurvs, figsize=(5*nsurvs,5))
     sps = f.add_subplot(1,1,1)
-    f.suptitle('Initialization of '+str(meta.nwalkers)+' walkers for '+meta.name)
+#     f.suptitle('Initialization of '+str(meta.nwalkers)+' walkers for '+meta.name)
     sps.set_ylabel(r'$\ln N(z)$')
     sps.set_xlabel(r'$z$')
     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
-    sps.set_title(meta.init_names)
+#     sps.set_title(meta.init_names)
     plotstep(sps,meta.binends,meta.mean)
     for i in lrange(meta.ivals):
         plotstep(sps,meta.binends,meta.ivals[i],a=1./meta.factor,c=meta.colors[i%len(meta.colors)])
-    f.savefig(os.path.join(meta.topdir,'initializations.png'),dpi=100)
+    f.savefig(os.path.join(meta.topdir,'initializations.pdf'),dpi=100)
     return
 
 def plot_true(meta):
     f = plt.figure(figsize=(5,10))
-    f.suptitle(str(meta.nbins)+r' Parameter '+meta.name+' for '+str(meta.ngals)+' galaxies')
+#     f.suptitle(str(meta.nbins)+r' Parameter '+meta.name+' for '+str(meta.ngals)+' galaxies')
     sps = f.add_subplot(2,1,1)
-    sps.set_title('True $\ln N(z)$')
+#     sps.set_title('True $\ln N(z)$')
     sps.set_xlabel(r'binned $z$')
     sps.set_ylabel(r'$\ln N(z)$')
     sps.set_ylim(np.log(1./min(meta.bindifs)),np.log(meta.ngals/min(meta.bindifs)))#(-1.,np.log(test.ngals/min(test.meta.zdifs)))
@@ -166,7 +167,7 @@ def plot_true(meta):
     plotstep(sps,meta.binends,meta.logintNz,s=s_int,w=w_int,a=a_tru,c=c_tru,l=l_int+lnz)
     sps.legend(loc='lower right',fontsize='x-small')
     sps = f.add_subplot(2,1,2)
-    sps.set_title('True $N(z)$')
+#     sps.set_title('True $N(z)$')
     sps.set_xlabel(r'binned $z$')
     sps.set_ylabel(r'$N(z)$')
 #     sps.set_ylim(0.,test.ngals/min(test.bindifs))#(0.,test.ngals/min(test.meta.zdifs))
@@ -181,7 +182,7 @@ def plot_true(meta):
     sps.legend(loc='upper left',fontsize='x-small')
 
     footer(sps)
-    f.savefig(os.path.join(meta.topdir,'trueNz.png'))
+    f.savefig(os.path.join(meta.topdir,'trueNz.pdf'))
     return
 
 # most generic plotter, specific plotters below inherit from this to get handle
@@ -198,13 +199,13 @@ class plotter_times(plotter):
         self.meta = meta
 
         self.f_times = plt.figure(figsize=(5,5))
-        self.f_times.suptitle(self.meta.name)
+#         self.f_times.suptitle(self.meta.name)
         self.sps_times = self.f_times.add_subplot(1,1,1)
         self.a_times = float(len(self.meta.colors))/self.meta.nwalkers
-        if self.meta.mode == 'bins':
-            self.sps_times.set_title('Autocorrelation Times for ' + str(self.meta.nbins) + ' bins')
-        if self.meta.mode == 'walkers':
-            self.sps_times.set_title('Autocorrelation Times for ' + str(self.meta.nwalkers) + ' walkers')
+#         if self.meta.mode == 'bins':
+#             self.sps_times.set_title('Autocorrelation Times for ' + str(self.meta.nbins) + ' bins')
+#         if self.meta.mode == 'walkers':
+#             self.sps_times.set_title('Autocorrelation Times for ' + str(self.meta.nwalkers) + ' walkers')
         self.sps_times.set_ylabel('autocorrelation time')
         self.sps_times.set_xlabel('number of iterations')
         self.sps_times.set_ylim(0, 100)
@@ -242,7 +243,7 @@ class plotter_times(plotter):
                                s=self.meta.nbins,
                                rasterized=True)
 
-        self.f_times.savefig(os.path.join(self.meta.topdir,'times.png'),dpi=100)
+        self.f_times.savefig(os.path.join(self.meta.topdir,'times.pdf'),dpi=100)
 
         timesaver(self.meta,'times-done',key)
 
@@ -265,7 +266,7 @@ class plotter_times(plotter):
     def finish(self):
 
         self.sps_times.set_xlim(0,(self.last_key.r+2)*self.meta.miniters)
-        self.f_times.savefig(os.path.join(self.meta.topdir,'times.png'),dpi=100)
+        self.f_times.savefig(os.path.join(self.meta.topdir,'times.pdf'),dpi=100)
         timesaver(self.meta,'times',self.meta.topdir)
 
 #         self.sps_fracs.set_xlim(0,(self.last_key.r+2)*self.meta.miniters)
@@ -280,10 +281,10 @@ class plotter_probs(plotter):
         self.ncolors = len(self.meta.colors)
         self.a_probs = 1.#/self.meta.factor#self.meta.nwalkers
         self.f = plt.figure(figsize=(5,5))
-        self.f.suptitle(self.meta.name)
+#         self.f.suptitle(self.meta.name)
         sps = self.f.add_subplot(1,1,1)
         self.sps = sps
-        self.sps.set_title('Posterior Probability Evolution for ' + str(meta.nwalkers) + ' walkers')
+#         self.sps.set_title('Posterior Probability Evolution for ' + str(meta.nwalkers) + ' walkers')
         self.sps.set_ylabel('log probability of walker')
         self.sps.set_xlabel('iteration number')
         self.medy = []
@@ -314,7 +315,7 @@ class plotter_probs(plotter):
 #                           alpha=self.a_probs,
 #                           rasterized=True)
 
-        self.f.savefig(os.path.join(self.meta.topdir,'probs.png'),dpi=100)
+        self.f.savefig(os.path.join(self.meta.topdir,'probs.pdf'),dpi=100)
 
         timesaver(self.meta,'probs',key)
 
@@ -362,7 +363,7 @@ class plotter_probs(plotter):
         self.sps.legend(fontsize='xx-small', loc='upper right')
         self.sps.set_xlim(-1*self.meta.miniters,(self.last_key.r+2)*self.meta.miniters)
 #         self.sps.set_ylim(miny,maxy)
-        self.f.savefig(os.path.join(self.meta.topdir,'probs.png'),dpi=100)
+        self.f.savefig(os.path.join(self.meta.topdir,'probs.pdf'),dpi=100)
 
 #         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
 #             both = cpkl.load(statboth)
@@ -464,22 +465,39 @@ class plotter_samps(plotter):
         self.meta = meta
         self.ncolors = len(self.meta.colors)
         self.a_samp = 1.#/self.meta.ntimes#self.ncolors/self.meta.nwalkers
-        self.f_samps = plt.figure(figsize=(5, 10))
-        self.f_samps.suptitle(self.meta.name)
-        self.sps_samps = [self.f_samps.add_subplot(2,1,l+1) for l in xrange(0,2)]
+        self.f_samps = plt.figure(figsize=(10, 10))
+#         self.f_samps.suptitle(self.meta.name)
+        self.sps_samps = [self.f_samps.add_subplot(2,2,l+1) for l in xrange(0,4)]
 
         sps_samp_log = self.sps_samps[0]
         sps_samp = self.sps_samps[1]
+        sps_comp_log = self.sps_samps[2]
+        sps_comp = self.sps_samps[3]
         sps_samp_log.set_xlim(self.meta.binends[0]-self.meta.bindif,self.meta.binends[-1]+self.meta.bindif)
 #         sps_samp_log.set_ylim(-1.,m.log(self.meta.ngals/self.meta.bindif)+1.)
         sps_samp_log.set_xlabel(r'$z$')
         sps_samp_log.set_ylabel(r'$\ln N(z)$')
-        sps_samp_log.set_title(r'Samples of $\ln N(z)$')
+#         sps_samp_log.set_title(r'Ssps_samp_log.set_xlim(self.meta.binends[0]-self.meta.bindif,self.meta.binends[-1]+self.meta.bindif)
+#         sps_samp_log.set_ylim(-1.,m.log(self.meta.ngals/self.meta.bindif)+1.)
+        sps_samp_log.set_xlabel(r'$z$')
+        sps_samp_log.set_ylabel(r'$\ln N(z)$')
+#         sps_samp_log.set_title(r'Samples of $\ln N(z)$')
         sps_samp.set_xlim(self.meta.binends[0]-self.meta.bindif,self.meta.binends[-1]+self.meta.bindif)
 #         sps_samp.set_ylim(0.,self.meta.ngals/self.meta.bindif+self.meta.ngals)
         sps_samp.set_xlabel(r'$z$')
         sps_samp.set_ylabel(r'$N(z)$')
-        sps_samp.set_title(r'Samples of $N(z)$')
+#         sps_samp.set_title(r'Samples of $N(z)$')
+
+        sps_comp_log.set_xlim(self.meta.binends[0]-self.meta.bindif,self.meta.binends[-1]+self.meta.bindif)
+#         sps_comp_log.set_ylim(-1.,m.log(self.meta.ngals/self.meta.bindif)+1.)
+        sps_comp_log.set_xlabel(r'$z$')
+        sps_comp_log.set_ylabel(r'$\ln N(z)$')
+#         sps_comp_log.set_title(r'Samples of $\ln N(z)$')                     
+        sps_comp.set_xlim(self.meta.binends[0]-self.meta.bindif,self.meta.binends[-1]+self.meta.bindif)
+#         sps_comp.set_ylim(0.,self.meta.ngals/self.meta.bindif+self.meta.ngals)                                                                              
+        sps_comp.set_xlabel(r'$z$')
+        sps_comp.set_ylabel(r'$N(z)$')
+#         sps_comp.set_title(r'Samples of $N(z)$')
 
         self.ll_smpNz = []
 
@@ -488,7 +506,7 @@ class plotter_samps(plotter):
 #         self.plotone(self.meta.logtruNz,self.meta.truNz,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru)
 #         plotstep(sps_samp_log,self.meta.binends,self.meta.logstkNz,s='--',w=2)
 #         plotstep(sps_samp,self.meta.binends,self.meta.stkNz,s='--',w=2)
-        self.plotone(self.meta.logstkNz,self.meta.stkNz,w=w_stk,s=s_stk,a=a_stk,c=c_stk,l=l_stk)
+        self.plotcomp(self.meta.logstkNz,self.meta.stkNz,w=w_stk,s=s_stk,a=a_stk,c=c_stk,l=l_stk)
 #         plotstep(sps_samp_log,self.meta.binends,self.meta.logmapNz,s='-.',w=2)
 #         plotstep(sps_samp,self.meta.binends,self.meta.mapNz,s='-.',w=2)
 #         self.plotone(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,l=l_map)
@@ -497,23 +515,30 @@ class plotter_samps(plotter):
 #         self.plotone(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,l=l_exp)
 #         plotstep(sps_samp_log,self.meta.binends,self.meta.logmmlNz,s=':',w=2)
 #         plotstep(sps_samp,self.meta.binends,self.meta.mmlNz,s=':',w=2)
-        self.plotone(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,l=l_mml)
+        self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,l=l_mml)
 #         plotstep(sps_samp_log,self.meta.binends,self.meta.logintNz,s='-',a=0.5,w=1)
 #         plotstep(sps_samp,self.meta.binends,self.meta.intNz,s='-',a=0.5,w=1)
-        self.plotone(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int)
+        self.plotsamp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int)
+        self.plotcomp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int)
 #         plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,s='-',w=0.5)
 #         plotstep(sps_samp,self.meta.binends,self.meta.truNz,s='-',w=0.5)
         if self.meta.logtruNz is not None:
             plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+lnz)
             plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+nz)
+            plotstep(sps_comp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+lnz)
+            plotstep(sps_comp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+nz)
 #             plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,s='-',w=2)
 #             plotstep(sps_samp,self.meta.binends,self.meta.truNz,s='-',w=2)
             sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
-            sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals/self.meta.nbins)
+            sps_comp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
+            sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
+            sps_comp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
 
     def plot(self,key):
 
-      if key.burnin == False:
+      with open(os.path.join(self.meta.topdir,'iterno.p')) as where:
+          iterno = cpkl.load(where)
+      if (self.meta.plotonly == 0 and key.burnin == False) or (self.meta.plotonly == 1 and key.r >= iterno/self.meta.factor):
 
         data = key.load_state(self.meta.topdir)['chains']
 
@@ -552,7 +577,7 @@ class plotter_samps(plotter):
 #             sps_samp_log.fill_between([self.meta.binends[k],self.meta.binends[k+1]],loc-scale,loc+scale,color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
 #             sps_samp.fill_between([self.meta.binends[k],self.meta.binends[k+1]],np.exp(loc-scale),np.exp(loc+scale),color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
 
-        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),dpi=100)
+        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.pdf'),dpi=100)
 
         timesaver(self.meta,'samps',key)
 
@@ -560,6 +585,8 @@ class plotter_samps(plotter):
         timesaver(self.meta,'samps-start',key)
         sps_samp_log = self.sps_samps[0]
         sps_samp = self.sps_samps[1]
+        sps_comp_log = self.sps_samps[2]
+        sps_comp = self.sps_samps[3]
 
         with open(os.path.join(self.meta.topdir,'stat_chains.p'),'rb') as statchains:
             gofs = cpkl.load(statchains)#self.meta.key.load_stats(self.meta.topdir,'chains',self.last_key.r+1)[0]
@@ -657,6 +684,7 @@ class plotter_samps(plotter):
             tuples = (line.split(None) for line in csvfile)
             alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
             alldata = np.array(alldata).T
+            print(str(self.last_key.r)+' alldata shape '+str(np.shape(alldata)))
         locs,scales = [],[]
         for k in xrange(self.meta.nbins):
             y_all = alldata[k].flatten()
@@ -671,25 +699,35 @@ class plotter_samps(plotter):
             sps_samp.fill(x_cor,np.exp(y_cor),color='k',alpha=0.1,linewidth=0.)
             # sps_samp_log.fill_between([self.meta.binends[k],self.meta.binends[k+1]],loc-scale,loc+scale,color='k',alpha=0.25,linewidth=0.)
             # sps_samp.fill_between([self.meta.binends[k],self.meta.binends[k+1]],np.exp(loc-scale),np.exp(loc+scale),color='k',alpha=0.25,linewidth=0.)
-        loc = np.array(locs)
-        self.plotone(locs,np.exp(locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,l=l_bfe)
+            sps_comp_log.fill(x_cor,y_cor,color='k',alpha=0.1,linewidth=0.)
+            sps_comp.fill(x_cor,np.exp(y_cor),color='k',alpha=0.1,linewidth=0.)
+        locs = np.array(locs)
+        self.plotsamp(locs,np.exp(locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,l=l_bfe)
+        self.plotcomp(locs,np.exp(locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,l=l_bfe)
 #         plotstep(sps_samp_log,self.meta.binends,locs,s='--',w=2,l=r'Best Fit $\ln N(z)$')
 #         plotstep(sps_samp,self.meta.binends,np.exp(locs),s='--',w=2,l=r'Best Fit $N(z)$')
 
         # sps_samp_log.set_ylim(np.log(self.meta.ngals/10.)-1.,np.log(self.meta.ngals*10.)-1.)
         # sps_samp.set_ylim(0,self.meta.nbins*self.meta.ngals/10.)
-        sps_samp_log.legend(fontsize='xx-small', loc='lower right')
+        sps_samp_log.legend(fontsize='xx-small', loc='lower center')
         sps_samp.legend(fontsize='xx-small', loc='upper left')
+        sps_comp_log.legend(fontsize='xx-small', loc='lower center')
+        sps_comp.legend(fontsize='xx-small', loc='upper left')
 
-        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),dpi=100)
+        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.pdf'),dpi=100)
 
         timesaver(self.meta,'samps-done',key)
 
-    def plotone(self,logy,y,w=1.,s='-',a=1.,c='k',l=' '):
+    def plotsamp(self,logy,y,w=1.,s='-',a=1.,c='k',l=' '):
         sps_samp_log = self.sps_samps[0]
         sps_samp = self.sps_samps[1]
         plotstep(sps_samp_log,self.meta.binends,logy,w=w,s=s,a=a,c=c,l=l+lnz)
         plotstep(sps_samp,self.meta.binends,y,w=w,s=s,a=a,c=c,l=l+nz)
+    def plotcomp(self,logy,y,w=1.,s='-',a=1.,c='k',l=' '):
+        sps_comp_log = self.sps_samps[2]
+        sps_comp = self.sps_samps[3]
+        plotstep(sps_comp_log,self.meta.binends,logy,w=w,s=s,a=a,c=c,l=l+lnz)
+        plotstep(sps_comp,self.meta.binends,y,w=w,s=s,a=a,c=c,l=l+nz)
 
 #plot full posterior chain evolution
 class plotter_chains(plotter):
@@ -699,7 +737,7 @@ class plotter_chains(plotter):
         self.ncolors = len(self.meta.colors)
         self.a_chain = 1.#/self.meta.nsteps#self.ncolors/ self.meta.nwalkers
         self.f_chains = plt.figure(figsize=(10,5*self.meta.nbins))
-        self.f_chains.suptitle(self.meta.name)
+#         self.f_chains.suptitle(self.meta.name)
         self.sps_chains = [self.f_chains.add_subplot(self.meta.nbins,2,2*k+1) for k in xrange(self.meta.nbins)]
         self.sps_pdfs = [self.f_chains.add_subplot(self.meta.nbins,2,2*(k+1)) for k in xrange(self.meta.nbins)]
         self.randwalks = random.sample(xrange(self.meta.nwalkers),1)#xrange(self.meta.nwalkers)#self.ncolors)
@@ -710,13 +748,13 @@ class plotter_chains(plotter):
             sps_chain.set_ylim(-np.log(self.meta.ngals), np.log(self.meta.ngals / self.meta.bindif)+1)
             sps_chain.set_xlabel('iteration number')
             sps_chain.set_ylabel(r'$\ln N_{'+str(k+1)+r'}(z)$')
-            sps_chain.set_title(r'$\ln N(z)$ Parameter {} of {}'.format(k+1, self.meta.nbins))
+#             sps_chain.set_title(r'$\ln N(z)$ Parameter {} of {}'.format(k+1, self.meta.nbins))
             self.sps_pdfs[k].set_ylim(0.,1.)
             #self.sps_pdfs[k].semilogy()
             sps_pdf = self.sps_pdfs[k]
             sps_pdf.set_xlabel(r'$\theta_{'+str(k+1)+r'}$')
             sps_pdf.set_ylabel('kernel density estimate')
-            sps_pdf.set_title(r'Distribution of $\theta_{'+str(k+1)+r'}$ Values')
+#             sps_pdf.set_title(r'Distribution of $\theta_{'+str(k+1)+r'}$ Values')
 #             self.yrange = [-1.,0.,1.,2.]
             sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle=s_stk,linewidth=w_stk,color=c_stk,alpha=a_stk,label=l_stk+t+r'$_{k}$')
 #             plotv(sps_pdf,self.meta.logstkNz[k],yrange,s=s_stk,w=w_stk,c=c_stk,a=a_stk,l=l_stk+t+r'$_{k}$')
@@ -775,7 +813,7 @@ class plotter_chains(plotter):
 #         for k in xrange(self.meta.nbins):
 #             self.sps_pdfs[k].vlines(both['mapvals'][-1][k],0.,1.,linewidth=2,color=self.meta.colors[key.r%self.ncolors])
 
-        self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.png'),dpi=100)
+        self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.pdf'),dpi=100)
 
         timesaver(self.meta,'chains',key)
 
@@ -832,6 +870,6 @@ class plotter_chains(plotter):
             sps_chain.legend(fontsize='xx-small', loc='lower right')
             sps_chain.set_xlim(0,(self.last_key.r+1)*self.meta.miniters)
 
-        self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.png'),dpi=100)
+        self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.pdf'),dpi=100)
 
         timesaver(self.meta,'chains-done',key)

@@ -92,12 +92,19 @@ class pertest(object):
         (outputs,elapsed) = self.sampling()
 
         self.key.store_state(self.meta.topdir, outputs)
-        for stat in self.meta.stats:
-            stat.update(self.outputs[stat.name])
+        
+        if self.meta.plotonly == 0:
+            if burnin == False:
+                self.savestats()
+        if self.meta.plotonly == 1:
+            with open(os.path.join(self.meta.topdir,'iterno.p')) as where:
+                iterno = cpkl.load(where)
+            if r >= iterno/self.meta.factor:
+                self.savestats()
 
-        # store the iteration number, so everyone knows how many iterations have been completed
+        # store the iteration number, so everyone knows how many iterations have been completed    
         self.key.store_iterno(self.meta.topdir, self.runs)
-        #print ('s_run={}, dist={}'.format(self.s_run, self.s_run.dist))
+        #print ('s_run={}, dist={}'.format(self.s_run, self.s_run.dist)) 
         self.meta.dist.complete_chunk(self.key)
 
         # record time of calculation for monitoring progress
@@ -107,6 +114,12 @@ class pertest(object):
             calctimer.close()
 
         return outputs
+
+    def savestats(self):
+        for stat in self.meta.stats:
+            stat.update(self.outputs[stat.name])
+
+        return
 
     def preburn(self, b):
         outputs = self.sampnsave(b,burnin=True)

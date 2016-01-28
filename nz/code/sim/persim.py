@@ -212,11 +212,7 @@ class pertest(object):
 
             pdf = self.intPz*allsummed
             # normalize probabilities to integrate (not sum)) to 1
-<<<<<<< HEAD
             pdf = pdf/max(np.dot(pdf,self.bindifs),sys.float_info.epsilon)
-=======
-            pdf = pdf/max(sys.float_info.epsilon,np.dot(pdf,self.bindifs))
->>>>>>> 6eac38c5ec59afd725df4b4866fcc2d73735cab1
 
 #             # sample posterior if noisy observation
 #             if self.meta.noise == True:
@@ -289,7 +285,7 @@ class pertest(object):
 
         self.cands = np.array([self.logintNz,self.logstkNz,self.logmapNz])#,self.logexpNz])
         self.liks = np.array([self.lik_intNz,self.lik_stkNz,self.lik_mapNz])#,self.lik_expNz])
-        self.start = self.cands[np.argmax(self.liks)]
+        self.start = self.logtruNz#self.cands[np.argmax(self.liks)]
         self.lik_mmlNz,self.logmmlNz = self.makemml('fmin')#'bfgs_b','bfgs','cobyla','fmin','powell','slsqp'
         self.mmlNz = np.exp(self.logmmlNz)
         self.kl_mmlNz = self.calckl(self.logmmlNz,self.logtruNz)

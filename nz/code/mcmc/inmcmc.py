@@ -291,7 +291,6 @@ class setup(object):
             elapsed = timeit.default_timer() - start_time
             with open(os.path.join(self.datadir,'logmmle.csv'),'wb') as csvfile:
                 out = csv.writer(csvfile,delimiter=' ')
-                out.writerow([elapsed])
                 out.writerow([like])
                 out.writerow(loc)
             with open(self.calctime,'w') as calctimer:

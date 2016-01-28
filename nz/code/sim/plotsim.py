@@ -48,16 +48,12 @@ def plotstep(subplot,binends,plot,style='-',col='k',lw=1,lab=' ',a=1.):
 # make all the plots
 def initial_plots(meta, test):
     global zrange
-<<<<<<< HEAD
-    zrange = np.arange(meta.allzs[0],meta.allzs[-1],1./meta.surv)
-=======
     zrange = np.arange(test.allzs[0],test.allzs[-1],1./meta.surv)
     global pranges
     pranges = test.real.pdfs(zrange)
     global prange
     prange = np.sum(pranges,axis=0)
     print('will plots work?')
->>>>>>> 6eac38c5ec59afd725df4b4866fcc2d73735cab1
     plot_physgen(meta,test)
     plot_true(meta,test)
     plot_liktest(meta,test)
