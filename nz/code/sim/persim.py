@@ -176,16 +176,23 @@ class pertest(object):
         if self.meta.interim == 'flat':
             intP = self.fltPz
 #             intP = sp.stats.uniform(loc=self.binends[0],scale=self.binrange)
+        elif self.meta.interim == 'unimodal':
+            mu = np.percentile(self.binends,25)
+            fun = us.tnorm(mu,np.sqrt(mu),(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,25),np.sqrt(np.mean(self.binends)))
+#             intP = sp.stats.poisson.pmf(xrange(self.nbins),2.0)
+#             intP = sp.stats.poisson(2.0)
+            intP = np.array([fun.pdf(z) for z in self.binmids])
+        elif self.meta.interim == 'bimodal':
+            mu = np.percentile(self.binends,75)
+            fun = us.tnorm(mu,np.sqrt(mu),(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,75),np.sqrt(np.mean(self.binends)))
+#             x = self.nbins
+#             intP = sp.stats.pareto.pdf(np.arange(1.,2.,1./x),x)+sp.stats.pareto.pdf(np.arange(1.,2.,1./x)[::-1],x)
+#             intP = sp.stats.pareto(self.nbins)
+            pdf = np.array([fun.pdf(z) for z in self.binmids])
+            intP = max(pdf)-pdf
         elif self.meta.interim == 'multimodal':
             intP = self.real.binned(self.binends)
 #             intP = self.real
-        elif self.meta.interim == 'unimodal':
-            intP = sp.stats.poisson.pmf(xrange(self.nbins),2.0)
-#             intP = sp.stats.poisson(2.0)
-        elif self.meta.interim == 'bimodal':
-            x = self.nbins
-            intP = sp.stats.pareto.pdf(np.arange(1.,2.,1./x),x)+sp.stats.pareto.pdf(np.arange(1.,2.,1./x)[::-1],x)
-#             intP = sp.stats.pareto(self.nbins)
 
         self.intPz = us.normed(intP,self.bindifs)
         self.logintPz = us.safelog(self.intPz)

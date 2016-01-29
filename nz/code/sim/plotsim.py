@@ -140,7 +140,7 @@ def plot_pdfs(meta,test):
     sps.set_xlabel(r'$z$')
     sps.set_xlim(test.binlos[0]-meta.zdif,test.binhis[-1]+meta.zdif)
     sps.set_ylim(0.,1./meta.zdif)
-    f.savefig(os.path.join(meta.simdir,'samplepzs.png'))
+    f.savefig(os.path.join(meta.simdir,'samplepzs.pdf'))
     return
 
 # plot true vs. MAP vs E(z) redshifts
