@@ -183,13 +183,15 @@ class pertest(object):
 #             intP = sp.stats.poisson(2.0)
             intP = np.array([fun.pdf(z) for z in self.binmids])
         elif self.meta.interim == 'bimodal':
-            mu = np.percentile(self.binends,75)
-            fun = us.tnorm(mu,np.sqrt(mu),(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,75),np.sqrt(np.mean(self.binends)))
+            mulo = np.percentile(self.binends,25)
+            muhi = np.percentile(self.binends,87.5)
+            funlo = us.tnorm(mulo,self.bindif,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,75),np.sqrt(np.mean(self.binends)))
+            funhi = us.tnorm(muhi,self.bindif,(min(self.binends),max(self.binends)))
 #             x = self.nbins
 #             intP = sp.stats.pareto.pdf(np.arange(1.,2.,1./x),x)+sp.stats.pareto.pdf(np.arange(1.,2.,1./x)[::-1],x)
 #             intP = sp.stats.pareto(self.nbins)
-            pdf = np.array([fun.pdf(z) for z in self.binmids])
-            intP = max(pdf)-pdf
+            pdf = np.array([funlo.pdf(z)+funhi.pdf(z) for z in self.binmids])
+            intP = 1.+pdf#(1.+self.binmids*(max(pdf)-pdf))**2
         elif self.meta.interim == 'multimodal':
             intP = self.real.binned(self.binends)
 #             intP = self.real
