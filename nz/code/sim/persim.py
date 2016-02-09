@@ -129,7 +129,8 @@ class pertest(object):
         # we can re-calculate npeaks later from shiftZs or sigZs.
         if self.meta.shape == True:
             np.random.seed(seed=self.seed)
-            self.npeaks = np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
+            weights = [1./k for k in xrange(1,self.ndims)]
+            self.npeaks = np.array([us.choice(xrange(1,self.ndims),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
         else:
             self.npeaks = [1]*self.ngals
 
