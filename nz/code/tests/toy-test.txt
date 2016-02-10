@@ -1,8 +1,0 @@
-name ToyModelTest
-nbins 10
-surv 3
-random 0
-uniform 0
-miniters 3
-thinto 10
-plotonly 1
