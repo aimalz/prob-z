@@ -124,12 +124,13 @@ class pertest(object):
 
       # define 1+z and variance to use for sampling z
         self.modZs = self.truZs+1.
-        self.varZs = self.modZs*self.zdif
+        self.varZs = self.modZs*self.zdif/2.#MODIFICATION HERE
 
         # we can re-calculate npeaks later from shiftZs or sigZs.
         if self.meta.shape == True:
             np.random.seed(seed=self.seed)
             weights = [1./k for k in xrange(1,self.ndims)]
+            print(weights[:100])
             self.npeaks = np.array([us.choice(xrange(1,self.ndims),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
         else:
             self.npeaks = [1]*self.ngals
