@@ -108,6 +108,12 @@ class pertest(object):
 
     def choosetrue(self):
 
+        # define 1+z and variance to use for sampling z
+        self.var = us.tnorm(self.zdif,self.zdif,[0.,self.allzs[-1]])
+        self.modZs = np.array(self.var.rvs(self.ngals))#self.truZs+1.
+        self.varZs = self.modZs#*self.zdif
+        np.random.shuffle(self.modZs)
+
         #test all galaxies in survey have same true redshift vs. sample from physPz
         if self.meta.random == True:
             np.random.seed(seed=self.seed)
@@ -122,15 +128,12 @@ class pertest(object):
 
     def makedat(self):
 
-      # define 1+z and variance to use for sampling z
-        self.modZs = self.truZs+1.
-        self.varZs = self.modZs*self.zdif
-
         # we can re-calculate npeaks later from shiftZs or sigZs.
         if self.meta.shape == True:
             np.random.seed(seed=self.seed)
             weights = [1./k for k in xrange(1,self.ndims)]
             self.npeaks = np.array([us.choice(xrange(1,self.ndims),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
+            print self.npeaks[:100]
         else:
             self.npeaks = [1]*self.ngals
 
