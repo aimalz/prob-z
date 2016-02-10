@@ -445,34 +445,39 @@ method, including the competing methods with which our results will be compared.
 \subsection{Mock Data}
 \label{sec:mock}
 
-To generate mock interim photo-z posteriors, we first produce a catalog of true 
-redshifts.  We choose a physically-motivated $p^{0}(z)$ defining the general 
-shape of $N(z)$ over a specified redshift range $[z_{min},z_{max}]$.  Here we 
-shall set it to a weighted sum of truncated Gaussians chosen to impose 
-recognizably recoverable features on the true $N(z)$.  The true survey size $J$ 
-is a Poisson random variable distributed about a target survey size of $J'$.  
-Next we take $J$ samples of $z\sim p^{0}(z)$ to obtain the true redshift 
-catalog $\{z_{j}^{0}\}_{J}$.  
+To generate mock interim photo-z posteriors, we choose a parametrization of 
+redshift space and impose a $K$-dimensional binning 
+$B_{k}=[z^{B}_{k-1},z^{B}_{k}]$ on the redshift range from $z^{B}_{0}=z_{min}$ 
+to $z^{B}_{K}=z_{max}$ with bin widths $\Delta_{k}$.  All tests in this paper 
+will be conducted with $K=35$.  
+
+To obtain the true standard deviations $\sigma_{j}$ associated with each 
+surveyed galaxy, we first sample a Gaussian distribution with mean and standard 
+deviation equal to the mean width of the redshift bins $\bar{\Delta}$, 
+truncated to enforce positive standard deviations.
+
+We next choose a physically-motivated $p^{0}(z)$ defining the general shape of 
+$N(z)$ over a specified redshift range $[z_{min},z_{max}]$.  Here we shall set 
+it to a weighted sum of truncated Gaussians chosen to impose recognizably 
+recoverable features on the true $N(z)$.  The true survey size $J$ is a Poisson 
+random variable distributed about a target survey size of $J'$.  Next we take 
+$J$ samples of $z\sim p^{0}(z)$ to obtain the true redshift catalog 
+$\{z_{j}^{0}\}_{J}$.  
 
 The catalog of log photo-z posteriors $\{\ln[p(z_{j}|\vec{d}_{j})]\}_{J}$ is 
 chosen to be a set of Gaussian distributions, truncated to the redshift range 
 over which $N(z)$ is defined, because it is the simplest extension of the 
-standard redshift point estimates with reported error bars.  To simulate the 
-fact that inaccuracy increases with redshift, each Gaussian is centered at a 
-redshift $z_{j}'$ separated from the true redshift $z_{j}^{0}$ by a Gaussian 
-random variable $\epsilon_{j}$ selected from a distribution of mean of 0 and 
-variance $v_{j}\propto(1+z_{j}^{0})^{2}$.  To simulate the fact that 
-imprecision also increases with redshift, the variances of the truncated 
-Gaussians are also set to $\{v_{j}\}_{J}$.
+standard redshift point estimates with reported error bars.  Each Gaussian is 
+centered at an "observed" redshift $z_{j}'$ separated from the true redshift 
+$z_{j}^{0}$ by a Gaussian random variable $\epsilon_{j}$ selected from a 
+distribution of mean of 0 and true standard deviation $\sigma_{j}$.  The 
+standard deviations of the truncated Gaussians that comprise 
+$\{\ln[p(z_{j}|\vec{d}_{j})]\}_{J}$ are also set to $\{\sigma_{j}\}_{J}$.
 
-At this point we choose a parametrization of redshift space and impose a 
-$K$-dimensional binning $B_{k}=[z^{B}_{k-1},z^{B}_{k}]$ on the redshift range 
-from $z^{B}_{0}=z_{min}$ to $z^{B}_{K}=z_{max}$ with bin widths $\Delta_{k}$.  
-All tests in this paper will be conducted with $K=35$.  We must also choose the 
-parametrization of the redshift distribution function, in this case 
-$f_{\vec{\theta}}(z)=\ln[\vec{\theta}]$.  We next define the elements of 
-$\vec{\theta}$ to be log top-hat functions where the hyperparameters 
-$\theta_{k}$ comprising $\vec{\theta}$ take values equal to 
+We must also choose the parametrization of the redshift distribution function, 
+in this case $f_{\vec{\theta}}(z)=\ln[\vec{\theta}]$.  We next define the 
+elements of $\vec{\theta}$ to be log top-hat functions where the 
+hyperparameters $\theta_{k}$ comprising $\vec{\theta}$ take values equal to 
 $\ln[\int_{z_{k-1}}^{z_{k}}\ f_{\vec{\theta}}(z)\ dz]$.  By default we choose a 
 flat distribution as the interim prior.
 
@@ -483,7 +488,7 @@ Gaussian redshift posterior over each bins.  A random sampling of such interim
 redshift posteriors with $K=35$ is shown in Fig. \ref{fig:nullpzs}.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{null/samplepzs.png}
+\includegraphics[width=0.5\textwidth]{figs/samplepzs.pdf}
 \caption{Several examples of individual photo-z posterior distributions are 
 shown in colors.  The solid lines indicate the true redshift and the dotted 
 lines indicate the shifted redshift used as the center of the Gaussian 
@@ -501,7 +506,7 @@ dimension $K=35$ for $z_{min}=0.3$ and $z_{max}=1.4$ is shown in Fig.
 posteriors is the reweighted estimator of $N(z)$ of \citet{Sheldon2012}.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{null/samplepzs.png}
+%\includegraphics[width=0.5\textwidth]{figs/null/samplepzs.png}
 \caption{}
 \label{fig:datapzs}
 \end{figure}
@@ -573,8 +578,9 @@ interim prior and covariance $\textul{\Sigma}$ inspired by one used in Gaussian
 processes, given by Eq. \ref{eq:priorcov}.  This choice is made to permit draws 
 from this prior distribution to produce shapes similar to that of the true 
 $\tilde{\theta}$.  Here, the parameters of this covariance matrix are set to 
-the small numbers $q=?$, $e=?$, and $t=?$.  We adapt the full posterior of Eq. 
-\ref{eq:final} to the binning of redshift space chosen in Sec. \ref{sec:mock}.
+the small numbers $q=1.0$, $e=100.0$, and $t=q\cdot10^{-5}$.  We adapt the full 
+posterior of Eq. \ref{eq:final} to the binning of redshift space chosen in Sec. 
+\ref{sec:mock}.
 
 \begin{eqnarray}
 \label{eq:priorcov}
@@ -582,15 +588,16 @@ the small numbers $q=?$, $e=?$, and $t=?$.  We adapt the full posterior of Eq.
 v_{a,b}
 \end{eqnarray}
 
-The sampler is initialized with $2K$ walkers each with a value chosen from a 
+The sampler is initialized with $100$ walkers each with a value chosen from a 
 Gaussian distribution of identity covariance around a sample from the 
 hyperprior distribution.  An example of such samples from the prior are shown 
-in Fig. \ref{fig:nullprior}.
+in Fig. \ref{fig:prior}.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{null/priorsamps.png}
-\caption{}
-\label{fig:nullprior}
+\includegraphics[width=0.5\textwidth]{figs/priorsamps.png}
+\caption{The colored lines are samples from the prior distribution, where its 
+mean is chosen to be a flat distribution for an arbitrary $10,000$ galaxies.}
+\label{fig:prior}
 \end{figure}
 
 \clearpage
@@ -747,7 +754,7 @@ and marginalized likelihood maximization.  Fig. \ref{fig:null-comp} compares
 the mean of the sample values to alternative estimators as well as the truth.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{null/samps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/null-samps.pdf}
 \caption{The smooth, black curve shows the true $N(z)$ for this test, a sum of 
 Gaussians described in Sec. \ref{sec:mock}.  The flat, gray line is the interim 
 prior used to generate the interim photometric redshift posteriors.  The 
@@ -759,7 +766,7 @@ true values falling within the error bars.}
 \end{figure}
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{null/comps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/null-comps.pdf}
 \caption{The smooth, black curve shows the true $N(z)$ for this test, a sum of 
 Gaussians described in Sec. \ref{sec:mock}.  The flat, gray line is the interim 
 prior used to generate the interim photometric redshift posteriors.  The thick 
@@ -782,15 +789,14 @@ form of the interim photo-z posteriors.
 \label{sec:unc}
 
 In the following two tests, we aim to simulate more realistic interim photo-z 
-posteriors by modifying the procedure of Sec. \ref{sec:mock} to introduce 
-imprecision and inaccuracy that increase noisily with the true redshift, as is 
-seen in observed photometric redshifts.
+posteriors by modifying the procedure of Sec. \ref{sec:mock} to introduce the 
+imprecision and inaccuracy seen in observed photometric redshifts.
 
 \subsection{Noisy interim photo-z posteriors}
 \label{sec:noisy}
 
-Several factors contribute to photometric redshifts' increased uncertainty with 
-redshift.  As redshift increases, galaxies sharing luminosity are dimmer, 
+% Several factors contribute to photometric redshifts' increased uncertainty 
+with redshift.  As redshift increases, galaxies sharing luminosity are dimmer, 
 driving up photometric errors by way of counting statistics.  The galaxy sample 
 at higher redshifts also changes, meaning the generation of the photometric 
 redshift posterior based on an SED template library or a 
@@ -799,16 +805,16 @@ leading to broader components.
 
 This test case simulates imprecision in interim photometric redshift posteriors 
 by introducing one change in the steps of Sec. \ref{sec:mock}.  After the 
-shifted redshifts $z'_{j}$ are chosen, the variance of the Gaussian describing 
-the shape of the photo-z posterior is chosen to not be the same $v_{j}$ but 
-rather a random variable $v_{j}'$ drawn from a Gaussian of mean $v_{j}\propto 
-1+z_{j}$ and variance $v_{j}^{2}$ such that the width of the Gaussian noisily 
-increases with redshift.  Some interim redshift posteriors from such a test are 
-shown in Fig. \ref{fig:noisypzs}.  The rest of the steps in Sec. \ref{sec:mcmc} 
-are then followed precisely.
+shifted redshifts $z'_{j}$ are chosen, the standard deviation of the Gaussian 
+describing the shape of the photo-z posterior is chosen to not be the same 
+$\sigma_{j}$ but rather a random variable $\sigma_{j}'$ drawn from a Gaussian 
+of mean and standard deviation equal to the true standard deviation 
+$\sigma_{j}$.  Some interim redshift posteriors from such a test are shown in 
+Fig. \ref{fig:noisypzs}.  The rest of the steps in Sec. \ref{sec:mcmc} are then 
+followed precisely.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{sigma/samplepzs.png}
+\includegraphics[width=0.5\textwidth]{figs/vars-samplepzs.pdf}
 \caption{Several examples of noisified individual photo-z posterior 
 distributions are shown in colors.  The solid lines indicate the true redshift 
 and the dotted lines indicate the shifted redshift used as the center of the 
@@ -822,13 +828,13 @@ as well as the true value of $N(z)$.  The mean of the sample values is compared
 to the results of stacking in Fig. \ref{fig:noisy-comp}.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{sigma/samps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/vars-samps.pdf}
 \caption{}
 \label{fig:noisy-samp}
 \end{figure}
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{sigma/comps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/vars-comps.pdf}
 \caption{}
 \label{fig:noisy-comp}
 \end{figure}
@@ -856,11 +862,11 @@ Sec. \ref{sec:noisy}.  Each galaxy is assigned a number $R_{j}$ of Gaussian
 elements to be summed, chosen randomly from $1,\dots,K$.  The true redshift of 
 each galaxy $z_{j}^{0}$ is used to generate to $R_{j}$ Gaussian elements with 
 means $\{\{z_{j}^{r_{j}}\}_{R_{j}}\}_{J}$ and standard deviations 
-$\{\{v_{j}'^{r_{j}}\}_{R_{j}}\}_{J}$.  Some examples of the multimodal interim 
-photo-z posteriors are shown in Fig. \ref{fig:multipzs}.  
+$\{\{\sigma_{j}'^{r_{j}}\}_{R_{j}}\}_{J}$.  Some examples of the multimodal 
+interim photo-z posteriors are shown in Fig. \ref{fig:multipzs}.  
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{multi/samplepzs.png}
+\includegraphics[width=0.5\textwidth]{figs/mult-samplepzs.pdf}
 \caption{Several examples of individual photo-z posterior distributions are 
 shown in colors.  The solid lines indicate the true redshift and the dotted 
 lines indicate the shifted redshifts used as the centers of the Gaussian 
@@ -874,13 +880,13 @@ well as the true value of $N(z)$ and the results of stacking and both point
 estimates.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{multi/samps.png}
+\includegraphics[width=0.5\textwidth]{figs/mult-samps.pdf}
 \caption{}
 \label{fig:multi-samp}
 \end{figure}
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{multi/comps.png}
+\includegraphics[width=0.5\textwidth]{figs/mult-comps.pdf}
 \caption{}
 \label{fig:multi-comp}
 \end{figure}
@@ -905,7 +911,7 @@ some samples from the posterior as compared to the true $N(z)$ and Fig.
 stacking and marginalized likelihood maximization.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{toy/samps.png}
+\includegraphics[width=0.5\textwidth]{figs/delt-samps.pdf}
 \caption{The smooth, solid, black line shows the true $N(z)$ for the toy model 
 case.  The dashed line shows the result of stacking the interim photo-z 
 posteriors; one can see that the distribution is broader and shorter than the 
@@ -919,7 +925,7 @@ bars encompass the true distribution everywhere.}
 \end{figure}
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{toy/comps.png}
+\includegraphics[width=0.5\textwidth]{figs/delt-comps.pdf}
 \caption{The smooth, solid, black line shows the true $N(z)$ for the toy model 
 case.  The dashed line shows the result of stacking the interim photo-z 
 posteriors; one can see that the distribution is broader and shorter than the 
@@ -977,13 +983,13 @@ choose an interim prior with most of its weight at low redshifts.  The results
 of the inference are shown in Figs. \ref{fig:intu-samp} and \ref{fig:intu-comp}.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{int-u/samps.png}
+\includegraphics[width=0.5\textwidth]{figs/uint-samps.pdf}
 \caption{}
 \label{fig:intu-samp}
 \end{figure}
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{int-u/comps.png}
+\includegraphics[width=0.5\textwidth]{figs/uint-comps.pdf}
 \caption{}
 \label{fig:intu-comp}
 \end{figure}
@@ -1001,13 +1007,13 @@ at high and low redshifts than for mid-range redshifts.  The results of the
 inference are shown in Figs. \ref{fig:intb-samp} and \ref{fig:intb-comp}.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{int-b/samps.png}
+\includegraphics[width=0.5\textwidth]{figs/bint-samps.pdf}
 \caption{}
 \label{fig:intb-samp}
 \end{figure}
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{int-b/comps.png}
+\includegraphics[width=0.5\textwidth]{figs/bint-comps.pdf}
 \caption{}
 \label{fig:intb-comp}
 \end{figure}
@@ -1216,6 +1222,7 @@ Gaussians centered at observed redshifts $z^{p}_{j}\sim
 N(z^{s}_{j},\bar{\Delta}(1+z^{s}_{j}))$ with variances $\sigma_{j}\sim 
 N(z^{s}_{j},\bar{\Delta}(1+z^{s}_{j}))$. 
 
+\clearpage
 \bibliographystyle{apj}
 \bibliography{zPDF}
 
