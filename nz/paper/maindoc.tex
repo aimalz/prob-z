@@ -46,16 +46,21 @@ centered, draw=black]%, fill=green!30]
 \altaffiltext{1}{New York University Center for Cosmology and Particle Physics}
 
 \begin{abstract}
-Upcoming galaxy surveys aim to produce photometric redshift probability 
-distribution functions for each galaxy observed, but a mathematically valid 
-method for how to use the full probability information to do inference on the 
-physical parameters relevant to galaxy evolution, large-scale structure, and 
-cosmology has not been formally presented.  By considering a probabilistic 
-graphical model for photometric redshifts, this paper presents a fully 
-consistent technique for exploring a general one-point statistic of redshift, 
-the redshift distribution function $N(z)$, from a catalog of photometric 
-redshift posterior probability distributions as an example of how such data 
-products should be used.
+Photometric redshift probability distribution functions are rapidly replacing 
+redshift point estimates as data products of photometric galaxy surveys.  
+Though there is not yet agreement on the best way to derive such data products, 
+they are most commonly stacked to obtain an estimate of the redshift 
+distribution function necessary for weak gravitational lensing calculations and 
+reduced to point estimates in calculations of more complicated statistics.  
+This work challenges that paradigm and proposes a mathematically consistent 
+technique motivated by fundamental probability theory in which a probabilistic 
+graphical model elucidates the relation of interim photometric redshift 
+posteriors to a full posterior distribution over relevant physical parameters.  
+The approach is applied to the one-point statistic of the redshift distribution 
+function $N(z)$, sampled by Monte Carlo-Markov Chain procedures and validated 
+on synthetic data.  It is demonstrated that this method improves accuracy 
+compared to popular alternatives such as stacking and conversion of photometric 
+redshift probability distributions to point estimates of redshift.
 \end{abstract}
 
 \keywords{photo-z}
@@ -431,15 +436,13 @@ We ran several tests of this approach to demonstrate its validity and usage
 using a procedure outlined in this section.  In Sec. \ref{sec:mock} we describe 
 the method by which sets of simulated interim photo-z posteriors 
 $\{\ln[p(z_{j}|\vec{d}_{j})]\}_{J}$ are generated in all test cases.  In Sec. 
+\ref{sec:data} we describe the real datasets used for further tests.  In Sec. 
 \ref{sec:mcmc} we describe the algorithm used to compute the full posterior 
 distribution $\ln[p(\vec{\theta}|\{\vec{d}_{j}\}_{J})]$.  In Sec. 
 \ref{sec:diag} we outline the measures used to evaluate the performance of the 
-method, including the competing methods with which our results will be 
-compared.  Finally, in Sec. \ref{sec:valid} we motivate and present the results 
-of several informative tests.
+method, including the competing methods with which our results will be compared.
 
-\clearpage
-\subsection{Mock data}
+\subsection{Mock Data}
 \label{sec:mock}
 
 To generate mock interim photo-z posteriors, we first produce a catalog of true 
@@ -480,22 +483,22 @@ Gaussian redshift posterior over each bins.  A random sampling of such interim
 redshift posteriors with $K=35$ is shown in Fig. \ref{fig:nullpzs}.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{null/samplepzs.png}
-\caption{}
+\includegraphics[width=0.5\textwidth]{null/samplepzs.png}
+\caption{Several examples of individual photo-z posterior distributions are 
+shown in colors.  The solid lines indicate the true redshift and the dotted 
+lines indicate the shifted redshift used as the center of the Gaussian 
+distribution.}
 \label{fig:nullpzs}
 \end{figure}
 
-%\clearpage
-\subsubsection{Data}
+\subsection{BOSS Data}
 \label{sec:data}
 
-We also test this method on a random subset of the published interim photo-z 
-posteriors of SDSS III DR 10.  A random sampling of the provided interim 
-photo-z posteriors of dimension $K=35$ for $z_{min}=0.3$ and $z_{max}=1.4$ is 
-shown in Fig. \ref{fig:datapzs}.  The interim prior used for this set of 
-interim redshift posteriors is calculated using the method of 
-\citet{Sheldon2012} and was reproduced here since the final result was not 
-published elsewhere.
+We also test this method on subsets of the published interim photo-z posteriors 
+of SDSS III DR 10.  A sampling of the provided interim photo-z posteriors of 
+dimension $K=35$ for $z_{min}=0.3$ and $z_{max}=1.4$ is shown in Fig. 
+\ref{fig:datapzs}.  The interim prior used for this set of interim redshift 
+posteriors is the reweighted estimator of $N(z)$ of \citet{Sheldon2012}.
 
 \begin{figure}
 %\includegraphics[width=0.5\textwidth]{null/samplepzs.png}
@@ -723,89 +726,146 @@ the true value in the simulated tests.
 \section{Validation Tests}
 \label{sec:valid}
 
-The code was tested on several simulated datasets each of size $J=10,000$.  The 
+Here we motivate and present the results of several informative tests.  The 
+code was tested on several simulated datasets each of size $J_{0}=10,000$.  The 
 fiducial experiment of Sec. \ref{sec:null} was generated by code following the 
-procedure given in Sec. \ref{sec:mock}.  Six other cases varied the shapes of 
-the interim photo-z posteriors (Secs. \ref{sec:noisy} and \ref{sec:multi}), the 
-true redshift distribution function (Sec. \ref{sec:fake}), and the interim 
-prior (Sec. \ref{sec:interim}).  
+procedure given in Sec. \ref{sec:mock}.  Six other cases vary the shapes of the 
+interim photo-z posteriors (Sec. \ref{sec:unc}), the true redshift distribution 
+function (Sec. \ref{sec:fake}), and the interim prior (Sec. \ref{sec:interim}). 
+ Two additional cases with real data described in Sec. \ref{sec:data} are also 
+considered.
 
 \clearpage
 \subsection{Fiducial Case}
 \label{sec:null}
 
 For the fiducial experiment, we precisely follow the procedures outlined in 
-Sec. \ref{sec:mock} and Sec. \ref{sec:mcmc}.  Fig. \ref{fig:null} shows the 
-mean sample values and their $1\sigma$ errors as well as the true value of 
-$N(z)$ and the results of stacking and both point estimates.
+Sec. \ref{sec:mock} and Sec. \ref{sec:mcmc}.  Fig. \ref{fig:null-samp} shows 
+some random sample values and the $1\sigma$ errors of the aggregate of samples 
+as well as the true value of $N(z)$ and the estimators derived from stacking 
+and marginalized likelihood maximization.  Fig. \ref{fig:null-comp} compares 
+the mean of the sample values to alternative estimators as well as the truth.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{null/samps.png}
-\caption{}
-\label{fig:null}
+%\includegraphics[width=0.5\textwidth]{null/samps.pdf}
+\caption{The smooth, black curve shows the true $N(z)$ for this test, a sum of 
+Gaussians described in Sec. \ref{sec:mock}.  The flat, gray line is the interim 
+prior used to generate the interim photometric redshift posteriors.  The 
+colored step functions are random samples from the full posterior.  $1\ \sigma$ 
+errors about the mean from the posterior are plotted in gray.  It can be 
+plainly seen that the samples are an excellent estimator of the truth with the 
+true values falling within the error bars.}
+\label{fig:null-samp}
 \end{figure}
 
+\begin{figure}
+%\includegraphics[width=0.5\textwidth]{null/comps.pdf}
+\caption{The smooth, black curve shows the true $N(z)$ for this test, a sum of 
+Gaussians described in Sec. \ref{sec:mock}.  The flat, gray line is the interim 
+prior used to generate the interim photometric redshift posteriors.  The thick 
+black step function is the mean of the samples.  The dotted line is the result 
+of stacking, and the dashed line is the result of marginalized likelihood 
+maximization.  It can be seen that the mean of the samples is a better 
+estimator of the true distribution; stacking overestimates $N(z)$ at the tails 
+and underestimates $N(z)$ at the peaks, and marginalized likelihood 
+maximization is unstable.}
+\label{fig:null-comp}
+\end{figure}
+
+In the fiducial case, hierarchical inference preserves features in the redshift 
+distribution function, whereas stacking tends to smear them out.  Methods using 
+point estimates of redshift also perform well because of the simplicity of the 
+form of the interim photo-z posteriors.
+
 \clearpage
+\subsection{Uncertain interim photo-z posteriors}
+\label{sec:unc}
+
+In the following two tests, we aim to simulate more realistic interim photo-z 
+posteriors by modifying the procedure of Sec. \ref{sec:mock} to introduce 
+imprecision and inaccuracy that increase noisily with the true redshift, as is 
+seen in observed photometric redshifts.
+
 \subsection{Noisy interim photo-z posteriors}
 \label{sec:noisy}
 
-In this test, we aim to simulate more realistic interim photo-z posteriors by 
-modifying the procedure of Sec. \ref{sec:mock} to introduce imprecision that 
-increases noisily with true redshift.  Several factors contribute to 
-photometric redshifts' increased uncertainty with redshift.  As redshift 
-increases, brightness tends to decrease, driving up photometric errors.  The 
-galaxy sample at higher redshifts also changes, meaning the interim prior based 
-on an SED template library or a spectroscopically-confirmed training set may be 
-inappropriate.
+Several factors contribute to photometric redshifts' increased uncertainty with 
+redshift.  As redshift increases, galaxies sharing luminosity are dimmer, 
+driving up photometric errors by way of counting statistics.  The galaxy sample 
+at higher redshifts also changes, meaning the generation of the photometric 
+redshift posterior based on an SED template library or a 
+spectroscopically-confirmed training is more likely to be inappropriate, 
+leading to broader components.
 
-We introduce one change in the steps of Sec. \ref{sec:mock}.  After the shifted 
-redshifts $z'_{j}$ are chosen, the variance of the Gaussian describing the 
-shape of the photo-z posterior is chosen to not be the same $v_{j}$ but rather 
-a random variable $v_{j}'$ drawn from a Gaussian of mean $v_{j}$ and variance 
-$v_{j}^{2}$.  Some interim redshift posteriors from such a test are shown in 
-Fig. \ref{fig:noisypzs}.  The rest of the steps in Sec. \ref{sec:mcmc} are then 
-followed precisely.
+This test case simulates imprecision in interim photometric redshift posteriors 
+by introducing one change in the steps of Sec. \ref{sec:mock}.  After the 
+shifted redshifts $z'_{j}$ are chosen, the variance of the Gaussian describing 
+the shape of the photo-z posterior is chosen to not be the same $v_{j}$ but 
+rather a random variable $v_{j}'$ drawn from a Gaussian of mean $v_{j}\propto 
+1+z_{j}$ and variance $v_{j}^{2}$ such that the width of the Gaussian noisily 
+increases with redshift.  Some interim redshift posteriors from such a test are 
+shown in Fig. \ref{fig:noisypzs}.  The rest of the steps in Sec. \ref{sec:mcmc} 
+are then followed precisely.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{sigma/samplepzs.png}
-\caption{}
+\includegraphics[width=0.5\textwidth]{sigma/samplepzs.png}
+\caption{Several examples of noisified individual photo-z posterior 
+distributions are shown in colors.  The solid lines indicate the true redshift 
+and the dotted lines indicate the shifted redshift used as the center of the 
+Gaussian distribution.  Note that the widths of the Gaussians vary randomly 
+over the samples.}
 \label{fig:noisypzs}
 \end{figure}
 
-Fig. \ref{fig:noisy} shows the mean sample values and their $1\sigma$ errors as 
-well as the true value of $N(z)$ and the results of stacking and both point 
-estimates.
+Fig. \ref{fig:noisy-samp} shows random sample values and their $1\sigma$ errors 
+as well as the true value of $N(z)$.  The mean of the sample values is compared 
+to the results of stacking in Fig. \ref{fig:noisy-comp}.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{null/samps.png}
+%\includegraphics[width=0.5\textwidth]{sigma/samps.pdf}
 \caption{}
-\label{fig:noisy}
+\label{fig:noisy-samp}
 \end{figure}
 
+\begin{figure}
+%\includegraphics[width=0.5\textwidth]{sigma/comps.pdf}
+\caption{}
+\label{fig:noisy-comp}
+\end{figure}
+
+When the interim photo-z posteriors are more complicated hierarchical inference 
+compares more favorably against stacking and point estimators.   Stacking 
+results in more severe loss of features than in the fiducial case for data 
+affected by noise and misclassification.  
+
 \clearpage
-\subsection{Multimodal interim photo-z posteriors}
+\subsubsection{Multimodal interim photo-z posteriors}
 \label{sec:multi}
 
 In this test, we aim to simulate more realistic interim photo-z posteriors by 
 modifying the procedure of Sec. \ref{sec:mock} to introduce inaccuracy that 
 causes catastrophic photo-z errors.  Catastrophic photo-z errors arise from a 
 degeneracy in the space of galaxy SEDs and redshifts, wherein a galaxy of one 
-type at one redshift has photometry indistinguishable from a galaxy of another 
-type at another redshift.  To simulate this case, multimodal interim photo-z 
-posteriors will be considered.
+SED type at one redshift has photometry indistinguishable from a galaxy of 
+another SED type at another redshift.  To simulate this case, multimodal 
+interim photo-z posteriors will be considered.
 
-In this case we introduce another change in Sec. \ref{sec:mock}.  Here, the 
-redshift posteriors are sums of Gaussians of the form of those tested in Sec. 
-\ref{sec:noisy}.  Each galaxy is assigned a number $R_{j}$ of Gaussian elements 
-to be summed, chosen randomly from $1,\dots,K$.  The true redshift of each 
-galaxy $z_{j}^{0}$ is used to generate to $R_{j}$ Gaussian elements with means 
-$\{\{z_{j}^{r_{j}}\}_{R_{j}}\}_{J}$ and standard deviations 
+To achieve this goal we introduce another change in Sec. \ref{sec:mock}.  Here, 
+the redshift posteriors are sums of Gaussians of the form of those tested in 
+Sec. \ref{sec:noisy}.  Each galaxy is assigned a number $R_{j}$ of Gaussian 
+elements to be summed, chosen randomly from $1,\dots,K$.  The true redshift of 
+each galaxy $z_{j}^{0}$ is used to generate to $R_{j}$ Gaussian elements with 
+means $\{\{z_{j}^{r_{j}}\}_{R_{j}}\}_{J}$ and standard deviations 
 $\{\{v_{j}'^{r_{j}}\}_{R_{j}}\}_{J}$.  Some examples of the multimodal interim 
 photo-z posteriors are shown in Fig. \ref{fig:multipzs}.  
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{multi/samplepzs.png}
-\caption{}
+\includegraphics[width=0.5\textwidth]{multi/samplepzs.png}
+\caption{Several examples of individual photo-z posterior distributions are 
+shown in colors.  The solid lines indicate the true redshift and the dotted 
+lines indicate the shifted redshifts used as the centers of the Gaussian 
+components.  Note that the number of components increases with the true 
+redshift and higher redshifts are more likely to be multimodal.}
 \label{fig:multipzs}
 \end{figure}
 
@@ -814,10 +874,21 @@ well as the true value of $N(z)$ and the results of stacking and both point
 estimates.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{null/samps.png}
+%\includegraphics[width=0.5\textwidth]{multi/samps.png}
 \caption{}
-\label{fig:multi}
+\label{fig:multi-samp}
 \end{figure}
+
+\begin{figure}
+%\includegraphics[width=0.5\textwidth]{multi/comps.png}
+\caption{}
+\label{fig:multi-comp}
+\end{figure}
+
+When the interim photo-z posteriors are more complicated hierarchical inference 
+compares more favorably against stacking and point estimators.   Stacking 
+results in more severe loss of features than in the fiducial case for data 
+affected by noise and misclassification.  
 
 \clearpage
 \subsection{Toy Model $N(z)$}
@@ -828,36 +899,70 @@ true $N(z)$.  This is done to show that the sampler works even in extreme and
 unanticipated conditions.  Here we modify the procedure of Sec. \ref{sec:mock}. 
  Instead of sampling the true distribution $p(z|\vec{\theta}')$, we sample a 
 narrow Gaussian.  The rest of Sec. \ref{sec:mock} is followed precisely.  Sec. 
-\ref{sec:mcmc} is followed without alteration.
+\ref{sec:mcmc} is followed without alteration.  Fig. \ref{fig:toy-samp} shows 
+some samples from the posterior as compared to the true $N(z)$ and Fig. 
+\ref{fig:toy-comp} compares the mean of the posterior samples to the results of 
+stacking and marginalized likelihood maximization.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{samps-toy.png}
-\caption{}
-\label{fig:dumbestparam}
+%\includegraphics[width=0.5\textwidth]{toy/samps.png}
+\caption{The smooth, solid, black line shows the true $N(z)$ for the toy model 
+case.  The dashed line shows the result of stacking the interim photo-z 
+posteriors; one can see that the distribution is broader and shorter than the 
+true $N(z)$.  The dotted line shows the marginalized maximum likelihood 
+estimator; one can see that the distribution is narrower than the true $N(z)$.  
+Finally, the colored lines are random samples from the posterior, which trace 
+the true distribution better at the tails than the stacked result and better at 
+the peak than the marginalized maximum likelihood estimator.  The gray error 
+bars encompass the true distribution everywhere.}
+\label{fig:toy-samp}
+\end{figure}
+
+\begin{figure}
+%\includegraphics[width=0.5\textwidth]{toy/comps.png}
+\caption{The smooth, solid, black line shows the true $N(z)$ for the toy model 
+case.  The dashed line shows the result of stacking the interim photo-z 
+posteriors; one can see that the distribution is broader and shorter than the 
+true $N(z)$.  The dotted line shows the marginalized maximum likelihood 
+estimator; one can see that the distribution is narrower than the true $N(z)$.  
+Finally, the colored lines are random samples from the posterior, which trace 
+the true distribution better at the tails than the stacked result and better at 
+the peak than the marginalized maximum likelihood estimator.  The gray error 
+bars encompass the true distribution everywhere.}
+\label{fig:toy-comp}
 \end{figure}
 
 \clearpage
 \subsection{Variable Interim Prior}
 \label{sec:interim}
 
-In this case, we vary the interim prior used in Sec. \ref{sec:mock} to show 
-that an appropriate choice of interim prior is crucial to sampler performance.  
-Typically, interim redshift posteriors are made with an interim prior derived 
-from $N(z)$ in a previous observational study.  Since most observational 
-studies used for this purpose are spectroscopically confirmed and objects for 
-which photometric redshifts are relied upon make up a population that cannot be 
-spectroscopically confirmed, such an interim prior is rarely appropriate.  Some 
-efforts have been made to modify an observationally informed interim prior so 
-that it is more representative of the data set.  \citep{Sheldon2012}  However, 
-any interim prior of this kind imparts information into the interim redshift 
-posteriors.  Ideally, an uninformative interim prior would be used, although it 
-may be complicated to compute from the covariances of the raw data.  In this 
-test, we consider two obviously inappropriate interim priors and compare it to 
-the flat interim prior used in previous tests according to Sec. \ref{sec:mock}. 
- The rest of the procedure of \ref{sec:mcmc} is followed precisely.
+In the following two cases we vary the interim prior used in Sec. 
+\ref{sec:mock} to show that the sampler is robust to inappropriate choices of 
+interim prior so long as that interim prior is known.  Typically, interim 
+redshift posteriors are made with an interim prior derived from $N(z)$ in a 
+previous observational study.  Since most observational studies used for this 
+purpose are spectroscopically confirmed and objects for which photometric 
+redshifts are relied upon make up a population that cannot be spectroscopically 
+confirmed, such an interim prior is rarely appropriate.  Some efforts have been 
+made to modify an observationally informed interim prior so that it is more 
+representative of the data set.  \citep{Sheldon2012}  However, any interim 
+prior of this kind imparts information into the interim redshift posteriors.  
+Ideally, an uninformative interim prior would be used, although it may be 
+complicated to compute from the covariances of the raw data.  In this test, we 
+consider two obviously inappropriate interim priors and compare it to the flat 
+interim prior used in previous tests according to Sec. \ref{sec:mock}.  The 
+rest of the procedure of \ref{sec:mcmc} is followed precisely.
 
-\clearpage
-\subsection{Low-z Favoring Interim Prior}
+The most compelling case for hierarchical inference of the redshift 
+distribution function is that of an inappropriate interim prior distribution.  
+Stacking and point estimates are strongly affected by this bias introduced to 
+the interim photo-z posteriors, but inference of the full posterior on the 
+redshift distribution function compensates for it.  So long as the interim 
+prior is known and regardless of whether it is uninformative or an accurate 
+description of the data, the probabilistic approach may compensate for it and 
+recover the true redshift distribution function.
+
+\subsubsection{Low-z Favoring Interim Prior}
 \label{sec:lowz}
 
 In some cases, the interim prior is determined directly from a previous 
@@ -869,16 +974,21 @@ making them more likely to be at higher redshifts.  Since the interim prior is
 not compatible with our beliefs about the true redshift distribution, the 
 resulting interim redshift posteriors will be inappropriate.  In this test, we 
 choose an interim prior with most of its weight at low redshifts.  The results 
-of the inference are shown in Fig. \ref{fig:uparam}.
+of the inference are shown in Figs. \ref{fig:intu-samp} and \ref{fig:intu-comp}.
 
 \begin{figure}
 %\includegraphics[width=0.5\textwidth]{int-u/samps.png}
 \caption{}
-\label{fig:uparam}
+\label{fig:intu-samp}
 \end{figure}
 
-\clearpage
-\subsection{Mid-z Disfavoring Interim Prior}
+\begin{figure}
+%\includegraphics[width=0.5\textwidth]{int-u/comps.png}
+\caption{}
+\label{fig:intu-comp}
+\end{figure}
+
+\subsubsection{Mid-z Disfavoring Interim Prior}
 \label{sec:midz}
 
 One potential method for selecting an interim prior with support over the 
@@ -888,21 +998,35 @@ This is also problematic because the sum of redshift distributions for two or
 more surveys does not reflect our beliefs about the true distribution for a 
 single survey.  To simulate this, we choose an interim prior with more weight 
 at high and low redshifts than for mid-range redshifts.  The results of the 
-inference are shown in Fig. \ref{fig:bparam}.
+inference are shown in Figs. \ref{fig:intb-samp} and \ref{fig:intb-comp}.
 
 \begin{figure}
 %\includegraphics[width=0.5\textwidth]{int-b/samps.png}
 \caption{}
-\label{fig:bparam}
+\label{fig:intb-samp}
+\end{figure}
+
+\begin{figure}
+%\includegraphics[width=0.5\textwidth]{int-b/comps.png}
+\caption{}
+\label{fig:intb-comp}
 \end{figure}
 
 \clearpage
-\section{Real Test}
+\subsection{Data}
 \label{sec:boss}
 
-In addition to simulated tests, we also apply this method to data described in 
-Sec. \ref{sec:data}.  The results of the inference are shown in Fig. 
-\ref{fig:dataparam}.
+In addition to simulated tests, we also apply this method to a samples of the 
+data described in Sec. \ref{sec:data}.  In these cases the true $N(z)$ is not 
+known, but the fully probabilistic method presented here may still be compared 
+to what is obtained by alternative approaches.
+
+\subsubsection{Unbiased Data}
+\label{sec:unbiased}
+
+A pseudo-random sampling of the full dataset is examined to approximate the 
+behavior of an unbiased galaxy survey.  The results of the inference are shown 
+in Fig. \ref{fig:dataparam}.
 
 \begin{figure}
 %\includegraphics[width=0.5\textwidth]{data/samps.png}
@@ -910,39 +1034,32 @@ Sec. \ref{sec:data}.  The results of the inference are shown in Fig.
 \label{fig:dataparam}
 \end{figure}
 
-\clearpage
-\section{Discussion}
-\label{sec:disc}
+\subsubsection{Biased Data}
+\label{sec:biased}
 
-In the fiducial case of Sec. \ref{sec:null}, hierarchical inference preserves 
-features in the redshift distribution function, whereas stacking tends to smear 
-them out.  Methods using point estimates of redshift also perform well because 
-of the simplicity of the form of the interim photo-z posteriors.
+A pseudo-random sampling of the full dataset with a cut in $r$-band magnitude 
+is examined to approximate the behavior of a biased galaxy survey with a 
+magnitude limit.  The results of the inference are shown in Fig. 
+\ref{fig:biasparam}.
 
-When the interim photo-z posteriors are more complicated, as in Secs. 
-\ref{sec:noisy} and \ref{sec:multi}, hierarchical inference compares more 
-favorably against stacking and point estimators.   Stacking results in more 
-severe loss of features than in the fiducial case for data affected by noise 
-and misclassification.  
-
-The most compelling case for hierarchical inference of the redshift 
-distribution function is that of an inappropriate interim prior distribution.  
-Stacking and point estimates are strongly affected by this bias introduced to 
-the interim photo-z posteriors, but inference of the full posterior on the 
-redshift distribution function compensates for it.  So long as the interim 
-prior is known and regardless of whether it is uninformative or an accurate 
-description of the data, the probabilistic approach may compensate for it and 
-recover the true redshift distribution function.
+\begin{figure}
+%\includegraphics[width=0.5\textwidth]{data/samps.png}
+\caption{}
+\label{fig:biasparam}
+\end{figure}
 
 \clearpage
 \section{Conclusion}
 \label{sec:con}
 
-This study demonstrates a mathematically consistent implementation of inference 
-of a one-point statistic based on interim photo-z posteriors and supports the 
-production of interim photo-z posteriors by upcoming photometric surveys such 
-as LSST so that more accurate inference of physical parameters may be 
-accessible to the scientific community.  We discourage researchers from 
+This study derives and demonstrates a mathematically consistent implementation 
+of inference of a one-point statistic based on interim photo-z posteriors.  
+
+By showing that this method is effective in recovering the true redshift 
+distribution function from simulated interim photo-z posteriors, this work 
+supports the production of interim photo-z posteriors by upcoming photometric 
+surveys such as LSST so that more accurate inference of physical parameters may 
+be accessible to the scientific community.  We discourage researchers from 
 co-adding interim photo-z posteriors or converting them into point estimates of 
 redshift and instead recommend the use of Bayesian probability to guide the 
 usage of interim photo-z posteriors in science.  We emphasize to those who 
