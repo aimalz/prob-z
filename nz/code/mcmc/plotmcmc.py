@@ -394,7 +394,7 @@ class plotter_samps(plotter):
                     plotstep(sps_samp,self.meta.binends,plot_y_s[x][w],s=s_smp,w=w_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
 #                 self.plotone(plot_y_ls[x][w],plot_y_s[x][w],w=w_smp,s=s_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
 
-            self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.pdf'),dpi=100)
+            self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),dpi=100)
 
             timesaver(self.meta,'samps',key)
 
