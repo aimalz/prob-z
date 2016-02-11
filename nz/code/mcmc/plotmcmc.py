@@ -81,7 +81,7 @@ def plotv(subplot,binends,plot,s='-',c='k',a=1,w=1,l=None):
                    rasterized=True)
 
 def footer(subplot):
-    subplot.annotate('Malz, et al. (2015)',(0,0), (0, -20), xycoords='axes fraction', textcoords='offset points', va='top')
+    subplot.annotate('Malz+2015',(0,0), (0, -20), xycoords='axes fraction', textcoords='offset points', va='top')
     return
 
 def timesaver(meta,name,key):
@@ -439,9 +439,12 @@ class plotter_samps(plotter):
         # sps_samp.set_ylim(0,self.meta.nbins*self.meta.ngals/10.)
         sps_samp_log.legend(fontsize='xx-small', loc='lower center')
         sps_samp.legend(fontsize='xx-small', loc='upper left')
+        footer(sps_samp_log)
+        footer(sps_samp)
 
         self.summary(locs,x_cors,y_cors)
 
+        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),dpi=100)
         self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.pdf'),dpi=100)
 
         timesaver(self.meta,'samps-done',key)
@@ -493,7 +496,10 @@ class plotter_samps(plotter):
 
         sps_comp_log.legend(fontsize='xx-small', loc='lower center')
         sps_comp.legend(fontsize='xx-small', loc='upper left')
+        footer(sps_comp_log)
+        footer(sps_comp)
 
+        self.f_comps.savefig(os.path.join(self.meta.topdir,'comps.png'),dpi=100)
         self.f_comps.savefig(os.path.join(self.meta.topdir,'comps.pdf'),dpi=100)
 
 #plot full posterior chain evolution
