@@ -343,7 +343,9 @@ class setup(object):
             self.miniters = int(1e3)
 
         if 'thinto' in indict:
-            self.thinto = int(indict['thinto'])
+            self.thinto = bool(int(indict['thinto'][0]))
+            if self.thinto == True:
+                self.thinto = self.miniters/10#int(indict['thinto'])
         else:
             self.thinto = 1
 
