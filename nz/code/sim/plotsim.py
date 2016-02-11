@@ -127,10 +127,10 @@ def plot_true(meta, test):
 def plot_pdfs(meta,test):
     f = plt.figure(figsize=(5,5))
     sps = f.add_subplot(1,1,1)
-    f.suptitle('Observed galaxy posteriors for '+meta.name)
+#     f.suptitle('Observed galaxy posteriors for '+meta.name)
     sps.plot([-1.],[-1.],color='k',linestyle='-.',label=r'True $z$')
     sps.plot([-1.],[-1.],color='k',linestyle=':',label=r'$E(z)$')
-    sps.legend(loc='upper left')
+    sps.legend(loc='upper left',fontsize='x-small')
     #sps.set_title('multimodal='+str(meta.shape)+', noisy='+str(meta.noise))
     for r in us.lrange(test.randos):
         plotstep(sps,test.binends,test.pdfs[test.randos[r]],col=meta.colors[r])#,alpha=a)
