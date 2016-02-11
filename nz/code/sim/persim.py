@@ -108,7 +108,7 @@ class pertest(object):
 
     def choosetrue(self):
 
-        # we can re-calculate npeaks later from shiftZs or sigZs.
+        # choose npeaks before sigma so you know how many to pick
         if self.meta.shape == True:
             np.random.seed(seed=self.seed)
             weights = [1./k for k in xrange(1,self.ndims)]
@@ -116,13 +116,13 @@ class pertest(object):
         else:
             self.npeaks = [1]*self.ngals
 
-        # define 1+z and variance to use for sampling z
+        # choose random sigma
         self.var = us.tnorm(self.zdif,self.zdif,[0.,self.allzs[-1]])
         self.modZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])#self.truZs+1.
         self.varZs = self.modZs#*self.zdif
         # np.random.shuffle(self.modZs)
 
-        #test all galaxies in survey have same true redshift vs. sample from physPz
+        # test all galaxies in survey have same true redshift vs. sample from physPz
         if self.meta.random == True:
             np.random.seed(seed=self.seed)
             self.truZs = self.real.sample(self.ngals)
@@ -136,22 +136,17 @@ class pertest(object):
 
     def makedat(self):
 
-        # jitter zs to simulate inaccuracy, choose variance randomly for eah peak
-        np.random.seed(seed=self.seed)
-        self.obsZs = np.array([[np.random.normal(loc=self.truZs[j],scale=self.varZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-
-        # standard deviation of peaks directly dependent on true redshift vs Gaussian
+        # test increasing sigma associated with increasing z
         if self.meta.sigma == True:# or self.meta.shape == True:
             # np.random.seed(seed=self.seed)
-#             print(self.varZs[:100])
-#             self.varZs = self.varZs.flat
             self.varZs.sort(axis=0)
-#             print(self.varZs)
-#             self.sigZs = np.array([[self.varZs[j]] for j in xrange(self.ngals)])
             self.truZs.sort(axis=0)
 #             self.sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j],scale=self.varZs[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-        # else:
         self.sigZs = self.varZs#np.array([[self.varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+
+        # jitter peak zs given sigma to simulate inaccuracy
+        np.random.seed(seed=self.seed)
+        self.obsZs = np.array([[np.random.normal(loc=self.truZs[j],scale=self.sigZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
         self.minobs = min(min(self.obsZs))
         self.maxobs = max(max(self.obsZs))
