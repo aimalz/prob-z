@@ -366,8 +366,6 @@ class plotter_samps(plotter):
         if self.meta.logtruNz is not None:
             plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+lnz)
             plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+nz)
-#             plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,s='-',w=2)
-#             plotstep(sps_samp,self.meta.binends,self.meta.truNz,s='-',w=2)
             sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
             sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
 
@@ -381,7 +379,7 @@ class plotter_samps(plotter):
             data = key.load_state(self.meta.topdir)['chains']
 
             plot_y_ls = np.swapaxes(data,0,1)
-            plot_y_s = np.exp(plot_y_ls)
+#             plot_y_s = np.exp(plot_y_ls)
 
             randsteps = random.sample(xrange(self.meta.ntimes),1)#xrange(self.meta.ntimes)#self.ncolors)
             randwalks = random.sample(xrange(self.meta.nwalkers),1)#xrange(self.meta.nwalkers)#self.ncolors)
@@ -391,12 +389,12 @@ class plotter_samps(plotter):
             for w in randwalks:
                 for x in randsteps:
                     plotstep(sps_samp_log,self.meta.binends,plot_y_ls[x][w],s=s_smp,w=w_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
-                    plotstep(sps_samp,self.meta.binends,plot_y_s[x][w],s=s_smp,w=w_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
+                    plotstep(sps_samp,self.meta.binends,np.exp(plot_y_ls[x][w]),s=s_smp,w=w_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
 #                 self.plotone(plot_y_ls[x][w],plot_y_s[x][w],w=w_smp,s=s_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
 
             self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),dpi=100)
 
-            timesaver(self.meta,'samps',key)
+        timesaver(self.meta,'samps',key)
 
     def finish(self):
         timesaver(self.meta,'samps-start',key)
@@ -417,7 +415,7 @@ class plotter_samps(plotter):
             tuples = (line.split(None) for line in csvfile)
             alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
             alldata = np.array(alldata).T
-            print(str(self.last_key.r)+' alldata shape '+str(np.shape(alldata)))
+#             print(str(self.last_key.r)+' alldata shape '+str(np.shape(alldata)))
 
         locs,scales = [],[]
         x_cors,y_cors = [],[]
