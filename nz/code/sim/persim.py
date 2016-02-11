@@ -108,15 +108,11 @@ class pertest(object):
 
     def choosetrue(self):
 
-        # we can re-calculate npeaks later from shiftZs or sigZs.               
+        # we can re-calculate npeaks later from shiftZs or sigZs.
         if self.meta.shape == True:
             np.random.seed(seed=self.seed)
             weights = [1./k for k in xrange(1,self.ndims)]
-            print(weights[:100])
-            self.npeaks = np.array([us.choice(xrange(1,self.ndims),weights) for\
- j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in\
- xrange(self.ngals)])                                                           
-            print self.npeaks[:100]
+            self.npeaks = np.array([us.choice(xrange(1,self.ndims),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
         else:
             self.npeaks = [1]*self.ngals
 
@@ -135,8 +131,8 @@ class pertest(object):
             self.meta.real = np.array([np.array([center,1./self.surv,1.])])
             self.real = us.gmix(self.meta.real,(self.allzs[0],self.allzs[-1]))
             self.truZs = np.array([center]*self.ngals)
-        np.random.seed(seed=self.seed)
-        np.random.shuffle(self.truZs)
+#         np.random.seed(seed=self.seed)
+#         np.random.shuffle(self.truZs)
 
     def makedat(self):
 
@@ -145,11 +141,17 @@ class pertest(object):
         self.obsZs = np.array([[np.random.normal(loc=self.truZs[j],scale=self.varZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
         # standard deviation of peaks directly dependent on true redshift vs Gaussian
-#         if self.meta.sigma == True or self.meta.shape == True:
-#             np.random.seed(seed=self.seed)
+        if self.meta.sigma == True:# or self.meta.shape == True:
+            # np.random.seed(seed=self.seed)
+#             print(self.varZs[:100])
+#             self.varZs = self.varZs.flat
+            self.varZs.sort(axis=0)
+#             print(self.varZs)
+#             self.sigZs = np.array([[self.varZs[j]] for j in xrange(self.ngals)])
+            self.truZs.sort(axis=0)
 #             self.sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j],scale=self.varZs[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-#         else:
-#             self.sigZs = np.array([[self.varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+        # else:
+        self.sigZs = self.varZs#np.array([[self.varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
         self.minobs = min(min(self.obsZs))
         self.maxobs = max(max(self.obsZs))
