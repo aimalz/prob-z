@@ -20,6 +20,7 @@ import scipy as sp
 import distribute
 from utilmcmc import *
 from keymcmc import key
+import statmcmc as sm
 
 # set up for better looking plots
 title = 15
@@ -35,7 +36,7 @@ mpl.rcParams['figure.subplot.wspace'] = 0.5
 mpl.rcParams['figure.subplot.hspace'] = 0.5
 
 global lnz,nz,tv,t
-lnz,nz,tv,t = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$'
+lnz,nz,tv,t,kld = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$','KLD='
 # setting up unified appearance parameters
 global s_tru,w_tru,a_tru,c_tru,l_tru
 s_tru,w_tru,a_tru,c_tru,l_tru = '-',1.,1.,'k','True '
@@ -52,7 +53,7 @@ s_mml,w_mml,a_mml,c_mml,l_mml = '--',1.,1.,'k','MMLE '
 global s_smp,w_smp,a_smp,c_smp,l_smp
 s_smp,w_smp,a_smp,c_smp,l_smp = '-',1.,1.,'k','Sampled '
 global s_bfe,w_bfe,a_bfe,c_bfe,l_bfe
-s_bfe,w_bfe,a_bfe,c_bfe,l_bfe = '-',2.,1.,'k','Mean of Samples\' '
+s_bfe,w_bfe,a_bfe,c_bfe,l_bfe = '-',2.,1.,'k','Mean of\n Samples '
 
 #making a step function plotter because pyplot is stupid
 def plotstep(subplot,binends,plot,s='-',c='k',a=1,w=1,l=None):
@@ -81,7 +82,7 @@ def plotv(subplot,binends,plot,s='-',c='k',a=1,w=1,l=None):
                    rasterized=True)
 
 def footer(subplot):
-    subplot.annotate('Malz+2015',(0,0), (0, -20), xycoords='axes fraction', textcoords='offset points', va='top')
+    subplot.annotate('Malz+2016',(0,0), (190,18), xycoords='axes fraction', textcoords='offset points', va='top')
     return
 
 def timesaver(meta,name,key):
@@ -311,17 +312,17 @@ class plotter_probs(plotter):
         with open(os.path.join(self.meta.topdir,'stat_probs.p'),'rb') as statprobs:
             probs = cpkl.load(statprobs)
 
-#         yrange = self.medy#np.array(self.medy+[probs['lp_truNz'],probs['lp_stkNz'],probs['lp_mapNz'],probs['lp_expNz']])
+#         yrange = self.medy#np.array(self.medy+[probs['lp_tru'],probs['lp_stkNz'],probs['lp_mapNz'],probs['lp_expNz']])
 #         miny = np.min(yrange)-np.log(self.meta.ngals)
 #         maxy = np.max(yrange)+np.log(self.meta.ngals)
 
         if self.meta.logtruNz is not None:
-            self.plotone(probs['lp_truNz'],w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+tv)
-            self.plotone(probs['lp_stkNz'],w=w_stk,s=s_stk,a=a_stk,c=c_stk,l=l_stk+tv)
-#             self.plotone(probs['lp_mapNz'],w=w_map,s=s_map,a=a_map,c=c_map,l=l_map+tv)
-#             self.plotone(probs['lp_expNz'],w=w_exp,s=s_exp,a=a_exp,c=c_exp,l=l_exp+tv)
-            self.plotone(probs['lp_mmlNz'],w=w_mml,s=s_mml,a=a_mml,c=c_mml,l=l_mml+tv)#r'MMLE $\vec{\theta}$',w=2.,s=':')
-#             self.plotone(probs['lp_intNz'],w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+tv
+            self.plotone(probs['lp_tru'],w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+tv)
+            self.plotone(probs['lp_stk'],w=w_stk,s=s_stk,a=a_stk,c=c_stk,l=l_stk+tv)
+#             self.plotone(probs['lp_map'],w=w_map,s=s_map,a=a_map,c=c_map,l=l_map+tv)
+#             self.plotone(probs['lp_exp'],w=w_exp,s=s_exp,a=a_exp,c=c_exp,l=l_exp+tv)
+            self.plotone(probs['lp_mml'],w=w_mml,s=s_mml,a=a_mml,c=c_mml,l=l_mml+tv)#r'MMLE $\vec{\theta}$',w=2.,s=':')
+#             self.plotone(probs['lp_int'],w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+tv
 
         self.sps.legend(fontsize='xx-small', loc='upper right')
         self.sps.set_xlim(-1*self.meta.miniters,(self.last_key.r+2)*self.meta.miniters)
@@ -346,8 +347,8 @@ class plotter_samps(plotter):
         self.f_samps = plt.figure(figsize=(5, 10))
         self.sps_samps = [self.f_samps.add_subplot(2,1,l+1) for l in xrange(0,2)]
 
-        self.f_comps = plt.figure(figsize=(5, 10))
-        self.sps_comps = [self.f_comps.add_subplot(2,1,l+1) for l in xrange(0,2)]
+#         self.f_comps = plt.figure(figsize=(5, 10))
+#         self.sps_comps = [self.f_comps.add_subplot(2,1,l+1) for l in xrange(0,2)]
 
         sps_samp_log = self.sps_samps[0]
         sps_samp = self.sps_samps[1]
@@ -374,7 +375,7 @@ class plotter_samps(plotter):
         with open(os.path.join(self.meta.topdir,'iterno.p')) as where:
             iterno = cpkl.load(where)
 
-        if (self.meta.plotonly == 0 and key.burnin == False) or (self.meta.plotonly == 1 and key.r >= iterno/self.meta.factor):
+        if (self.meta.plotonly == 0 and key.burnin == False) or (self.meta.plotonly == 1 and key.r >= float(iterno-1.)/self.meta.factor):
 
             data = key.load_state(self.meta.topdir)['chains']
 
@@ -401,15 +402,26 @@ class plotter_samps(plotter):
         sps_samp_log = self.sps_samps[0]
         sps_samp = self.sps_samps[1]
 
-#         with open(os.path.join(self.meta.topdir,'stat_chains.p'),'rb') as statchains:
-#             gofs = cpkl.load(statchains)#self.meta.key.load_stats(self.meta.topdir,'chains',self.last_key.r+1)[0]
+        self.calcbfe()
+        self.ploterr(sps_samp_log,sps_samp)
+        self.plotsamp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,l=l_bfe)
 
-#         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
-#             both = cpkl.load(statboth)
+        if self.meta.logtruNz is not None:
+            sps_samp_log.set_ylim(-1,np.max(self.meta.lNz_range)+1.)
+            sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
+        sps_samp_log.legend(fontsize='xx-small', loc='lower center')
+        sps_samp.legend(fontsize='xx-small', loc='upper left')
+        footer(sps_samp_log)
+        footer(sps_samp)
 
-#         for v in lrange(both['mapvals']):
-#             plotstep(sps_samp_log,self.meta.binends,both['mapvals'][v],w=2,c=self.meta.colors[v%self.ncolors])
-#             plotstep(sps_samp,self.meta.binends,np.exp(both['mapvals'][v]),w=2,c=self.meta.colors[v%self.ncolors])
+        self.summary()
+
+        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),dpi=100)
+        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.pdf'),dpi=100)
+
+        timesaver(self.meta,'samps-done',key)
+
+    def calcbfe(self):
 
         with open(os.path.join(self.meta.topdir,'samples.csv'),'rb') as csvfile:
             tuples = (line.split(None) for line in csvfile)
@@ -418,34 +430,33 @@ class plotter_samps(plotter):
 #             print(str(self.last_key.r)+' alldata shape '+str(np.shape(alldata)))
 
         locs,scales = [],[]
-        x_cors,y_cors = [],[]
+        x_cors,y_cors,y_cors2 = [],[],[]
         for k in xrange(self.meta.nbins):
             y_all = alldata[k].flatten()
             loc,scale = sp.stats.norm.fit_loc_scale(y_all)
-            locs.append(loc)
-            scales.append(scale)
             x_cor = [self.meta.binends[k],self.meta.binends[k],self.meta.binends[k+1],self.meta.binends[k+1]]
             y_cor = np.array([loc-scale,loc+scale,loc+scale,loc-scale])
+            y_cor2 = np.array([loc-2*scale,loc+2*scale,loc+2*scale,loc-2*scale])
+            locs.append(loc)
+            scales.append(scale)
             x_cors.append(x_cor)
             y_cors.append(y_cor)
-            sps_samp_log.fill(x_cor,y_cor,color='k',alpha=0.1,linewidth=0.)
-            sps_samp.fill(x_cor,np.exp(y_cor),color='k',alpha=0.1,linewidth=0.)
-        locs = np.array(locs)
-        self.plotsamp(locs,np.exp(locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,l=l_bfe)
+            y_cors2.append(y_cor2)
+        self.locs = np.array(locs)
+        self.scales = np.array(scales)
+        self.x_cors = np.array(x_cors)
+        self.y_cors = np.array(y_cors)
+        self.y_cors2 = np.array(y_cors2)
 
-        # sps_samp_log.set_ylim(np.log(self.meta.ngals/10.)-1.,np.log(self.meta.ngals*10.)-1.)
-        # sps_samp.set_ylim(0,self.meta.nbins*self.meta.ngals/10.)
-        sps_samp_log.legend(fontsize='xx-small', loc='lower center')
-        sps_samp.legend(fontsize='xx-small', loc='upper left')
-        footer(sps_samp_log)
-        footer(sps_samp)
+    def ploterr(self,logplot,plot):
 
-        self.summary(locs,x_cors,y_cors)
+        for k in xrange(self.meta.nbins):
+            logplot.fill(self.x_cors[k],self.y_cors2[k],color='k',alpha=0.2,linewidth=0.)
+            plot.fill(self.x_cors[k],np.exp(self.y_cors2[k]),color='k',alpha=0.2,linewidth=0.)
+            logplot.fill(self.x_cors[k],self.y_cors[k],color='k',alpha=0.3,linewidth=0.)
+            plot.fill(self.x_cors[k],np.exp(self.y_cors[k]),color='k',alpha=0.3,linewidth=0.)
 
-        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),dpi=100)
-        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.pdf'),dpi=100)
-
-        timesaver(self.meta,'samps-done',key)
+        self.plotsamp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,l=l_bfe)
 
     def plotsamp(self,logy,y,w=1.,s='-',a=1.,c='k',l=' '):
         sps_samp_log = self.sps_samps[0]
@@ -456,41 +467,57 @@ class plotter_samps(plotter):
     def plotcomp(self,logy,y,w=1.,s='-',a=1.,c='k',l=' '):
         sps_comp_log = self.sps_comps[0]
         sps_comp = self.sps_comps[1]
-        plotstep(sps_comp_log,self.meta.binends,logy,w=w,s=s,a=a,c=c,l=l+lnz)
-        plotstep(sps_comp,self.meta.binends,y,w=w,s=s,a=a,c=c,l=l+nz)
+        plotstep(sps_comp_log,self.meta.binends,logy,w=w,s=s,a=a,c=c,l=l)
+        plotstep(sps_comp,self.meta.binends,y,w=w,s=s,a=a,c=c,l=l)
 
-    def summary(self,locs,x_cors,y_cors):
-        sps = [self.f_comps.add_subplot(2,1,l+1) for l in xrange(0,2)]
+    def prepstats(self):
+
+        with open(os.path.join(self.meta.topdir,'stat_chains.p'),'rb') as statchains:
+            kls = cpkl.load(statchains)#self.meta.key.load_stats(self.meta.topdir,'chains',self.last_key.r+1)[0]
+#         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
+#             both = cpkl.load(statboth)
+#         for v in lrange(both['mapvals']):
+#             plotstep(sps_samp_log,self.meta.binends,both['mapvals'][v],w=2,c=self.meta.colors[v%self.ncolors])
+#             plotstep(sps_samp,self.meta.binends,np.exp(both['mapvals'][v]),w=2,c=self.meta.colors[v%self.ncolors])
+        self.kl_mml = min(kls['kl_mmlvtru'],kls['kl_truvmml'])
+        self.kl_stk = min(kls['kl_stkvtru'],kls['kl_truvstk'])
+#         self.kl_map = min(kls['kl_mapvtru'],kls['kl_truvmap'])
+#         self.kl_exp = min(kls['kl_expvtru'],kls['kl_truvexp'])
+        self.kl_smp = min(sm.calckl(self.meta.bindifs,self.locs,self.meta.logtruNz))
+
+    def summary(self):
+
+        self.f_comps = plt.figure(figsize=(5, 10))
+        self.sps_comps = [self.f_comps.add_subplot(2,1,l+1) for l in xrange(0,2)]
         sps_comp_log = self.sps_comps[0]
         sps_comp = self.sps_comps[1]
 
         sps_comp_log.set_xlim(self.meta.binends[0]-self.meta.bindif,self.meta.binends[-1]+self.meta.bindif)
-#         sps_comp_log.set_ylim(-1.,m.log(self.meta.ngals/self.meta.bindif)+1.)
         sps_comp_log.set_xlabel(r'$z$')
         sps_comp_log.set_ylabel(r'$\ln N(z)$')
         sps_comp.set_xlim(self.meta.binends[0]-self.meta.bindif,self.meta.binends[-1]+self.meta.bindif)
-#         sps_comp.set_ylim(0.,self.meta.ngals/self.meta.bindif+self.meta.ngals)
         sps_comp.set_xlabel(r'$z$')
         sps_comp.set_ylabel(r'$N(z)$')
 
-        self.plotcomp(self.meta.logstkNz,self.meta.stkNz,w=w_stk,s=s_stk,a=a_stk,c=c_stk,l=l_stk)
-#         self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,l=l_map)
-#         self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,l=l_exp)
-        self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,l=l_mml)
-        self.plotcomp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int)
-
         if self.meta.logtruNz is not None:
+            self.prepstats()
             plotstep(sps_comp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+lnz)
             plotstep(sps_comp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+nz)
-#             plotstep(sps_samp_log,self.meta.binends,self.meta.logtruNz,s='-',w=2)
-#             plotstep(sps_samp,self.meta.binends,self.meta.truNz,s='-',w=2)
-            sps_comp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
+            sps_comp_log.set_ylim(-1,np.max(self.meta.lNz_range)+1.)
             sps_comp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
+        else:
+            self.kl_stk,self.kl_mml,self.kl_smp = None,None,None
 
-        for k in xrange(self.meta.nbins):
-            sps_comp_log.fill(x_cors[k],y_cors[k],color='k',alpha=0.1,linewidth=0.)
-            sps_comp.fill(x_cors[k],np.exp(y_cors[k]),color='k',alpha=0.1,linewidth=0.)
-        self.plotcomp(locs,np.exp(locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,l=l_bfe)
+        self.prepstats()
+
+        self.plotcomp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int)
+        self.plotcomp(self.meta.logstkNz,self.meta.stkNz,w=w_stk,s=s_stk,a=a_stk,c=c_stk,l=l_stk+kld+str(self.kl_stk))
+#         self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,l=l_map+kld+str(self.kl_map))
+#         self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,l=l_exp+kld+str(self.kl_exp))
+        self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,l=l_mml+kld+str(self.kl_mml))
+
+        self.ploterr(sps_comp_log,sps_comp)
+        self.plotcomp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,l=l_bfe+kld+str(self.kl_smp))
 
         sps_comp_log.legend(fontsize='xx-small', loc='lower center')
         sps_comp.legend(fontsize='xx-small', loc='upper left')
