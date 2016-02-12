@@ -118,8 +118,8 @@ class pertest(object):
 
         # choose random sigma
         self.var = us.tnorm(self.zdif,self.zdif,[0.,self.allzs[-1]])
-        self.modZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])#self.truZs+1.
-        self.varZs = self.modZs#*self.zdif
+        # self.modZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])#self.truZs+1.
+        self.varZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])#*self.zdif
         # np.random.shuffle(self.modZs)
 
         # test all galaxies in survey have same true redshift vs. sample from physPz
@@ -138,17 +138,17 @@ class pertest(object):
 
         # test increasing sigma associated with increasing z
         if self.meta.sigma == True:# or self.meta.shape == True:
-            # np.random.seed(seed=self.seed)
+            np.random.seed(seed=self.seed*2)
 #             self.varZs.sort(axis=0)
 #             self.truZs.sort(axis=0)
 #             self.sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j],scale=self.varZs[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-            self.sigZs = self.varZs*(1.+self.truZs)
+            self.sigZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
         else:
             self.sigZs = self.varZs#np.array([[self.varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
         # jitter peak zs given sigma to simulate inaccuracy
         np.random.seed(seed=self.seed)
-        self.obsZs = np.array([[np.random.normal(loc=self.truZs[j],scale=self.sigZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+        self.obsZs = np.array([[np.random.normal(loc=self.truZs[j],scale=self.varZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
         self.minobs = min(min(self.obsZs))
         self.maxobs = max(max(self.obsZs))
