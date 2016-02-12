@@ -139,10 +139,12 @@ class pertest(object):
         # test increasing sigma associated with increasing z
         if self.meta.sigma == True:# or self.meta.shape == True:
             # np.random.seed(seed=self.seed)
-            self.varZs.sort(axis=0)
-            self.truZs.sort(axis=0)
+#             self.varZs.sort(axis=0)
+#             self.truZs.sort(axis=0)
 #             self.sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j],scale=self.varZs[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-        self.sigZs = self.varZs#np.array([[self.varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+            self.sigZs = self.varZs*(1.+self.truZs)
+        else:
+            self.sigZs = self.varZs#np.array([[self.varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
         # jitter peak zs given sigma to simulate inaccuracy
         np.random.seed(seed=self.seed)
