@@ -139,8 +139,6 @@ class pertest(object):
         # test increasing sigma associated with increasing z
         if self.meta.sigma == True:# or self.meta.shape == True:
             np.random.seed(seed=self.seed*2)
-#             self.varZs.sort(axis=0)
-#             self.truZs.sort(axis=0)
 #             self.sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j],scale=self.varZs[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
             self.sigZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
         else:
@@ -184,7 +182,7 @@ class pertest(object):
 #             intP = sp.stats.uniform(loc=self.binends[0],scale=self.binrange)
         elif self.meta.interim == 'unimodal':
             mu = np.percentile(self.binends,0)
-            fun = us.tnorm(mu,(max(self.binends)-min(self.binends))/2.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,25),np.sqrt(np.mean(self.binends)))
+            fun = us.tnorm(mu,(max(self.binends)-min(self.binends))/10.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,25),np.sqrt(np.mean(self.binends)))
 #             intP = sp.stats.poisson.pmf(xrange(self.nbins),2.0)
 #             intP = sp.stats.poisson(2.0)
             intP = np.array([fun.pdf(z) for z in self.binmids])
@@ -197,7 +195,7 @@ class pertest(object):
 #             x = self.nbins
 #             intP = sp.stats.pareto.pdf(np.arange(1.,2.,1./x),x)+sp.stats.pareto.pdf(np.arange(1.,2.,1./x)[::-1],x)
 #             intP = sp.stats.pareto(self.nbins)
-            pdf = np.array([funlo.pdf(z)+funhi.pdf(z) for z in self.binmids])
+            pdf = np.array([2.*funlo.pdf(z)+funhi.pdf(z) for z in self.binmids])
             intP = self.fltPz+pdf#(1.+self.binmids*(max(pdf)-pdf))**2
         elif self.meta.interim == 'multimodal':
             intP = self.real.binned(self.binends)
