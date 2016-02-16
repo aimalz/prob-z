@@ -128,11 +128,11 @@ def plot_pdfs(meta,test):
     f = plt.figure(figsize=(5,5))
     sps = f.add_subplot(1,1,1)
 #     f.suptitle('Observed galaxy posteriors for '+meta.name)
+    plotstep(sps,test.binends,test.intPz,col='k',lab=r'Interim $P(z)$')
     sps.plot([-1.],[-1.],color='k',linestyle='-.',label=r'True $z$')
     sps.plot([-1.],[-1.],color='k',linestyle=':',label=r'$E(z)$')
     sps.legend(loc='upper left',fontsize='x-small')
     #sps.set_title('multimodal='+str(meta.shape)+', noisy='+str(meta.noise))
-    plotstep(sps,test.binends,test.intPz,col='k',lab=r'Interim $P(z)$')
     for r in us.lrange(test.randos):
         plotstep(sps,test.binends,test.pdfs[test.randos[r]],col=meta.colors[r])#,alpha=a)
         sps.vlines(test.truZs[test.randos[r]],0.,max(test.pdfs[test.randos[r]]),color=meta.colors[r],linestyle='-.')

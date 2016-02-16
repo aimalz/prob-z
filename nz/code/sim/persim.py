@@ -181,11 +181,11 @@ class pertest(object):
             intP = self.fltPz
 #             intP = sp.stats.uniform(loc=self.binends[0],scale=self.binrange)
         elif self.meta.interim == 'unimodal':
-            mu = np.percentile(self.binends,0)
-            fun = us.tnorm(mu,(max(self.binends)-min(self.binends))/10.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,25),np.sqrt(np.mean(self.binends)))
+#            percentile(self.binends,0)
+            fun = us.tnorm(min(self.binends),(max(self.binends)-min(self.binends))/5.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,25),np.sqrt(np.mean(self.binends)))
 #             intP = sp.stats.poisson.pmf(xrange(self.nbins),2.0)
 #             intP = sp.stats.poisson(2.0)
-            intP = np.array([fun.pdf(z) for z in self.binmids])
+            intP = np.array([z*fun.pdf(z) for z in self.binlos])
             intP = intP-min(intP)
         elif self.meta.interim == 'bimodal':
             mulo = np.percentile(self.binends,25)
