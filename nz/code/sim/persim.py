@@ -185,7 +185,7 @@ class pertest(object):
             fun = us.tnorm(min(self.binends),(max(self.binends)-min(self.binends))/5.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,25),np.sqrt(np.mean(self.binends)))
 #             intP = sp.stats.poisson.pmf(xrange(self.nbins),2.0)
 #             intP = sp.stats.poisson(2.0)
-            intP = np.array([z*fun.pdf(z) for z in self.binlos])
+            intP = np.array([z*fun.pdf(z) for z in self.binmids])
             intP = intP-min(intP)
         elif self.meta.interim == 'bimodal':
             mulo = np.percentile(self.binends,25)
