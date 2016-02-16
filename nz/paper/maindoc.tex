@@ -489,7 +489,7 @@ Gaussian redshift posterior over each bins.  A random sampling of such interim
 redshift posteriors with $K=35$ is shown in Fig. \ref{fig:nullpzs}.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/samplepzs.pdf}
+\includegraphics[width=0.5\textwidth]{figs/null/samplepzs.pdf}
 \caption{Several examples of individual photo-z posterior distributions are 
 shown in colors.  The solid lines indicate the true redshift and the dotted 
 lines indicate the shifted redshift used as the center of the Gaussian 
@@ -606,7 +606,7 @@ hyperprior distribution.  An example of such samples from the prior are shown
 in Fig. \ref{fig:prior}.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/priorsamps.png}
+\includegraphics[width=0.5\textwidth]{figs/null/priorsamps.png}
 \caption{The colored lines are samples from the prior distribution, where its 
 mean is chosen to be a flat distribution for an arbitrary $10,000$ galaxies.}
 \label{fig:prior}
@@ -766,7 +766,7 @@ and marginalized likelihood maximization.  Fig. \ref{fig:null-comp} compares
 the mean of the sample values to alternative estimators as well as the truth.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/null-samps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/null/samps.pdf}
 \caption{The smooth, black curve shows the true $N(z)$ for this test, a sum of 
 Gaussians described in Sec. \ref{sec:mock}.  The flat, gray line is the interim 
 prior used to generate the interim photometric redshift posteriors.  The 
@@ -778,7 +778,7 @@ true values falling within the error bars.}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/null-comps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/null/comps.pdf}
 \caption{The smooth, black curve shows the true $N(z)$ for this test, a sum of 
 Gaussians described in Sec. \ref{sec:mock}.  The flat, gray line is the interim 
 prior used to generate the interim photometric redshift posteriors.  The thick 
@@ -807,25 +807,24 @@ imprecision and inaccuracy seen in observed photometric redshifts.
 \subsubsection{Noisy interim photo-z posteriors}
 \label{sec:noisy}
 
-Several factors contribute to photometric redshifts' increased intrinsic 
-scatter with redshift.  Distant galaxies dimmer compared to galaxies of 
-identical luminosity that are closer, driving up photometric errors by way of 
-counting statistics.  The galaxy sample at higher redshifts also changes, 
-meaning the generation of the photometric redshift posterior based on an SED 
-template library or a spectroscopically-confirmed training is more likely to be 
-inappropriate, leading to broader components.
+Several factors contribute to photometric redshifts' intrinsic scatter.  
+Distant galaxies dimmer compared to galaxies of identical luminosity that are 
+closer, driving up photometric errors by way of counting statistics.  The 
+galaxy sample at higher redshifts also changes, meaning the generation of the 
+photometric redshift posterior based on an SED template library or a 
+spectroscopically-confirmed training is more likely to be inappropriate, 
+leading to broader components.
 
 This test case simulates imprecision in interim photometric redshift posteriors 
 by introducing one change in the steps of Sec. \ref{sec:mock}.  This generative 
 model of Eq. \ref{eq:genmod} is modified to have 
-$\epsilon_{j}\sim\mathcal{N}(0,\sigma^{2}_{j}(1+z^{0}_{j})^{2})$.
-
-Some interim redshift posteriors from such a test are shown in Fig. 
-\ref{fig:noisypzs}.  The rest of the steps in Sec. \ref{sec:mcmc} are then 
-followed precisely.
+$\epsilon_{j}\sim\mathcal{N}(0,\sigma'^{2}_{j})$ for 
+$\sigma'_{j}\sim\mathcal{N}(\bar{\Delta},\bar{\Delta}^{2})$.  Some interim 
+redshift posteriors from such a test are shown in Fig. \ref{fig:noisypzs}.  The 
+rest of the steps in Sec. \ref{sec:mcmc} are then followed precisely.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/vars-samplepzs.pdf}
+\includegraphics[width=0.5\textwidth]{figs/vars/samplepzs.pdf}
 \caption{Several examples of noisified individual photo-z posterior 
 distributions are shown in colors.  The solid lines indicate the true redshift 
 and the dotted lines indicate the shifted redshift used as the center of the 
@@ -839,13 +838,13 @@ as well as the true value of $N(z)$.  The mean of the sample values is compared
 to the results of stacking in Fig. \ref{fig:noisy-comp}.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/vars-samps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/vars/samps.pdf}
 \caption{}
 \label{fig:noisy-samp}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/vars-comps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/vars/comps.pdf}
 \caption{}
 \label{fig:noisy-comp}
 \end{figure}
@@ -874,7 +873,7 @@ prior to produce the interim posterior.  Some examples of the multimodal
 interim photo-z posteriors are shown in Fig. \ref{fig:multipzs}.  
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/mult-samplepzs.pdf}
+\includegraphics[width=0.5\textwidth]{figs/mult/samplepzs.pdf}
 \caption{Several examples of individual photo-z posterior distributions are 
 shown in colors.  The solid lines indicate the true redshift and the dotted 
 lines indicate the shifted redshifts used as the centers of the Gaussian 
@@ -889,7 +888,7 @@ after the burn-in period.  Fig. \ref{fig:multi-comp} compares the mean of the
 sampled values and the $1\sigma$ errors to alternative methods.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/mult-samps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/mult/samps.pdf}
 \caption{The smooth, solid, black line shows the fiducial true $N(z)$.  The 
 colored lines are random samples from the posterior, which accurately trace the 
 true distribution.  The bold line is the mean of the samples.  The gray error 
@@ -898,7 +897,7 @@ bars encompass the true distribution in most dimensions.}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/mult-comps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/mult/comps.pdf}
 \caption{The smooth, solid, black line shows the fiducial true $N(z)$.  The 
 bold line is the mean of the samples, with gray error bars encompassing the 
 true distribution in most dimensions.  The dashed line is the marginalized 
@@ -926,7 +925,7 @@ some samples from the posterior as compared to the true $N(z)$ and Fig.
 stacking and marginalized likelihood maximization.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/delt-samps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/delt/samps.pdf}
 \caption{The smooth, solid, black line shows the true $N(z)$ for the toy model 
 case.  The colored lines are random samples from the full posterior, and the 
 gray error bars are so small that they cannot be seen on the plot.  The gray 
@@ -935,7 +934,7 @@ error bars encompass the true distribution where it is nonzero.}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/delt-comps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/delt/comps.pdf}
 \caption{The smooth, solid, black line shows the true $N(z)$ for the toy model 
 case.  The bold line is the mean of the samples, with gray error bars 
 encompassing the true distribution in all dimensions.  The dashed line is the 
@@ -991,13 +990,13 @@ choose an interim prior with most of its weight at low redshifts.  The results
 of the inference are shown in Figs. \ref{fig:intu-samp} and \ref{fig:intu-comp}.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/uint-samps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/uint/samps.pdf}
 \caption{}
 \label{fig:intu-samp}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/uint-comps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/uint/comps.pdf}
 \caption{}
 \label{fig:intu-comp}
 \end{figure}
@@ -1015,13 +1014,13 @@ at high and low redshifts than for mid-range redshifts.  The results of the
 inference are shown in Figs. \ref{fig:intb-samp} and \ref{fig:intb-comp}.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/bint-samps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/bint/samps.pdf}
 \caption{}
 \label{fig:intb-samp}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/bint-comps.pdf}
+\includegraphics[width=0.5\textwidth]{figs/bint/comps.pdf}
 \caption{}
 \label{fig:intb-comp}
 \end{figure}
