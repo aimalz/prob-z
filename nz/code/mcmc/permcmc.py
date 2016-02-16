@@ -47,7 +47,7 @@ class pertest(object):
             calctimer.write(str(timeit.default_timer())+' icalc \n')
 
         # what outputs of emcee will we be saving?
-        self.stats = [ stats.stat_both(self.meta),
+        self.stats = [ #stats.stat_both(self.meta),
                        stats.stat_chains(self.meta),
                        stats.stat_probs(self.meta),
                        stats.stat_fracs(self.meta),
@@ -92,7 +92,7 @@ class pertest(object):
         (outputs,elapsed) = self.sampling()
 
         self.key.store_state(self.meta.topdir, outputs)
-        
+
         if self.meta.plotonly == 0:
             if burnin == False:
                 self.savestats()
@@ -102,9 +102,9 @@ class pertest(object):
             if r >= iterno/self.meta.factor:
                 self.savestats()
 
-        # store the iteration number, so everyone knows how many iterations have been completed    
+        # store the iteration number, so everyone knows how many iterations have been completed
         self.key.store_iterno(self.meta.topdir, self.runs)
-        #print ('s_run={}, dist={}'.format(self.s_run, self.s_run.dist)) 
+        #print ('s_run={}, dist={}'.format(self.s_run, self.s_run.dist))
         self.meta.dist.complete_chunk(self.key)
 
         # record time of calculation for monitoring progress

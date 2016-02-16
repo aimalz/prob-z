@@ -53,10 +53,10 @@ def initial_plots(meta, test):
     pranges = test.real.pdfs(zrange)
     global prange
     prange = np.sum(pranges,axis=0)
-    print('will plots work?')
+#     print('will plots work?')
     plot_physgen(meta,test)
     plot_true(meta,test)
-    plot_liktest(meta,test)
+#     plot_liktest(meta,test)
     plot_pdfs(meta,test)
 #     plot_truevmap(meta,test)
     print(meta.name+' plotted setup')
@@ -64,10 +64,10 @@ def initial_plots(meta, test):
 # plot the underlying P(z) and its components
 def plot_physgen(meta,test):
 
-    global pranges
-    pranges = test.real.pdfs(zrange)
-    global prange
-    prange = np.sum(pranges,axis=0)
+#     global pranges
+#     pranges = test.real.pdfs(zrange)
+#     global prange
+#     prange = np.sum(pranges,axis=0)
 
     f = plt.figure(figsize=(5,5))
     sys.stdout.flush()
@@ -120,7 +120,7 @@ def plot_true(meta, test):
     plotstep(sps,test.binends,test.intNz,col='k',a=0.5,lw=2.,lab=r'Interim $N(z)$')#+'\n'+r'$KLD='+str(test.kl_intNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsinterim)))
     sps.legend(loc='upper left',fontsize='x-small')
 
-    f.savefig(os.path.join(meta.simdir,'trueNz.png'))
+    f.savefig(os.path.join(meta.simdir,'trueNz.pdf'))
     return
 
 # plot some individual posteriors
@@ -132,6 +132,7 @@ def plot_pdfs(meta,test):
     sps.plot([-1.],[-1.],color='k',linestyle=':',label=r'$E(z)$')
     sps.legend(loc='upper left',fontsize='x-small')
     #sps.set_title('multimodal='+str(meta.shape)+', noisy='+str(meta.noise))
+    plotstep(sps,test.binends,test.intPz,col='k',lab=r'Interim $P(z)$')
     for r in us.lrange(test.randos):
         plotstep(sps,test.binends,test.pdfs[test.randos[r]],col=meta.colors[r])#,alpha=a)
         sps.vlines(test.truZs[test.randos[r]],0.,max(test.pdfs[test.randos[r]]),color=meta.colors[r],linestyle='-.')

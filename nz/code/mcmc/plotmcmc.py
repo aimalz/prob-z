@@ -98,8 +98,8 @@ def initial_plots(runs):
         plot_pdfs(meta)
         plot_priorsamps(meta)
         plot_ivals(meta)
-        if meta.truNz is not None:
-            plot_true(meta)
+#         if meta.truNz is not None:
+#             plot_true(meta)
         timesaver(meta,'iplot',meta.key)
 
 # plot some individual posteriors
@@ -254,7 +254,7 @@ class plotter_times(plotter):
     def finish(self):
 
         self.sps_times.set_xlim(0,(self.last_key.r+2)*self.meta.miniters)
-        self.f_times.savefig(os.path.join(self.meta.topdir,'times.png'),dpi=100)
+        self.f_times.savefig(os.path.join(self.meta.topdir,'times.pdf'),dpi=100)
         timesaver(self.meta,'times',self.meta.topdir)
 
 #         self.sps_fracs.set_xlim(0,(self.last_key.r+2)*self.meta.miniters)
@@ -510,7 +510,8 @@ class plotter_samps(plotter):
 
         self.prepstats()
 
-        self.plotcomp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int)
+        plotstep(sps_comp_log,self.meta.binends,self.meta.logintNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+lnz)
+        plotstep(sps_comp,self.meta.binends,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+nz)
         self.plotcomp(self.meta.logstkNz,self.meta.stkNz,w=w_stk,s=s_stk,a=a_stk,c=c_stk,l=l_stk+kld+str(self.kl_stk))
 #         self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,l=l_map+kld+str(self.kl_map))
 #         self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,l=l_exp+kld+str(self.kl_exp))

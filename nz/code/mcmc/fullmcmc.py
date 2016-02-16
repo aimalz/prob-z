@@ -50,7 +50,9 @@ def fsamp(idinfo):
         print ('Done with '+str(idinfo))
 
 # initialize all plotters
-all_plotters = [plots.plotter_chains,plots.plotter_samps,plots.plotter_probs,plots.plotter_times]
+all_plotters = [#plots.plotter_chains,
+                plots.plotter_samps,#plots.plotter_probs,
+                plots.plotter_times]
 
 testdir = os.path.join('..','tests')
 #topdir = open(os.path.join(testdir,'topdirs.p'),'rb')
