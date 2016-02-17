@@ -128,7 +128,7 @@ class pertest(object):
     # once burn-in complete, know total number of runs remaining
     def atburn(self, b, outputs):
         print(str(b*self.meta.miniters)+' iterations of burn-in for '+self.meta.name)
-        self.nsteps = b+1#self.meta.factor*b+1
+        self.nsteps = b+self.meta.factor#*b+1
         self.maxiters = self.nsteps*self.meta.miniters
         self.alliternos = range(0,self.maxiters)
         self.alltimenos = range(0,self.maxiters/self.meta.thinto,self.meta.thinto)

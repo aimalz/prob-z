@@ -356,7 +356,7 @@ class setup(object):
         if 'factor' in indict:
             self.factor = int(indict['factor'])
         else:
-            self.factor = 2
+            self.factor = 6
 
         #assert(self.ntimes > self.nwalkers)
         # autocorrelation time mode
