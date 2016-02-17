@@ -375,7 +375,7 @@ class plotter_samps(plotter):
         with open(os.path.join(self.meta.topdir,'iterno.p')) as where:
             iterno = cpkl.load(where)
 
-        if (self.meta.plotonly == 0 and key.burnin == False) or (self.meta.plotonly == 1 and key.r >= float(iterno-1.)/self.meta.factor):
+        if (self.meta.plotonly == 0 and key.burnin == False) or (self.meta.plotonly == 1 and key.r >= iterno-self.meta.factor:
 
             data = key.load_state(self.meta.topdir)['chains']
 
