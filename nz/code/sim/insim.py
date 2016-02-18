@@ -102,12 +102,6 @@ class setup(object):
         else:
             self.random = bool(1)
 
-        # 0 for all galaxies having mean redshift of bin, 1 for uniform sampling
-        if 'uniform' in indict:
-            self.uniform = bool(int(indict['uniform'][0]))
-        else:
-            self.uniform = bool(1)
-
         # 0 for underlying interim prior, 1 for bad interim prior
         if 'interim' in indict:
             self.interim = indict['interim'][0]#bool(int(indict['interim'][0]))

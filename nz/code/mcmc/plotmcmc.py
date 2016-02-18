@@ -36,7 +36,7 @@ mpl.rcParams['figure.subplot.wspace'] = 0.5
 mpl.rcParams['figure.subplot.hspace'] = 0.5
 
 global lnz,nz,tv,t
-lnz,nz,tv,t,kld = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$','KLD='
+lnz,nz,tv,t,kld = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$','\n KLD='
 # setting up unified appearance parameters
 global s_tru,w_tru,a_tru,c_tru,l_tru
 s_tru,w_tru,a_tru,c_tru,l_tru = '-',1.,1.,'k','True '
@@ -82,7 +82,7 @@ def plotv(subplot,binends,plot,s='-',c='k',a=1,w=1,l=None):
                    rasterized=True)
 
 def footer(subplot):
-    subplot.annotate('Malz+2016',(0,0), (190,18), xycoords='axes fraction', textcoords='offset points', va='top')
+    subplot.annotate('Malz+2016',(0,0), (190,200), xycoords='axes fraction', textcoords='offset points', va='top')
     return
 
 def timesaver(meta,name,key):
@@ -363,19 +363,19 @@ class plotter_samps(plotter):
         sps_samp.set_xlabel(r'$z$')
         sps_samp.set_ylabel(r'$N(z)$')
 
-        self.plotsamp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int)
         if self.meta.logtruNz is not None:
-            plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+lnz)
-            plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+nz)
+            plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru)#+lnz)
+            plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru)#+nz)
             sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
             sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
+        self.plotsamp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int)
 
     def plot(self,key):
 
         with open(os.path.join(self.meta.topdir,'iterno.p')) as where:
             iterno = cpkl.load(where)
 
-        if (self.meta.plotonly == 0 and key.burnin == False) or (self.meta.plotonly == 1 and key.r >= iterno-self.meta.factor:
+        if (self.meta.plotonly == 0 and key.burnin == False) or (self.meta.plotonly == 1 and key.r >= iterno-self.meta.factor):
 
             data = key.load_state(self.meta.topdir)['chains']
 
@@ -404,12 +404,10 @@ class plotter_samps(plotter):
 
         self.calcbfe()
         self.ploterr(sps_samp_log,sps_samp)
-        self.plotsamp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,l=l_bfe)
-
-        if self.meta.logtruNz is not None:
-            sps_samp_log.set_ylim(-1,np.max(self.meta.lNz_range)+1.)
-            sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
-        sps_samp_log.legend(fontsize='xx-small', loc='lower center')
+#         if self.meta.logtruNz is not None:
+#             sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
+#             sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
+        sps_samp_log.legend(fontsize='xx-small', loc='upper left')
         sps_samp.legend(fontsize='xx-small', loc='upper left')
         footer(sps_samp_log)
         footer(sps_samp)
@@ -461,8 +459,8 @@ class plotter_samps(plotter):
     def plotsamp(self,logy,y,w=1.,s='-',a=1.,c='k',l=' '):
         sps_samp_log = self.sps_samps[0]
         sps_samp = self.sps_samps[1]
-        plotstep(sps_samp_log,self.meta.binends,logy,w=w,s=s,a=a,c=c,l=l+lnz)
-        plotstep(sps_samp,self.meta.binends,y,w=w,s=s,a=a,c=c,l=l+nz)
+        plotstep(sps_samp_log,self.meta.binends,logy,w=w,s=s,a=a,c=c,l=l)#+lnz)
+        plotstep(sps_samp,self.meta.binends,y,w=w,s=s,a=a,c=c,l=l)#+nz)
 
     def plotcomp(self,logy,y,w=1.,s='-',a=1.,c='k',l=' '):
         sps_comp_log = self.sps_comps[0]
@@ -501,17 +499,18 @@ class plotter_samps(plotter):
 
         if self.meta.logtruNz is not None:
             self.prepstats()
-            plotstep(sps_comp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+lnz)
-            plotstep(sps_comp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+nz)
-            sps_comp_log.set_ylim(-1,np.max(self.meta.lNz_range)+1.)
+            plotstep(sps_comp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru)#+lnz)
+            plotstep(sps_comp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru)#+nz)
+            sps_comp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
             sps_comp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
         else:
             self.kl_stk,self.kl_mml,self.kl_smp = None,None,None
 
         self.prepstats()
 
-        plotstep(sps_comp_log,self.meta.binends,self.meta.logintNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+lnz)
-        plotstep(sps_comp,self.meta.binends,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+nz)
+#         plotstep(sps_comp_log,self.meta.binends,self.meta.logintNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+lnz)
+#         plotstep(sps_comp,self.meta.binends,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+nz)
+        self.plotcomp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int)#+kld+str(self.kl_stk))
         self.plotcomp(self.meta.logstkNz,self.meta.stkNz,w=w_stk,s=s_stk,a=a_stk,c=c_stk,l=l_stk+kld+str(self.kl_stk))
 #         self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,l=l_map+kld+str(self.kl_map))
 #         self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,l=l_exp+kld+str(self.kl_exp))
@@ -520,7 +519,7 @@ class plotter_samps(plotter):
         self.ploterr(sps_comp_log,sps_comp)
         self.plotcomp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,l=l_bfe+kld+str(self.kl_smp))
 
-        sps_comp_log.legend(fontsize='xx-small', loc='lower center')
+        sps_comp_log.legend(fontsize='xx-small', loc='upper left')
         sps_comp.legend(fontsize='xx-small', loc='upper left')
         footer(sps_comp_log)
         footer(sps_comp)
