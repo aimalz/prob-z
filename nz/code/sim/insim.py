@@ -162,7 +162,6 @@ class setup(object):
             'surv': self.surv,
             'poisson': self.poisson,
             'random': self.random,
-            'uniform': self.uniform,
             'shape': self.shape,
             'noise': self.noise,
             }
