@@ -62,7 +62,7 @@ Point estimates $\hat{z}_{n}$ suffer from various weaknesses that affect the sci
 
 Instead, we would like to work with a redshift probability distribution function for each galaxy.  We recall Bayes' Theorem, the relationship between the likelihood $p(\vec{d}_{n}|z)$ (the probability of observing the data at each value of the continuous parameter $z$) and the posterior $p(z|\vec{d}_{n})$ (the probability of each value of the continuous parameter $z$ given the observed data): $p(\vec{d}_{n}|z)p(z)=p(z|\vec{d}_{n})p(\vec{d}_{n})$.  Because any estimate of redshift by template fitting or machine learning will implicitly have to be marginalized over some nuisance parameters $\{\vec{t}_{j}\}_{J}$ representing the estimator of the intrinsic spectrum (also known as the spectral energy distribution or SED), it is considered much easier to find the posterior $p(z|\vec{d}_{n})=\int\ p(z,\vec{t}|\vec{d}_{n})\ p(\vec{t})\ d\vec{t}$, which we shall refer to as zPDF from this point forward.
 
-\section{Open Questions}
+\subsection{Open Questions}
 
 Here are some interesting questions we may ask about zPDFs:
 
@@ -79,7 +79,7 @@ Here are some interesting questions we may ask about zPDFs:
 
 These questions will each be discussed in detail below.
 
-\subsection{Generation of zPDFs}
+\section{Generation of zPDFs}
 
 Question \ref{it:posterior} pertains to the processing of data $\vec{d}_{n}$ to estimate the distribution of parameters $p(z|\vec{d}_{n})$.  Previous work on obtaining zPDFs has employed similar methods to those used to obtain point estimates. Data-driven $k$-nearest neighbor algorithms have been implemented by \citet{she11} neglecting measurement errors and by \citet{bal08} including measurement errors.  \citet{bon13} uses neural-networks to obtain zPDFs.  \citet{car13} use prediction tree and random-forest classification techniques and \citet{car14} use self-organizing maps  to obtain zPDFs.  An extension of \citet{ben00} that produces full posteriors (as opposed to a selection of local maxima) from a template library has been mentioned in the litertature (see \citet{lop14}), but a formal presentation has not yet been published.
 
@@ -112,7 +112,21 @@ Question \ref{it:pixel} makes use of pixel-level data to incorporate discrepanci
 
 Question \ref{it:spatial} is about possible use of angular size, surface brightness, or morphological information to refine zPDFs, rather than simply using a prior on photometric magnitudes as was first done in \citet{ben00}.  \citet{vak15} is investigating the improvement in data-driven redshift point estimates resulting from inclusion of angular size in $\{\vec{d}_{n}\}_{N}$ and $\{\vec{d}_{n'}\}_{N'}$.  \citet{sta07} discusses a prior on surface brightness in making redshift point estimates.  It is possible that such methods could be extended to generation of zPDFs.
 
-\subsection{zPDFs in inference}
+\subsection{Cross-correlation zPDFs}
+
+Question \ref{it:croscor} stems from the observed correlation of redshifts between galaxies near one another on the sky, caused by the fact that many galaxies are gravitationally bound to their neighbors in physical space.  For this discussion, let us say we have $M$ pairs of galaxies $(n,n')$ near one another with test set data $\textul{d}_{n}$ comprised of photometry $\vec{m}_{n}$ and position $\vec{\phi}_{n}$ as well as training set data $\textul{d}_{n'}$ comprised of photometry $\vec{m}_{n'}$, position $\vec{\phi}_{n'}$, and a reliable redshift $z_{n'}$.  
+
+There are two current techniques in place for determining $z_{n}$.  The first is to set $\hat{z}_{n}=z_{n'}$ for all galaxies with $\Delta_{nn'}=|\vec{\phi}_{n'}-\vec{\phi}_{n}|$.  The second is to draw $\hat{z}_{n}$ from a normal distribution centered at $z_{n'}$ with a variance $\sigma^{2}_{n'}$ derived from some combination of $\Delta_{nn'}$ and $z_{n'}$.  One possible approach to improving this method would be to work with the actual posterior distribution $p(z_{n}|\textul{d}_{n})\sim N(z_{n'},\sigma^{2}_{n'})$ rather than samples, although that could be prohibitively computationally expensive.
+
+Another solution takes advantage of our knowledge of the angular and/or redshift-space and/or real-space correlation functions $\vec{\xi}$ for galaxies.  This approach has been indirectly suggested by \citet{sch06} for point estimates of redshift, which was applied by \citet{rah14} to SDSS galaxies. Since $\vec{\xi}$ is defined at all angular separations, such a method could be used to improve zPDFs not just of neighboring galaxies but of every galaxy in a survey.  
+
+One proposal for how to get around the issue of untrustworthy priors mentioned in response to Question \ref{it:posterior} is so-called cross-correlation redshifts that take advantage of the fact that the relationship between the angular cross-correlation function $\vec{\xi}_{sp}$ of training set galaxies at $\vec{\phi}^{s}_{n'}$ and test set galaxies at $\vec{\phi}^{p}_{n}$ can be used as a prior on the estimation of other parameters describing the redshift distribution, such as the redshift density function $n(z)$ \citep{new08}, \citep{men13} and redshift distribution function $N(z)$ \citep{mat10}.  However, cross-correlation redshifts are a natural extension to the approach of simultaneous inference of zPDFs and $\vec{\xi}$ proposed in response to Question \ref{it:inference}.
+
+Given the redshift density function $n_{p}(z)$ for a test set and If we wish to estimate the comoving number density of test set galaxies $n_{p}(r,z)$ as a function of the redshifts and comoving physical distances $r(z)$ from each training set galaxy to each test set galaxy given an observed angular cross-correlation $\xi_{sp}(r,z)$ between the comoving physical distances and redshifts of test and training set galaxies ,  \citep{new08}
+
+This method has not yet been adapted to handle individual redshift posteriors for the test set and permits neither refinement of the input photometric redshifts nor determination of individual redshift posteriors based on $n(z)$ and $\vec{\xi}_{sp}$.  It is worth reviewing the method in detail to investigate possible extensions to zPDFs.
+
+\section{zPDFs in inference}
 
 zPDFs have been used in the literature to estimate parameters relevant to cosmology and galaxy evolution, including the redshift density function (\citet{she11}, \citet{bon13}, and \citet{vii15}), angular cross-correlation function \citep{mye09}, and merger fraction \citep{lop14}.  However, not all published applications are mathematically consistent.   Question \ref{it:inference} is currently being investigated by \citet{mal15}, with a focus on one-point statistics of redshift such as the redshift distribution function $N(z)$, the redshift density function $n(z)$, and the weak lensing mean distance ratio.
 
@@ -162,19 +176,143 @@ p(\mathcal{P}|\{(\{\Delta_{nn'}\}_{N'},\vec{m}_{n})\}_{N}) =& \ p(\vec{P})\prod_
 
 \dots
 
-\subsection{Cross-correlation zPDFs}
+\subsection{One-point statistics}
 
-Question \ref{it:croscor} stems from the observed correlation of redshifts between galaxies near one another on the sky, caused by the fact that many galaxies are gravitationally bound to their neighbors in physical space.  For this discussion, let us say we have $M$ pairs of galaxies $(n,n')$ near one another with test set data $\textul{d}_{n}$ comprised of photometry $\vec{m}_{n}$ and position $\vec{\phi}_{n}$ as well as training set data $\textul{d}_{n'}$ comprised of photometry $\vec{m}_{n'}$, position $\vec{\phi}_{n'}$, and a reliable redshift $z_{n'}$.  
+\subsubsection{One-point statistic of redshift}
 
-There are two current techniques in place for determining $z_{n}$.  The first is to set $\hat{z}_{n}=z_{n'}$ for all galaxies with $\Delta_{nn'}=|\vec{\phi}_{n'}-\vec{\phi}_{n}|$.  The second is to draw $\hat{z}_{n}$ from a normal distribution centered at $z_{n'}$ with a variance $\sigma^{2}_{n'}$ derived from some combination of $\Delta_{nn'}$ and $z_{n'}$.  One possible approach to improving this method would be to work with the actual posterior distribution $p(z_{n}|\textul{d}_{n})\sim N(z_{n'},\sigma^{2}_{n'})$ rather than samples, although that could be prohibitively computationally expensive.
+\begin{figure}
+\vspace{0.5cm}
+\begin{center}
+\begin{tikzpicture}[node distance=1cm]
 
-Another solution takes advantage of our knowledge of the angular and/or redshift-space and/or real-space correlation functions $\vec{\xi}$ for galaxies.  This approach has been indirectly suggested by \citet{sch06} for point estimates of redshift, which was applied by \citet{rah14} to SDSS galaxies. Since $\vec{\xi}$ is defined at all angular separations, such a method could be used to improve zPDFs not just of neighboring galaxies but of every galaxy in a survey.  
+\node (nz) [hyper] {$N(z)$};
+\node (z) [param, below of=nz,yshift=-0.25cm] {$z_{j}$};
+\node (mags) [data, below of=z,yshift=-0.25cm] {$\vec{d}_{j}$};
+\node (survey) [draw=black,fit={(mags.west)(z.north)(mags.south)(mags.east)}] {};
+\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
 
-One proposal for how to get around the issue of untrustworthy priors mentioned in response to Question \ref{it:posterior} is so-called cross-correlation redshifts that take advantage of the fact that the relationship between the angular cross-correlation function $\vec{\xi}_{sp}$ of training set galaxies at $\vec{\phi}^{s}_{n'}$ and test set galaxies at $\vec{\phi}^{p}_{n}$ can be used as a prior on the estimation of other parameters describing the redshift distribution, such as the redshift density function $n(z)$ \citep{new08}, \citep{men13} and redshift distribution function $N(z)$ \citep{mat10}.  However, cross-correlation redshifts are a natural extension to the approach of simultaneous inference of zPDFs and $\vec{\xi}$ proposed in response to Question \ref{it:inference}.
+\draw [arrow] (nz) -- (z);
+\draw [arrow] (z) -- (mags);
 
-Given the redshift density function $n_{p}(z)$ for a test set and If we wish to estimate the comoving number density of test set galaxies $n_{p}(r,z)$ as a function of the redshifts and comoving physical distances $r(z)$ from each training set galaxy to each test set galaxy given an observed angular cross-correlation $\xi_{sp}(r,z)$ between the comoving physical distances and redshifts of test and training set galaxies ,  \citep{new08}
+\end{tikzpicture}
+\caption{This directed acyclic graph illustrates a hierarchical model.}
+\label{fig:flow}
+\end{center}
+\end{figure}
 
-This method has not yet been adapted to handle individual redshift posteriors for the test set and permits neither refinement of the input photometric redshifts nor determination of individual redshift posteriors based on $n(z)$ and $\vec{\xi}_{sp}$.  It is worth reviewing the method in detail to investigate possible extensions to zPDFs.
+\subsubsection{One-point statistic of redshift and another parameter}
+
+\begin{figure}
+\vspace{0.5cm}
+\begin{center}
+\begin{tikzpicture}[node distance=1cm]
+
+\node (mf) [hyper] {$\Phi(M,z)$};
+\node (z) [param, below of=mf,yshift=-0.75cm,xshift=0.5cm] {$z_{j}$};
+\node (M) [param, below of=mf,yshift=-0.75cm,xshift=-0.5cm] {$M_{j}$};
+\node (flux) [data, below of=mf,yshift=-2cm] {$\vec{d}_{j}$};
+\node (survey) [draw=black,fit={(M.west)(z.north)(flux.south)(z.east)}] {};
+\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
+
+\draw [arrow] (mf) -- (z);
+\draw [arrow] (mf) -- (M);
+\draw [arrow] (z) -- (flux);
+\draw [arrow] (M) -- (flux);
+
+\end{tikzpicture}
+\caption{}
+\label{fig:mf}
+\end{center}
+\end{figure}
+
+\subsubsection{One-point statistic of redshift and many other parameters}
+
+\begin{figure}
+\vspace{0.5cm}
+\begin{center}
+\begin{tikzpicture}[node distance=1cm]
+
+\node (lf) [hyper] {$\Phi(\vec{L},z)$};
+\node (z) [param, below of=lf,yshift=-0.75cm,xshift=0.5cm] {$z_{j}$};
+\node (L) [param, below of=lf,yshift=-0.75cm,xshift=-0.5cm] {$\vec{L}_{j}$};
+\node (flux) [data, below of=lf,yshift=-2cm] {$\vec{d}_{j}$};
+\node (survey) [draw=black,fit={(L.west)(z.north)(flux.south)(z.east)}] {};
+\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
+
+\draw [arrow] (lf) -- (z);
+\draw [arrow] (lf) -- (L);
+\draw [arrow] (z) -- (flux);
+\draw [arrow] (L) -- (flux);
+
+\end{tikzpicture}
+\caption{}
+\label{fig:mf}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\vspace{0.5cm}
+\begin{center}
+\begin{tikzpicture}[node distance=1cm]
+
+\node (nz) [hyper,xshift=-1cm] {$N(z)$};
+\node (tf) [hyper,xshift=1cm] {$\theta(\vec{L},v,z)$};
+\node (z) [param, below of=nz,yshift=-0.75cm] {$z_{j}$};
+\node (L) [param, below of=z,yshift=-0.75cm,xshift=1cm] {$\vec{L}_{j}$};
+\node (v) [param, below of=z,yshift=-0.75cm,xshift=2cm] {$v_{j}$};
+\node (flux) [data, below of=z,yshift=-2cm,xshift=0.5cm] {$\vec{d}_{j}$};
+\node (survey) [draw=black,fit={(z.west)(z.north)(flux.south)(v.east)}] {};
+\node [xshift=2.25cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
+
+\draw [arrow] (nz) -- (z);
+\draw [arrow] (tf) -- (L);
+\draw [arrow] (tf) -- (v);
+\draw [arrow] (z) -- (L);
+\draw [arrow] (z) -- (v);
+\draw [arrow] (v) -- (flux);
+\draw [arrow] (z) -- (flux);
+\draw [arrow] (L) -- (flux);
+
+\end{tikzpicture}
+\caption{}
+\label{fig:tf}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\vspace{0.5cm}
+\begin{center}
+\begin{tikzpicture}[node distance=1cm]
+
+\node (nz) [hyper,xshift=-1cm] {$N(z)$};
+\node (fj) [hyper,xshift=1cm] {$\theta(\vec{L},\sigma,z)$};
+\node (z) [param, below of=nz,yshift=-0.75cm] {$z_{j}$};
+\node (L) [param, below of=z,yshift=-0.75cm,xshift=1cm] {$\vec{L}_{j}$};
+\node (v) [param, below of=z,yshift=-0.75cm,xshift=2cm] {$\sigma_{j}$};
+\node (flux) [data, below of=z,yshift=-2cm,xshift=0.5cm] {$\vec{d}_{j}$};
+\node (survey) [draw=black,fit={(z.west)(z.north)(flux.south)(v.east)}] {};
+\node [xshift=2.25cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
+
+\draw [arrow] (nz) -- (z);
+\draw [arrow] (tf) -- (L);
+\draw [arrow] (tf) -- (v);
+\draw [arrow] (z) -- (L);
+\draw [arrow] (z) -- (v);
+\draw [arrow] (v) -- (flux);
+\draw [arrow] (z) -- (flux);
+\draw [arrow] (L) -- (flux);
+
+\end{tikzpicture}
+\caption{}
+\label{fig:fj}
+\end{center}
+\end{figure}
+
+\subsection{Two-point statistics}
+\subsubsection{Two-point statistics of redshift}
+\subsubsection{Two-point statistics of redshift and another parameter}
+\subsubsection{Two-point statistics of redshift and many other parameters}
+\subsection{Higher-order statistics}
 
 %\acknowledgments
 
