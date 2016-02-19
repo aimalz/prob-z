@@ -123,14 +123,17 @@ class pertest(object):
         # np.random.shuffle(self.modZs)
 
         # test all galaxies in survey have same true redshift vs. sample from physPz
-        if self.meta.random == True:
-            np.random.seed(seed=self.seed)
-            self.truZs = self.real.sample(self.ngals)
-        else:
+#         if self.meta.random == True:
+#             np.random.seed(seed=self.seed)
+#             self.truZs = self.real.sample(self.ngals)
+#         else:
+        if self.meta.random == False:
             center = (self.allzs[0]+self.allzs[-1])/2.
             self.meta.real = np.array([np.array([center,1./self.surv,1.])])
             self.real = us.gmix(self.meta.real,(self.allzs[0],self.allzs[-1]))
-            self.truZs = np.array([center]*self.ngals)
+#             self.truZs = np.array([center]*self.ngals)
+        np.random.seed(seed=self.seed)
+        self.truZs = self.real.sample(self.ngals)
 #         np.random.seed(seed=self.seed)
 #         np.random.shuffle(self.truZs)
 
@@ -186,7 +189,7 @@ class pertest(object):
 #             intP = sp.stats.poisson.pmf(xrange(self.nbins),2.0)
 #             intP = sp.stats.poisson(2.0)
             intP = np.array([z*fun.pdf(z) for z in self.binmids])
-            intP = intP-min(intP)
+            intP = intP-min(intP)+1.
         elif self.meta.interim == 'bimodal':
             mulo = np.percentile(self.binends,25)
             muhi = np.percentile(self.binends,75)
@@ -197,9 +200,9 @@ class pertest(object):
 #             intP = sp.stats.pareto(self.nbins)
             pdf = np.array([2.*funlo.pdf(z)+funhi.pdf(z) for z in self.binmids])
             intP = self.fltPz+pdf#(1.+self.binmids*(max(pdf)-pdf))**2
-        elif self.meta.interim == 'multimodal':
-            intP = self.real.binned(self.binends)
-#             intP = self.real
+#         elif self.meta.interim == 'multimodal':
+#             intP = self.real.binned(self.binends)
+# #             intP = self.real
 
         self.intPz = us.normed(intP,self.bindifs)
         self.logintPz = us.safelog(self.intPz)
