@@ -114,6 +114,11 @@ class setup(object):
         else:
             self.sigma = bool(0)
 
+        if 'noisefact' in indict:
+            self.noisefact = int(indict['noisefact'][0])
+        else:
+            self.noisefact = 1
+
         # permit more complicated p(z)s
         # 0 for unimodal, 1 for multimodal
         if 'shape' in indict:

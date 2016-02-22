@@ -117,7 +117,11 @@ class pertest(object):
             self.npeaks = [1]*self.ngals
 
         # choose random sigma
-        self.var = us.tnorm(self.zdif,self.zdif,[0.,self.allzs[-1]])
+        if self.meta.noisefact == 1:
+            sigval = self.zdif
+        else:
+            sigval = self.meta.noisefact*self.zdif
+        self.var = us.tnorm(sigval,sigval,[0.,self.allzs[-1]])
         # self.modZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])#self.truZs+1.
         self.varZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])#*self.zdif
         # np.random.shuffle(self.modZs)
@@ -189,7 +193,7 @@ class pertest(object):
 #             intP = sp.stats.poisson.pmf(xrange(self.nbins),2.0)
 #             intP = sp.stats.poisson(2.0)
             intP = np.array([z*fun.pdf(z) for z in self.binmids])
-            intP = intP-min(intP)+1.
+            intP = intP-min(intP)+1./5.
         elif self.meta.interim == 'bimodal':
             mulo = np.percentile(self.binends,25)
             muhi = np.percentile(self.binends,75)
