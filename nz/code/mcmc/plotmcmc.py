@@ -39,28 +39,28 @@ global lnz,nz,tv,t
 lnz,nz,tv,t,kld = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$','\n KLD='
 # setting up unified appearance parameters
 global s_tru,w_tru,a_tru,c_tru,d_tru,l_tru
-s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '-',1.,1.,'k',None,'True '
+s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',1.,1.,'k',[(0,(1,0.0001))],'True '
 global s_int,w_int,a_int,c_int,d_int,l_int
-s_int,w_int,a_int,c_int,d_int,l_int = '-',1.,0.5,'k',None,'Interim '
+s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,0.5,'k',[(0,(1,0.0001))],'Interim '
 global s_stk,w_stk,a_stk,c_stk,d_stk,l_stk
-s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '-',2.,1.,'k',[2,2],'Stacked '
+s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,'k',[(0,(2,2))],'Stacked '
 # global s_map,w_map,a_map,c_map,d_map,l_map
-# s_map,w_map,a_map,c_map,d_map,l_map = '-',1.5,0.75,'k',[4,4,2,4],'MMAP '
+# s_map,w_map,a_map,c_map,d_map,l_map = '--',1.5,0.75,'k',[(0,(4,4,2,4))],'MMAP '
 # global s_exp,w_exp,a_exp,c_exp,d_exp,l_exp
-# s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '-',1.5,0.25,'k',[4,4,2,4],'MExp '
+# s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.5,0.25,'k',[(0,(4,4,2,4))],'MExp '
 global s_mml,w_mml,a_mml,c_mml,d_mml,l_mml
-s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '-',1.,1.,'k',[4,4],'MMLE '
+s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,'k',[(0,(4,2))],'MMLE '
 global s_smp,w_smp,a_smp,c_smp,d,smp,l_smp
-s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '-',1.,1.,'k',None,'Sampled '
+s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '--',1.,1.,'k',[(0,(1,0.0001))],'Sampled '
 global s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe
-s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe = '-',2.,1.,'k',None,'Mean of\n Samples '
+s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe = '--',2.,1.,'k',[(0,(1,0.0001))],'Mean of\n Samples '
 
 #making a step function plotter because pyplot is stupid
-def plotstep(subplot,binends,plot,s='-',c='k',a=1,w=1,d=None,l=None):
+def plotstep(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))],l=None):
     ploth(subplot,binends,plot,s,c,a,w,d,l)
     plotv(subplot,binends,plot,s,c,a,w,d)
 
-def ploth(subplot,binends,plot,s='-',c='k',a=1,w=1,d=None,l=None):
+def ploth(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))],l=None):
     subplot.hlines(plot,
                    binends[:-1],
                    binends[1:],
@@ -71,7 +71,7 @@ def ploth(subplot,binends,plot,s='-',c='k',a=1,w=1,d=None,l=None):
                    alpha=a,
                    label=l,
                    rasterized=True)
-def plotv(subplot,binends,plot,s='-',c='k',a=1,w=1,d=None):
+def plotv(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))]):
     subplot.vlines(binends[1:-1],
                    plot[:-1],
                    plot[1:],
@@ -80,7 +80,6 @@ def plotv(subplot,binends,plot,s='-',c='k',a=1,w=1,d=None):
                    dashes=d,
                    color=c,
                    alpha=a,
-                   label=l,
                    rasterized=True)
 
 def footer(subplot):
@@ -319,12 +318,12 @@ class plotter_probs(plotter):
 #         maxy = np.max(yrange)+np.log(self.meta.ngals)
 
         if self.meta.logtruNz is not None:
-            self.plotone(probs['lp_tru'],w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru+tv)
-            self.plotone(probs['lp_stk'],w=w_stk,s=s_stk,a=a_stk,c=c_stk,l=l_stk+tv)
-#             self.plotone(probs['lp_map'],w=w_map,s=s_map,a=a_map,c=c_map,l=l_map+tv)
-#             self.plotone(probs['lp_exp'],w=w_exp,s=s_exp,a=a_exp,c=c_exp,l=l_exp+tv)
-            self.plotone(probs['lp_mml'],w=w_mml,s=s_mml,a=a_mml,c=c_mml,l=l_mml+tv)#r'MMLE $\vec{\theta}$',w=2.,s=':')
-#             self.plotone(probs['lp_int'],w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+tv
+            self.plotone(probs['lp_tru'],w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru+tv)
+            self.plotone(probs['lp_stk'],w=w_stk,s=s_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk+tv)
+#             self.plotone(probs['lp_map'],w=w_map,s=s_map,a=a_map,c=c_map,d=d_map,l=l_map+tv)
+#             self.plotone(probs['lp_exp'],w=w_exp,s=s_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+tv)
+            self.plotone(probs['lp_mml'],w=w_mml,s=s_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+tv)#r'MMLE $\vec{\theta}$',w=2.,s=':')
+#             self.plotone(probs['lp_int'],w=w_int,s=s_int,a=a_int,c=c_int,d=d_intl=l_int+tv
 
         self.sps.legend(fontsize='xx-small', loc='upper right')
         self.sps.set_xlim(-1*self.meta.miniters,(self.last_key.r+2)*self.meta.miniters)
@@ -336,8 +335,8 @@ class plotter_probs(plotter):
 
         timesaver(self.meta,'probs-done',key)
 
-    def plotone(self,plot_y,l=None,a=1.,c='k',w=1.,s='-'):
-        ploth(self.sps,self.meta.miniters*np.arange(0.,self.last_key.r+1),plot_y,s,c,a,w,l)
+    def plotone(self,plot_y,l=None,a=1.,c='k',w=1.,s='--',d=[(0,(1,0.0001))]):
+        ploth(self.sps,self.meta.miniters*np.arange(0.,self.last_key.r+1),plot_y,s=s,c=c,a=a,w=w,d=d,l=l)
 
 # plot full posterior samples
 class plotter_samps(plotter):
@@ -379,6 +378,7 @@ class plotter_samps(plotter):
 
         if (self.meta.plotonly == 0 and key.burnin == False) or (self.meta.plotonly == 1 and key.r >= iterno-self.meta.factor):
 
+            print('about to plot a sample')
             data = key.load_state(self.meta.topdir)['chains']
 
             plot_y_ls = np.swapaxes(data,0,1)
@@ -395,6 +395,7 @@ class plotter_samps(plotter):
                     plotstep(sps_samp,self.meta.binends,np.exp(plot_y_ls[x][w]),s=s_smp,d=d_smp,w=w_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
 #                 self.plotone(plot_y_ls[x][w],plot_y_s[x][w],w=w_smp,s=s_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
 
+            print('plotted a sample')
             self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),dpi=100)
 
         timesaver(self.meta,'samps',key)
@@ -458,13 +459,13 @@ class plotter_samps(plotter):
 
         self.plotsamp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
 
-    def plotsamp(self,logy,y,w=1.,s='-',a=1.,c='k',d=None,l=' '):
+    def plotsamp(self,logy,y,w=1.,s='--',a=1.,c='k',d=[(0,(1,0.0001))],l=' '):
         sps_samp_log = self.sps_samps[0]
         sps_samp = self.sps_samps[1]
         plotstep(sps_samp_log,self.meta.binends,logy,w=w,s=s,d=d,a=a,c=c,l=l)#+lnz)
         plotstep(sps_samp,self.meta.binends,y,w=w,s=s,d=d,a=a,c=c,l=l)#+nz)
 
-    def plotcomp(self,logy,y,w=1.,s='-',a=1.,c='k',d=None,l=' '):
+    def plotcomp(self,logy,y,w=1.,s='--',a=1.,c='k',d=[(0,(1,0.0001))],l=' '):
         sps_comp_log = self.sps_comps[0]
         sps_comp = self.sps_comps[1]
         plotstep(sps_comp_log,self.meta.binends,logy,w=w,s=s,d=d,a=a,c=c,l=l)
@@ -614,14 +615,15 @@ class plotter_chains(plotter):
 
         timesaver(self.meta,'chains',key)
 
-    def plotone(self,subplot,plot_x,plot_y,s,ylabel,a=1.):
+    def plotone(self,subplot,plot_x,plot_y,w=2,c='k',s='--',d=[(0,(1,0.0001))],l=' ',a=1.):
         subplot.plot(plot_x,
                      plot_y,
-                     color='k',
-                     linewidth=2,
+                     color=c,
+                     linewidth=w,
                      linestyle=s,
+                     dashes=d,
                      alpha=a,
-                     label=ylabel)
+                     label=l)
         return
 
     def finish(self):
