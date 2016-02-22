@@ -39,26 +39,26 @@ global lnz,nz,tv,t
 lnz,nz,tv,t,kld = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$','\n KLD='
 # setting up unified appearance parameters
 global s_tru,w_tru,a_tru,c_tru,d_tru,l_tru
-s_tru,w_tru,a_tru,c_tru,l_tru = '-',1.,1.,'k',None,'True '
+s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '-',1.,1.,'k',None,'True '
 global s_int,w_int,a_int,c_int,d_int,l_int
-s_int,w_int,a_int,c_int,l_int = '-',1.,0.5,'k',None,'Interim '
+s_int,w_int,a_int,c_int,d_int,l_int = '-',1.,0.5,'k',None,'Interim '
 global s_stk,w_stk,a_stk,c_stk,d_stk,l_stk
-s_stk,w_stk,a_stk,c_stk,l_stk = '-',2.,1.,'k',[2,2],'Stacked '
+s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '-',2.,1.,'k',[2,2],'Stacked '
 # global s_map,w_map,a_map,c_map,d_map,l_map
-# s_map,w_map,a_map,c_map,l_map = '-',1.5,0.75,'k',[4,4,2,4],'MMAP '
+# s_map,w_map,a_map,c_map,d_map,l_map = '-',1.5,0.75,'k',[4,4,2,4],'MMAP '
 # global s_exp,w_exp,a_exp,c_exp,d_exp,l_exp
-# s_exp,w_exp,a_exp,c_exp,l_exp = '-',1.5,0.25,'k',[4,4,2,4],'MExp '
+# s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '-',1.5,0.25,'k',[4,4,2,4],'MExp '
 global s_mml,w_mml,a_mml,c_mml,d_mml,l_mml
-s_mml,w_mml,a_mml,c_mml,l_mml = '-',1.,1.,'k',[4,4],'MMLE '
+s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '-',1.,1.,'k',[4,4],'MMLE '
 global s_smp,w_smp,a_smp,c_smp,d,smp,l_smp
-s_smp,w_smp,a_smp,c_smp,l_smp = '-',1.,1.,'k',None,'Sampled '
+s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '-',1.,1.,'k',None,'Sampled '
 global s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe
-s_bfe,w_bfe,a_bfe,c_bfe,l_bfe = '-',2.,1.,'k',None,'Mean of\n Samples '
+s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe = '-',2.,1.,'k',None,'Mean of\n Samples '
 
 #making a step function plotter because pyplot is stupid
 def plotstep(subplot,binends,plot,s='-',c='k',a=1,w=1,d=None,l=None):
-    ploth(subplot,binends,plot,s,c,a,w,l)
-    plotv(subplot,binends,plot,s,c,a,w)
+    ploth(subplot,binends,plot,s,c,a,w,d,l)
+    plotv(subplot,binends,plot,s,c,a,w,d)
 
 def ploth(subplot,binends,plot,s='-',c='k',a=1,w=1,d=None,l=None):
     subplot.hlines(plot,
@@ -71,7 +71,7 @@ def ploth(subplot,binends,plot,s='-',c='k',a=1,w=1,d=None,l=None):
                    alpha=a,
                    label=l,
                    rasterized=True)
-def plotv(subplot,binends,plot,s='-',c='k',a=1,w=1,d=None,l=None):
+def plotv(subplot,binends,plot,s='-',c='k',a=1,w=1,d=None):
     subplot.vlines(binends[1:-1],
                    plot[:-1],
                    plot[1:],
@@ -153,12 +153,12 @@ def plot_true(meta):
     sps.set_ylim(np.log(1./min(meta.bindifs)),np.log(meta.ngals/min(meta.bindifs)))#(-1.,np.log(test.ngals/min(test.meta.zdifs)))
     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
 #     plotstep(sps,test.binends,test.logtruNz,s=s_smp,w=w_smp,a=a_smp,c=c_smp,l=l_smp+lnz)
-    plotstep(sps,meta.zrange,meta.lNz_range,s=s_tru,w=w_tru,a=a_tru,c=c_tru,l=l_tru+lnz)
-    plotstep(sps,meta.binends,meta.logstkNz,s=s_stk,w=w_stk,a=a_tru,c=c_tru,l=l_stk+lnz)
-#     plotstep(sps,meta.binends,meta.logmapNz,s=s_map,w=w_map,a=a_tru,c=c_tru,l=l_map+lnz)
-#     plotstep(sps,meta.binends,meta.logexpNz,s=s_exp,w=w_exp,a=a_tru,c=c_tru,l=l_exp+lnz)
-    plotstep(sps,meta.binends,meta.logmmlNz,s=s_mml,w=w_mml,a=a_tru,c=c_tru,l=l_mml+lnz)
-    plotstep(sps,meta.binends,meta.logintNz,s=s_int,w=w_int,a=a_tru,c=c_tru,l=l_int+lnz)
+    plotstep(sps,meta.zrange,meta.lNz_range,s=s_tru,w=w_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru+lnz)
+    plotstep(sps,meta.binends,meta.logstkNz,s=s_stk,w=w_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk+lnz)
+#     plotstep(sps,meta.binends,meta.logmapNz,s=s_map,w=w_map,a=a_map,c=c_map,d=d_map,l=l_map+lnz)
+#     plotstep(sps,meta.binends,meta.logexpNz,s=s_exp,w=w_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+lnz)
+    plotstep(sps,meta.binends,meta.logmmlNz,s=s_mml,w=w_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+lnz)
+    plotstep(sps,meta.binends,meta.logintNz,s=s_int,w=w_int,a=a_int,c=c_int,d=d_int,l=l_int+lnz)
     sps.legend(loc='lower right',fontsize='x-small')
     sps = f.add_subplot(2,1,2)
     sps.set_xlabel(r'binned $z$')
@@ -166,12 +166,12 @@ def plot_true(meta):
 #     sps.set_ylim(0.,test.ngals/min(test.bindifs))#(0.,test.ngals/min(test.meta.zdifs))
     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
 #     plotstep(sps,test.binends,test.truNz,s=s_smp,w=w_smp,a=a_smp,c=c_smp,l=l_smp+nz)
-    plotstep(sps,meta.zrange,meta.Nz_range,s=s_tru,w=w_tru,a=a_tru,c=c_tru,l=l_tru+nz)
-    plotstep(sps,meta.binends,meta.stkNz,s=s_stk,w=w_stk,a=a_tru,c=c_tru,l=l_stk+nz)# with $\sigma^{2}=$'+str(int(test.vsstack)))
-#     plotstep(sps,meta.binends,meta.mapNz,s=s_map,w=w_map,a=a_tru,c=c_tru,l=l_map+nz)# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
-#     plotstep(sps,meta.binends,meta.expNz,s=s_exp,w=w_exp,a=a_tru,c=c_tru,l=l_exp+nz)# with $\sigma^{2}=$'+str(int(test.vsexpNz)))
-    plotstep(sps,meta.binends,meta.mmlNz,s=s_mml,w=w_mml,a=a_tru,c=c_tru,l=l_mml+nz)
-    plotstep(sps,meta.binends,meta.intNz,s=s_int,w=w_int,a=a_tru,c=c_tru,l=l_int+nz)# with $\sigma^{2}=$'+str(int(test.vsinterim)))
+    plotstep(sps,meta.zrange,meta.Nz_range,s=s_tru,w=w_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru+nz)
+    plotstep(sps,meta.binends,meta.stkNz,s=s_stk,w=w_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk+nz)# with $\sigma^{2}=$'+str(int(test.vsstack)))
+#     plotstep(sps,meta.binends,meta.mapNz,s=s_map,w=w_map,a=a_msp,c=c_map,d=d_map,l=l_map+nz)# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
+#     plotstep(sps,meta.binends,meta.expNz,s=s_exp,w=w_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+nz)# with $\sigma^{2}=$'+str(int(test.vsexpNz)))
+    plotstep(sps,meta.binends,meta.mmlNz,s=s_mml,w=w_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+nz)
+    plotstep(sps,meta.binends,meta.intNz,s=s_int,w=w_int,a=a_int,c=c_int,d=d_int,l=l_int+nz)# with $\sigma^{2}=$'+str(int(test.vsinterim)))
     sps.legend(loc='upper left',fontsize='x-small')
 
     footer(sps)
@@ -366,11 +366,11 @@ class plotter_samps(plotter):
         sps_samp.set_ylabel(r'$N(z)$')
 
         if self.meta.logtruNz is not None:
-            plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru)#+lnz)
-            plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru)#+nz)
+            plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru)#+lnz)
+            plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru)#+nz)
             sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
             sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
-        self.plotsamp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int)
+        self.plotsamp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,d=d_int,l=l_int)
 
     def plot(self,key):
 
@@ -391,8 +391,8 @@ class plotter_samps(plotter):
             sps_samp = self.sps_samps[1]
             for w in randwalks:
                 for x in randsteps:
-                    plotstep(sps_samp_log,self.meta.binends,plot_y_ls[x][w],s=s_smp,w=w_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
-                    plotstep(sps_samp,self.meta.binends,np.exp(plot_y_ls[x][w]),s=s_smp,w=w_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
+                    plotstep(sps_samp_log,self.meta.binends,plot_y_ls[x][w],s=s_smp,d=d_smp,w=w_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
+                    plotstep(sps_samp,self.meta.binends,np.exp(plot_y_ls[x][w]),s=s_smp,d=d_smp,w=w_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
 #                 self.plotone(plot_y_ls[x][w],plot_y_s[x][w],w=w_smp,s=s_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
 
             self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),dpi=100)
@@ -456,19 +456,19 @@ class plotter_samps(plotter):
             logplot.fill(self.x_cors[k],self.y_cors[k],color='k',alpha=0.3,linewidth=0.)
             plot.fill(self.x_cors[k],np.exp(self.y_cors[k]),color='k',alpha=0.3,linewidth=0.)
 
-        self.plotsamp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,l=l_bfe)
+        self.plotsamp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
 
-    def plotsamp(self,logy,y,w=1.,s='-',a=1.,c='k',l=' '):
+    def plotsamp(self,logy,y,w=1.,s='-',a=1.,c='k',d=None,l=' '):
         sps_samp_log = self.sps_samps[0]
         sps_samp = self.sps_samps[1]
-        plotstep(sps_samp_log,self.meta.binends,logy,w=w,s=s,a=a,c=c,l=l)#+lnz)
-        plotstep(sps_samp,self.meta.binends,y,w=w,s=s,a=a,c=c,l=l)#+nz)
+        plotstep(sps_samp_log,self.meta.binends,logy,w=w,s=s,d=d,a=a,c=c,l=l)#+lnz)
+        plotstep(sps_samp,self.meta.binends,y,w=w,s=s,d=d,a=a,c=c,l=l)#+nz)
 
-    def plotcomp(self,logy,y,w=1.,s='-',a=1.,c='k',l=' '):
+    def plotcomp(self,logy,y,w=1.,s='-',a=1.,c='k',d=None,l=' '):
         sps_comp_log = self.sps_comps[0]
         sps_comp = self.sps_comps[1]
-        plotstep(sps_comp_log,self.meta.binends,logy,w=w,s=s,a=a,c=c,l=l)
-        plotstep(sps_comp,self.meta.binends,y,w=w,s=s,a=a,c=c,l=l)
+        plotstep(sps_comp_log,self.meta.binends,logy,w=w,s=s,d=d,a=a,c=c,l=l)
+        plotstep(sps_comp,self.meta.binends,y,w=w,s=s,d=d,a=a,c=c,l=l)
 
     def prepstats(self):
 
@@ -501,8 +501,8 @@ class plotter_samps(plotter):
 
         if self.meta.logtruNz is not None:
             self.prepstats()
-            plotstep(sps_comp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru)#+lnz)
-            plotstep(sps_comp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,l=l_tru)#+nz)
+            plotstep(sps_comp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru)#+lnz)
+            plotstep(sps_comp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru)#+nz)
             sps_comp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
             sps_comp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
         else:
@@ -512,14 +512,14 @@ class plotter_samps(plotter):
 
 #         plotstep(sps_comp_log,self.meta.binends,self.meta.logintNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+lnz)
 #         plotstep(sps_comp,self.meta.binends,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+nz)
-        self.plotcomp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int)#+kld+str(self.kl_stk))
-        self.plotcomp(self.meta.logstkNz,self.meta.stkNz,w=w_stk,s=s_stk,a=a_stk,c=c_stk,l=l_stk+kld+str(self.kl_stk))
-#         self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,l=l_map+kld+str(self.kl_map))
-#         self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,l=l_exp+kld+str(self.kl_exp))
-        self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,l=l_mml+kld+str(self.kl_mml))
+        self.plotcomp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,d=d_int,l=l_int)#+kld+str(self.kl_stk))
+        self.plotcomp(self.meta.logstkNz,self.meta.stkNz,w=w_stk,s=s_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk+kld+str(self.kl_stk))
+#         self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,d=d_map,l=l_map+kld+str(self.kl_map))
+#         self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+kld+str(self.kl_exp))
+        self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+kld+str(self.kl_mml))
 
 #         self.ploterr(sps_comp_log,sps_comp)
-        self.plotcomp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,l=l_bfe+kld+str(self.kl_smp))
+        self.plotcomp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe+kld+str(self.kl_smp))
 
         sps_comp_log.legend(fontsize='xx-small', loc='upper left')
         sps_comp.legend(fontsize='xx-small', loc='upper left')
