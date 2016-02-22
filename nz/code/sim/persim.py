@@ -117,10 +117,7 @@ class pertest(object):
             self.npeaks = [1]*self.ngals
 
         # choose random sigma
-        if self.meta.noisefact == 1:
-            sigval = self.zdif
-        else:
-            sigval = self.meta.noisefact*self.zdif
+        sigval = self.meta.noisefact*self.zdif
         self.var = us.tnorm(sigval,sigval,[0.,self.allzs[-1]])
         # self.modZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])#self.truZs+1.
         self.varZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])#*self.zdif
