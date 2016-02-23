@@ -69,8 +69,8 @@ def ploth(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))],l=None):
                    dashes=d,
                    color=c,
                    alpha=a,
-                   label=l,
-                   rasterized=True)
+                   label=l)#,
+                   #rasterized=True)
 def plotv(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))]):
     subplot.vlines(binends[1:-1],
                    plot[:-1],
@@ -79,8 +79,8 @@ def plotv(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))]):
                    linestyle=s,
                    dashes=d,
                    color=c,
-                   alpha=a,
-                   rasterized=True)
+                   alpha=a)#,
+                   #rasterized=True)
 
 def footer(subplot):
     subplot.annotate('Malz+2016',(0,0), (190,200), xycoords='axes fraction', textcoords='offset points', va='top')
@@ -141,7 +141,7 @@ def plot_ivals(meta):
     plotstep(sps,meta.binends,meta.mean)
     for i in lrange(meta.ivals):
         plotstep(sps,meta.binends,meta.ivals[i],a=1./meta.factor,c=meta.colors[i%len(meta.colors)])
-    f.savefig(os.path.join(meta.topdir,'initializations.png'),dpi=100)
+    f.savefig(os.path.join(meta.topdir,'initializations.png'))#,dpi=100)
     return
 
 def plot_true(meta):
@@ -229,10 +229,10 @@ class plotter_times(plotter):
                                c='k',
                                alpha=self.a_times,
                                linewidth=0.1,
-                               s=self.meta.nbins,
-                               rasterized=True)
+                               s=self.meta.nbins)#,
+                               #rasterized=True)
 
-        self.f_times.savefig(os.path.join(self.meta.topdir,'times.png'),dpi=100)
+        self.f_times.savefig(os.path.join(self.meta.topdir,'times.png'))#,dpi=100)
 
         timesaver(self.meta,'times-done',key)
 
@@ -255,7 +255,7 @@ class plotter_times(plotter):
     def finish(self):
 
         self.sps_times.set_xlim(0,(self.last_key.r+2)*self.meta.miniters)
-        self.f_times.savefig(os.path.join(self.meta.topdir,'times.pdf'),dpi=100)
+        self.f_times.savefig(os.path.join(self.meta.topdir,'times.pdf'))#,dpi=100)
         timesaver(self.meta,'times',self.meta.topdir)
 
 #         self.sps_fracs.set_xlim(0,(self.last_key.r+2)*self.meta.miniters)
@@ -290,7 +290,7 @@ class plotter_probs(plotter):
         locs = np.array(locs)
         scales = np.array(scales)
         x_all = np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto
-        self.sps.plot(x_all,locs,color='k',rasterized=True)
+        self.sps.plot(x_all,locs,color='k')#,rasterized=True)
 #         self.sps.vlines(xrange(self.meta.ntimes+1),(locs-scales),(locs+scales),color='k',alpha=0.5,linewidth=2.,rasterized=True)
 #         self.sps.fill_between(x_all,locs-scales,locs+scales,color='k',alpha=0.1,linewidth=0.)
         x_cor = [x_all[:-1],x_all[:-1],x_all[1:],x_all[1:]]
@@ -304,7 +304,7 @@ class plotter_probs(plotter):
 #                           alpha=self.a_probs,
 #                           rasterized=True)
 
-        self.f.savefig(os.path.join(self.meta.topdir,'probs.png'),dpi=100)
+        self.f.savefig(os.path.join(self.meta.topdir,'probs.png'))#,dpi=100)
 
         timesaver(self.meta,'probs',key)
 
@@ -328,7 +328,7 @@ class plotter_probs(plotter):
         self.sps.legend(fontsize='xx-small', loc='upper right')
         self.sps.set_xlim(-1*self.meta.miniters,(self.last_key.r+2)*self.meta.miniters)
 #         self.sps.set_ylim(miny,maxy)
-        self.f.savefig(os.path.join(self.meta.topdir,'probs.png'),dpi=100)
+        self.f.savefig(os.path.join(self.meta.topdir,'probs.png'))#,dpi=100)
 
 #         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
 #             both = cpkl.load(statboth)
@@ -396,7 +396,7 @@ class plotter_samps(plotter):
 #                 self.plotone(plot_y_ls[x][w],plot_y_s[x][w],w=w_smp,s=s_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
 
             print('plotted a sample')
-            self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),dpi=100)
+            self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'))#,dpi=100)
 
         timesaver(self.meta,'samps',key)
 
@@ -417,8 +417,8 @@ class plotter_samps(plotter):
 
         self.summary()
 
-        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),dpi=100)
-        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.pdf'),dpi=100)
+        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'))#,dpi=100)
+        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.pdf'))#,dpi=100)
 
         timesaver(self.meta,'samps-done',key)
 
@@ -527,8 +527,8 @@ class plotter_samps(plotter):
         footer(sps_comp_log)
         footer(sps_comp)
 
-        self.f_comps.savefig(os.path.join(self.meta.topdir,'comps.png'),dpi=100)
-        self.f_comps.savefig(os.path.join(self.meta.topdir,'comps.pdf'),dpi=100)
+        self.f_comps.savefig(os.path.join(self.meta.topdir,'comps.png'))#,dpi=100)
+        self.f_comps.savefig(os.path.join(self.meta.topdir,'comps.pdf'))#,dpi=100)
 
 #plot full posterior chain evolution
 class plotter_chains(plotter):
@@ -544,7 +544,7 @@ class plotter_chains(plotter):
 
         for k in xrange(self.meta.nbins):
             sps_chain = self.sps_chains[k]
-            sps_chain.plot([0],[0],color=c_smp,label=l_smp+r'$\theta_{'+str(k)+r'}$',alpha=a_smp,linewidth=w_smp,linestyle=s_smp,rasterized = True)
+            sps_chain.plot([0],[0],color=c_smp,label=l_smp+r'$\theta_{'+str(k)+r'}$',alpha=a_smp,linewidth=w_smp,linestyle=s_smp)#,rasterized = True)
             sps_chain.set_ylim(-np.log(self.meta.ngals), np.log(self.meta.ngals / self.meta.bindif)+1)
             sps_chain.set_xlabel('iteration number')
             sps_chain.set_ylabel(r'$\ln N_{'+str(k+1)+r'}(z)$')
@@ -583,22 +583,22 @@ class plotter_chains(plotter):
             mean = np.sum(plot_y_c[k])/(self.meta.ntimes*self.meta.nwalkers)
             self.sps_chains[k].plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,#i_run.eachtimenos[r],
                                     [mean]*self.meta.ntimes,
-                                    color = 'k',
-                                    rasterized = True)
+                                    color = 'k')#,
+                                    #rasterized = True)
 
             x_all = plot_y_c[k].flatten()
             x_kde = x_all[:, np.newaxis]
             kde = skl.neighbors.KernelDensity(kernel='gaussian', bandwidth=1.0).fit(x_kde)
             x_plot = np.arange(np.min(plot_y_c[k]),np.max(plot_y_c[k]),0.1)[:, np.newaxis]
             log_dens = kde.score_samples(x_plot)
-            sps_pdf.plot(x_plot[:, 0],np.exp(log_dens),color=self.meta.colors[key.r%self.ncolors],rasterized=True)
+            sps_pdf.plot(x_plot[:, 0],np.exp(log_dens),color=self.meta.colors[key.r%self.ncolors])#,rasterized=True)
             for x in randsteps:
                 for w in self.randwalks:
                     self.sps_chains[k].plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,#i_run.eachtimenos[r],
                                             plot_y_c[k][w],
                                             color = self.meta.colors[w%self.ncolors],
-                                            alpha = self.a_chain,
-                                            rasterized = True)
+                                            alpha = self.a_chain)#,
+                                            #rasterized = True)
 
             loc,scale = sp.stats.norm.fit_loc_scale(x_all)
             sps_pdf.vlines(loc,0.,1.,color=self.meta.colors[key.r%self.ncolors],linestyle=s_smp,linewidth=w_smp,alpha=a_smp)
@@ -611,7 +611,7 @@ class plotter_chains(plotter):
 #         for k in xrange(self.meta.nbins):
 #             self.sps_pdfs[k].vlines(both['mapvals'][-1][k],0.,1.,linewidth=2,color=self.meta.colors[key.r%self.ncolors])
 
-        self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.png'),dpi=100)
+        self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.png'))#,dpi=100)
 
         timesaver(self.meta,'chains',key)
 
@@ -653,6 +653,6 @@ class plotter_chains(plotter):
             sps_chain.legend(fontsize='xx-small', loc='lower right')
             sps_chain.set_xlim(0,(self.last_key.r+1)*self.meta.miniters)
 
-        self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.png'),dpi=100)
+        self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.png'))#,dpi=100)
 
         timesaver(self.meta,'chains-done',key)
