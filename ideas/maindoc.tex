@@ -180,6 +180,8 @@ p(\mathcal{P}|\{(\{\Delta_{nn'}\}_{N'},\vec{m}_{n})\}_{N}) =& \ p(\vec{P})\prod_
 
 \subsubsection{One-point statistic of redshift}
 
+The simplest one-point statistic of redshift 
+
 \begin{figure}
 \vspace{0.5cm}
 \begin{center}
@@ -195,8 +197,8 @@ p(\mathcal{P}|\{(\{\Delta_{nn'}\}_{N'},\vec{m}_{n})\}_{N}) =& \ p(\vec{P})\prod_
 \draw [arrow] (z) -- (mags);
 
 \end{tikzpicture}
-\caption{This directed acyclic graph illustrates a hierarchical model.}
-\label{fig:flow}
+\caption{}
+\label{fig:nz}
 \end{center}
 \end{figure}
 
@@ -207,14 +209,16 @@ p(\mathcal{P}|\{(\{\Delta_{nn'}\}_{N'},\vec{m}_{n})\}_{N}) =& \ p(\vec{P})\prod_
 \begin{center}
 \begin{tikzpicture}[node distance=1cm]
 
-\node (mf) [hyper] {$\Phi(M,z)$};
-\node (z) [param, below of=mf,yshift=-0.75cm,xshift=0.5cm] {$z_{j}$};
-\node (M) [param, below of=mf,yshift=-0.75cm,xshift=-0.5cm] {$M_{j}$};
-\node (flux) [data, below of=mf,yshift=-2cm] {$\vec{d}_{j}$};
-\node (survey) [draw=black,fit={(M.west)(z.north)(flux.south)(z.east)}] {};
+\node (mf) [hyper,xshift=-1cm] {$\Phi(M,z)$};
+\node (nz) [hyper,xshift=0.5cm,yshift=-1cm] {$N(z)$};
+\node (z) [param, below of=nz] {$z_{j}$};
+\node (M) [param, below of=mf,yshift=-1cm] {$M_{j}$};
+\node (flux) [data, below of=mf,yshift=-2cm,xshift=0.75cm] {$\vec{d}_{j}$};
+\node (survey) [draw=black,fit={(M.west)(M.north)(flux.south)(z.east)}] {};
 \node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
 
-\draw [arrow] (mf) -- (z);
+\draw [arrow] (mf) -- (nz);
+\draw [arrow] (nz) -- (z);
 \draw [arrow] (mf) -- (M);
 \draw [arrow] (z) -- (flux);
 \draw [arrow] (M) -- (flux);
@@ -255,20 +259,22 @@ p(\mathcal{P}|\{(\{\Delta_{nn'}\}_{N'},\vec{m}_{n})\}_{N}) =& \ p(\vec{P})\prod_
 \begin{center}
 \begin{tikzpicture}[node distance=1cm]
 
-\node (nz) [hyper,xshift=-1cm] {$N(z)$};
-\node (tf) [hyper,xshift=1cm] {$\theta(\vec{L},v,z)$};
-\node (z) [param, below of=nz,yshift=-0.75cm] {$z_{j}$};
+\node (nz) [hyper,xshift=-2cm] {$N(z)$};
+\node (tf) [hyper,xshift=2cm] {$\theta(\vec{L},v,z)$};
+\node (lf) [hyper] {$\Phi(\vec{L},z)$};
+\node (z) [param, below of=lf,yshift=-0.75cm,xshift=-1cm] {$z_{j}$};
 \node (L) [param, below of=z,yshift=-0.75cm,xshift=1cm] {$\vec{L}_{j}$};
 \node (v) [param, below of=z,yshift=-0.75cm,xshift=2cm] {$v_{j}$};
-\node (flux) [data, below of=z,yshift=-2cm,xshift=0.5cm] {$\vec{d}_{j}$};
+\node (flux) [data, below of=L,yshift=-1cm] {$\vec{d}_{j}$};
 \node (survey) [draw=black,fit={(z.west)(z.north)(flux.south)(v.east)}] {};
 \node [xshift=2.25cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
 
 \draw [arrow] (nz) -- (z);
+\draw [arrow] (lf) -- (L);
+\draw [arrow] (lf) -- (z);
 \draw [arrow] (tf) -- (L);
 \draw [arrow] (tf) -- (v);
 \draw [arrow] (z) -- (L);
-\draw [arrow] (z) -- (v);
 \draw [arrow] (v) -- (flux);
 \draw [arrow] (z) -- (flux);
 \draw [arrow] (L) -- (flux);
