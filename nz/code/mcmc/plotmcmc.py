@@ -406,7 +406,7 @@ class plotter_samps(plotter):
         sps_samp = self.sps_samps[1]
 
         self.calcbfe()
-#         self.ploterr(sps_samp_log,sps_samp)
+        self.ploterr(sps_samp_log,sps_samp)
 #         if self.meta.logtruNz is not None:
 #             sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
 #             sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
@@ -519,7 +519,7 @@ class plotter_samps(plotter):
 #         self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+kld+str(self.kl_exp))
         self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+kld+str(self.kl_mml))
 
-#         self.ploterr(sps_comp_log,sps_comp)
+        self.ploterr(sps_comp_log,sps_comp)
         self.plotcomp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe+kld+str(self.kl_smp))
 
         sps_comp_log.legend(fontsize='xx-small', loc='upper left')
