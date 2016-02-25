@@ -83,7 +83,7 @@ def plotv(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))]):
                    #rasterized=True)
 
 def footer(subplot):
-    subplot.annotate('Malz+2016',(0,0), (190,200), xycoords='axes fraction', textcoords='offset points', va='top')
+    subplot.annotate('Malz+2016',(0,0), (175,250), xycoords='axes fraction', textcoords='offset points', va='top')
     return
 
 def timesaver(meta,name,key):
@@ -347,6 +347,7 @@ class plotter_samps(plotter):
         self.a_samp = 1.#/self.meta.ntimes#self.ncolors/self.meta.nwalkers
         self.f_samps = plt.figure(figsize=(5, 10))
         self.sps_samps = [self.f_samps.add_subplot(2,1,l+1) for l in xrange(0,2)]
+        self.f_samps.subplots_adjust(hspace=0, wspace=0)
 
 #         self.f_comps = plt.figure(figsize=(5, 10))
 #         self.sps_comps = [self.f_comps.add_subplot(2,1,l+1) for l in xrange(0,2)]
@@ -356,7 +357,7 @@ class plotter_samps(plotter):
 
         sps_samp_log.set_xlim(self.meta.binends[0]-self.meta.bindif,self.meta.binends[-1]+self.meta.bindif)
 #         sps_samp_log.set_ylim(-1.,m.log(self.meta.ngals/self.meta.bindif)+1.)
-        sps_samp_log.set_xlabel(r'$z$')
+#         sps_samp_log.set_xlabel(r'$z$')
         sps_samp_log.set_ylabel(r'$\ln N(z)$')
 #         sps_samp_log.set_ylim(-1.,m.log(self.meta.ngals/self.meta.bindif)+1.)
         sps_samp.set_xlim(self.meta.binends[0]-self.meta.bindif,self.meta.binends[-1]+self.meta.bindif)
@@ -413,12 +414,12 @@ class plotter_samps(plotter):
         sps_samp_log.legend(fontsize='xx-small', loc='upper left')
         sps_samp.legend(fontsize='xx-small', loc='upper left')
         footer(sps_samp_log)
-        footer(sps_samp)
+#         footer(sps_samp)
 
         self.summary()
 
-        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'))#,dpi=100)
-        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.pdf'))#,dpi=100)
+        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
+        self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.pdf'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
 
         timesaver(self.meta,'samps-done',key)
 
@@ -490,11 +491,12 @@ class plotter_samps(plotter):
 
         self.f_comps = plt.figure(figsize=(5, 10))
         self.sps_comps = [self.f_comps.add_subplot(2,1,l+1) for l in xrange(0,2)]
+        self.f_comps.subplots_adjust(hspace=0, wspace=0)
         sps_comp_log = self.sps_comps[0]
         sps_comp = self.sps_comps[1]
 
         sps_comp_log.set_xlim(self.meta.binends[0]-self.meta.bindif,self.meta.binends[-1]+self.meta.bindif)
-        sps_comp_log.set_xlabel(r'$z$')
+#         sps_comp_log.set_xlabel(r'$z$')
         sps_comp_log.set_ylabel(r'$\ln N(z)$')
         sps_comp.set_xlim(self.meta.binends[0]-self.meta.bindif,self.meta.binends[-1]+self.meta.bindif)
         sps_comp.set_xlabel(r'$z$')
@@ -525,10 +527,10 @@ class plotter_samps(plotter):
         sps_comp_log.legend(fontsize='xx-small', loc='upper left')
         sps_comp.legend(fontsize='xx-small', loc='upper left')
         footer(sps_comp_log)
-        footer(sps_comp)
+#         footer(sps_comp)
 
-        self.f_comps.savefig(os.path.join(self.meta.topdir,'comps.png'))#,dpi=100)
-        self.f_comps.savefig(os.path.join(self.meta.topdir,'comps.pdf'))#,dpi=100)
+        self.f_comps.savefig(os.path.join(self.meta.topdir,'comps.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
+        self.f_comps.savefig(os.path.join(self.meta.topdir,'comps.pdf'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
 
 #plot full posterior chain evolution
 class plotter_chains(plotter):
