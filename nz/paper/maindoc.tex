@@ -55,9 +55,9 @@ reduced to point estimates in calculations of more complicated statistics.
 This work challenges that paradigm and proposes a mathematically consistent 
 technique motivated by fundamental probability theory in which a probabilistic 
 graphical model elucidates the relation of interim photometric redshift 
-posteriors to a full posterior distribution over relevant physical parameters.  
-The approach is applied to the one-point statistic of the redshift distribution 
-function $N(z)$, sampled by Monte Carlo-Markov Chain procedures and validated 
+posteriors to a full posterior distribution over relevant physical parameters, 
+sampled by Monte Carlo-Markov Chain procedures.  The approach is applied to the 
+one-point statistic of the redshift distribution function $N(z)$ and validated 
 on synthetic data.  It is demonstrated that this method improves accuracy 
 compared to popular alternatives such as stacking and conversion of photometric 
 redshift probability distributions to point estimates of redshift.
@@ -96,17 +96,17 @@ improve precision \citep{Carliles2010} and accuracy \citep{Sadeh2015}.
 An alternative to point estimates of photo-zs is redshift probability 
 distribution function estimation, in which rather than an MLE point estimate, 
 the full posterior probability (or likelihood) function of the redshift of a 
-galaxy is reported.  \citep{Budavari2009}  This option is favorable because it 
+galaxy is reported.  \citep{Koo1999}  This option is favorable because it 
 contains more potentially useful information than a point estimate while 
 addressing the issues with systematics and precision.  Photo-z probability 
 distribution functions are not without their own weaknesses, the foremost of 
 which are the computation time and storage space necessary to calculate and 
-record them for large galaxy surveys  \citep{CarrascoKind2014} and the method 
+record them for large galaxy surveys \citep{CarrascoKind2014} and the method 
 used to derive them.
 
-There is not yet consensus on the best way to obtain photo-z probability 
-distributions and many techniques have been proposed and tested in the 
-literature.  An extension of the Bayesian photometric redshift (BPZ) method of 
+Many techniques to obtain photo-z probability distributions have been proposed 
+and tested in the literature, but no one method has yet been generally agreed 
+upon.  An extension of the Bayesian photometric redshift (BPZ) method of 
 \citet{Benitez2000} that produces posterior probability distributions (as 
 opposed to a selection of local maxima) from an SED template library has been 
 employed.  \citep{Hildebrandt2012, Kelly2014, Lopez-Sanjuan2015}  Photo-z 
@@ -115,31 +115,45 @@ trustworthy data-driven approaches in the literature: $k$-nearest neighbor
 algorithms with \citep{Ball2008} and without \citep{Sheldon2012} inclusion of 
 photometric measurement errors, neural networks \citep{Bonnett2015a}, 
 self-organizing maps \citep{CarrascoKind2014a}, and prediction tree and random 
-forest classification techniques \citep{Carliles2010, CarrascoKind2013}.  
+forest classification techniques \citep{Carliles2010, CarrascoKind2013}.  (The 
+approaches of fitting to a training set and fitting to a template library are 
+related by \citet{Budavari2009}.)  Some current work aims to vet photo-z 
+probability distribution generation methods \citep{Wittman2016}, but much 
+remains to be done.
+
+Though their potential to improve estimates of physical parameters is 
+tremendous, photo-z posterior probability distributions have been applied only 
+to a limited extent.  They have been used to form selection criteria of samples 
+from galaxy surveys for the purpose of calculating physical parameters but have 
+not been propagated through the calculations themselves.  
+\citet{VanBreukelen2009,Viironen2015}  Probability cuts on Bayesian quantities 
+is not uncommon \citep{Leung2015, DiPompeo2015a}, but it does not fully take 
+advantage of all information contained in a probability distribution for 
+parameter inference.  
 
 Photo-z probability distributions have been produced by completed surveys 
 \citep{Hildebrandt2012, Sheldon2012} and will be produced by upcoming surveys 
-\citep{LSSTScienceCollaboration2009, CarrascoKind2014a}.  Though their 
-potential to improve estimates of physical parameters is tremendous, photo-z 
-posterior probability distributions have seldom been used to infer physical 
-parameters.  Furthermore, no implementation of inference with photo-z posterior 
-distributions has been presented with a mathematically consistent methodology.  
-The goal of this paper is to clearly present and validate a technique for the 
-use of photo-z posterior distributions in inference.  For simplicity, we 
-consider only one-point statistics relevant to cosmology, though future work 
-will extend this methodology to higher-order statistics.
+\citep{LSSTScienceCollaboration2009, CarrascoKind2014a, Masters2015a}.  
+However, no implementation of inference with photo-z posterior distributions 
+has been presented with a mathematically consistent methodology.  The goal of 
+this paper is to clearly present and validate a technique for the use of 
+photo-z posterior distributions in inference.  For simplicity, we consider only 
+one-point statistics relevant to cosmology, though future work will extend this 
+methodology to higher-order statistics.
 
 The redshift distribution function $N(z)$ serves as an ideal statistic upon 
 which to demonstrate such an approach, in large part because it has been the 
 subject of inference using photo-z probability distributions before.  
-\citep{Sheldon2012, Kelly2014, Benjamin2013, Bonnett2015a, Viironen2015, 
-Asorey2016}  $N(z)$ for observed galaxies can be used to validate survey 
-selection functions used in generation of realistic mock catalogs used for many 
-purposes.  \citep{Norberg2002}  The redshift density function $n(z)$, derived 
-from the redshift distribution function $N(z)$, is also necessary for 
-calculations of two-point correlation functions of weak lensing shear and 
-counting statistics that are directly used to probe cosmological parameters.  
-\citep{Masters2015}
+\citep{Sheldon2012, Hildebrandt2012, Kelly2014, Benjamin2013, Bonnett2015a, 
+Viironen2015, Asorey2016}  $N(z)$ for observed galaxies can be used to validate 
+survey selection functions used in generation of realistic mock catalogs used 
+for many purposes.  \citep{Norberg2002}  The redshift density function $n(z)$, 
+derived from$N(z)$, is also necessary for calculations of two-point correlation 
+functions of weak lensing shear and counting statistics that are directly used 
+to probe cosmological parameters.  \citep{Masters2015}  This paper will not 
+develop a method for fully integrating photo-z probability distributions into 
+calculations of two-point statistics of redshift, though some work has already 
+been dedicated to that cause.  \citep{Myers2009}
 
 \clearpage
 \section{Method}
@@ -196,6 +210,9 @@ N(z) &=& \frac{dN}{dz}
 \label{eq:density}
 n(z) &=& \frac{d^{2}N}{dz\ d\Omega}
 \end{eqnarray}
+
+In the following sections, we will present and compare methods for calculating 
+$N(z)$ from photometric redshift probability distribution functions.  
 
 \clearpage
 \subsection{Probabilistic Model}
@@ -399,15 +416,18 @@ to one another by \citet{Hildebrandt2012}, \citet{Benjamin2013}, and
 
 Stacking directly calculates the full posterior for the entire dataset using 
 the interim photo-z posteriors for each galaxy according to Eq. \ref{eq:stack}. 
- \citep{Lima2008}  It must be noted here that Eq. \ref{eq:stack} is not 
-mathematically valid.  (See \citet{Hogg2012} for a complete discussion.)  
+ \citep{Lima2008}  Stacking is considered the preferred method for obtaining 
+$N(z)$ from a dataset of interim photo-z posteriors.  \citep{Sheldon2012, 
+Kelly2014, Benjamin2013, Bonnett2015a, Viironen2015, Asorey2016}  However, it 
+must be noted here that Eq. \ref{eq:stack} is not mathematically valid.  (See 
+\citet{Hogg2012} for a complete discussion.)  
 
 \begin{eqnarray}
 \label{eq:stack}
 f_{\hat{\theta}}(z) &=& \sum_{j=1}^{J}\ p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})
 \end{eqnarray}
 
-Point estimation, converts the interim photo-z posteriors 
+Point estimation converts the interim photo-z posteriors 
 $p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})$ into delta functions with all 
 probability at a single redshift.  Some variants of point estimation choose 
 this single redshift to be that of maximum a posteriori (MAP) probability 
@@ -429,7 +449,7 @@ n[f_{\vec{\theta}^{0}}(z)]\right]\ dz\right]
 \end{eqnarray}
 
 \clearpage
-\section{Experiments}
+\section{Implementation}
 \label{sec:exp}
 
 We ran several tests of this approach to demonstrate its validity and usage 
@@ -442,7 +462,10 @@ distribution $\ln[p(\vec{\theta}|\{\vec{d}_{j}\}_{J})]$.  In Sec.
 \ref{sec:diag} we outline the measures used to evaluate the performance of the 
 method, including the competing methods with which our results will be compared.
 
-\subsection{Mock Data}
+\subsection{Data}
+\label{sec:alldata}
+
+\subsubsection{Mock Data}
 \label{sec:mock}
 
 To generate mock interim photo-z posteriors, we choose a parametrization of 
@@ -452,40 +475,51 @@ to $z^{B}_{K}=z_{max}$ with bin widths $\Delta_{k}$.  All tests in this paper
 will be conducted with $K=35$, the dimensionality of BOSS DR8 photo-z interim 
 posteriors.  
 
-To obtain the true standard deviations $\sigma_{j}$ associated with each 
-surveyed galaxy, we first sample a Gaussian distribution with mean and standard 
-deviation equal to the mean width of the redshift bins $\bar{\Delta}$, 
-truncated to enforce positive standard deviations.
-
 We next choose a physically-motivated $p^{0}(z)$ defining the general shape of 
 $N(z)$ over a specified redshift range $[z_{min},z_{max}]$.  Here we shall set 
 it to a weighted sum of truncated Gaussians chosen to impose recognizably 
-recoverable features on the true $N(z)$.  The true survey size $J$ is a Poisson 
-random variable distributed about a target survey size of $J'$.  Next we take 
-$J$ samples of $z\sim p^{0}(z)$ to obtain the true redshift catalog 
-$\{z^{0}_{j}\}_{J}$.  
+recoverable features on the true $N(z)$, shown in Fig. \ref{fig:physpz}.  The 
+true survey size $J$ is a Poisson random variable distributed about a target 
+survey size of $J'$.
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/null/physPz.png}
+\caption{}
+\label{fig:physpz}
+\end{figure}
 
 The catalog of log photo-z posteriors $\{\ln[p(z_{j}|\vec{d}_{j})]\}_{J}$ is 
 chosen to be a set of Gaussian distributions, truncated to the redshift range 
 over which $N(z)$ is defined, because it is the simplest extension of the 
-standard redshift point estimates with reported error bars.  Each Gaussian is 
-centered at an "observed" redshift $z'_{j}$ separated from the true redshift 
-$z^{0}_{j}$ by a Gaussian random variable $\epsilon_{j}$ selected from a 
-distribution of mean of 0 and true standard deviation $\sigma_{j}$.  The 
-standard deviations of the truncated Gaussians that comprise 
-$\{\ln[p(z_{j}|\vec{d}_{j})]\}_{J}$ are also set to $\{\sigma_{j}\}_{J}$.
+standard redshift point estimates with reported error bars.  This procedure 
+implements the generative model of Eq. \ref{eq:genmod}.  To obtain the standard 
+deviations $\sigma_{j}\sim\mathcal{N}(f\bar{\Delta},(f\bar{\Delta})^{2})$ 
+associated with each surveyed galaxy $j$, we first sample a Gaussian 
+distribution with mean and standard deviation equal to $f\bar{\Delta}$ for some 
+factor $f$ (by default set to unity), truncated to enforce positive standard 
+deviations.  Each Gaussian is centered at an "observed" redshift 
+$z'_{j}\sim\mathcal{N}(z^{0}_{j},\sigma_{j})$ separated from the true redshift 
+$z^{0}_{j}$ by a Gaussian random variable 
+$\epsilon_{j}\sim\mathcal{N}(0,\sigma^{2}_{j})$ selected from a distribution of 
+mean of 0 and true standard deviation $\sigma_{j}$.  
+
+\begin{eqnarray}
+\label{eq:genmod}
+z'_{j} &=& z^{0}_{j}+\epsilon_{j}
+\end{eqnarray}
 
 We must also choose the parametrization of the redshift distribution function, 
 in this case $f_{\vec{\theta}}(z)=\ln[\vec{\theta}]$.  We next define the 
 elements of $\vec{\theta}$ to be log top-hat functions where the 
 hyperparameters $\theta_{k}$ comprising $\vec{\theta}$ take values equal to 
 $\ln[\int_{z_{k-1}}^{z_{k}}\ f_{\vec{\theta}}(z)\ dz]$.  By default we choose a 
-flat distribution as the interim prior.
+flat distribution as the interim prior, but others will be tested.  (Such a 
+comparison has been executed before by \citet{Viironen2015}.)
 
 To obtain the desired interim photo-z posteriors, we simply normalize such that 
 each interim photo-z posterior integrates to unity and has components 
 proportional to the integral of the product of the interim prior and the 
-Gaussian redshift posterior over each bins.  A random sampling of such interim 
+Gaussian redshift posterior over each bin.  A random sampling of such interim 
 redshift posteriors with $K=35$ is shown in Fig. \ref{fig:nullpzs}.
 
 \begin{figure}
@@ -497,34 +531,24 @@ distribution.}
 \label{fig:nullpzs}
 \end{figure}
 
-This procedure effectively implements the generative model of Eq. 
-\ref{eq:genmod} with 
-$\sigma_{j}\sim\mathcal{N}(\bar{\Delta},\bar{\Delta}^{2})$, 
-$z'_{j}\sim\mathcal{N}(z^{0}_{j},\sigma_{j})$, and 
-$\epsilon_{j}\sim\mathcal{N}(0,\sigma^{2}_{j})$.
-
-\begin{eqnarray}
-\label{eq:genmod}
-z'_{j} &=& z^{0}_{j}+\epsilon_{j}
-\end{eqnarray}
-
-\subsection{BOSS Data}
-\label{sec:data}
-
-We also test this method on subsets of the published interim photo-z posteriors 
-of SDSS III DR 10.  A sampling of the provided interim photo-z posteriors of 
-dimension $K=35$ for $z_{min}=0.3$ and $z_{max}=1.4$ is shown in Fig. 
-\ref{fig:datapzs}.  The interim prior used for this set of interim redshift 
-posteriors is the reweighted estimator of $N(z)$ of \citet{Sheldon2012}.
-
-\begin{figure}
-%\includegraphics[width=0.5\textwidth]{figs/null/samplepzs.png}
-\caption{}
-\label{fig:datapzs}
-\end{figure}
+%\subsubsection{BOSS Data}
+%\label{sec:data}
+%
+%We also test this method on subsets of the published interim photo-z 
+posteriors of SDSS III DR 10.  A sampling of the provided interim photo-z 
+posteriors of dimension $K=35$ for $z_{min}=0.3$ and $z_{max}=1.4$ is shown in 
+Fig. \ref{fig:datapzs}.  The interim prior used for this set of interim 
+redshift posteriors is the reweighted estimator of $N(z)$ of 
+\citet{Sheldon2012}.
+%
+%\begin{figure}
+%%\includegraphics[width=0.5\textwidth]{figs/data/samplepzs.png}
+%\caption{}
+%\label{fig:datapzs}
+%\end{figure}
 
 \clearpage
-\subsection{Implementation}
+\subsection{Computation}
 \label{sec:mcmc}
 
 The testing procedure is implemented in \texttt{Python}.  The code takes as 
@@ -535,64 +559,58 @@ $\{\ln[p(B_{j}|\vec{d}_{j},\vec{\theta}^{0})]\}_{J}$ each of length $K$ in the
 given basis.  The assumed hyperprior distribution is described in Sec. 
 \ref{sec:prior}.
 
-The \texttt{emcee} implementation of the Metropolis-Hastings algorithm is 
-applied to sample the full posterior of Eq. \ref{eq:final}.   
-\citep{Foreman-Mackey2013}   At each iteration $i$, a proposal distribution 
+The \texttt{emcee} \citep{Foreman-Mackey2013} implementation of ensemble 
+sampling is applied to sample the full posterior of Eq. \ref{eq:final}.   For 
+each of some $W$ walkers at each iteration $i$, a proposal distribution 
 $\vec{\theta}^{i}$ generated from this hyperprior distribution and evaluated 
-for acceptance to or rejection from the desired posterior distribution 
+for acceptance to or rejection from the desired posterior distribution.% 
 according to the algorithm outlined below.  
-
-\begin{enumerate}
-\item \label{it:randsamp} Randomly sample the hyperprior $\ln[p(\vec{\theta})]$ 
-to generate a proposal $\vec{\theta}^{i}$.
-\item Calculate the log posterior as in Eq. \ref{eq:final} to produce a 
+%
+%\begin{enumerate}
+%\item \label{it:randsamp} Sample the hyperprior $\ln[p(\vec{\theta})]$ to 
+generate a proposal $\vec{\theta}^{i}$.
+%\item Calculate the log posterior as in Eq. \ref{eq:final} to produce a 
 quantity proportional to $\ln[p(\vec{\theta}^{i}|\{\vec{d}_{j}\}_{J})]$.
-\item Calculate 
+%\item Calculate 
 $a=\ln[p(\vec{\theta}^{i}|\{\vec{d}_{j}\}_{J})]-\ln[p(\vec{\theta}|\{\vec{d}_{j}
 \}_{J})]$.
-\item If $a\geq0$, set and record $\vec{\theta}=\vec{\theta}^{i}$.\\
-If $a<0$, select a random number $n$ from the uniform distribution between 0 
+%\item If $a\geq0$, set and record $\vec{\theta}=\vec{\theta}^{i}$.\\
+%If $a<0$, select a random number $n$ from the uniform distribution between 0 
 and 1.
-\begin{enumerate}
-\item If $n<\exp[a]$, set and record $\vec{\theta}=\vec{\theta}^{i}$.
-\end{enumerate}
-\item Check if the threshold condition has been achieved; if not, return to 
+%\begin{enumerate}
+%\item If $n<\exp[a]$, set and record $\vec{\theta}=\vec{\theta}^{i}$.
+%\end{enumerate}
+%\item Check if the threshold condition has been achieved; if not, return to 
 Step \ref{it:randsamp}.
-\end{enumerate}
-
-Here, the threshold condition is defined in terms of sub-runs of $I_{0}$ 
-accepted samples.  When the variance of the log probabilities is less than the 
-change in median log probability over the sub-run, the burn-in period is 
-considered complete.  When this occurs, an additional number of sub-runs equal 
-to the number $I'$ of sub-runs consumed by the burn-in period are completed 
-such that the total number of accepted samples is $I=2I'$.  
+%\end{enumerate}
+Samples are taken until a threshold condition is satisfied.  In this case, that 
+threshold is defined in terms of sub-runs of $I_{0}=100$ accepted samples.  The 
+convergence criteria are described below in Sec. \ref{sec:acorr}.
 
 The input/output format chosen for this work is \texttt{HDF5} because of its 
 efficiency for large amounts of data.  The resulting output is a set of $I$ 
-ordered \texttt{hickle} files (should I use \texttt{FITS}?) enumerated by 
-$\rho$ containing the state information after each sub-run.  The state 
-information includes $\frac{I_{0}}{t}$ actual samples $\vec{\theta}^{i}$ for a 
-pre-specified chain thinning factor and their full posterior probabilities 
+ordered \texttt{hickle} files enumerated by $\rho$ containing the state 
+information after each sub-run.  The state information includes 
+$\frac{I_{0}}{t}$ actual samples $\vec{\theta}^{i}$ for a pre-specified chain 
+thinning factor and their full posterior probabilities 
 $p(\vec{\theta}^{i}|\{\vec{d}_{j}\}_{J})$ as well as the autocorrelation times 
 and acceptance fractions calculated for each element of $\vec{\theta}$ over the 
-entire sub-run.  These two summary statistics are described in Sec. 
-\ref{sec:diag}, along with the proper use of the other outputs in interpreting 
-the results of the code.
+entire sub-run.  
 
 \clearpage
 \subsubsection{Prior}
 \label{sec:prior}
 
 The method of Sec. \ref{sec:mcmc} involves the assumption of a prior 
-distribution on the hyperparameters in $\vec{\theta}$.  The prior chosen here 
-is a multivariate normal distribution with mean $\vec{\theta}^{0}$ equal to the 
-interim prior and covariance $\textul{\Sigma}$ inspired by one used in Gaussian 
-processes, given by Eq. \ref{eq:priorcov}.  This choice is made to permit draws 
-from this prior distribution to produce shapes similar to that of the true 
-$\tilde{\theta}$.  Here, the parameters of this covariance matrix are set to 
-the small numbers $q=1.0$, $e=100.0$, and $t=q\cdot10^{-5}$.  We adapt the full 
-posterior of Eq. \ref{eq:final} to the binning of redshift space chosen in Sec. 
-\ref{sec:mock}.
+distribution on the hyperparameters comprising $\vec{\theta}$.  The prior 
+chosen here is a multivariate normal distribution with mean $\vec{\theta}^{0}$ 
+equal to the interim prior and covariance $\textul{\Sigma}$ inspired by one 
+used in Gaussian processes, given by Eq. \ref{eq:priorcov}.  This choice is 
+made to permit draws from this prior distribution to produce shapes similar to 
+that of the true $\tilde{\theta}$.  Here, the parameters of this covariance 
+matrix are set to the small numbers $q=1.0$, $e=100.0$, and $t=q\cdot10^{-5}$.  
+We adapt the full posterior of Eq. \ref{eq:final} to the binning of redshift 
+space chosen in Sec. \ref{sec:mock}.
 
 \begin{eqnarray}
 \label{eq:priorcov}
@@ -600,134 +618,66 @@ posterior of Eq. \ref{eq:final} to the binning of redshift space chosen in Sec.
 v_{a,b}
 \end{eqnarray}
 
-The sampler is initialized with $100$ walkers each with a value chosen from a 
+The sampler is initialized with $W=100$ walkers each with a value chosen from a 
 Gaussian distribution of identity covariance around a sample from the 
 hyperprior distribution.  An example of such samples from the prior are shown 
 in Fig. \ref{fig:prior}.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/null/priorsamps.png}
-\caption{The colored lines are samples from the prior distribution, where its 
-mean is chosen to be a flat distribution for an arbitrary $10,000$ galaxies.}
+\caption{Samples (colored lines) from the prior distribution with a flat mean 
+over $J'=10,000$ galaxies are shown in the figure.}
 \label{fig:prior}
 \end{figure}
+
+\subsubsection{Convergence Criteria}
+\label{sec:acorr}
+
+Two quantities that probe the convergence of the sampler are used in this 
+study, the autocorrelation time and the posterior probability evolution.
+
+The autocorrelation time is effectively a measure of the convergence rate of 
+the method and can be described as the expected number of iterations necessary 
+to accept a new sample independent of the current sample.  A sampler that 
+converges faster will have a smaller autocorrelation time, and smaller 
+autocorrelation times are preferable because it means fewer iterations are 
+wasted on non-independent samples when independent samples are desired.  
+Typically, the autocorrelation time decreases with successive iterations 
+through a burn-in phase before leveling out.  See \citet{Foreman-Mackey2013} 
+for a more complete exploration of the autocorrelation time.
+
+In order to evaluate the duration of the burn-in phase, it can be helpful to 
+examine the evolution of the posterior probability of each accepted set of 
+parameters.  Though the probability associated with the initial values will 
+likely be quite low, the probability should improve for subsequent accepted 
+parameter values.  As with the autocorrelation time, the posterior probability 
+of samples will asymptotically approach some more favorable value with more 
+iterations.  The burn-in phase may be identified as the number of iterations 
+necessary before the variance of the log probabilities is less than the change 
+in median log probability over the sub-run.  Samples accepted during the 
+burn-in phase are discounted from analysis, and an arbitrary six additional 
+sub-runs are executed before the sampler terminates.  
 
 \clearpage
 \subsection{Diagnostics}
 \label{sec:diag}
 
 The results of the computation described in Sec. \ref{sec:mcmc} are evaluated 
-on the basis of several diagnostics measures, briefly described below.
-
-%\clearpage
-\subsubsection{Autocorrelation Time}
-\label{sec:acorr}
-
-The autocorrelation time is effectively a measure of the convergence rate of 
-the method and can be described as the expected number of iterations necessary 
-to accept a sample independent of the current sample.  A sampler that converges 
-faster will have a smaller autocorrelation time, and smaller autocorrelation 
-times are preferable because it means fewer iterations are wasted on 
-non-independent samples when independent samples are desired.  Typically, the 
-autocorrelation time decreases with successive iterations through a burn-in 
-phase before leveling out.  See \citet{Foreman-Mackey2013} for a more complete 
-exploration of the autocorrelation time.
-
-%\clearpage
-%\subsubsection{Posterior Probability Evolution}
-%\label{sec:probs}
-%
-%In order to evaluate the duration of the burn-in phase, it can be helpful to 
-examine the evolution of the posterior probability of each accepted set of 
-parameters.  Though the probability associated with the initial values will 
-likely be quite low, the probability should improve for subsequent accepted 
-parameter values.  As with the diagnostics of Secs. \ref{sec:acorr} and 
-\ref{sec:afrac}, the posterior probability of samples will asymptotically 
-approach some more favorable value with more iterations.  The burn-in phase may 
-be identified as the number of iterations necessary before the probabilities 
-are sufficiently close to the value at which they level out.  Samples accepted 
-during the burn-in phase are typically discounted from analysis.  
-%
-%The posterior probabilities for the samples may also be compared to the 
-posterior obtained by the competing approaches discussed in Sec. 
-\ref{sec:sheldon}; higher posterior probabilities indicate a better fit than 
-the alternative.  The distribution of the posterior probabilities of the 
-samples may also be an informative measure of performance.
-%
-%\clearpage
-%\subsubsection{Parameter Evolution}
-%\label{sec:params}
-%
-%An intuitive diagnostic used here is the evolution of the parameter values 
-themselves.  We would like to see each walker move throughout parameter space 
-near the true value rather than remaining stationary or in some small region 
-around another value.  We can visually inspect the parameter values each walker 
-takes over successive iterations to ensure that the walkers are not being 
-caught in small regions of parameter space far from the true parameter values.  
-%
-%Inspection of the parameter evolution can also be a good test of the 
-appropriateness of the prior distribution; if the covariance matrix of the 
-prior distribution is too restrictive, the walkers will not be able to sample 
-parameter values far from their initialization.  
-%
-%\clearpage
-\subsubsection{Parameter Values}
-\label{sec:samps}
-
-Sampled values of hyperparameters are also visually inspected for accuracy when 
-the true values are known.  When using simulated data where a true value is 
-known, the sampler is performing well if samples are near the true value.  The 
-distribution of the parameter values can also reveal how well the samples fit 
-the data.  If there is a strongly peaked distribution of values for a 
-parameter, it ought to peak close to the true value if we are to conclude that 
-the sampler is successful; if the distribution is broad, it may reflect 
-inherent uncertainty in inferring the hyperparameters.
-
-%\clearpage
-\subsubsection{Summary Statistics}
-\label{sec:stats}
-
-Beyond visual inspection of samples, we calculate summary statistics to 
-quantitatively compare different estimators' precision and accuracy.  Since 
-MCMC samples of hyperparameters are Gaussian distributions, we can quantify the 
-breadth of the distribution for each hyperparameter using the standard 
-deviation regardless of whether the true values are known.  Three measures of 
-accuracy of hyperparameter samples $\vec{\theta}^{i}$  have been considered 
-here for the cases where the true values are known.  
-
-%The likelihood ratio comparing the samples to competing methods may be 
-calculated for a sample $\vec{\theta}^{i}$ as in Eq. \ref{eq:llr}.  Values of 
-$A$ greater than 0 indicate the sampler fits the data better than the competing 
-method.  The log posterior probabilities of Sec. \ref{sec:probs} are used to 
-obtain the log likelihoods via Eq. \ref{eq:logpost} and the sample values 
-themselves are used to calculate the prior probability term according to Eq. 
-\ref{eq:llr-how}; the difference between the log posteriors and the log prior 
-probability is the log likelihood, and the difference between log likelihoods 
-is the log likelihood ratio.  Because the sampler produces many samples of 
-parameter values, the log likelihood ratio for the sampler versus each 
-alternative is a distribution of values.
-%
-%\begin{eqnarray}
-%\label{eq:llr}
-%A(\vec{\theta}^{i}) &=& 
--2\ln[\tilde{p}(\{\vec{d}_{j}\}_{J}|\vec{\theta}_{test})]+2\ln[\tilde{p}(\{\vec{
-d}_{j}\}_{J}|\vec{\theta}^{i})]
-%\end{eqnarray}
-%
-%\begin{eqnarray}
-%\label{eq:llr-how}
-%\ln[\tilde{p}(\{\vec{d}_{j}\}_{J}|\vec{\theta})] &=& 
-\ln[\tilde{p}(\vec{\theta}|\{\vec{d}_{j}\}_{J})]-\ln[p(\vec{\theta})]
-%\end{eqnarray}
+for accuracy on the basis of some quantitative measures.  Beyond visual 
+inspection of samples, we calculate summary statistics to quantitatively 
+compare different estimators' precision and accuracy.  Since MCMC samples of 
+hyperparameters are Gaussian distributions, we can quantify the breadth of the 
+distribution for each hyperparameter using the standard deviation regardless of 
+whether the true values are known.  
 
 In simulated cases where the true parameter values are known, we calculate the 
 Kullback-Leibler divergence (KLD), given in Eq. \ref{eq:kl} which measures a 
 distance between parameter values $\vec{\theta}^{a}$ and $\vec{\theta}^{b}$ 
 that is invariant under changes of variables.  We note that $KL_{ab}\neq 
-KL_{ba}$, so both must be calculated.  In simulated tests, one of 
-$\vec{\theta}^{a}$ and $\vec{\theta}^{b}$ are the true value and the other is 
-the value produced by one of the methods in question.  For the sampler, the KLD 
-is calculated for all samples and shown as a distribution of KLD values.
+KL_{ba}$, so both must be calculated, and the minimum of the two is reported 
+here.  In simulated tests, one of $\vec{\theta}^{a}$ and $\vec{\theta}^{b}$ is 
+the true value and the other is the value produced by one of the methods in 
+question.  
 
 \begin{eqnarray}
 \label{eq:kl}
@@ -735,11 +685,15 @@ KL_{ab} &=& \sum_{k=1}^{K}\ \exp[\theta_{k}^{a}]\
 \ln\left[\frac{\theta_{k}^{a}}{\theta_{k}^{b}}\right]\ \Delta_{k}
 \end{eqnarray}
 
-%The mean squared error of samples relative to the true value may also be 
-calculated.  Both the variance $\sigma^{2}$ and $\chi^{2}$ statistics are 
-calculated for the accepted samples and for the competing methods relative to 
-the true value in the simulated tests.
-%
+The mean squared error of samples relative to the true value may also be 
+calculated to aid in visual comparison of the methods we wish to test.  When 
+using simulated data where a true value is known, the sampler is performing 
+well if samples are near the true value.  The distribution of the parameter 
+values can also reveal how well the samples fit the data.  If there is a 
+strongly peaked distribution of values for a parameter, it ought to peak close 
+to the true value if we are to conclude that the sampler is successful; if the 
+distribution is broad, it may reflect inherent uncertainty in inferring the 
+hyperparameters.
 
 \clearpage
 \section{Validation Tests}
@@ -751,7 +705,7 @@ fiducial experiment of Sec. \ref{sec:null} was generated by code following the
 procedure given in Sec. \ref{sec:mock}.  Six other cases vary the shapes of the 
 interim photo-z posteriors (Sec. \ref{sec:unc}), the true redshift distribution 
 function (Sec. \ref{sec:fake}), and the interim prior (Sec. \ref{sec:interim}). 
- Two additional cases with real data described in Sec. \ref{sec:data} are also 
+ %Two additional cases with real data described in Sec. \ref{sec:data} are also 
 considered.
 
 \clearpage
@@ -760,64 +714,142 @@ considered.
 
 For the fiducial experiment, we precisely follow the procedures outlined in 
 Sec. \ref{sec:mock} and Sec. \ref{sec:mcmc}.  Fig. \ref{fig:null-samp} shows 
-some random sample values and the $1\sigma$ errors of the aggregate of samples 
-as well as the true value of $N(z)$ and the estimators derived from stacking 
-and marginalized likelihood maximization.  Fig. \ref{fig:null-comp} compares 
-the mean of the sample values to alternative estimators as well as the truth.
+some random sample values and the true value of $N(z)$ and the estimators 
+derived from stacking and marginalized likelihood maximization.  Fig. 
+\ref{fig:null-comp} compares the mean of the sample values to alternative 
+estimators as well as the truth.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/null/samps.pdf}
-\caption{The smooth, black curve shows the true $N(z)$ for this test, a sum of 
-Gaussians described in Sec. \ref{sec:mock}.  The flat, gray line is the interim 
-prior used to generate the interim photometric redshift posteriors.  The 
-colored step functions are random samples from the full posterior.  $1\ \sigma$ 
-errors about the mean from the posterior are plotted in gray.  It can be 
-plainly seen that the samples are an excellent estimator of the truth with the 
-true values falling within the error bars.}
+\caption{This test was conducted with a flat interim prior (gray line) and 
+produced a mean of samples (thick, black line) that accurately reproduces the 
+truth.  It can be seen that the samples (colored lines) are an excellent 
+estimator of the true $N(z)$ (thin, black line) with the true values falling 
+within the error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray).}
 \label{fig:null-samp}
 \end{figure}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/null/comps.pdf}
-\caption{The smooth, black curve shows the true $N(z)$ for this test, a sum of 
-Gaussians described in Sec. \ref{sec:mock}.  The flat, gray line is the interim 
-prior used to generate the interim photometric redshift posteriors.  The thick 
-black step function is the mean of the samples.  The dotted line is the result 
-of stacking, and the dashed line is the result of marginalized likelihood 
-maximization.  It can be seen that the mean of the samples is a better 
-estimator of the true distribution; stacking overestimates $N(z)$ at the tails 
-and underestimates $N(z)$ at the peaks, and marginalized likelihood 
-maximization is unstable.}
+\caption{It can be seen that the mean of the samples (thick, black line) is a 
+better estimator of the true distribution (thin, black line); stacking (dotted 
+line) overestimates $N(z)$ at the tails and underestimates $N(z)$ at the peaks, 
+and marginalized likelihood maximization (dashed line) is unstable.}
 \label{fig:null-comp}
 \end{figure}
 
 In the fiducial case, hierarchical inference preserves features in the redshift 
-distribution function, whereas stacking tends to smear them out.  Methods using 
-point estimates of redshift also perform well because of the simplicity of the 
-form of the interim photo-z posteriors.
+distribution function, whereas stacking tends to smear them out.  The 
+difference between stacking and the mean of the samples is more evident in 
+cases of noisier data, discussed in Sec. \ref{sec:noisy}.
 
-\clearpage
-\subsection{Uncertain interim photo-z posteriors}
-\label{sec:unc}
-
-In the following two tests, we aim to simulate more realistic interim photo-z 
-posteriors by modifying the procedure of Sec. \ref{sec:mock} to introduce the 
-imprecision and inaccuracy seen in observed photometric redshifts.
-
-\subsubsection{Noisy interim photo-z posteriors}
+\subsection{Imprecise interim photo-z posteriors}
 \label{sec:noisy}
 
 Several factors contribute to photometric redshifts' intrinsic scatter.  
-Distant galaxies dimmer compared to galaxies of identical luminosity that are 
-closer, driving up photometric errors by way of counting statistics.  The 
-galaxy sample at higher redshifts also changes, meaning the generation of the 
-photometric redshift posterior based on an SED template library or a 
-spectroscopically-confirmed training is more likely to be inappropriate, 
-leading to broader components.
+Distant galaxies are dimmer compared to galaxies of identical luminosity that 
+are closer, driving up photometric errors in flux-limited surveys by way of 
+counting statistics.  The nature of the galaxy sample at higher redshifts also 
+changes, meaning the generation of the photometric redshift posterior based on 
+an a locally-calibrated SED template library or spectroscopically-confirmed 
+training is more likely to be inappropriate, leading to broader components.
 
-This test case simulates imprecision in interim photometric redshift posteriors 
-by introducing one change in the steps of Sec. \ref{sec:mock}.  This generative 
-model of Eq. \ref{eq:genmod} is modified to have 
+Here we vary the fiducial case with noisier data to demonstrate that the 
+results of the sampler and of stacking diverge for broader interim photo-z 
+posteriors.  In these cases, $\sigma_{j}$ is drawn from a normal distribution 
+as described in Sec. \ref{sec:mock} but with the factor $f=2$ in one case and 
+$f=4$ in another.  The corresponding sample interim photo-z posteriors to those 
+of Fig. \ref{fig:nullpzs} are given in Figs. \ref{fig:sig2pzs} and 
+\ref{fig:sig4pzs}.  
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/sig2/samplepzs.pdf}
+\caption{The interim photo-z posteriors (colored lines) here have the same true 
+redshifts (dotted lines) and means of the distribution (dotted lines) as those 
+of Fig. \ref{fig:nullpzs} but have two times the standard deviation.}
+\label{fig:sig2pzs}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/sig4/samplepzs.pdf}
+\caption{The interim photo-z posteriors (colored lines) here have the same true 
+redshifts (dotted lines) and means of the distribution (dotted lines) as those 
+of Fig. \ref{fig:nullpzs} but have four times the standard deviation.}
+\label{fig:sig4pzs}
+\end{figure}
+
+The sampler was run on these two, noisier datasets and produced the results of 
+Figs. \ref{fig:sig2-samp} and \ref{fig:sig2-comp} and Figs. \ref{fig:sig4-samp} 
+and \ref{fig:sig4-comp} for the doubly and quadruply broad posteriors 
+respectively.  The overall effect of broadening the likelihood distributions is 
+a broadening of the error bars on the mean of the samples, with little effect 
+on the mean of the samples.  However, the alternative methods are more strongly 
+affected; as the standard deviation of the photo-z likelihood functions 
+increases, the stacked result becomes so broad as to erase all features from 
+the estimate of $N(z)$, while the marginalized maximum likelihood estimator 
+enhances peaks and troughs to bias the estimate.
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/sig2/samps.pdf}
+\caption{The mean of sampled values (thick, black line) is quite comparable to 
+that of the original fiducial case even though the data is twice as noisy.  
+However, the error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) are 
+somewhat larger.}
+\label{fig:sig2-samp}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/sig2/comps.pdf}
+\caption{The mean of sampled values (thick, black line) is prone to 
+overestimating the peak values and underestimating the trough values relative 
+to the true $N(z)$ (thin, black line).  The result of stacking (dotted line), 
+on the other hand, underestimates the peak values, overestimates the trough 
+values, and increases the weight of the tails, leading to a greater KLD than 
+for the sampler.  The marginalized maximum likelihood estimator (dashed line) 
+performs well, but is more prone to the biases that affect the sampler, so has 
+a larger KLD than the sampler as well.}
+\label{fig:sig2-comp}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/sig4/samps.pdf}
+\caption{Compared to Fig. \ref{fig:null-samp}, the greatest difference between 
+the original fiducial case and the quadruply noisy case is the size of the 
+error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) about the true 
+$N(z)$ (thin, black line), as exemplified by the plotted random samples 
+(colored lines) that scatter further from the mean of the sampled values 
+(thick, black line).}
+\label{fig:sig4-samp}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/sig4/comps.pdf}
+\caption{Here it is most obvious that stacking (dotted line) erases features 
+from an estimate of the true $N(z)$ (thin, black line).  The mean of sampled 
+values (thick, black line) does exhibit some bias at the peaks and troughs of 
+the distribution, but it overall performs better than the stacked estimator and 
+the marginalized maximum likelihood estimator (dashed line).}
+\label{fig:sig4-comp}
+\end{figure}
+
+\clearpage
+\subsection{Inaccurate interim photo-z posteriors}
+\label{sec:multi}
+
+In this pair of tests, we aim to simulate more realistic interim photo-z 
+posteriors by modifying the procedure of Sec. \ref{sec:mock} to introduce 
+inaccuracy that causes catastrophic photo-z errors.  Catastrophic photo-z 
+errors arise from a degeneracy in the space of galaxy SEDs and redshifts, 
+wherein a galaxy of one SED type at one redshift has photometry 
+indistinguishable from a galaxy of another SED type at another redshift.  In 
+this case, the Gaussian components may have standard deviations that do not 
+correspond to the true standard deviation used to generate the data, or there 
+may be multiple components to the interim photo-z posteriors.  Both cases will 
+be considered here.
+
+The first test case simulates inaccuracy in interim photometric redshift 
+posteriors by introducing one change in the steps of Sec. \ref{sec:mock}.  This 
+generative model of Eq. \ref{eq:genmod} is modified to have 
 $\epsilon_{j}\sim\mathcal{N}(0,\sigma'^{2}_{j})$ for 
 $\sigma'_{j}\sim\mathcal{N}(\bar{\Delta},\bar{\Delta}^{2})$.  Some interim 
 redshift posteriors from such a test are shown in Fig. \ref{fig:noisypzs}.  The 
@@ -826,46 +858,44 @@ rest of the steps in Sec. \ref{sec:mcmc} are then followed precisely.
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/vars/samplepzs.pdf}
 \caption{Several examples of noisified individual photo-z posterior 
-distributions are shown in colors.  The solid lines indicate the true redshift 
-and the dotted lines indicate the shifted redshift used as the center of the 
-Gaussian distribution.  Note that the widths of the Gaussians vary randomly 
-over the samples.}
+distributions (colored lines) are shown with their true redshifts (dotted 
+lines) and the central redshift of the distribution (dotted lines).  Note that 
+the widths of the Gaussians vary randomly over the samples and do not 
+necessarily correlate with redshift.}
 \label{fig:noisypzs}
 \end{figure}
 
 Fig. \ref{fig:noisy-samp} shows random sample values and their $1\sigma$ errors 
 as well as the true value of $N(z)$.  The mean of the sample values is compared 
-to the results of stacking in Fig. \ref{fig:noisy-comp}.
+to the results of stacking in Fig. \ref{fig:noisy-comp}.  It can be seen that 
+inaccurate interim photo-z posteriors are best handled by the sampler, whose 
+KLD is lower than that of stacking and marginalized likelihood maximization.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/vars/samps.pdf}
-\caption{}
+\caption{The mean of the sampled values (thick, black line) accurately 
+reproduces the true $N(z)$ distribution (thin, black line) such that the true 
+values always fall within the error bars ($1\sigma$ in dark gray, $2\sigma$ in 
+light gray).  Some samples (colored lines) are shown as well.}
 \label{fig:noisy-samp}
 \end{figure}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/vars/comps.pdf}
-\caption{}
+\caption{The result of the sampler (thick, black line), like the marginalized 
+maximum likelihood estimator (dashed line), does have a bias to overestimate 
+density in the peaks and underestimate it in the troughs.  However, the effect 
+is not as severe as for the result of stacking (dotted line), which smooths out 
+all features and increases probability density in the tails.}
 \label{fig:noisy-comp}
 \end{figure}
 
-\clearpage
-\subsubsection{Multimodal interim photo-z posteriors}
-\label{sec:multi}
-
-In this test, we aim to simulate more realistic interim photo-z posteriors by 
-modifying the procedure of Sec. \ref{sec:mock} to introduce inaccuracy that 
-causes catastrophic photo-z errors.  Catastrophic photo-z errors arise from a 
-degeneracy in the space of galaxy SEDs and redshifts, wherein a galaxy of one 
-SED type at one redshift has photometry indistinguishable from a galaxy of 
-another SED type at another redshift.  To simulate this case, multimodal 
-interim photo-z posteriors will be considered.
-
-To achieve this goal we introduce another change in Sec. \ref{sec:mock}.  Here, 
-the redshift posteriors are sums of Gaussians of the form of those tested in 
-Sec. \ref{sec:null}.  Each galaxy is assigned a number $R_{j}$ of Gaussian 
-elements to be summed, chosen randomly from $1,\dots,K$ with weights 
-proportional to $K^{-1}$.  One $\sigma_{jr}$ is drawn for each 
+Another way to simulate inaccuracy is to consider multimodal interim photo-z 
+posteriors.  To achieve this goal we introduce another change in Sec. 
+\ref{sec:mock}.  Here, the redshift posteriors are sums of Gaussians of the 
+form of those tested in Sec. \ref{sec:null}.  Each galaxy is assigned a number 
+$R_{j}$ of Gaussian elements to be summed, chosen randomly from $1,\dots,K$ 
+with weights proportional to $K^{-1}$.  One $\sigma_{jr}$ is drawn for each 
 $r=1,\dots,R_{j}$, and one $z'_{jr}$ is selected from the corresponding 
 $\mathcal{N}(z^{0}_{j},\sigma^{2}_{jr})$.  The components are summed and 
 normalized to yield the likelihood, which is then convolved with the interim 
@@ -874,41 +904,37 @@ interim photo-z posteriors are shown in Fig. \ref{fig:multipzs}.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/mult/samplepzs.pdf}
-\caption{Several examples of individual photo-z posterior distributions are 
-shown in colors.  The solid lines indicate the true redshift and the dotted 
-lines indicate the shifted redshifts used as the centers of the Gaussian 
-components.  Note that some distributions are multimodal, with peaks of 
-different heights, while others are simply asymmetric.}
+\caption{Several examples of individual photo-z posterior distributions 
+(colored lines) are shown, along with the true redshift (dashed lines) and the 
+$R_{j}$ centers of the Gaussian components (dotted lines).  Note that some 
+distributions are multimodal, with peaks of different heights, while others are 
+simply asymmetric in spite of the flat interim prior.}
 \label{fig:multipzs}
 \end{figure}
 
-Fig. \ref{fig:multi-samp} shows the mean of the sampled values and the 
-$1\sigma$ errors as well as the true value of $N(z)$ and a few random samples 
-after the burn-in period.  Fig. \ref{fig:multi-comp} compares the mean of the 
-sampled values and the $1\sigma$ errors to alternative methods.
+Figs. \ref{fig:multi-samp} and \ref{fig:multi-comp} show samples from the full 
+posterior distribution and a comparison to alternative methods.  
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/mult/samps.pdf}
-\caption{The smooth, solid, black line shows the fiducial true $N(z)$.  The 
-colored lines are random samples from the posterior, which accurately trace the 
-true distribution.  The bold line is the mean of the samples.  The gray error 
-bars encompass the true distribution in most dimensions.}
+\caption{The mean of the sampled values (thick, black line) appears to do a 
+relatively poor job of recovering the true $N(z)$ (thin, black line), enhancing 
+peaks and troughs compared to the true distribution and underestimating the 
+probability density in the tails.  The samples (colored lines) are quite close 
+to the mean with error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) 
+tight enough to exclude the true value.}
 \label{fig:multi-samp}
 \end{figure}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/mult/comps.pdf}
-\caption{The smooth, solid, black line shows the fiducial true $N(z)$.  The 
-bold line is the mean of the samples, with gray error bars encompassing the 
-true distribution in most dimensions.  The dashed line is the marginalized 
-maximum likelihood estimator to which the mean of the samples converges.  The 
-dotted line is the result of stacking.}
+\caption{Though the sampler (thick, black line) fails to recover the true 
+$N(z)$ (thin, black line), it still does better than stacking (dotted line) and 
+marginalized likelihood maximization (dashed line).  It is less unstable than 
+the marginalized maximum likelihood estimator and displaces less probability 
+density at the tails than stacking.}
 \label{fig:multi-comp}
 \end{figure}
-
-The sampler recovers the true $N(z)$, with error bars encompassing the truth in 
-most bins.  Stacking results in more severe loss of features, smoothing the 
-distribution at the tails and peak especially.  
 
 \clearpage
 \subsection{Toy Model $N(z)$}
@@ -916,32 +942,23 @@ distribution at the tails and peak especially.
 
 We test the sampler in a case of a highly unrealistic but strongly featured 
 true $N(z)$.  This is done to show that the sampler works even in extreme and 
-unanticipated conditions.  Here we modify the procedure of Sec. \ref{sec:mock}. 
- Instead of sampling the true distribution $p(z|\vec{\theta}')$, we sample a 
-narrow Gaussian.  The rest of Sec. \ref{sec:mock} is followed precisely.  Sec. 
-\ref{sec:mcmc} is followed without alteration.  Fig. \ref{fig:toy-samp} shows 
-some samples from the posterior as compared to the true $N(z)$ and Fig. 
-\ref{fig:toy-comp} compares the mean of the posterior samples to the results of 
-stacking and marginalized likelihood maximization.
+unanticipated conditions.  Instead of sampling the true distribution 
+$p(z|\vec{\theta}')$ as in Sec \ref{sec:mock}, we assign all galaxies the same 
+true redshift.  Further, the prior is taken to have identity covariance instead 
+of that of Sec. \ref{sec:prior}.  Fig. \ref{fig:toy-samp} shows some samples 
+from the posterior and Fig. \ref{fig:toy-comp} compares the mean of the 
+posterior samples to the results of stacking and marginalized likelihood 
+maximization.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/delt/samps.pdf}
-\caption{The smooth, solid, black line shows the true $N(z)$ for the toy model 
-case.  The colored lines are random samples from the full posterior, and the 
-gray error bars are so small that they cannot be seen on the plot.  The gray 
-error bars encompass the true distribution where it is nonzero.}
+\caption{}
 \label{fig:toy-samp}
 \end{figure}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/delt/comps.pdf}
-\caption{The smooth, solid, black line shows the true $N(z)$ for the toy model 
-case.  The bold line is the mean of the samples, with gray error bars 
-encompassing the true distribution in all dimensions.  The dashed line is the 
-marginalized maximum likelihood estimator to which the mean of the samples 
-approximately converges.  The dotted line is the result of stacking, which 
-displaces probability density from the central peak to the tails of the 
-distribution.}
+\caption{}
 \label{fig:toy-comp}
 \end{figure}
 
@@ -966,6 +983,71 @@ consider two obviously inappropriate interim priors and compare it to the flat
 interim prior used in previous tests according to Sec. \ref{sec:mock}.  The 
 rest of the procedure of \ref{sec:mcmc} is followed precisely.
 
+In some cases, the interim prior is chosen to be the final product of a 
+previously conducted spectroscopic redshift survey.  Because low-redshift 
+galaxies are more likely to be bright enough to be observed by such a survey, 
+$N(z)$ determined from that sample may be heavily biased to low redshift 
+galaxies.  By contrast, the galaxies that were unobserved in such a survey are 
+more likely be dimmer, making them more likely to be at higher redshifts.  
+Since the interim prior is not compatible with our beliefs about the true 
+redshift distribution, the resulting interim redshift posteriors will be 
+inappropriate.  In this test, we choose an interim prior with most of its 
+weight at low redshifts and observe its influence on the recovery of the true 
+$N(z)$ by different methods.  Examples of parameter values sampled from the 
+full posterior are shown in Fig. \ref{fig:intu-samp}.  A comparison of the 
+sampler to other approaches is shown in Fig. \ref{fig:intu-comp}.
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/uint/samps.pdf}
+\caption{The mean (thick, black line) of the samples (colored lines) show no 
+influence of the interim prior (gray line) and accurately replicates the 
+features of the true $N(z)$ (thin, black line) everywhere that the interim 
+prior supports the data.}
+\label{fig:intu-samp}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/uint/comps.pdf}
+\caption{It is clear that the interim prior (gray line) biases the result of 
+stacking (dotted line), while the mean of the sampled values (thick, black 
+line) is less sensitive to it and more accurately recover the true $N(z)$ 
+(thin, black line).  When the interim prior does not support the full range of 
+the data, the marginalized maximum likelihood estimator (dashed line) does not 
+converge, so the sampler must be preferred.}
+\label{fig:intu-comp}
+\end{figure}
+
+One potential method for selecting an interim prior with support over the 
+entire redshift range expected of the photometric survey is to sum two or more 
+$N(z)$ distributions obtained from reliable photometric surveys in the past.  
+This is just as problematic as using a biased spectroscopically derived $N(z)$ 
+as the interim prior because the sum of redshift distributions for two or more 
+surveys does not reflect our beliefs about the true distribution for a single 
+survey even though it provides support over the same redshift range.  To 
+simulate this case, we choose an interim prior with more weight at high and low 
+redshifts than for mid-range redshifts.  The results of the inference are shown 
+in Fig. \ref{fig:intb-samp} shows examples of sampled parameter values from the 
+full posterior and Fig. \ref{fig:intb-comp} shows the comparison of the mean of 
+the sample values to the true values and the result of stacking.
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/bint/samps.pdf}
+\caption{The mean (thick, black line) of the samples (colored lines) show some 
+influence of the interim prior (gray line) but also replicate some of the 
+features of the true $N(z)$ (thin, black line).}
+\label{fig:intb-samp}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/bint/comps.pdf}
+\caption{It is clear that the result of stacking (dotted line) is strongly 
+influenced by the interim prior (gray line), while the mean of the sampled 
+values (thick, black line) and the marginalized maximum likelihood estimator 
+(dashed line) are less sensitive to it and more accurately recover the true 
+$N(z)$ (thin, black line).}
+\label{fig:intb-comp}
+\end{figure}
+
 The most compelling case for hierarchical inference of the redshift 
 distribution function is that of an inappropriate interim prior distribution.  
 Stacking and point estimates are strongly affected by this bias introduced to 
@@ -975,98 +1057,55 @@ prior is known and regardless of whether it is uninformative or an accurate
 description of the data, the probabilistic approach may compensate for it and 
 recover the true redshift distribution function.
 
-\subsubsection{Low-z Favoring Interim Prior}
-\label{sec:lowz}
-
-In some cases, the interim prior is determined directly from a previous 
-spectroscopic redshift survey.  Because low-redshift galaxies are more likely 
-to be bright enough to be observed by such a survey, $N(z)$ determined from 
-that sample will be heavily biased to low redshift galaxies.  By contrast, the 
-galaxies that were unobserved in such a survey are more likely be dimmer, 
-making them more likely to be at higher redshifts.  Since the interim prior is 
-not compatible with our beliefs about the true redshift distribution, the 
-resulting interim redshift posteriors will be inappropriate.  In this test, we 
-choose an interim prior with most of its weight at low redshifts.  The results 
-of the inference are shown in Figs. \ref{fig:intu-samp} and \ref{fig:intu-comp}.
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/uint/samps.pdf}
-\caption{}
-\label{fig:intu-samp}
-\end{figure}
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/uint/comps.pdf}
-\caption{}
-\label{fig:intu-comp}
-\end{figure}
-
-\subsubsection{Mid-z Disfavoring Interim Prior}
-\label{sec:midz}
-
-One potential method for selecting an interim prior with support over the 
-entire redshift range expected of the photometric survey is to sum two or more 
-$N(z)$ distributions obtained from reliable photometric surveys in the past.  
-This is also problematic because the sum of redshift distributions for two or 
-more surveys does not reflect our beliefs about the true distribution for a 
-single survey.  To simulate this, we choose an interim prior with more weight 
-at high and low redshifts than for mid-range redshifts.  The results of the 
-inference are shown in Figs. \ref{fig:intb-samp} and \ref{fig:intb-comp}.
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/bint/samps.pdf}
-\caption{}
-\label{fig:intb-samp}
-\end{figure}
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/bint/comps.pdf}
-\caption{}
-\label{fig:intb-comp}
-\end{figure}
-
-\clearpage
-\subsection{Data}
-\label{sec:boss}
-
-In addition to simulated tests, we also apply this method to a samples of the 
+%\clearpage
+%\subsection{Data}
+%\label{sec:boss}
+%
+%In addition to simulated tests, we also apply this method to a samples of the 
 data described in Sec. \ref{sec:data}.  In these cases the true $N(z)$ is not 
 known, but the fully probabilistic method presented here may still be compared 
 to what is obtained by alternative approaches.
-
-\subsubsection{Unbiased Data}
-\label{sec:unbiased}
-
-A pseudo-random sampling of the full dataset is examined to approximate the 
+%
+%\subsubsection{Unbiased Data}
+%\label{sec:unbiased}
+%
+%A pseudo-random sampling of the full dataset is examined to approximate the 
 behavior of an unbiased galaxy survey.  The results of the inference are shown 
 in Fig. \ref{fig:dataparam}.
-
-\begin{figure}
-%\includegraphics[width=0.5\textwidth]{data/samps.png}
-\caption{}
-\label{fig:dataparam}
-\end{figure}
-
-\subsubsection{Biased Data}
-\label{sec:biased}
-
-A pseudo-random sampling of the full dataset with a cut in $r$-band magnitude 
+%
+%\begin{figure}
+%%\includegraphics[width=0.5\textwidth]{data/samps.png}
+%\caption{}
+%\label{fig:dataparam}
+%\end{figure}
+%
+%\subsubsection{Biased Data}
+%\label{sec:biased}
+%
+%A pseudo-random sampling of the full dataset with a cut in $r$-band magnitude 
 is examined to approximate the behavior of a biased galaxy survey with a 
 magnitude limit.  The results of the inference are shown in Fig. 
 \ref{fig:biasparam}.
-
-\begin{figure}
-%\includegraphics[width=0.5\textwidth]{data/samps.png}
-\caption{}
-\label{fig:biasparam}
-\end{figure}
+%
+%\begin{figure}
+%%\includegraphics[width=0.5\textwidth]{data/samps.png}
+%\caption{}
+%\label{fig:biasparam}
+%\end{figure}
 
 \clearpage
 \section{Conclusion}
 \label{sec:con}
 
 This study derives and demonstrates a mathematically consistent implementation 
-of inference of a one-point statistic based on interim photo-z posteriors.  
+of inference of a one-point statistic based on interim photo-z posteriors.  The 
+fully Bayesian method, based in the fundamental laws of probability, begins 
+with a graphical model corresponding to equations for the posterior 
+distribution of parameter values given data.  The technique developed in this 
+paper is applied to the example of the redshift distribution function $N(z)$ 
+with promising results on mock data; not only is this the only mathematically 
+correct approach to the problem, it also recovers the true parameter values 
+better than popular alternatives.
 
 By showing that this method is effective in recovering the true redshift 
 distribution function and posterior distributions on its parameters from 
@@ -1087,148 +1126,6 @@ future, such as the redshift-dependent luminosity function and weak lensing
 mean distance ratio.  Future work will also include the extension of this fully 
 probabilistic approach to higher-order statistics of redshift such as the 
 two-point correlation function.
-
-%\clearpage
-%\subsection{The Luminosity Function}
-%\label{sec:lf}
-%
-%Since the redshift-dependent luminosity function $\Phi(\vec{L},z)$ is a number 
-density over redshift $z$ and one other parameter, luminosity $\vec{L}$ (which 
-may be a vector if not bolometric), that contributes to the same data 
-$\{\vec{d}_{j}\}_{J}$ in the form of a vector of photometric magnitudes, it is 
-essentially a generalization of the redshift distribution function $N(z)$ 
-previously investigated here; in other words, $N(z)$ is related to 
-$\Phi(\vec{L},z)$ by way of an integral over luminosity.   We may express this 
-as Eq. \ref{eq:lf}, where $\Phi(\vec{L},z)$ is parametrized by hyperparameters 
-that are components of $\vec{\phi}$ .
-%
-%\begin{eqnarray}
-%\label{eq:lf}
-%p(z_{j},\vec{L}_{j}|\vec{\phi}) &=& \frac{\Phi(\vec{L},z)}{\iint 
-\Phi(\vec{L},z)\ d\vec{L}\ dz} = \frac{\Phi(\vec{L},z)}{\int N(z)\ dz} = 
-\frac{1}{J}\ \Phi(\vec{L},z)
-%\end{eqnarray}
-%
-%A graphical model for this problem is presented in Fig. \ref{fig:lf}.  As in 
-Sec. \ref{sec:meth}, we shall outline the translation of this graphical 
-representation of the probabilistic model using the same formalism.
-%
-%\begin{figure}
-%\vspace{0.5cm}
-%\begin{center}
-%\begin{tikzpicture}[node distance=1cm]
-%
-%\node (lf) [hyper] {$\Phi(\vec{L},z)$};
-%\node (z) [param, below of=lf,yshift=-0.75cm,xshift=0.5cm] {$z_{j}$};
-%\node (L) [param, below of=lf,yshift=-0.75cm,xshift=-0.5cm] {$\vec{L}_{j}$};
-%\node (flux) [data, below of=lf,yshift=-2cm] {$\vec{d}_{j}$};
-%\node (survey) [draw=black,fit={(L.west)(z.north)(flux.south)(z.east)}] {};
-%\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
-%
-%\draw [arrow] (lf) -- (z);
-%\draw [arrow] (lf) -- (L);
-%\draw [arrow] (z) -- (flux);
-%\draw [arrow] (L) -- (flux);
-%
-%\end{tikzpicture}
-%\caption{This directed acyclic graph illustrates a hierarchical model for the 
-luminosity function $\Phi(\vec{L},z)$.}
-%\label{fig:lf}
-%\end{center}
-%\end{figure}
-%
-%First, we assume independence of the $J$ data points $\vec{d}_{j}$ where $J$ 
-is a Poisson random variable with expected value $J_{0}$.  However, we 
-acknowledge that the measurements are not independent if they are made as part 
-of the same experimental design with shared equipment, not to mention the fact 
-that $\vec{L}_{j}$ and $z_{j}$ are not independent of $\vec{L}_{j'\neq j}$ and 
-$z_{j'\neq j}$ respectively due to the physics summarized by the luminosity 
-function $\Phi(\vec{L},z)$.  However, given the assumption of independence, we 
-may write the full likelihood as Eq. \ref{eq:lfind}.  
-%
-%\begin{eqnarray}
-%\label{eq:lfind}
-%p(\{\vec{d}_{j}\}_{J}|\vec{\phi}) &=& e^{-\iint \Phi(\vec{L},z)\ dL\ dz}\ 
-\prod_{j=1}^{J}\ p(\vec{d}_{j}|\vec{\phi})
-%\end{eqnarray}
-%
-%As before, we apply Bayes' Rule to relate the full likelihood to the full 
-posterior in Eq. \ref{eq:lfbayes} and expand out the individual likelihood in 
-terms of the parameters $\{\vec{L}_{j}\}_{J}$ and $\{z_{j}\}_{J}$ in Eq. 
-\ref{eq:lfexpand}.
-%
-%\begin{eqnarray}
-%\label{eq:lfbayes}
-%p(\vec{\phi}|\{\vec{d}_{j}\}_{J}) &=& 
-\frac{p(\vec{\phi})}{p(\{\vec{d}_{j}\}_{J})}e^{-\iint \Phi(\vec{L},z)\ 
-d\vec{L}\ dz}\ \prod_{j=1}^{J}\ p(\vec{d}_{j}|\vec{\phi})
-%\end{eqnarray}
-%
-%\begin{eqnarray}
-%\label{eq:lfexpand}
-%p(\vec{\phi}|\{\vec{d}_{j}\}_{J}) &=& 
-\frac{p(\vec{\phi})}{p(\{\vec{d}_{j}\}_{J})}e^{-\iint \Phi(\vec{L},z)\ 
-d\vec{L}\ dz}\ \prod_{j=1}^{J}\ \iint\ p(\vec{d}_{j}|z_{j},\vec{L}_{j})\ 
-p(z_{j},\vec{L}_{j}|\vec{\phi}) dz_{j}\ d\vec{L}_{j}
-%\end{eqnarray}
-%
-%If we are unable to access the individual likelihoods, as is in general the 
-case, we will repeat the trick of using an interim prior value of 
-hyperparameters $\vec{\phi}^{0}$.  This results in Eq. \ref{eq:lftrick}.
-%
-%\begin{eqnarray}
-%\label{eq:lftrick}
-%p(\vec{\phi}|\{\vec{d}_{j}\}_{J}) &=& 
-\frac{p(\vec{\phi})}{p(\{\vec{d}_{j}\}_{J})}e^{-\iint \Phi(\vec{L},z)\ 
-d\vec{L}\ dz}\ \prod_{j=1}^{J}\ \iint\ 
-p(z_{j},\vec{L}_{j}|\vec{d}_{j},\vec{\phi}^{0})\ 
-\frac{p(z_{j},\vec{L}_{j}|\vec{\phi})}{p(z_{j},\vec{L}_{j}|\vec{\phi}^{0})} 
-dz_{j}\ d\vec{L}_{j}
-%\end{eqnarray}
-
-%Fig. \ref{fig:sheldon} compares the result of summing the posteriors as in Eq. 
-\ref{eq:sheldon} with the result of the MCMC solutions of Eq. \ref{eq:bayes}.  
-The method of \citet{Sheldon2012} underestimates the probability of observing 
-low redshifts.  As one would expect, the MCMC estimate irreversibly loses some 
-substructure because of the shifting error added to the simulated data.
-
-%\begin{figure}
-%\label{fig:sheldon}
-%\includegraphics[width=\textwidth]{compare-sheldon.png}
-%\caption{The result of applying Eq. \ref{eq:sheldon} is shown in red, the 
-average accepted posterior sample from the method presented here is shown in 
-blue, and $p(z)$ for the observable redshifts of Eq. \ref{eq:zshift} is shown 
-in black.  The sum of squared differences between the result of each method and 
-the true value are also shown; one can see that the \citet{Sheldon2012} 
-approach has larger errors.}
-%\end{figure}
-
-%\acknowledgments
-
-%\subsubsection{}
-%\label{app:dumber}
-
-%We next consider a set of $J$ galaxies representing a draw from the Poisson 
-distribution $P(J_{0},J_{0})$ for $J_{0}=100$.  The galaxies share a single 
-true redshift $z^{s}$ arbitrarily chosen to be the midpoint of the redshift bin 
-with the largest $\theta_{k}$.  The redshift posteriors are taken to be single 
-Gaussians centered at observed redshifts $z^{p}_{j}\sim 
-N(z^{s},\bar{\Delta}(1+z^{s}))$ with shared variances of 
-$\bar{\Delta}(1+z^{s})$. 
-
-%\subsubsection{}
-%\label{app:dumb}
-
-%The last test case is comprised of a set of $J$ galaxies representing a draw 
-from the Poisson distribution $P(J_{0},J_{0})$ for $J_{0}=1000$.  The true 
-galaxy redshift bins $b_{j}=k$ from $k=1,\dots,K$ are assigned to each galaxy 
-$j$ by randomly sampling the $K$ bins with weights given by the true redshift 
-function of Eq. \ref{eq:truenz} as $\int_{z_{k}}^{z_{k+1}}p^{0}(z)dz$. True 
-redshifts $z^{s}_{j}$ are assigned within these bins assuming a random uniform 
-distribution within each bin.  The redshift posteriors are taken to be single 
-Gaussians centered at observed redshifts $z^{p}_{j}\sim 
-N(z^{s}_{j},\bar{\Delta}(1+z^{s}_{j}))$ with variances $\sigma_{j}\sim 
-N(z^{s}_{j},\bar{\Delta}(1+z^{s}_{j}))$. 
 
 \clearpage
 \bibliographystyle{apj}
