@@ -81,7 +81,7 @@ def plot_physgen(meta,test):
     sps.set_ylabel(r'$p(z)$')
     sps.set_xlabel(r'$z$')
     sps.legend(fontsize='small',loc='upper left')
-    f.savefig(os.path.join(meta.simdir,'physPz.png'))
+    f.savefig(os.path.join(meta.simdir,'physPz.png'),bbox_inches='tight', pad_inches = 0)
     return
 
 # plot trule of true N(z) for one set of parameters and one survey size
@@ -120,7 +120,7 @@ def plot_true(meta, test):
     plotstep(sps,test.binends,test.intNz,col='k',a=0.5,lw=2.,lab=r'Interim $N(z)$')#+'\n'+r'$KLD='+str(test.kl_intNz)+r'$')# with $\sigma^{2}=$'+str(int(test.vsinterim)))
     sps.legend(loc='upper left',fontsize='x-small')
 
-    f.savefig(os.path.join(meta.simdir,'trueNz.pdf'))
+    f.savefig(os.path.join(meta.simdir,'trueNz.pdf'),bbox_inches='tight', pad_inches = 0)
     return
 
 # plot some individual posteriors
@@ -141,7 +141,7 @@ def plot_pdfs(meta,test):
     sps.set_xlabel(r'$z$')
     sps.set_xlim(test.binlos[0]-meta.zdif,test.binhis[-1]+meta.zdif)
     sps.set_ylim(0.,1./meta.zdif)
-    f.savefig(os.path.join(meta.simdir,'samplepzs.pdf'))
+    f.savefig(os.path.join(meta.simdir,'samplepzs.pdf'),bbox_inches='tight', pad_inches = 0)
     return
 
 # plot true vs. MAP vs E(z) redshifts
@@ -175,7 +175,7 @@ def plot_truevmap(meta,test):
 #                 linewidth=0.1)
     sps.plot([-1],[-1],c=meta.colors[2],alpha=0.5,linewidth=2,label=r'$p(z|\vec{d})$')
     sps.legend(loc='upper left',fontsize='small')
-    f.savefig(os.path.join(meta.simdir,'truevmap.png'))
+    f.savefig(os.path.join(meta.simdir,'truevmap.png'),bbox_inches='tight', pad_inches = 0)
     return
 
 def plot_liktest(meta,test):
@@ -215,4 +215,4 @@ def plot_liktest(meta,test):
         sps[0].scatter(index,test.calclike(logmix))
         plotstep(sps[1],test.binends,mix,lab=str(frac_t[i])+r'\ True $\ln N(z)$, '+str(frac_i[i])+r'\ Interim Prior')
 
-    f.savefig(os.path.join(meta.simdir,'liktest.png'))
+    f.savefig(os.path.join(meta.simdir,'liktest.png'),bbox_inches='tight', pad_inches = 0)
