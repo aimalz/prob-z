@@ -21,86 +21,86 @@ class calcstats(object):
             stats = self.compute(ydata)
             self.meta.key.add_stats(self.meta.topdir, self.name, stats)
 
-# statistics involving both log posterior probabilities and parameter values
-class stat_both(calcstats):
-    """
-    calculates statistics that require both posterior probabilities and parameter values: log likelihood ratio and MAP parameter values
-    """
-    def __init__(self,meta):
-        calcstats.__init__(self,meta)
+# # statistics involving both log posterior probabilities and parameter values
+# class stat_both(calcstats):
+#     """
+#     calculates statistics that require both posterior probabilities and parameter values: log likelihood ratio and MAP parameter values
+#     """
+#     def __init__(self,meta):
+#         calcstats.__init__(self,meta)
 
-        self.name = 'both'
+#         self.name = 'both'
 
-        self.ll_stk = self.meta.postdist.lnlike(self.meta.logstkNz)
-#         self.ll_map = self.meta.postdist.lnlike(self.meta.logmapNz)
-#         self.ll_exp = self.meta.postdist.lnlike(self.meta.logexpNz)
-        self.ll_int = self.meta.postdist.lnlike(self.meta.logintNz)
-        self.ll_mml = self.meta.postdist.lnlike(self.meta.logmmlNz)
-        self.ll_smp = []
-#         self.mapvals,self.maps = [],[]
+#         self.ll_stk = self.meta.postdist.lnlike(self.meta.logstkNz)
+# #         self.ll_map = self.meta.postdist.lnlike(self.meta.logmapNz)
+# #         self.ll_exp = self.meta.postdist.lnlike(self.meta.logexpNz)
+#         self.ll_int = self.meta.postdist.lnlike(self.meta.logintNz)
+#         self.ll_mml = self.meta.postdist.lnlike(self.meta.logmmlNz)
+#         self.ll_smp = []
+# #         self.mapvals,self.maps = [],[]
 
-#         self.llr_stk,self.llr_map,
-        self.llr_stk,self.llr_int,self.llr_mml = [],[],[]
+# #         self.llr_stk,self.llr_map,
+#         self.llr_stk,self.llr_int,self.llr_mml = [],[],[]
 
-        outdict = {'ll_stk': self.ll_stk,
-#                   'll_map': self.ll_map,
-#                   'll_exp': self.ll_exp,
-                  'll_int': self.ll_int,
-                  'll_mml': self.ll_mml,
-                  'll_smp': self.ll_smp,
-                  'llr_stk': np.array(self.llr_stk),
-#                   'llr_map': np.array(self.llr_map),
-#                   'llr_exp': np.array(self.llr_exp),
-                  'llr_int': np.array(self.llr_int),
-                  'llr_mml': np.array(self.llr_mml)
-                   }
-        if self.meta.plotonly == False:
-            with open(os.path.join(self.meta.topdir,'stat_both.p'),'wb') as statboth:
-                cpkl.dump(outdict,statboth)
+#         outdict = {'ll_stk': self.ll_stk,
+# #                   'll_map': self.ll_map,
+# #                   'll_exp': self.ll_exp,
+#                   'll_int': self.ll_int,
+#                   'll_mml': self.ll_mml,
+#                   'll_smp': self.ll_smp,
+#                   'llr_stk': np.array(self.llr_stk),
+# #                   'llr_map': np.array(self.llr_map),
+# #                   'llr_exp': np.array(self.llr_exp),
+#                   'llr_int': np.array(self.llr_int),
+#                   'llr_mml': np.array(self.llr_mml)
+#                    }
+#         if self.meta.plotonly == False:
+#             with open(os.path.join(self.meta.topdir,'stat_both.p'),'wb') as statboth:
+#                 cpkl.dump(outdict,statboth)
 
-    def compute(self,ydata):
+#     def compute(self,ydata):
 
-        self.probs = ydata['probs']
-        self.chains = ydata['chains']
+#         self.probs = ydata['probs']
+#         self.chains = ydata['chains']
 
-#         where = np.unravel_index(np.argmax(self.probs),(self.meta.nwalkers,self.meta.ntimes))
-#         self.mapvals.append(self.chains[where])
-#         self.maps.append(self.probs[where])
+# #         where = np.unravel_index(np.argmax(self.probs),(self.meta.nwalkers,self.meta.ntimes))
+# #         self.mapvals.append(self.chains[where])
+# #         self.maps.append(self.probs[where])
 
-        self.llr_stk = self.calclr(self.llr_stk,self.ll_stk)
-#         self.llr_map = self.calclr(self.llr_map,self.ll_map)
-#         self.llr_exp = self.calclr(self.llr_exp,self.ll_exp)
-        self.llr_mml = self.calclr(self.llr_mml,self.ll_mml)
+#         self.llr_stk = self.calclr(self.llr_stk,self.ll_stk)
+# #         self.llr_map = self.calclr(self.llr_map,self.ll_map)
+# #         self.llr_exp = self.calclr(self.llr_exp,self.ll_exp)
+#         self.llr_mml = self.calclr(self.llr_mml,self.ll_mml)
 
-        if self.meta.logtruNz is not None:
-            self.calclr(self.ll_smp,0.)
+#         if self.meta.logtruNz is not None:
+#             self.calclr(self.ll_smp,0.)
 
-        with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as indict:
-            outdict = cpkl.load(indict)
+#         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as indict:
+#             outdict = cpkl.load(indict)
 
-        outdict['llr_stk'] = np.array(self.llr_stk)
-#         outdict['llr_map'] = np.array(self.llr_map)
-#         outdict['llr_exp'] = np.array(self.llr_exp)
-        outdict['llr_mml'] = np.array(self.llr_mml)
-        outdict['ll_smp'] = np.array(self.ll_smp).flatten()/2.
-#         outdict['mapvals'] = np.array(self.mapvals)
-#         outdict['maps'] = np.array(self.maps)
+#         outdict['llr_stk'] = np.array(self.llr_stk)
+# #         outdict['llr_map'] = np.array(self.llr_map)
+# #         outdict['llr_exp'] = np.array(self.llr_exp)
+#         outdict['llr_mml'] = np.array(self.llr_mml)
+#         outdict['ll_smp'] = np.array(self.ll_smp).flatten()/2.
+# #         outdict['mapvals'] = np.array(self.mapvals)
+# #         outdict['maps'] = np.array(self.maps)
 
-        with open(os.path.join(self.meta.topdir,'stat_both.p'),'wb') as statboth:
-            cpkl.dump(outdict,statboth)
-        return
+#         with open(os.path.join(self.meta.topdir,'stat_both.p'),'wb') as statboth:
+#             cpkl.dump(outdict,statboth)
+#         return
 
-    # likelihood ratio test
-    def calclr(self,var,ll):
+#     # likelihood ratio test
+#     def calclr(self,var,ll):
 
-        for w in xrange(self.meta.nwalkers):
-            for x in xrange(self.meta.ntimes):
-                ll_smp = self.probs[w][x]-self.meta.postdist.priorprob(self.chains[w][x])
-                var.append(2.*(ll_smp-ll))
-#                 self.llr_stk.append(2.*ll_smp-2.*self.ll_stk)
-#                 self.llr_map.append(2.*ll_smp-2.*self.ll_map)
-#                 self.llr_exp.append(2.*ll_smp-2.*self.ll_exp)
-        return(var)
+#         for w in xrange(self.meta.nwalkers):
+#             for x in xrange(self.meta.ntimes):
+#                 ll_smp = self.probs[w][x]-self.meta.postdist.priorprob(self.chains[w][x])
+#                 var.append(2.*(ll_smp-ll))
+# #                 self.llr_stk.append(2.*ll_smp-2.*self.ll_stk)
+# #                 self.llr_map.append(2.*ll_smp-2.*self.ll_map)
+# #                 self.llr_exp.append(2.*ll_smp-2.*self.ll_exp)
+#         return(var)
 
 # statistics involving parameter values
 class stat_chains(calcstats):
@@ -131,8 +131,8 @@ class stat_chains(calcstats):
 # #         self.csexp = None
 
         self.kl_stkvtru,self.kl_truvstk = None,None
-#         self.kl_mapvtru,self.kl_truvmap = None,None
-# #         self.kl_expvtru,self.kl_truvexp = None,None
+        self.kl_mapvtru,self.kl_truvmap = None,None
+        self.kl_expvtru,self.kl_truvexp = None,None
         self.kl_intvtru,self.kl_truvint = float('inf'),float('inf')
         self.kl_mmlvtru,self.kl_truvmml = float('inf'),float('inf')
         self.kl_smpvtru,self.kl_truvsmp = float('inf'),float('inf')
@@ -150,8 +150,8 @@ class stat_chains(calcstats):
 # #             self.cslogexp = np.average((self.meta.logexpNz-self.meta.logtruNz)**2)
 
             self.kl_stkvtru,self.kl_truvstk = calckl(self.meta.bindifs,self.meta.logstkNz,self.meta.logtruNz)
-#             self.kl_mapvtru,self.kl_truvmap = calckl(self.meta.bindifs,self.meta.logmapNz,self.meta.logtruNz)
-# #             self.kl_expvtru,self.kl_truvexp = calckl(self.meta.bindifs,self.meta.logexpNz,self.meta.logtruNz)
+            self.kl_mapvtru,self.kl_truvmap = calckl(self.meta.bindifs,self.meta.logmapNz,self.meta.logtruNz)
+            self.kl_expvtru,self.kl_truvexp = calckl(self.meta.bindifs,self.meta.logexpNz,self.meta.logtruNz)
             self.kl_intvtru,self.kl_truvint = calckl(self.meta.bindifs,self.meta.logintNz,self.meta.logtruNz)
             self.kl_mmlvtru,self.kl_truvmml = calckl(self.meta.bindifs,self.meta.logmmlNz,self.meta.logtruNz)
             self.kl_smpvtru,self.kl_truvsmp = [],[]
@@ -181,14 +181,14 @@ class stat_chains(calcstats):
 # #                    'cslogexp': self.cslogexp,
 # #                    'csexp': self.csexp,
                    'kl_stkvtru': self.kl_stkvtru,
-#                    'kl_mapvtru': self.kl_mapvtru,
-# #                    'kl_expvtru': self.kl_expvtru,
+                   'kl_mapvtru': self.kl_mapvtru,
+                   'kl_expvtru': self.kl_expvtru,
                    'kl_smpvtru': self.kl_smpvtru,
                    'kl_intvtru': self.kl_intvtru,
                    'kl_mmlvtru': self.kl_mmlvtru,
                    'kl_truvstk': self.kl_truvstk,
-#                    'kl_truvmap': self.kl_truvmap,
-# #                    'kl_truvexp': self.kl_truvexp,
+                   'kl_truvmap': self.kl_truvmap,
+                   'kl_truvexp': self.kl_truvexp,
                    'kl_truvsmp': self.kl_truvsmp,
                    'kl_truvint': self.kl_truvint,
                    'kl_truvmml': self.kl_truvmml
@@ -319,8 +319,8 @@ class stat_probs(calcstats):
 
         self.lp_int = self.meta.postdist.lnprob(self.meta.logintNz)
         self.lp_stk = self.meta.postdist.lnprob(self.meta.logstkNz)
-#         self.lp_map = self.meta.postdist.lnprob(self.meta.logmapNz)
-# #         self.lp_exp = self.meta.postdist.lnprob(self.meta.logexpNz)
+        self.lp_map = self.meta.postdist.lnprob(self.meta.logmapNz)
+        self.lp_exp = self.meta.postdist.lnprob(self.meta.logexpNz)
         self.lp_mml = self.meta.postdist.lnprob(self.meta.logmmlNz)
 
         self.var_y = []
@@ -329,6 +329,8 @@ class stat_probs(calcstats):
                    'lp_tru': self.lp_tru,
                    'lp_int': self.lp_int,
                    'lp_stk': self.lp_stk,
+                   'lp_map': self.lp_map,
+                   'lp_exp': self.lp_exp,
                    'lp_mml': self.lp_mml
                   }
 
@@ -360,19 +362,19 @@ class stat_probs(calcstats):
 #                  'lp_mml': self.lp_mml
 #                }
 
-class stat_fracs(calcstats):
-    """
-    calculates summary statistics on acceptance fractions
-    """
-    def __init__(self, meta):
-        calcstats.__init__(self, meta)
-        self.var_y = []
-        self.name = 'fracs'
-    def compute(self, ydata):
-        y = ydata.T
-        var_y = statistics.variance(y)
-        self.var_y.append(var_y)
-        return {'var_y': self.var_y}
+# class stat_fracs(calcstats):
+#     """
+#     calculates summary statistics on acceptance fractions
+#     """
+#     def __init__(self, meta):
+#         calcstats.__init__(self, meta)
+#         self.var_y = []
+#         self.name = 'fracs'
+#     def compute(self, ydata):
+#         y = ydata.T
+#         var_y = statistics.variance(y)
+#         self.var_y.append(var_y)
+#         return {'var_y': self.var_y}
 
 class stat_times(calcstats):
     """

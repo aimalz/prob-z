@@ -50,7 +50,7 @@ class pertest(object):
         self.stats = [ #stats.stat_both(self.meta),
                        stats.stat_chains(self.meta),
                        stats.stat_probs(self.meta),
-                       stats.stat_fracs(self.meta),
+#                        stats.stat_fracs(self.meta),
                        stats.stat_times(self.meta) ]
 
     # sample with emcee and provide output

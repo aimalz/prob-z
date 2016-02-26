@@ -316,23 +316,23 @@ class setup(object):
         self.logstkNz = np.log(self.stkNz)
         self.lik_stkNz = self.calclike(self.logstkNz)
 
-#         # generate MAP N(z)
-#         self.mapNz = [sys.float_info.epsilon]*self.nbins
-#         mappreps = [np.argmax(l) for l in self.logpdfs]
-#         for m in mappreps:
-#               self.mapNz[m] += 1./self.bindifs[m]
-#         self.logmapNz = np.log(self.mapNz)
-#         self.lik_mapNz = self.calclike(self.logmapNz)
+        # generate MAP N(z)
+        self.mapNz = [sys.float_info.epsilon]*self.nbins
+        mappreps = [np.argmax(l) for l in self.logpdfs]
+        for m in mappreps:
+              self.mapNz[m] += 1./self.bindifs[m]
+        self.logmapNz = np.log(self.mapNz)
+        self.lik_mapNz = self.calclike(self.logmapNz)
 
-# #         # generate expected value N(z)
-# #         expprep = [sum(z) for z in self.binmids*self.pdfs*self.bindifs]
-# #         self.expNz = [sys.float_info.epsilon]*self.nbins
-# #         for z in expprep:
-# #               for k in xrange(self.nbins):
-# #                   if z > self.binlos[k] and z < self.binhis[k]:
-# #                       self.expNz[k] += 1./self.bindifs[k]
-# #         self.logexpNz = np.log(self.expNz)
-# #         self.lik_expNz = self.calclike(self.logexpNz)
+        # generate expected value N(z)
+        expprep = [sum(z) for z in self.binmids*self.pdfs*self.bindifs]
+        self.expNz = [sys.float_info.epsilon]*self.nbins
+        for z in expprep:
+              for k in xrange(self.nbins):
+                  if z > self.binlos[k] and z < self.binhis[k]:
+                      self.expNz[k] += 1./self.bindifs[k]
+        self.logexpNz = np.log(self.expNz)
+        self.lik_expNz = self.calclike(self.logexpNz)
 
         return
 
@@ -375,10 +375,10 @@ class setup(object):
             self.mode = 'bins'#'walkers'
 
         # what outputs of emcee will we be saving?
-        self.stats = [ stats.stat_both(self),
+        self.stats = [ # stats.stat_both(self),
                        stats.stat_chains(self),
                        stats.stat_probs(self),
-                       stats.stat_fracs(self),
+#                        stats.stat_fracs(self),
                        stats.stat_times(self) ]
         return
 
@@ -426,5 +426,5 @@ class setup(object):
     def samplings(self):
         return pertest(self).samplings()
 
-    def plotonlues(self):
+    def plotonlies(self):
         return pertest(self).plotonlies()

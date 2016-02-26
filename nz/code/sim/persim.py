@@ -217,7 +217,7 @@ class pertest(object):
         pdfs = []
         logpdfs = []
         mapZs = []
-#         expZs = []
+        expZs = []
 
         for j in xrange(self.ngals):
             allsummed = np.array([0.]*self.nbins)
@@ -240,16 +240,16 @@ class pertest(object):
 #                 pdf = np.array(spdf)/np.dot(spdf,self.bindifs)
 
             mapZ = self.binmids[np.argmax(pdf)]
-#             expZ = sum(self.binmids*self.bindifs*pdf)
+            expZ = sum(self.binmids*self.bindifs*pdf)
             logpdf = us.safelog(pdf)
             logpdfs.append(logpdf)
             pdfs.append(pdf)
             mapZs.append(mapZ)
-#             expZs.append(expZ)
+            expZs.append(expZ)
         self.pdfs = np.array(pdfs)
         self.logpdfs = np.array(logpdfs)
         self.mapZs = np.array(mapZs)
-#         self.expZs = np.array(expZs)
+        self.expZs = np.array(expZs)
 
         # generate full Sheldon, et al. 2011 "posterior"
         self.stkNz = np.sum(np.array(pdfs),axis=0)
@@ -267,15 +267,17 @@ class pertest(object):
         self.mapPz = us.normed(self.mapNz,self.bindifs)
         self.logmapPz = us.safelog(self.mapPz)
 
-#         # generate expected value N(z)
-#         expprep = [sum(z) for z in self.binmids*self.pdfs*self.bindifs]
-#         self.expNz = [sys.float_info.sys.float_info.epsilon]*self.nbins
-#         for z in expprep:
-#               for k in xrange(self.nbins):
-#                   if z > self.binlos[k] and z < self.binhis[k]:
-#                       self.expNz[k] += 1./self.bindifs[k]
-#         self.logexpNz = np.log(self.expNz)
-#         self.expPz,self.logexpPz = us.normed(self.expNz,self.bindifs)
+        # generate expected value N(z)
+        expprep = [sum(z) for z in self.binmids*self.pdfs*self.bindifs]
+        self.expNz = [sys.float_info.epsilon]*self.nbins
+        for z in expprep:
+              for k in xrange(self.nbins):
+                  if z > self.binlos[k] and z < self.binhis[k]:
+                      self.expNz[k] += 1
+        self.expNz = self.expNz/self.bindifs
+        self.logexpNz = np.log(self.expNz)
+        self.expPz = us.normed(self.expNz,self.bindifs)
+        self.logexpPz = us.safelog(self.expNz)
 
     # generate summary quantities for plotting
     def fillsummary(self):
@@ -293,9 +295,9 @@ class pertest(object):
         self.kl_mapNz = self.calckl(self.logmapNz,self.logtruNz)
         self.lik_mapNz = self.calclike(self.logmapNz)
 
-#         self.vslogexpNz,self.vsexpNz = self.calcvar(self.logexpNz)
-#         self.kl_expNz = self.calckl(self.logexpNz,self.logtruNz)
-#         self.lik_expNz = self.calclike(self.logexpNz)
+        self.vslogexpNz,self.vsexpNz = self.calcvar(self.logexpNz)
+        self.kl_expNz = self.calckl(self.logexpNz,self.logtruNz)
+        self.lik_expNz = self.calclike(self.logexpNz)
 
         self.vslogintNz,self.vsintNz = self.calcvar(self.logintNz)
         self.kl_intNz = self.calckl(self.logintNz,self.logtruNz)

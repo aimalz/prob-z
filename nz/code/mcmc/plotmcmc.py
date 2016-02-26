@@ -44,10 +44,10 @@ global s_int,w_int,a_int,c_int,d_int,l_int
 s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,0.5,'k',[(0,(1,0.0001))],'Interim '
 global s_stk,w_stk,a_stk,c_stk,d_stk,l_stk
 s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,'k',[(0,(1,2))],'Stacked '
-# global s_map,w_map,a_map,c_map,d_map,l_map
-# s_map,w_map,a_map,c_map,d_map,l_map = '--',1.5,0.75,'k',[(0,(4,4,2,4))],'MMAP '
-# global s_exp,w_exp,a_exp,c_exp,d_exp,l_exp
-# s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.5,0.25,'k',[(0,(4,4,2,4))],'MExp '
+global s_map,w_map,a_map,c_map,d_map,l_map
+s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,0.75,'k',[(0,(4,4,2,4))],'MMAP '
+global s_exp,w_exp,a_exp,c_exp,d_exp,l_exp
+s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,0.25,'k',[(0,(4,4,2,4))],'MExp '
 global s_mml,w_mml,a_mml,c_mml,d_mml,l_mml
 s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,'k',[(0,(3,2))],'MMLE '
 global s_smp,w_smp,a_smp,c_smp,d,smp,l_smp
@@ -69,8 +69,8 @@ def ploth(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))],l=None):
                    dashes=d,
                    color=c,
                    alpha=a,
-                   label=l)#,
-                   #rasterized=True)
+                   label=l,
+                   rasterized=True)
 def plotv(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))]):
     subplot.vlines(binends[1:-1],
                    plot[:-1],
@@ -79,8 +79,8 @@ def plotv(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))]):
                    linestyle=s,
                    dashes=d,
                    color=c,
-                   alpha=a)#,
-                   #rasterized=True)
+                   alpha=a,
+                   rasterized=True)
 
 def footer(subplot):
     subplot.annotate('Malz+2016',(0,0), (175,250), xycoords='axes fraction', textcoords='offset points', va='top')
@@ -147,39 +147,39 @@ def plot_ivals(meta):
     f.savefig(os.path.join(meta.topdir,'initializations.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
     return
 
-def plot_true(meta):
-    f = plt.figure(figsize=(5,10))
-    sps = f.add_subplot(2,1,1)
-    sps.set_xlabel(r'binned $z$')
-    sps.set_ylabel(r'$\ln N(z)$')
-    sps.set_ylim(np.log(1./min(meta.bindifs)),np.log(meta.ngals/min(meta.bindifs)))#(-1.,np.log(test.ngals/min(test.meta.zdifs)))
-    sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
-#     plotstep(sps,test.binends,test.logtruNz,s=s_smp,w=w_smp,a=a_smp,c=c_smp,l=l_smp+lnz)
-    plotstep(sps,meta.zrange,meta.lNz_range,s=s_tru,w=w_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru+lnz)
-    plotstep(sps,meta.binends,meta.logstkNz,s=s_stk,w=w_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk+lnz)
-#     plotstep(sps,meta.binends,meta.logmapNz,s=s_map,w=w_map,a=a_map,c=c_map,d=d_map,l=l_map+lnz)
-#     plotstep(sps,meta.binends,meta.logexpNz,s=s_exp,w=w_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+lnz)
-    plotstep(sps,meta.binends,meta.logmmlNz,s=s_mml,w=w_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+lnz)
-    plotstep(sps,meta.binends,meta.logintNz,s=s_int,w=w_int,a=a_int,c=c_int,d=d_int,l=l_int+lnz)
-    sps.legend(loc='lower right',fontsize='x-small')
-    sps = f.add_subplot(2,1,2)
-    sps.set_xlabel(r'binned $z$')
-    sps.set_ylabel(r'$N(z)$')
-#     sps.set_ylim(0.,test.ngals/min(test.bindifs))#(0.,test.ngals/min(test.meta.zdifs))
-    sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
-#     plotstep(sps,test.binends,test.truNz,s=s_smp,w=w_smp,a=a_smp,c=c_smp,l=l_smp+nz)
-    plotstep(sps,meta.zrange,meta.Nz_range,s=s_tru,w=w_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru+nz)
-    plotstep(sps,meta.binends,meta.stkNz,s=s_stk,w=w_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk+nz)# with $\sigma^{2}=$'+str(int(test.vsstack)))
-#     plotstep(sps,meta.binends,meta.mapNz,s=s_map,w=w_map,a=a_msp,c=c_map,d=d_map,l=l_map+nz)# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
-#     plotstep(sps,meta.binends,meta.expNz,s=s_exp,w=w_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+nz)# with $\sigma^{2}=$'+str(int(test.vsexpNz)))
-    plotstep(sps,meta.binends,meta.mmlNz,s=s_mml,w=w_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+nz)
-    plotstep(sps,meta.binends,meta.intNz,s=s_int,w=w_int,a=a_int,c=c_int,d=d_int,l=l_int+nz)# with $\sigma^{2}=$'+str(int(test.vsinterim)))
-    sps.legend(loc='upper left',fontsize='x-small')
+# def plot_true(meta):
+#     f = plt.figure(figsize=(5,10))
+#     sps = f.add_subplot(2,1,1)
+#     sps.set_xlabel(r'binned $z$')
+#     sps.set_ylabel(r'$\ln N(z)$')
+#     sps.set_ylim(np.log(1./min(meta.bindifs)),np.log(meta.ngals/min(meta.bindifs)))#(-1.,np.log(test.ngals/min(test.meta.zdifs)))
+#     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
+# #     plotstep(sps,test.binends,test.logtruNz,s=s_smp,w=w_smp,a=a_smp,c=c_smp,l=l_smp+lnz)
+#     plotstep(sps,meta.zrange,meta.lNz_range,s=s_tru,w=w_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru+lnz)
+#     plotstep(sps,meta.binends,meta.logstkNz,s=s_stk,w=w_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk+lnz)
+# #     plotstep(sps,meta.binends,meta.logmapNz,s=s_map,w=w_map,a=a_map,c=c_map,d=d_map,l=l_map+lnz)
+# #     plotstep(sps,meta.binends,meta.logexpNz,s=s_exp,w=w_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+lnz)
+#     plotstep(sps,meta.binends,meta.logmmlNz,s=s_mml,w=w_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+lnz)
+#     plotstep(sps,meta.binends,meta.logintNz,s=s_int,w=w_int,a=a_int,c=c_int,d=d_int,l=l_int+lnz)
+#     sps.legend(loc='lower right',fontsize='x-small')
+#     sps = f.add_subplot(2,1,2)
+#     sps.set_xlabel(r'binned $z$')
+#     sps.set_ylabel(r'$N(z)$')
+# #     sps.set_ylim(0.,test.ngals/min(test.bindifs))#(0.,test.ngals/min(test.meta.zdifs))
+#     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
+# #     plotstep(sps,test.binends,test.truNz,s=s_smp,w=w_smp,a=a_smp,c=c_smp,l=l_smp+nz)
+#     plotstep(sps,meta.zrange,meta.Nz_range,s=s_tru,w=w_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru+nz)
+#     plotstep(sps,meta.binends,meta.stkNz,s=s_stk,w=w_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk+nz)# with $\sigma^{2}=$'+str(int(test.vsstack)))
+# #     plotstep(sps,meta.binends,meta.mapNz,s=s_map,w=w_map,a=a_msp,c=c_map,d=d_map,l=l_map+nz)# with $\sigma^{2}=$'+str(int(test.vsmapNz)))
+# #     plotstep(sps,meta.binends,meta.expNz,s=s_exp,w=w_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+nz)# with $\sigma^{2}=$'+str(int(test.vsexpNz)))
+#     plotstep(sps,meta.binends,meta.mmlNz,s=s_mml,w=w_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+nz)
+#     plotstep(sps,meta.binends,meta.intNz,s=s_int,w=w_int,a=a_int,c=c_int,d=d_int,l=l_int+nz)# with $\sigma^{2}=$'+str(int(test.vsinterim)))
+#     sps.legend(loc='upper left',fontsize='x-small')
 
-    f.subplots_adjust(hspace=0, wspace=0)
-    footer(sps)
-    f.savefig(os.path.join(meta.topdir,'trueNz.png'),bbox_inches='tight', pad_inches = 0)
-    return
+#     f.subplots_adjust(hspace=0, wspace=0)
+#     footer(sps)
+#     f.savefig(os.path.join(meta.topdir,'trueNz.png'),bbox_inches='tight', pad_inches = 0)
+#     return
 
 # most generic plotter, specific plotters below inherit from this to get handle
 class plotter(distribute.consumer):
@@ -214,12 +214,12 @@ class plotter_times(plotter):
 #         self.sps_fracs.set_ylabel('acceptance fraction')
 #         self.sps_fracs.set_xlabel('number of iterations')
 
-        plot_pdfs(self.meta)
-        plot_priorsamps(self.meta)
-        plot_ivals(self.meta)
-        if self.meta.truNz is not None:
-            plot_true(self.meta)
-        timesaver(self.meta,'iplot',self.meta.key)
+#         plot_pdfs(self.meta)
+#         plot_priorsamps(self.meta)
+#         plot_ivals(self.meta)
+#         if self.meta.truNz is not None:
+#             plot_true(self.meta)
+#         timesaver(self.meta,'iplot',self.meta.key)
 
     def plot(self, key):
 
@@ -235,8 +235,8 @@ class plotter_times(plotter):
                                c='k',
                                alpha=self.a_times,
                                linewidth=0.1,
-                               s=self.meta.nbins)#,
-                               #rasterized=True)
+                               s=self.meta.nbins,
+                               rasterized=True)
 
         self.f_times.savefig(os.path.join(self.meta.topdir,'times.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
 
@@ -297,7 +297,7 @@ class plotter_probs(plotter):
         locs = np.array(locs)
         scales = np.array(scales)
         x_all = np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto
-        self.sps.plot(x_all,locs,color='k')#,rasterized=True)
+        self.sps.plot(x_all,locs,color='k',rasterized=True)
 #         self.sps.vlines(xrange(self.meta.ntimes+1),(locs-scales),(locs+scales),color='k',alpha=0.5,linewidth=2.,rasterized=True)
 #         self.sps.fill_between(x_all,locs-scales,locs+scales,color='k',alpha=0.1,linewidth=0.)
         x_cor = [x_all[:-1],x_all[:-1],x_all[1:],x_all[1:]]
@@ -490,8 +490,8 @@ class plotter_samps(plotter):
 #             plotstep(sps_samp,self.meta.binends,np.exp(both['mapvals'][v]),w=2,c=self.meta.colors[v%self.ncolors])
         self.kl_mml = min(kls['kl_mmlvtru'],kls['kl_truvmml'])
         self.kl_stk = min(kls['kl_stkvtru'],kls['kl_truvstk'])
-#         self.kl_map = min(kls['kl_mapvtru'],kls['kl_truvmap'])
-#         self.kl_exp = min(kls['kl_expvtru'],kls['kl_truvexp'])
+        self.kl_map = min(kls['kl_mapvtru'],kls['kl_truvmap'])
+        self.kl_exp = min(kls['kl_expvtru'],kls['kl_truvexp'])
         self.kl_smp = min(sm.calckl(self.meta.bindifs,self.locs,self.meta.logtruNz))
 
     def summary(self):
@@ -524,8 +524,8 @@ class plotter_samps(plotter):
 #         plotstep(sps_comp,self.meta.binends,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+nz)
         self.plotcomp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,d=d_int,l=l_int)#+kld+str(self.kl_stk))
         self.plotcomp(self.meta.logstkNz,self.meta.stkNz,w=w_stk,s=s_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk+kld+str(self.kl_stk))
-#         self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,d=d_map,l=l_map+kld+str(self.kl_map))
-#         self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+kld+str(self.kl_exp))
+        self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,d=d_map,l=l_map+kld+str(self.kl_map))
+        self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+kld+str(self.kl_exp))
         self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+kld+str(self.kl_mml))
 
         self.ploterr(sps_comp_log,sps_comp)
@@ -554,7 +554,7 @@ class plotter_chains(plotter):
 
         for k in xrange(self.meta.nbins):
             sps_chain = self.sps_chains[k]
-            sps_chain.plot([0],[0],color=c_smp,label=l_smp+r'$\theta_{'+str(k)+r'}$',alpha=a_smp,linewidth=w_smp,linestyle=s_smp)#,rasterized = True)
+            sps_chain.plot([0],[0],color=c_smp,label=l_smp+r'$\theta_{'+str(k)+r'}$',alpha=a_smp,linewidth=w_smp,linestyle=s_smp,rasterized = True)
             sps_chain.set_ylim(-np.log(self.meta.ngals), np.log(self.meta.ngals / self.meta.bindif)+1)
             sps_chain.set_xlabel('iteration number')
             sps_chain.set_ylabel(r'$\ln N_{'+str(k+1)+r'}(z)$')
@@ -593,22 +593,22 @@ class plotter_chains(plotter):
             mean = np.sum(plot_y_c[k])/(self.meta.ntimes*self.meta.nwalkers)
             self.sps_chains[k].plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,#i_run.eachtimenos[r],
                                     [mean]*self.meta.ntimes,
-                                    color = 'k')#,
-                                    #rasterized = True)
+                                    color = 'k',
+                                    rasterized = True)
 
             x_all = plot_y_c[k].flatten()
             x_kde = x_all[:, np.newaxis]
             kde = skl.neighbors.KernelDensity(kernel='gaussian', bandwidth=1.0).fit(x_kde)
             x_plot = np.arange(np.min(plot_y_c[k]),np.max(plot_y_c[k]),0.1)[:, np.newaxis]
             log_dens = kde.score_samples(x_plot)
-            sps_pdf.plot(x_plot[:, 0],np.exp(log_dens),color=self.meta.colors[key.r%self.ncolors])#,rasterized=True)
+            sps_pdf.plot(x_plot[:, 0],np.exp(log_dens),color=self.meta.colors[key.r%self.ncolors],rasterized=True)
             for x in randsteps:
                 for w in self.randwalks:
                     self.sps_chains[k].plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,#i_run.eachtimenos[r],
                                             plot_y_c[k][w],
                                             color = self.meta.colors[w%self.ncolors],
-                                            alpha = self.a_chain)#,
-                                            #rasterized = True)
+                                            alpha = self.a_chain,
+                                            rasterized = True)
 
             loc,scale = sp.stats.norm.fit_loc_scale(x_all)
             sps_pdf.vlines(loc,0.,1.,color=self.meta.colors[key.r%self.ncolors],linestyle=s_smp,linewidth=w_smp,alpha=a_smp)
