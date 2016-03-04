@@ -43,13 +43,13 @@ s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',1.,1.,'k',[(0,(1,0.0001))],'True '
 global s_int,w_int,a_int,c_int,d_int,l_int
 s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,0.5,'k',[(0,(1,0.0001))],'Interim '
 global s_stk,w_stk,a_stk,c_stk,d_stk,l_stk
-s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,'k',[(0,(1,2))],'Stacked '
+s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,'r',[(0,(2,1))],'Stacked '
 global s_map,w_map,a_map,c_map,d_map,l_map
-s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,0.75,'k',[(0,(4,4,2,4))],'MMAP '
+s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,1.,'c',[(0,(1,1,3,1))],'MMAP '
 global s_exp,w_exp,a_exp,c_exp,d_exp,l_exp
-s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,0.25,'k',[(0,(4,4,2,4))],'MExp '
+s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,1.,'m',[(0,(3,3,1,3))],'MExp '
 global s_mml,w_mml,a_mml,c_mml,d_mml,l_mml
-s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,'k',[(0,(3,2))],'MMLE '
+s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,'b',[(0,(3,2))],'MMLE '
 global s_smp,w_smp,a_smp,c_smp,d,smp,l_smp
 s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '--',1.,1.,'k',[(0,(1,0.0001))],'Sampled '
 global s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe
@@ -414,7 +414,7 @@ class plotter_samps(plotter):
         sps_samp = self.sps_samps[1]
 
         self.calcbfe()
-        self.ploterr(sps_samp_log,sps_samp)
+#         self.ploterr(sps_samp_log,sps_samp)
 #         if self.meta.logtruNz is not None:
 #             sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
 #             sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
@@ -457,7 +457,7 @@ class plotter_samps(plotter):
         self.y_cors = np.array(y_cors)
         self.y_cors2 = np.array(y_cors2)
 
-    def ploterr(self,logplot,plot):
+#     def ploterr(self,logplot,plot):
 
 # disabling plotting error bars for now
 #         for k in xrange(self.meta.nbins):
@@ -466,7 +466,7 @@ class plotter_samps(plotter):
 #             logplot.fill(self.x_cors[k],self.y_cors[k],color='k',alpha=0.3,linewidth=0.)
 #             plot.fill(self.x_cors[k],np.exp(self.y_cors[k]),color='k',alpha=0.3,linewidth=0.)
 
-        self.plotsamp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
+#         self.plotsamp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
 
     def plotsamp(self,logy,y,w=1.,s='--',a=1.,c='k',d=[(0,(1,0.0001))],l=' '):
         sps_samp_log = self.sps_samps[0]
@@ -516,21 +516,26 @@ class plotter_samps(plotter):
             plotstep(sps_comp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru)#+nz)
             sps_comp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
             sps_comp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
+
+            self.plotcomp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,d=d_int,l=l_int)#+kld+str(self.kl_stk))
+            self.plotcomp(self.meta.logstkNz,self.meta.stkNz,w=w_stk,s=s_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk+kld+str(self.kl_stk))
+            self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,d=d_map,l=l_map+kld+str(self.kl_map))
+            self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+kld+str(self.kl_exp))
+            self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+kld+str(self.kl_mml))
+            self.plotcomp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe+kld+str(self.kl_smp))
         else:
             self.kl_stk,self.kl_mml,self.kl_smp = None,None,None
 
-        self.prepstats()
-
 #         plotstep(sps_comp_log,self.meta.binends,self.meta.logintNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+lnz)
 #         plotstep(sps_comp,self.meta.binends,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+nz)
-        self.plotcomp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,d=d_int,l=l_int)#+kld+str(self.kl_stk))
-        self.plotcomp(self.meta.logstkNz,self.meta.stkNz,w=w_stk,s=s_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk+kld+str(self.kl_stk))
-        self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,d=d_map,l=l_map+kld+str(self.kl_map))
-        self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+kld+str(self.kl_exp))
-        self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+kld+str(self.kl_mml))
+            self.plotcomp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,d=d_int,l=l_int)
+            self.plotcomp(self.meta.logstkNz,self.meta.stkNz,w=w_stk,s=s_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk)
+            self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,d=d_map,l=l_map)
+            self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp)
+            self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml)
 
-        self.ploterr(sps_comp_log,sps_comp)
-        self.plotcomp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe+kld+str(self.kl_smp))
+#         self.ploterr(sps_comp_log,sps_comp)
+            self.plotcomp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
 
         sps_comp_log.legend(fontsize='xx-small', loc='upper left')
         sps_comp.legend(fontsize='xx-small', loc='upper left')
