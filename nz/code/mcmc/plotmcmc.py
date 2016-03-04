@@ -459,11 +459,12 @@ class plotter_samps(plotter):
 
     def ploterr(self,logplot,plot):
 
-        for k in xrange(self.meta.nbins):
-            logplot.fill(self.x_cors[k],self.y_cors2[k],color='k',alpha=0.2,linewidth=0.)
-            plot.fill(self.x_cors[k],np.exp(self.y_cors2[k]),color='k',alpha=0.2,linewidth=0.)
-            logplot.fill(self.x_cors[k],self.y_cors[k],color='k',alpha=0.3,linewidth=0.)
-            plot.fill(self.x_cors[k],np.exp(self.y_cors[k]),color='k',alpha=0.3,linewidth=0.)
+# disabling plotting error bars for now
+#         for k in xrange(self.meta.nbins):
+#             logplot.fill(self.x_cors[k],self.y_cors2[k],color='k',alpha=0.2,linewidth=0.)
+#             plot.fill(self.x_cors[k],np.exp(self.y_cors2[k]),color='k',alpha=0.2,linewidth=0.)
+#             logplot.fill(self.x_cors[k],self.y_cors[k],color='k',alpha=0.3,linewidth=0.)
+#             plot.fill(self.x_cors[k],np.exp(self.y_cors[k]),color='k',alpha=0.3,linewidth=0.)
 
         self.plotsamp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
 
