@@ -9,6 +9,8 @@ import os
 import scipy as sp
 import csv
 
+import utilmcmc as um
+
 # unite stats for each output
 class calcstats(object):
     """
@@ -427,8 +429,8 @@ def calckl(difs,lqn,lpn):
     qn = np.exp(lqn)*difs
     p = pn/np.sum(pn)
     q = qn/np.sum(qn)
-    logp = np.log(p)
-    logq = np.log(q)
+    logp = um.safelog(p)
+    logq = um.safelog(q)
     klpq = np.sum(p*(logp-logq))
     klqp = np.sum(q*(logq-logp))
     return(round(klpq,3),round(klqp,3))
