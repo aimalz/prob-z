@@ -29,19 +29,19 @@ mpl.rcParams['figure.subplot.hspace'] = 0.5
 #print('set spaces')
 
 global s_tru,w_tru,a_tru,c_tru,d_tru,l_tru
-s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',1.,1.,'k',[(0,(1,0.0001))],'True '
+s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',1.,1.,'k',[(0,(1,0.0001))],r'True '
 global s_int,w_int,a_int,c_int,d_int,l_int
-s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,0.5,'k',[(0,(1,0.0001))],'Interim '
+s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,0.5,'k',[(0,(1,0.0001))],r'Interim '
 global s_stk,w_stk,a_stk,c_stk,d_stk,l_stk
-s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,'k',[(0,(1,2))],'Stacked '
+s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,'k',[(0,(1,2))],r'Stacked '
 global s_map,w_map,a_map,c_map,d_map,l_map
-s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,0.75,'k',[(0,(4,4,2,4))],'MMAP '
+s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,0.75,'k',[(0,(4,4,2,4))],r'MMAP '
 global s_exp,w_exp,a_exp,c_exp,d_exp,l_exp
-s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,0.25,'k',[(0,(4,4,2,4))],'MExp '
+s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,0.25,'k',[(0,(4,4,2,4))],r'MExp '
 global s_mml,w_mml,a_mml,c_mml,d_mml,l_mml
-s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,'k',[(0,(3,2))],'MMLE '
+s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,'k',[(0,(3,2))],r'MMLE '
 global s_smp,w_smp,a_smp,c_smp,d,smp,l_smp
-s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '--',1.,1.,'k',[(0,(1,0.0001))],'Sampled '
+s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '--',1.,1.,'k',[(0,(1,0.0001))],r'Sampled '
 
 #making a step function plotter because pyplot is stupid
 def plotstep(subplot,binends,plot,s='--',d=[(0,(1,0.0001))],c='k',w=1,l=None,a=1.):
@@ -113,10 +113,10 @@ def plot_physgen(meta,test):
     f = plt.figure(figsize=(5,5))
     sys.stdout.flush()
     sps = f.add_subplot(1,1,1)
-    f.suptitle(meta.name+' True p(z)')
+#     f.suptitle(meta.name+' True p(z)')
     sps.plot(zrange,prange,label=r'True $p(z)$',color='k')
     for k in us.lrange(meta.real):
-        sps.plot(zrange,pranges[k],color=meta.colors[k],label=str(meta.real[k][2])+'N('+str(meta.real[k][0])+','+str(meta.real[k][1])+')')
+        sps.plot(zrange,pranges[k],color=meta.colors[k],label=str(meta.real[k][2])+r'$\mathcal{N}$('+str(meta.real[k][0])+','+str(meta.real[k][1])+')')
 #     plotstep(sps,test.z_cont,test.phsPz,lw=3.,col='k',a=1./3.)
     #sps.semilogy()
     sps.set_ylabel(r'$p(z)$')
