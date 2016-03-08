@@ -6,6 +6,7 @@ plot-mcmc module makes all plots including multiprocessed info
 import matplotlib as mpl
 mpl.use('PS')
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import numpy as np
 import sys
 import os
@@ -35,6 +36,9 @@ mpl.rcParams['figure.subplot.top'] = 0.9
 mpl.rcParams['figure.subplot.wspace'] = 0.5
 mpl.rcParams['figure.subplot.hspace'] = 0.5
 
+cmap = np.linspace(0.,1.,4)
+colors = [cm.gist_rainbow(i) for i in cmap]
+
 global lnz,nz,tv,t
 lnz,nz,tv,t,kld = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$','\n KLD='
 # setting up unified appearance parameters
@@ -43,13 +47,13 @@ s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',1.,1.,'k',[(0,(1,0.0001))],'True '
 global s_int,w_int,a_int,c_int,d_int,l_int
 s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,0.5,'k',[(0,(1,0.0001))],'Interim '
 global s_stk,w_stk,a_stk,c_stk,d_stk,l_stk
-s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,'k',[(0,(2,1))],'Stacked '
+s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,colors[0],[(0,(1,0.0001))],'Stacked '#[(0,(2,1))]
 global s_map,w_map,a_map,c_map,d_map,l_map
-s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,1.,'k',[(0,(1,1,3,1))],'MMAP '
+s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,1.,colors[1],[(0,(1,0.0001))],'MMAP '#[(0,(1,1,3,1))]
 global s_exp,w_exp,a_exp,c_exp,d_exp,l_exp
-s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,1.,'k',[(0,(3,3,1,3))],'MExp '
+s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,1.,colors[2],[(0,(1,0.0001))],'MExp '#[(0,(3,3,1,3))]
 global s_mml,w_mml,a_mml,c_mml,d_mml,l_mml
-s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,'k',[(0,(3,2))],'MMLE '
+s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,colors[3],[(0,(1,0.0001))],'MMLE '#[(0,(3,2))]
 global s_smp,w_smp,a_smp,c_smp,d,smp,l_smp
 s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '--',1.,1.,'k',[(0,(1,0.0001))],'Sampled '
 global s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe
@@ -350,7 +354,11 @@ class plotter_samps(plotter):
 
     def __init__(self, meta):
         self.meta = meta
-        self.ncolors = len(self.meta.colors)
+#         self.ncolors = len(self.meta.colors)
+        self.ncolors = self.meta.factor
+        cmap = np.linspace(0.,1.,self.ncolors)
+        self.meta.colors = [cm.jet(i) for i in cmap]
+
         self.a_samp = 1.#/self.meta.ntimes#self.ncolors/self.meta.nwalkers
         self.f_samps = plt.figure(figsize=(5, 10))
         self.sps_samps = [self.f_samps.add_subplot(2,1,l+1) for l in xrange(0,2)]
@@ -414,10 +422,10 @@ class plotter_samps(plotter):
         sps_samp = self.sps_samps[1]
 
         self.calcbfe()
-#         self.ploterr(sps_samp_log,sps_samp)
-#         if self.meta.logtruNz is not None:
-#             sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
-#             sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
+        self.ploterr(sps_samp_log,sps_samp)
+        if self.meta.logtruNz is not None:
+            sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
+            sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
         sps_samp_log.legend(fontsize='xx-small', loc='upper left')
         sps_samp.legend(fontsize='xx-small', loc='upper left')
         footer(sps_samp_log)
@@ -457,16 +465,15 @@ class plotter_samps(plotter):
         self.y_cors = np.array(y_cors)
         self.y_cors2 = np.array(y_cors2)
 
-#     def ploterr(self,logplot,plot):
+    def ploterr(self,logplot,plot):
 
-# disabling plotting error bars for now
-#         for k in xrange(self.meta.nbins):
-#             logplot.fill(self.x_cors[k],self.y_cors2[k],color='k',alpha=0.2,linewidth=0.)
-#             plot.fill(self.x_cors[k],np.exp(self.y_cors2[k]),color='k',alpha=0.2,linewidth=0.)
-#             logplot.fill(self.x_cors[k],self.y_cors[k],color='k',alpha=0.3,linewidth=0.)
-#             plot.fill(self.x_cors[k],np.exp(self.y_cors[k]),color='k',alpha=0.3,linewidth=0.)
+        for k in xrange(self.meta.nbins):
+            logplot.fill(self.x_cors[k],self.y_cors2[k],color='k',alpha=0.1,linewidth=0.)
+            plot.fill(self.x_cors[k],np.exp(self.y_cors2[k]),color='k',alpha=0.1,linewidth=0.)
+            logplot.fill(self.x_cors[k],self.y_cors[k],color='k',alpha=0.2,linewidth=0.)
+            plot.fill(self.x_cors[k],np.exp(self.y_cors[k]),color='k',alpha=0.2,linewidth=0.)
 
-#         self.plotsamp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
+        self.plotsamp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
 
     def plotsamp(self,logy,y,w=1.,s='--',a=1.,c='k',d=[(0,(1,0.0001))],l=' '):
         sps_samp_log = self.sps_samps[0]
@@ -534,8 +541,8 @@ class plotter_samps(plotter):
             self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp)
             self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml)
 
-#         self.ploterr(sps_comp_log,sps_comp)
-            self.plotcomp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
+        self.ploterr(sps_comp_log,sps_comp)
+        self.plotcomp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
 
         sps_comp_log.legend(fontsize='xx-small', loc='upper left')
         sps_comp.legend(fontsize='xx-small', loc='upper left')
