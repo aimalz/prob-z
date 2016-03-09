@@ -221,13 +221,13 @@ class setup(object):
             self.covmat = np.reshape(np.array([float(covmat[i]) for i in range(0,self.nbins**2)]),(self.nbins,self.nbins))
         else:
             self.mean = self.logintNz#self.logmmlNz#self.logstkNz#self.logfltNz
-            if self.random == 1:
-                self.q = 1.0#self.bindif
-                self.e = 100.#1./self.bindif**2
-                self.t = self.q*1e-5
-                self.covmat = np.array([[self.q*np.exp(-0.5*self.e*(self.binmids[a]-self.binmids[b])**2.) for a in xrange(0,self.nbins)] for b in xrange(0,self.nbins)])+self.t*np.identity(self.nbins)
-            else:
-                self.covmat = np.identity(self.nbins)
+#             if self.random == 1:
+            self.q = 1.0#self.bindif
+            self.e = 100.#1./self.bindif**2
+            self.t = self.q*1e-5
+            self.covmat = np.array([[self.q*np.exp(-0.5*self.e*(self.binmids[a]-self.binmids[b])**2.) for a in xrange(0,self.nbins)] for b in xrange(0,self.nbins)])+self.t*np.identity(self.nbins)
+#             else:
+#                 self.covmat = np.identity(self.nbins)
 
         self.priordist = um.mvn(self.mean,self.covmat)
 
