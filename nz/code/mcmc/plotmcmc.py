@@ -37,7 +37,7 @@ mpl.rcParams['figure.subplot.wspace'] = 0.5
 mpl.rcParams['figure.subplot.hspace'] = 0.5
 
 cmap = np.linspace(0.,1.,6)
-colors = [cm.gnuplot(i) for i in cmap]
+colors = [cm.Greys(i) for i in cmap]#"gnuplot" works well
 
 global lnz,nz,tv,t
 lnz,nz,tv,t,kld = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$','\n KLD='
@@ -45,15 +45,15 @@ lnz,nz,tv,t,kld = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$','\n KLD
 global s_tru,w_tru,a_tru,c_tru,d_tru,l_tru
 s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',1.,1.,'k',[(0,(1,0.0001))],'True '
 global s_int,w_int,a_int,c_int,d_int,l_int
-s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,0.5,'k',[(0,(1,0.0001))],'Interim '
+s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,0.5,colors[2],[(0,(1,0.0001))],'Interim '
 global s_stk,w_stk,a_stk,c_stk,d_stk,l_stk
-s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,colors[1],[(0,(1,1))],'Stacked '#[(0,(2,1))]
+s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,'k',[(0,(2,2))],'Stacked '#[(0,(2,1))]
 global s_map,w_map,a_map,c_map,d_map,l_map
-s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,1.,colors[2],[(0,(2,4,2,4,6,4))],'MMAP '#[(0,(1,1,3,1))]
+s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,1.,colors[3],[(0,(2,4,2,4,6,4))],'MMAP '#[(0,(1,1,3,1))]
 global s_exp,w_exp,a_exp,c_exp,d_exp,l_exp
-s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,1.,colors[3],[(0,(2,2))],'MExp '#[(0,(3,3,1,3))]
+s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,1.,colors[4],[(0,(2,4,6,4))],'MExp '#[(0,(3,3,1,3))]
 global s_mml,w_mml,a_mml,c_mml,d_mml,l_mml
-s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,colors[4],[(0,(1,0.0001))],'MMLE '#[(0,(3,2))]
+s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,colors[5],[(0,(1,1))],'MMLE '#[(0,(3,2))]
 global s_smp,w_smp,a_smp,c_smp,d,smp,l_smp
 s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '--',1.,1.,'k',[(0,(1,0.0001))],'Sampled '
 global s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe
@@ -383,8 +383,8 @@ class plotter_samps(plotter):
         if self.meta.logtruNz is not None:
             plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru)#+lnz)
             plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru)#+nz)
-            sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
-            sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
+#             sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
+#             sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
         self.plotsamp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,d=d_int,l=l_int)
 
     def plot(self,key):
@@ -422,6 +422,7 @@ class plotter_samps(plotter):
         sps_samp = self.sps_samps[1]
 
         self.calcbfe()
+        self.plotsamp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
         self.ploterr(sps_samp_log,sps_samp)
         if self.meta.logtruNz is not None:
             sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
@@ -432,6 +433,12 @@ class plotter_samps(plotter):
 #         footer(sps_samp)
 
         self.summary()
+
+#         if self.meta.logtruNz is not None:
+#             plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru)#+lnz)
+#             plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru)#+nz)
+        sps_samp_log.set_ylim(np.min(self.locs)-1.,np.max(self.locs)+1.)
+        sps_samp.set_ylim(0,max(np.exp(self.locs))+self.meta.ngals)
 
         self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
         self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.pdf'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
@@ -543,6 +550,9 @@ class plotter_samps(plotter):
             self.plotcomp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
 
         self.ploterr(sps_comp_log,sps_comp)
+
+        sps_comp_log.set_ylim(np.min(self.locs)-1.,np.max(self.locs)+1.)
+        sps_comp.set_ylim(0,max(np.exp(self.locs))+self.meta.ngals)
 
         sps_comp_log.legend(fontsize='xx-small', loc='upper left')
         sps_comp.legend(fontsize='xx-small', loc='upper left')
