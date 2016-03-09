@@ -36,8 +36,8 @@ mpl.rcParams['figure.subplot.top'] = 0.9
 mpl.rcParams['figure.subplot.wspace'] = 0.5
 mpl.rcParams['figure.subplot.hspace'] = 0.5
 
-cmap = np.linspace(0.,1.,4)
-colors = [cm.gist_rainbow(i) for i in cmap]
+cmap = np.linspace(0.,1.,6)
+colors = [cm.gnuplot(i) for i in cmap]
 
 global lnz,nz,tv,t
 lnz,nz,tv,t,kld = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$','\n KLD='
@@ -47,13 +47,13 @@ s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',1.,1.,'k',[(0,(1,0.0001))],'True '
 global s_int,w_int,a_int,c_int,d_int,l_int
 s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,0.5,'k',[(0,(1,0.0001))],'Interim '
 global s_stk,w_stk,a_stk,c_stk,d_stk,l_stk
-s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,colors[0],[(0,(1,0.0001))],'Stacked '#[(0,(2,1))]
+s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,colors[1],[(0,(1,1))],'Stacked '#[(0,(2,1))]
 global s_map,w_map,a_map,c_map,d_map,l_map
-s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,1.,colors[1],[(0,(1,0.0001))],'MMAP '#[(0,(1,1,3,1))]
+s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,1.,colors[2],[(0,(2,4,2,4,6,4))],'MMAP '#[(0,(1,1,3,1))]
 global s_exp,w_exp,a_exp,c_exp,d_exp,l_exp
-s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,1.,colors[2],[(0,(1,0.0001))],'MExp '#[(0,(3,3,1,3))]
+s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,1.,colors[3],[(0,(2,2))],'MExp '#[(0,(3,3,1,3))]
 global s_mml,w_mml,a_mml,c_mml,d_mml,l_mml
-s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,colors[3],[(0,(1,0.0001))],'MMLE '#[(0,(3,2))]
+s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,colors[4],[(0,(1,0.0001))],'MMLE '#[(0,(3,2))]
 global s_smp,w_smp,a_smp,c_smp,d,smp,l_smp
 s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '--',1.,1.,'k',[(0,(1,0.0001))],'Sampled '
 global s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe
@@ -473,7 +473,7 @@ class plotter_samps(plotter):
             logplot.fill(self.x_cors[k],self.y_cors[k],color='k',alpha=0.2,linewidth=0.)
             plot.fill(self.x_cors[k],np.exp(self.y_cors[k]),color='k',alpha=0.2,linewidth=0.)
 
-        self.plotsamp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
+#         self.plotsamp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
 
     def plotsamp(self,logy,y,w=1.,s='--',a=1.,c='k',d=[(0,(1,0.0001))],l=' '):
         sps_samp_log = self.sps_samps[0]
@@ -540,9 +540,9 @@ class plotter_samps(plotter):
             self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,d=d_map,l=l_map)
             self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp)
             self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml)
+            self.plotcomp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
 
         self.ploterr(sps_comp_log,sps_comp)
-        self.plotcomp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
 
         sps_comp_log.legend(fontsize='xx-small', loc='upper left')
         sps_comp.legend(fontsize='xx-small', loc='upper left')
