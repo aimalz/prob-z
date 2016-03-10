@@ -60,11 +60,11 @@ global s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe
 s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe = '--',2.,1.,'k',[(0,(1,0.0001))],'Mean of\n Samples '
 
 #making a step function plotter because pyplot is stupid
-def plotstep(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))],l=None):
-    ploth(subplot,binends,plot,s,c,a,w,d,l)
-    plotv(subplot,binends,plot,s,c,a,w,d)
+def plotstep(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))],l=None,r=False):
+    ploth(subplot,binends,plot,s,c,a,w,d,l,r)
+    plotv(subplot,binends,plot,s,c,a,w,d,r)
 
-def ploth(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))],l=None):
+def ploth(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))],l=None,r=False):
     subplot.hlines(plot,
                    binends[:-1],
                    binends[1:],
@@ -74,8 +74,8 @@ def ploth(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))],l=None):
                    color=c,
                    alpha=a,
                    label=l,
-                   rasterized=True)
-def plotv(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))]):
+                   rasterized=r)
+def plotv(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))],r=False):
     subplot.vlines(binends[1:-1],
                    plot[:-1],
                    plot[1:],
@@ -84,7 +84,7 @@ def plotv(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))]):
                    dashes=d,
                    color=c,
                    alpha=a,
-                   rasterized=True)
+                   rasterized=r)
 
 def footer(subplot):
     subplot.annotate('Malz+2016',(0,0), (175,250), xycoords='axes fraction', textcoords='offset points', va='top')
@@ -381,8 +381,8 @@ class plotter_samps(plotter):
         sps_samp.set_ylabel(r'$N(z)$')
 
         if self.meta.logtruNz is not None:
-            plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru)#+lnz)
-            plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru)#+nz)
+            plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru,r=True)#+lnz)
+            plotstep(sps_samp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru,r=True)#+nz)
 #             sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
 #             sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
         self.plotsamp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,d=d_int,l=l_int)
@@ -424,9 +424,9 @@ class plotter_samps(plotter):
         self.calcbfe()
         self.plotsamp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
         self.ploterr(sps_samp_log,sps_samp)
-        if self.meta.logtruNz is not None:
-            sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
-            sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
+#         if self.meta.logtruNz is not None:
+#             sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
+#             sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
         #sps_samp_log.legend(fontsize='xx-small', loc='upper left')
         sps_samp.legend(fontsize='xx-small', loc='upper left')
         footer(sps_samp_log)
@@ -526,8 +526,8 @@ class plotter_samps(plotter):
 
         if self.meta.logtruNz is not None:
             self.prepstats()
-            plotstep(sps_comp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru)#+lnz)
-            plotstep(sps_comp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru)#+nz)
+            plotstep(sps_comp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru,r=True)#+lnz)
+            plotstep(sps_comp,self.meta.zrange,self.meta.Nz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru,r=True)#+nz)
             sps_comp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
             sps_comp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
 
@@ -577,7 +577,7 @@ class plotter_chains(plotter):
 
         for k in xrange(self.meta.nbins):
             sps_chain = self.sps_chains[k]
-            sps_chain.plot([0],[0],color=c_smp,label=l_smp+r'$\theta_{'+str(k)+r'}$',alpha=a_smp,linewidth=w_smp,linestyle=s_smp,rasterized = True)
+            sps_chain.plot([0],[0],color=c_smp,label=l_smp+r'$\theta_{'+str(k)+r'}$',alpha=a_smp,linewidth=w_smp,linestyle=s_smp)#,rasterized = True)
             sps_chain.set_ylim(-np.log(self.meta.ngals), np.log(self.meta.ngals / self.meta.bindif)+1)
             sps_chain.set_xlabel('iteration number')
             sps_chain.set_ylabel(r'$\ln N_{'+str(k+1)+r'}(z)$')
@@ -616,8 +616,8 @@ class plotter_chains(plotter):
             mean = np.sum(plot_y_c[k])/(self.meta.ntimes*self.meta.nwalkers)
             self.sps_chains[k].plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,#i_run.eachtimenos[r],
                                     [mean]*self.meta.ntimes,
-                                    color = 'k',
-                                    rasterized = True)
+                                    color = 'k')#,
+                                    #rasterized = True)
 
             x_all = plot_y_c[k].flatten()
             x_kde = x_all[:, np.newaxis]
@@ -630,8 +630,8 @@ class plotter_chains(plotter):
                     self.sps_chains[k].plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,#i_run.eachtimenos[r],
                                             plot_y_c[k][w],
                                             color = self.meta.colors[w%self.ncolors],
-                                            alpha = self.a_chain,
-                                            rasterized = True)
+                                            alpha = self.a_chain)#,
+                                            #rasterized = True)
 
             loc,scale = sp.stats.norm.fit_loc_scale(x_all)
             sps_pdf.vlines(loc,0.,1.,color=self.meta.colors[key.r%self.ncolors],linestyle=s_smp,linewidth=w_smp,alpha=a_smp)
