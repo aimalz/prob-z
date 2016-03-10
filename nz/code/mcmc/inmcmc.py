@@ -170,7 +170,7 @@ class setup(object):
                 trudata = [float(pair[k]) for k in range(0,len(pair)) for pair in tuples]
             self.truZs = np.array(trudata)
 
-            bw=0.04
+            bw=self.bindif#0.04
             kde = skl.neighbors.KernelDensity(kernel='gaussian', bandwidth=bw)
             self.trange = self.truZs[:, np.newaxis]
             self.trukde = kde.fit(self.trange)

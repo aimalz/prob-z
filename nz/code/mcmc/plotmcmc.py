@@ -36,7 +36,7 @@ mpl.rcParams['figure.subplot.top'] = 0.9
 mpl.rcParams['figure.subplot.wspace'] = 0.5
 mpl.rcParams['figure.subplot.hspace'] = 0.5
 
-cmap = np.linspace(0.,1.,6)
+cmap = np.linspace(0.,1.,4)
 colors = [cm.Greys(i) for i in cmap]#"gnuplot" works well
 
 global lnz,nz,tv,t
@@ -45,15 +45,15 @@ lnz,nz,tv,t,kld = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$','\n KLD
 global s_tru,w_tru,a_tru,c_tru,d_tru,l_tru
 s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',1.,1.,'k',[(0,(1,0.0001))],'True '
 global s_int,w_int,a_int,c_int,d_int,l_int
-s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,0.5,colors[2],[(0,(1,0.0001))],'Interim '
+s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,1.,colors[1],[(0,(1,0.0001))],'Interim '
 global s_stk,w_stk,a_stk,c_stk,d_stk,l_stk
 s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,'k',[(0,(2,2))],'Stacked '#[(0,(2,1))]
 global s_map,w_map,a_map,c_map,d_map,l_map
-s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,1.,colors[3],[(0,(2,4,2,4,6,4))],'MMAP '#[(0,(1,1,3,1))]
+s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,1.,colors[2],[(0,(1,2,1,2,3,2))],'MMAP '#[(0,(1,1,3,1))]
 global s_exp,w_exp,a_exp,c_exp,d_exp,l_exp
-s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,1.,colors[4],[(0,(2,4,6,4))],'MExp '#[(0,(3,3,1,3))]
+s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,1.,colors[3],[(0,(1,2,3,2))],'MExp '#[(0,(3,3,1,3))]
 global s_mml,w_mml,a_mml,c_mml,d_mml,l_mml
-s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,colors[5],[(0,(1,1))],'MMLE '#[(0,(3,2))]
+s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,'k',[(0,(1,1))],'MMLE '#[(0,(3,2))]
 global s_smp,w_smp,a_smp,c_smp,d,smp,l_smp
 s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '--',1.,1.,'k',[(0,(1,0.0001))],'Sampled '
 global s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe
