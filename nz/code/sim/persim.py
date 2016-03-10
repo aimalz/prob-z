@@ -190,7 +190,7 @@ class pertest(object):
 #             intP = sp.stats.poisson.pmf(xrange(self.nbins),2.0)
 #             intP = sp.stats.poisson(2.0)
             intP = np.array([z*fun.pdf(z) for z in self.binmids])
-            intP = intP-min(intP)+1./5.
+            intP = intP-min(intP)+1./self.ngals/self.bindif
         elif self.meta.interim == 'bimodal':
             mulo = np.percentile(self.binends,25)
             muhi = np.percentile(self.binends,75)
