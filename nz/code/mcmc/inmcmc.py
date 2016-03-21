@@ -159,16 +159,19 @@ class setup(object):
         self.fltNz = np.array([float(self.ngals)/float(self.nbins)/self.bindif]*self.nbins)
         self.logfltNz = np.log(self.fltNz)
 
+        self.truth = None
         self.truZs = None
         self.truNz,self.logtruNz = None,None
         self.truPz,self.logtruPz = None,None
-        self.zrange = np.arange(self.binends[0],self.binends[-1],1./self.ngals)[:, np.newaxis]
+        self.zrange = None#np.arange(self.binends[0],self.binends[-1],1./self.ngals)[:, np.newaxis]
 
         if os.path.exists(os.path.join(self.datadir,'logtrue.csv')):
             with open(os.path.join(self.datadir,'logtrue.csv'),'rb') as csvfile:
                 tuples = (line.split(None) for line in csvfile)
                 trudata = [float(pair[k]) for k in range(0,len(pair)) for pair in tuples]
             self.truZs = np.array(trudata)
+
+            self.zrange = np.arange(self.binends[0],self.binends[-1],1./self.ngals)[:, np.newaxis]
 
             bw=self.bindif#0.04
             kde = skl.neighbors.KernelDensity(kernel='gaussian', bandwidth=bw)
@@ -188,6 +191,19 @@ class setup(object):
             self.logtruNz = np.log(self.truNz)
             self.truPz = self.truNz/np.sum(self.truNz)
             self.logtruPz = np.log(self.truPz)
+
+        if os.path.exists(os.path.join(self.datadir,'truth.p')):
+            with open(os.path.join(self.datadir,'truth.p'), "rb") as cpfile:
+                self.truth = cpkl.load(cpfile)
+
+            self.zrange = np.arange(self.binends[0],self.binends[-1],1./self.ngals)
+
+            self.real = um.gmix(self.truth,(self.binends[0],self.binends[-1]))
+            pranges = self.real.pdfs(self.zrange)
+            self.Pz_range = np.sum(pranges,axis=0)
+            self.lPz_range = um.safelog(self.Pz_range)
+            self.Nz_range = self.ngals*self.Pz_range
+            self.lNz_range = um.safelog(self.Nz_range)
 
         self.samples = os.path.join(self.topdir, 'samples.csv')
 #         with open(self.samples,'wb') as csvfile:

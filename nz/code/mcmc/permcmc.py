@@ -99,7 +99,7 @@ class pertest(object):
         if self.meta.plotonly == 1:
             with open(os.path.join(self.meta.topdir,'iterno.p')) as where:
                 iterno = cpkl.load(where)
-            if r >= iterno/self.meta.factor:
+            if r >= iterno-self.meta.factor:
                 self.savestats()
 
         # store the iteration number, so everyone knows how many iterations have been completed

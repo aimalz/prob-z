@@ -12,6 +12,7 @@ import csv
 import itertools
 import timeit
 import random
+import cPickle as cpkl
 
 from insim import setup
 import utilsim as us
@@ -372,3 +373,5 @@ class pertest(object):
             truZs = [[z] for z in self.truZs]
             for item in truZs:
                 out.writerow(item)
+        with open(os.path.join(self.meta.simdir,'truth.p'),'wb') as cpfile:
+            cpkl.dump(self.meta.real, cpfile)
