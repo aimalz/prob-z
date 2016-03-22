@@ -196,7 +196,7 @@ class setup(object):
             with open(os.path.join(self.datadir,'truth.p'), "rb") as cpfile:
                 self.truth = cpkl.load(cpfile)
 
-            self.zrange = np.arange(self.binends[0],self.binends[-1],1./self.ngals)
+            self.zrange = np.arange(self.binends[0],self.binends[-1],self.nbins**2)
 
             self.real = um.gmix(self.truth,(self.binends[0],self.binends[-1]))
             pranges = self.real.pdfs(self.zrange)
