@@ -43,7 +43,7 @@ global lnz,nz,tv,t
 lnz,nz,tv,t,kld = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$','\n KLD='
 # setting up unified appearance parameters
 global s_tru,w_tru,a_tru,c_tru,d_tru,l_tru
-s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',0.6,1.,'k',[(0,(1,0.0001))],'True '
+s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',0.5,1.,'k',[(0,(1,0.0001))],'True '
 global s_int,w_int,a_int,c_int,d_int,l_int
 s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,1.,colors[1],[(0,(1,0.0001))],'Interim '
 global s_stk,w_stk,a_stk,c_stk,d_stk,l_stk
