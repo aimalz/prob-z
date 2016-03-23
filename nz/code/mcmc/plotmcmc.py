@@ -25,9 +25,9 @@ import statmcmc as sm
 
 # set up for better looking plots
 title = 15
-label = 15
+label = 10
 mpl.rcParams['text.usetex'] = True
-mpl.rcParams['axes.titlesize'] = title
+#mpl.rcParams['axes.titlesize'] = title
 mpl.rcParams['axes.labelsize'] = label
 mpl.rcParams['figure.subplot.left'] = 0.2
 mpl.rcParams['figure.subplot.right'] = 0.9
@@ -45,15 +45,15 @@ lnz,nz,tv,t,kld = r'$\ln[N(z)]$',r'$N(z)$',r'$\vec{\theta}$',r'$\theta$','\n KLD
 global s_tru,w_tru,a_tru,c_tru,d_tru,l_tru
 s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',0.5,1.,'k',[(0,(1,0.0001))],'True '
 global s_int,w_int,a_int,c_int,d_int,l_int
-s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,1.,colors[1],[(0,(1,0.0001))],'Interim '
+s_int,w_int,a_int,c_int,d_int,l_int = '--',0.5,0.5,'k',[(0,(1,0.0001))],'Interim '
 global s_stk,w_stk,a_stk,c_stk,d_stk,l_stk
-s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,'k',[(0,(3,3))],'Stacked '#[(0,(2,1))]
+s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.5,1.,'k',[(0,(3,2))],'Stacked '#[(0,(2,1))]
 global s_map,w_map,a_map,c_map,d_map,l_map
-s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,1.,colors[2],[(0,(1,2,1,2,3,2))],'MMAP '#[(0,(1,1,3,1))]
+s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,1.,'k',[(0,(3,2))],'MMAP '#[(0,(1,1,3,1))]
 global s_exp,w_exp,a_exp,c_exp,d_exp,l_exp
-s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,1.,colors[3],[(0,(1,2,3,2))],'MExp '#[(0,(3,3,1,3))]
+s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,1.,'k',[(0,(1,1))],'MExp '#[(0,(3,3,1,3))]
 global s_mml,w_mml,a_mml,c_mml,d_mml,l_mml
-s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,'k',[(0,(1,1))],'MMLE '#[(0,(3,2))]
+s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',2.,1.,'k',[(0,(1,1))],'MMLE '#[(0,(3,2))]
 global s_smp,w_smp,a_smp,c_smp,d,smp,l_smp
 s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '--',1.,1.,'k',[(0,(1,0.0001))],'Sampled '
 global s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe
@@ -207,8 +207,8 @@ class plotter_times(plotter):
 #             self.sps_times.set_title('Autocorrelation Times for ' + str(self.meta.nbins) + ' bins')
 #         if self.meta.mode == 'walkers':
 #             self.sps_times.set_title('Autocorrelation Times for ' + str(self.meta.nwalkers) + ' walkers')
-        self.sps_times.set_ylabel('autocorrelation time')
-        self.sps_times.set_xlabel('number of iterations')
+        self.sps_times.set_ylabel(r'autocorrelation time')
+        self.sps_times.set_xlabel(r'iteration number')
         self.sps_times.set_ylim(0, 100)
 
 #         self.f_fracs = plt.figure(figsize=(5,5))
@@ -239,8 +239,7 @@ class plotter_times(plotter):
                                c='k',
                                alpha=self.a_times,
                                linewidth=0.1,
-                               s=self.meta.nbins,
-                               rasterized=True)
+                               s=self.meta.nbins)
 
         self.f_times.savefig(os.path.join(self.meta.topdir,'times.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
 
@@ -281,17 +280,16 @@ class plotter_probs(plotter):
         self.a_probs = 1.#/self.meta.factor#self.meta.nwalkers
         self.f = plt.figure(figsize=(5,5))
         self.sps = self.f.add_subplot(1,1,1)
-        self.f_probs.subplots_adjust(hspace=0, wspace=0)
-        self.sps.set_ylabel('log probability of walker')
-        self.sps.set_xlabel('iteration number')
-        self.medy = []
+        self.f.subplots_adjust(hspace=0, wspace=0)
+        self.sps.set_ylabel(r'log probability of walker')
+        self.sps.set_xlabel(r'iteration number')
+        self.maxy = -1*self.meta.ngals
 
     def plot(self,key):
 
         data = key.load_state(self.meta.topdir)['probs']
         plot_y = np.swapaxes(data,0,1)#ntimes*nwalkers#.T#nwalkers*ntimes
-#         if key.r != 0:
-#         self.medy.append(np.median([np.median(plot_y[w]) for w in xrange(self.meta.nwalkers)]))
+        self.maxy = max(np.max(plot_y),self.maxy)
 
         locs,scales = [],[]
         for x in xrange(self.meta.ntimes):
@@ -300,13 +298,13 @@ class plotter_probs(plotter):
             scales.append(scale)
         locs = np.array(locs)
         scales = np.array(scales)
-        x_all = np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto
-        self.sps.plot(x_all,locs,color='k',rasterized=True)
+        x_all = np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes+1)*self.meta.thinto
+        plotstep(self.sps,x_all,locs)
 #         self.sps.vlines(xrange(self.meta.ntimes+1),(locs-scales),(locs+scales),color='k',alpha=0.5,linewidth=2.,rasterized=True)
 #         self.sps.fill_between(x_all,locs-scales,locs+scales,color='k',alpha=0.1,linewidth=0.)
-        x_cor = [x_all[:-1],x_all[:-1],x_all[1:],x_all[1:]]
+        x_cor = [x_all[:-1],x_all[:-1],x_all[1:],x_all[1:]]#[x_all[:-1],x_all[:-1],x_all[1:],x_all[1:]]
         y_cor = np.array([locs-scales,locs+scales,locs+scales,locs-scales])
-        self.sps.fill(x_cor,y_cor,color='k',alpha=0.1,linewidth=0.)
+        self.sps.fill(x_cor,y_cor,color='k',alpha=0.25,linewidth=0.)
 #         randwalks = random.sample(xrange(self.meta.nwalkers),1)#xrange(self.meta.nwalkers)
 #         for w in randwalks:
 #             self.sps.plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,
@@ -324,23 +322,23 @@ class plotter_probs(plotter):
         with open(os.path.join(self.meta.topdir,'stat_probs.p'),'rb') as statprobs:
             probs = cpkl.load(statprobs)
 
-#         yrange = self.medy#np.array(self.medy+[probs['lp_tru'],probs['lp_stkNz'],probs['lp_mapNz'],probs['lp_expNz']])
+#         yrange = #self.medy#np.array(self.medy+[probs['lp_tru'],probs['lp_stkNz'],probs['lp_mapNz'],probs['lp_expNz']])
 #         miny = np.min(yrange)-np.log(self.meta.ngals)
 #         maxy = np.max(yrange)+np.log(self.meta.ngals)
 
-        if self.meta.logtruNz is not None:
-            self.plotone(probs['lp_tru'],w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru+tv)
-            self.plotone(probs['lp_stk'],w=w_stk,s=s_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk+tv)
+#         if self.meta.logtruNz is not None:
+#             self.plotone(probs['lp_tru'],w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru+tv)
+#             self.plotone(probs['lp_stk'],w=w_stk,s=s_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk+tv)
 #             self.plotone(probs['lp_map'],w=w_map,s=s_map,a=a_map,c=c_map,d=d_map,l=l_map+tv)
 #             self.plotone(probs['lp_exp'],w=w_exp,s=s_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+tv)
-            self.plotone(probs['lp_mml'],w=w_mml,s=s_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+tv)#r'MMLE $\vec{\theta}$',w=2.,s=':')
-#             self.plotone(probs['lp_int'],w=w_int,s=s_int,a=a_int,c=c_int,d=d_intl=l_int+tv
+#             self.plotone(probs['lp_mml'],w=w_mml,s=s_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+tv)#r'MMLE $\vec{\theta}$',w=2.,s=':')
+#             self.plotone(probs['lp_int'],w=w_int,s=s_int,a=a_int,c=c_int,d=d_int,l=l_int+tv)
 
-        self.sps.legend(fontsize='xx-small', loc='upper right')
+#         self.sps.legend(fontsize='xx-small', loc='lower right')
         self.sps.set_xlim(-1*self.meta.miniters,(self.last_key.r+2)*self.meta.miniters)
-#         self.sps.set_ylim(miny,maxy)
+        self.sps.set_ylim(-1*self.meta.ngals,self.maxy)
         self.f.savefig(os.path.join(self.meta.topdir,'probs.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
-
+        self.f.savefig(os.path.join(self.meta.topdir,'probs.pdf'),bbox_inches='tight', pad_inches = 0)
 #         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
 #             both = cpkl.load(statboth)
 
@@ -356,8 +354,8 @@ class plotter_samps(plotter):
         self.meta = meta
 #         self.ncolors = len(self.meta.colors)
         self.ncolors = self.meta.factor
-        cmap = np.linspace(0.,1.,self.ncolors)
-        self.meta.colors = [cm.jet(i) for i in cmap]
+        cmap = np.linspace(0.,1.,self.meta.factor)
+        self.meta.colors = [cm.gist_rainbow(i) for i in cmap]
 
         self.a_samp = 1.#/self.meta.ntimes#self.ncolors/self.meta.nwalkers
         self.f_samps = plt.figure(figsize=(5, 10))
@@ -394,7 +392,7 @@ class plotter_samps(plotter):
 
         if (self.meta.plotonly == 0 and key.burnin == False) or (self.meta.plotonly == 1 and key.r >= iterno-self.meta.factor):
 
-            print('about to plot a sample')
+#             print('about to plot a sample')
             data = key.load_state(self.meta.topdir)['chains']
 
             plot_y_ls = np.swapaxes(data,0,1)
@@ -411,7 +409,7 @@ class plotter_samps(plotter):
                     plotstep(sps_samp,self.meta.binends,np.exp(plot_y_ls[x][w]),s=s_smp,d=d_smp,w=w_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
 #                 self.plotone(plot_y_ls[x][w],plot_y_s[x][w],w=w_smp,s=s_smp,a=self.a_samp,c=self.meta.colors[key.r%self.ncolors])
 
-            print('plotted a sample')
+#             print('plotted a sample')
             self.f_samps.savefig(os.path.join(self.meta.topdir,'samps.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
 
         timesaver(self.meta,'samps',key)
