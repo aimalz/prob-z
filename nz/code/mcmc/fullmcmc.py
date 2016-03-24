@@ -55,8 +55,7 @@ all_plotters = [#plots.plotter_chains,
                 plots.plotter_probs,
                 plots.plotter_times]
 
-testdir = os.path.join('..','tests')
-#topdir = open(os.path.join(testdir,'topdirs.p'),'rb')
+testdir = os.path.join('..','tests)#yes, I hardcoded this
 
 def main():
 
@@ -68,7 +67,7 @@ def main():
             runs[name[:-4]] = meta
 
     # make initial plots
-#     distribute.run_offthread_sync(plots.initial_plots(runs))
+    distribute.run_offthread_sync(plots.initial_plots(runs))
     #runs = {'runs':tests}
     global init_runs
     init_runs = runs

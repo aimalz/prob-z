@@ -195,8 +195,8 @@ class pertest(object):
         elif self.meta.interim == 'bimodal':
             mulo = np.percentile(self.binends,25)
             muhi = np.percentile(self.binends,75)
-            funlo = us.tnorm(mulo,self.bindif,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,75),np.sqrt(np.mean(self.binends)))
-            funhi = us.tnorm(muhi,self.bindif,(min(self.binends),max(self.binends)))
+            funlo = us.tnorm(mulo,(max(self.binends)-min(self.binends))/5.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,75),np.sqrt(np.mean(self.binends)))
+            funhi = us.tnorm(muhi,(max(self.binends)-min(self.binends))/2.,(min(self.binends),max(self.binends)))
 #             x = self.nbins
 #             intP = sp.stats.pareto.pdf(np.arange(1.,2.,1./x),x)+sp.stats.pareto.pdf(np.arange(1.,2.,1./x)[::-1],x)
 #             intP = sp.stats.pareto(self.nbins)

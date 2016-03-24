@@ -137,18 +137,12 @@ class setup(object):
         # number of walkers
         self.nwalkers = 2*self.nbins
 
-        # read in and normalize PDFS
+        # read in and normalize PDFS in case they're not normalized yet
         self.logpdfs = np.array(alldata[2:])
         self.pdfs = np.exp(self.logpdfs)
         sums = np.sum(self.pdfs*self.bindifs,axis=1)
         self.pdfs = np.divide(self.pdfs,sums[:, np.newaxis])
         self.logpdfs = um.safelog(self.pdfs)
-
-#         sums = self.logpdfs.sum(axis=0)
-#         for gal in self.logpdfs:
-#             gal = gal/self.bindifs
-#             gal = gal/sum(gal*self.bindifs)
-#             assert sum(gal*self.bindifs)==1.
 
         self.ngals = len(self.logpdfs)
 
@@ -163,40 +157,42 @@ class setup(object):
         self.truZs = None
         self.truNz,self.logtruNz = None,None
         self.truPz,self.logtruPz = None,None
-        self.zrange = None#np.arange(self.binends[0],self.binends[-1],1./self.ngals)[:, np.newaxis]
+        self.zrange = None
 
-        if os.path.exists(os.path.join(self.datadir,'logtrue.csv')):
-            with open(os.path.join(self.datadir,'logtrue.csv'),'rb') as csvfile:
-                tuples = (line.split(None) for line in csvfile)
-                trudata = [float(pair[k]) for k in range(0,len(pair)) for pair in tuples]
-            self.truZs = np.array(trudata)
+#         # reconstruct true N(z) from known true redshifts by way of KDE
+#         if os.path.exists(os.path.join(self.datadir,'logtrue.csv')):
+#             with open(os.path.join(self.datadir,'logtrue.csv'),'rb') as csvfile:
+#                 tuples = (line.split(None) for line in csvfile)
+#                 trudata = [float(pair[k]) for k in range(0,len(pair)) for pair in tuples]
+#             self.truZs = np.array(trudata)
 
-            self.zrange = np.arange(self.binends[0],self.binends[-1],1./self.ngals)[:, np.newaxis]
+#             self.zrange = np.arange(self.binends[0],self.binends[-1],0.001)[:, np.newaxis]
 
-            bw=self.bindif#0.04
-            kde = skl.neighbors.KernelDensity(kernel='gaussian', bandwidth=bw)
-            self.trange = self.truZs[:, np.newaxis]
-            self.trukde = kde.fit(self.trange)
-            self.lPz_range = self.trukde.score_samples(self.zrange)
-            self.Pz_range = np.exp(self.lPz_range)
-            self.Nz_range = self.ngals*self.Pz_range
-            self.lNz_range = um.safelog(self.Nz_range)
+#             bw=self.bindif#0.04
+#             kde = skl.neighbors.KernelDensity(kernel='gaussian', bandwidth=bw)
+#             self.trange = self.truZs[:, np.newaxis]
+#             self.trukde = kde.fit(self.trange)
+#             self.lPz_range = self.trukde.score_samples(self.zrange)
+#             self.Pz_range = np.exp(self.lPz_range)
+#             self.Nz_range = self.ngals*self.Pz_range
+#             self.lNz_range = um.safelog(self.Nz_range)
 
-            truNz = [sys.float_info.epsilon]*self.nbins
-            for z in self.truZs:
-                for k in xrange(self.nbins):
-                    if z > self.binlos[k] and z < self.binhis[k]:
-                        truNz[k] += 1./self.bindifs[k]
-            self.truNz = np.array(truNz)
-            self.logtruNz = np.log(self.truNz)
-            self.truPz = self.truNz/np.sum(self.truNz)
-            self.logtruPz = np.log(self.truPz)
+#             truNz = [sys.float_info.epsilon]*self.nbins
+#             for z in self.truZs:
+#                 for k in xrange(self.nbins):
+#                     if z > self.binlos[k] and z < self.binhis[k]:
+#                         truNz[k] += 1./self.bindifs[k]
+#             self.truNz = np.array(truNz)
+#             self.logtruNz = np.log(self.truNz)
+#             self.truPz = self.truNz/np.sum(self.truNz)
+#             self.logtruPz = np.log(self.truPz)
 
+        # take truth directly from mathematical distribution from which it was drawn
         if os.path.exists(os.path.join(self.datadir,'truth.p')):
             with open(os.path.join(self.datadir,'truth.p'), "rb") as cpfile:
                 self.truth = cpkl.load(cpfile)
 
-            self.zrange = np.arange(self.binends[0],self.binends[-1],1./self.nbins**2)
+            self.zrange = np.arange(self.binends[0],self.binends[-1],0.001)
 
             self.real = um.gmix(self.truth,(self.binends[0],self.binends[-1]))
             pranges = self.real.pdfs(self.zrange)
@@ -214,15 +210,11 @@ class setup(object):
 
     def make_prior(self,indict):
 
-#         self.cands = [self.logintNz,self.logstkNz,self.logmapNz]#,self.logexpNz])
-#         self.liks = [self.lik_intNz,self.lik_stkNz,self.lik_mapNz]#,self.lik_expNz])
-        self.start = self.logintNz#self.cands[np.argmax(np.array(self.liks))]
+        self.start = self.logintNz
         self.lik_mmlNz,self.logmmlNz = self.makemml()
         self.mmlNz = np.exp(self.logmmlNz)
 
-        self.q = None
-        self.e = None
-        self.t = None
+        self.q, self.e, self.t = None, None, None
 
         if 'random' in indict:
             self.random = bool(int(indict['random'][0]))
@@ -236,10 +228,10 @@ class setup(object):
             covmat = indict['priorcov']
             self.covmat = np.reshape(np.array([float(covmat[i]) for i in range(0,self.nbins**2)]),(self.nbins,self.nbins))
         else:
-            self.mean = self.logintNz#self.logmmlNz#self.logstkNz#self.logfltNz
+            self.mean = self.logintNz
 #             if self.random == 1:
-            self.q = 1.0#self.bindif
-            self.e = 100.#1./self.bindif**2
+            self.q = 1.0
+            self.e = 100.
             self.t = self.q*1e-5
             self.covmat = np.array([[self.q*np.exp(-0.5*self.e*(self.binmids[a]-self.binmids[b])**2.) for a in xrange(0,self.nbins)] for b in xrange(0,self.nbins)])+self.t*np.identity(self.nbins)
 #             else:
@@ -252,8 +244,8 @@ class setup(object):
 
         # sampler specification
         self.nps = mp.cpu_count()
-#         print 'lnprob_ext: ' + str(self.postdist.lnprob_ext)
         self.sampler = emcee.EnsembleSampler(self.nwalkers, self.nbins, self.postdist.lnprob_ext, args=[self.postdist])#, threads=self.nps, pool=self.pool)
+
         #generate initial values for walkers
         if self.inits == 'ps':
             self.ivals,self.mean = self.priordist.sample_ps(self.nwalkers)

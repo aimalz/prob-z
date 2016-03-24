@@ -213,11 +213,11 @@ class stat_chains(calcstats):
             my = np.array([[[k]*self.meta.ntimes for k in self.meta.logtruNz]]*self.meta.nwalkers)#nwalkers*nbins*ntimes
             mey = np.array([[[k]*self.meta.ntimes for k in self.meta.truNz]]*self.meta.nwalkers)#nwalkers*nbins*ntimes
 
-            for w in xrange(self.meta.nwalkers):
+        for w in xrange(self.meta.nwalkers):
 
-                with open(os.path.join(self.meta.topdir,'samples.csv'),'ab') as csvfile:
-                    out = csv.writer(csvfile,delimiter=' ')
-                    out.writerows(self.ydata[w])#[[x for x in row] for row in self.ydata])
+            with open(os.path.join(self.meta.topdir,'samples.csv'),'ab') as csvfile:
+                out = csv.writer(csvfile,delimiter=' ')
+                out.writerows(self.ydata[w])#[[x for x in row] for row in self.ydata])
 
 #                 for x in xrange(self.meta.ntimes):
 #                     #ulog = np.exp(self.chains[w][x])
