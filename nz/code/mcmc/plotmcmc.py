@@ -208,7 +208,7 @@ class plotter_times(plotter):
 #         if self.meta.mode == 'walkers':
 #             self.sps_times.set_title('Autocorrelation Times for ' + str(self.meta.nwalkers) + ' walkers')
         self.sps_times.set_ylabel(r'autocorrelation time')
-        self.sps_times.set_xlabel(r'iteration number')
+        self.sps_times.set_xlabel(r'accepted sample number')
         self.sps_times.set_ylim(0, 100)
 
 #         self.f_fracs = plt.figure(figsize=(5,5))
@@ -240,7 +240,7 @@ class plotter_times(plotter):
                                c='k',
                                alpha=self.a_times,
                                linewidth=0.1,
-                               s=5.)
+                               s=2)
 
         self.f_times.savefig(os.path.join(self.meta.topdir,'times.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
 
@@ -283,7 +283,7 @@ class plotter_probs(plotter):
         self.sps = self.f.add_subplot(1,1,1)
         self.f.subplots_adjust(hspace=0, wspace=0)
         self.sps.set_ylabel(r'log probability of walker')
-        self.sps.set_xlabel(r'iteration number')
+        self.sps.set_xlabel(r'accepted sample number')
         self.maxy = -1*self.meta.ngals
 
     def plot(self,key):
