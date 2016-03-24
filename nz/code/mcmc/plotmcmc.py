@@ -93,7 +93,7 @@ def footer(subplot):
 def timesaver(meta,name,key):
     with open(meta.plottime,'a') as plottimer:
         process = psutil.Process(os.getpid())
-        plottimer.write(name+' '+str(timeit.default_timer())+' '+str(key)+'\n')#' mem:'+str(process.get_memory_info())+'\n')
+        plottimer.write(name+' '+str(timeit.default_timer())+' '+str(key)+'\n')
     return
 
 # make all plots not needing MCMC
@@ -234,16 +234,17 @@ class plotter_times(plotter):
             plot_x_times = [(key.r+1)*self.meta.miniters]*self.meta.nbins
         if self.meta.mode == 'walkers':
             plot_x_times = [(key.r+1)*self.meta.miniters]*self.meta.nwalkers
+
         self.sps_times.scatter(plot_x_times,
                                plot_y_times,
                                c='k',
                                alpha=self.a_times,
                                linewidth=0.1,
-                               s=self.meta.nbins)
+                               s=5.)
 
         self.f_times.savefig(os.path.join(self.meta.topdir,'times.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
 
-        timesaver(self.meta,'times-done',key)
+        timesaver(self.meta,'times',key)
 
 #         frac_data = key.load_state(self.meta.topdir)['fracs']
 #         plot_y_fracs = frac_data.T
@@ -304,7 +305,10 @@ class plotter_probs(plotter):
 #         self.sps.fill_between(x_all,locs-scales,locs+scales,color='k',alpha=0.1,linewidth=0.)
         x_cor = [x_all[:-1],x_all[:-1],x_all[1:],x_all[1:]]#[x_all[:-1],x_all[:-1],x_all[1:],x_all[1:]]
         y_cor = np.array([locs-scales,locs+scales,locs+scales,locs-scales])
+        y_cor2 = np.array([locs-2.*scales,locs+2.*scales,locs+2.*scales,locs-2.*scales])
         self.sps.fill(x_cor,y_cor,color='k',alpha=0.25,linewidth=0.)
+        self.sps.fill(x_cor,y_cor2,color='k',alpha=0.25,linewidth=0.)
+
 #         randwalks = random.sample(xrange(self.meta.nwalkers),1)#xrange(self.meta.nwalkers)
 #         for w in randwalks:
 #             self.sps.plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,
@@ -469,6 +473,8 @@ class plotter_samps(plotter):
         self.x_cors = np.array(x_cors)
         self.y_cors = np.array(y_cors)
         self.y_cors2 = np.array(y_cors2)
+
+        return
 
     def ploterr(self,logplot,plot):
 

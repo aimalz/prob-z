@@ -55,7 +55,7 @@ all_plotters = [#plots.plotter_chains,
                 plots.plotter_probs,
                 plots.plotter_times]
 
-testdir = os.path.join('..','tests)#yes, I hardcoded this
+testdir = os.path.join('..','tests')#yes, I hardcoded this
 
 def main():
 
