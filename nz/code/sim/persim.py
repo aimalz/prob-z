@@ -196,12 +196,12 @@ class pertest(object):
             mulo = np.percentile(self.binends,25)
             muhi = np.percentile(self.binends,75)
             funlo = us.tnorm(mulo,(max(self.binends)-min(self.binends))/5.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,75),np.sqrt(np.mean(self.binends)))
-            funhi = us.tnorm(muhi,(max(self.binends)-min(self.binends))/2.,(min(self.binends),max(self.binends)))
+            funhi = us.tnorm(muhi,(max(self.binends)-min(self.binends))/5.,(min(self.binends),max(self.binends)))
 #             x = self.nbins
 #             intP = sp.stats.pareto.pdf(np.arange(1.,2.,1./x),x)+sp.stats.pareto.pdf(np.arange(1.,2.,1./x)[::-1],x)
 #             intP = sp.stats.pareto(self.nbins)
-            pdf = np.array([2.*funlo.pdf(z)+funhi.pdf(z) for z in self.binmids])
-            intP = self.fltPz+pdf#(1.+self.binmids*(max(pdf)-pdf))**2
+            intP = np.array([1.25*funlo.pdf(z)+funhi.pdf(z) for z in self.binmids])
+            intP = intP-min(intP)+1./self.ngals/self.bindif#(1.+self.binmids*(max(pdf)-pdf))**2
 #         elif self.meta.interim == 'multimodal':
 #             intP = self.real.binned(self.binends)
 # #             intP = self.real
