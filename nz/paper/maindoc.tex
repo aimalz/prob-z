@@ -153,6 +153,9 @@ paper will not develop a method for fully integrating photo-z probability
 distributions into calculations of two-point statistics of redshift, though 
 some work has already been dedicated to that cause.  \citep{Myers2009}
 
+\textbf{Is this sufficiently complete?  Am I missing some really important 
+references?  I am worried this introduction isn't long enough.}
+
 Sec. \ref{sec:meth} will derive the framework for exploring the full posterior 
 of distribution for $N(z)$ using photo-z probability distribution functions.  
 Sec. \ref{sec:exp} will describe how the model given in Sec. \ref{sec:meth} is 
@@ -162,6 +165,9 @@ fully probabilistic approach to mock and real datasets.
 \clearpage
 \section{Method}
 \label{sec:meth}
+
+\textbf{I'm quite confident in this section as a whole.  Let me know where that 
+confidence is inappropriate.}
 
 It is best to begin with a general description of the problem at hand.  Let us 
 consider a survey of $J$ galaxies $j$, each with photometric data 
@@ -449,6 +455,10 @@ n[f_{\vec{\theta}^{0}}(z)]\right]\ dz\right]
 \section{Implementation}
 \label{sec:exp}
 
+\textbf{I'm fairly confident in this section as a whole.  I think it could be 
+condensed further but don't know what information is considered essential and 
+what's okay to leave out.}
+
 We ran several tests of this approach to demonstrate its usage and validity 
 using a procedure outlined in this section.  In Sec. \ref{sec:alldata} we 
 describe the method by which interim photo-z posteriors 
@@ -483,7 +493,11 @@ survey size of $J'$.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/null/physPz.png}
-\caption{}
+\caption{The physically-motivated true redshift distribution (black line) used 
+in the mock data tests is a sum of Gaussians chosen to have recognizable 
+features of different scales so the quality of recovery can be easily 
+determined.  The colored curves represent individual Gaussian components each 
+with a mean, standard deviation, and relative magnitude.}
 \label{fig:physpz}
 \end{figure}
 
@@ -543,8 +557,10 @@ p(\vec{d}_{j}|z_{j})\ \exp[\vec{\theta}^{0}]\ dz_{j}}
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/null/samplepzs.pdf}
 \caption{Several examples of individual photo-z posteriors are shown in colors. 
- The solid lines indicate the true redshift and the dotted lines indicate the 
-shifted redshift used as the center of the Gaussian distribution.}
+ The simplest case outlined here has likelihoods comprised of a single, 
+relatively narrow, Gaussian distribution with a known standard deviation 
+centered at a shifted redshift (dotted lines) separated from the true redshift 
+(dashed lines) by a Gaussian random variable with the same standard deviation.}
 \label{fig:nullpzs}
 \end{figure}
 
@@ -559,8 +575,10 @@ dimension $K=35$ for $z_{min}=0.3$ and $z_{max}=1.4$ is shown in Fig.
 posteriors is the reweighted estimator of $N(z)$ of \citet{Sheldon2012}.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{figs/data/samplepzs.png}
-\caption{}
+\includegraphics[width=0.5\textwidth]{figs/boss/samplepzs.png}
+\caption{Pictured here are examples of actual photo-z posteriors produced by 
+\citet{Sheldon2012}.  It can be seen that the real data is much more structured 
+than the simulated data of Fig. \ref{fig:nullpzs}.}
 \label{fig:datapzs}
 \end{figure}
 
@@ -657,24 +675,47 @@ study, the autocorrelation time and the posterior probability evolution.
 
 The autocorrelation time is effectively a measure of the convergence rate of 
 the method and can be described as the expected number of iterations necessary 
-to accept a new sample independent of the current sample.  A sampler that 
-converges faster will have a smaller autocorrelation time, and smaller 
+to accept a new sample independent of the current accepted sample.  A sampler 
+that converges faster will have a smaller autocorrelation time, and smaller 
 autocorrelation times are preferable because it means fewer iterations are 
 wasted on non-independent samples when independent samples are desired.  See 
 \citet{Foreman-Mackey2013} for a more complete exploration of the 
-autocorrelation time.
+autocorrelation time.  Fig. \ref{fig:acorr} shows the behavior of the 
+autocorrelation time for a test case representative of all mock data tests.
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/null/times.pdf}
+\caption{The autocorrelation times shown here for the null case are 
+representative of all tests on mock data.  Given an accepted sample, the next 
+independent accepted sample is approximately twenty accepted samples later.  
+The autocorrelation times are plotted here as individual points with one per 
+walker.}
+\label{fig:acorr}
+\end{figure}
 
 We examine the evolution of the posterior probability of accepted samples after 
 each successive sub-run to evaluate the duration of the burn-in phase.  Though 
 the probability associated with the initial values will likely be quite low, it 
 should improve for subsequent accepted parameter values.  As with the 
 autocorrelation time, the posterior probability of samples will asymptotically 
-approach some more favorable value with more iterations.  The burn-in phase may 
-be defined as the number of iterations necessary before the variance of the log 
-probabilities is less than the change in median log probability over the 
-sub-run.  Samples accepted during the burn-in phase are discounted from 
-analysis, and an arbitrary six additional sub-runs are executed before the 
-sampler terminates.  
+approach some more favorable value with more iterations.  This behavior is 
+shown in Fig. \ref{fig:probs}.  The burn-in phase may be defined as the number 
+of iterations necessary before the variance of the log probabilities is less 
+than the change in median log probability over the sub-run.  Samples accepted 
+during the burn-in phase are discounted from analysis, and an arbitrary ten 
+additional sub-runs are executed before the sampler terminates.  
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/null/probs.pdf}
+\caption{The log-posterior probability evolution of the samples is shown here.  
+One can see that the mean (black line) of the log-posterior probability over 
+all walkers at a given time step quickly converges as the one and two-sigma 
+error regions (dark and light gray regions, respectively) decrease.}
+\label{fig:probs}
+\end{figure}
+
+\textbf{Is this sufficient discussion of measures of convergence?  Should I 
+discuss others, even though these are the only ones I actually used?}
 
 \clearpage
 \subsection{Diagnostics}
@@ -703,7 +744,7 @@ KL_{ab} &=& \sum_{k=1}^{K}\ \exp[\theta_{k}^{a}]\
 \ln\left[\frac{\theta_{k}^{a}}{\theta_{k}^{b}}\right]\ \Delta_{k}
 \end{eqnarray}
 
-The mean squared error of samples may also be calculated.  If there is a 
+%The mean squared error of samples may also be calculated.  If there is a 
 strongly peaked distribution of values for a parameter, it ought to peak close 
 to the true value (and is in fact guaranteed to asymptotically approach the 
 marginalized maximum likelihood value) if we are to conclude that the sampler 
@@ -714,14 +755,38 @@ uncertainty in inferring the hyperparameters.
 \section{Validation Tests}
 \label{sec:valid}
 
+\textbf{This is the section that's weakest, and, I am aware, also the most 
+important.  I could use some concrete recommendations of how to change it to be 
+publishable.}
+
 Here we motivate and present the results of several informative tests.  The 
 code was tested on simulated datasets each of size $J'=10,000$.  The fiducial 
 experiment of Sec. \ref{sec:null} was generated by code following the procedure 
 given in Sec. \ref{sec:mock}.  Seven other cases vary the shapes of the photo-z 
 likelihoods (Secs. \ref{sec:noisy} and \ref{sec:unc}), the true redshift 
 distribution function (Sec. \ref{sec:fake}), and the interim prior (Sec. 
-\ref{sec:interim}).  Two additional cases with real data described in Sec. 
-\ref{sec:data} are also considered.
+\ref{sec:interim}).  Two additional cases with SDSS-III BOSS data described in 
+Sec. \ref{sec:data} are also considered.  A summary of all KLD values is given 
+in Tab. \ref{tab:kld}, with the best fit estimator in bold.
+
+\begin{table}
+\begin{tabular}{lccccc}
+& Mean of & Marginalized & Stacking & Marginalized & Marginalized\\
+& Samples & MLE & & MAP & Expected Value\\
+Fiducial &&&&&\\
+Doubly Imprecise Likelihoods &&&&&\\
+Quadruply Imprecise Likelihoods &&&&&\\
+Inaccurate Likelihoods &&&&&\\
+Multimodal Likelihoods &&&&&\\
+Toy Model True $N(z)$ &&&&&\\
+Low-$z$ Favoring Interim Prior &&&&&\\
+Mid-$z$ Disfavoring Interim Prior &&&&&\\
+BOSS Data &&&&&\\
+Biased BOSS Data &&&&&\\
+\end{tabular}
+\caption{}
+\label{tab:kld}
+\end{table}
 
 \clearpage
 \subsection{Fiducial Case}
@@ -729,10 +794,9 @@ distribution function (Sec. \ref{sec:fake}), and the interim prior (Sec.
 
 For the fiducial experiment, we precisely follow the procedures outlined in 
 Sec. \ref{sec:mock} and Sec. \ref{sec:mcmc}.  Fig. \ref{fig:null-samp} shows 
-some random sample values and the true value of $N(z)$ and the estimators 
-derived from stacking and marginalized likelihood maximization.  Fig. 
-\ref{fig:null-comp} compares the mean of the sample values to alternative 
-estimators as well as the truth.
+some random sample values, the true value of $N(z)$.  Fig. \ref{fig:null-comp} 
+compares the mean of the sample values to alternative estimators as well as the 
+truth.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/null/samps.pdf}
@@ -774,48 +838,49 @@ Here we vary the fiducial case with noisier data to demonstrate that the
 results of the sampler and of stacking diverge for broader photo-z likelihoods. 
  In these cases, $\sigma_{j}$ is drawn from a normal distribution as described 
 in Sec. \ref{sec:mock} but with the factor $f=2$ in one case and $f=4$ in 
-another.  The corresponding sample interim photo-z posteriors to those of Fig. 
-\ref{fig:nullpzs} are given in Figs. \ref{fig:sig2pzs} and \ref{fig:sig4pzs}.  
+another.  \textbf{Should I even mention the $f=2$ case?  It's not nearly as 
+dramatic.}  In both cases, the corresponding sample interim photo-z posteriors 
+to those of Fig. \ref{fig:nullpzs} are broader, with central redshifts farther 
+from the true redshift on average.  \textbf{I cut the figure since I think this 
+sentence suffices.}
 
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/sig2/samplepzs.pdf}
-\caption{The interim photo-z posteriors (colored lines) here have the same true 
-redshifts (dotted lines) and means of the distribution (dotted lines) as those 
-of Fig. \ref{fig:nullpzs} but have two times the standard deviation.}
-\label{fig:sig2pzs}
-\end{figure}
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{figs/sig2/samplepzs.pdf}
+%\caption{The interim photo-z posteriors (colored lines) here have the same 
+true redshifts (dotted lines) and means of the distribution (dotted lines) as 
+those of Fig. \ref{fig:nullpzs} but have two times the standard deviation.}
+%\label{fig:sig2pzs}
+%\end{figure}
+%
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{figs/sig4/samplepzs.pdf}
+%\caption{The interim photo-z posteriors (colored lines) here have the same 
+true redshifts (dotted lines) and means of the distribution (dotted lines) as 
+those of Fig. \ref{fig:nullpzs} but have four times the standard deviation.}
+%\label{fig:sig4pzs}
+%\end{figure}
 
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/sig4/samplepzs.pdf}
-\caption{The interim photo-z posteriors (colored lines) here have the same true 
-redshifts (dotted lines) and means of the distribution (dotted lines) as those 
-of Fig. \ref{fig:nullpzs} but have four times the standard deviation.}
-\label{fig:sig4pzs}
-\end{figure}
+The sampler was run on these two, noisier datasets with broader likelihoods and 
+produced broader error bars on the mean of the samples, with little effect on 
+the value of the mean of the samples.  Fig. \ref{fig:sig4-comp} shows this 
+result for the $f=4$ case.  The alternative methods are more strongly affected 
+by the broadened likelihoods; as the standard deviation of the photo-z 
+likelihood functions increases, the stacked result becomes so broad as to erase 
+all features from the estimate of $N(z)$, while the marginalized MLE enhances 
+peaks and troughs to bias the estimate.
 
-The sampler was run on these two, noisier datasets and produced the results of 
-Figs. \ref{fig:sig2-samp} and \ref{fig:sig2-comp} and Figs. \ref{fig:sig4-samp} 
-and \ref{fig:sig4-comp} for the doubly and quadruply broad posteriors 
-respectively.  The overall effect of broadening the likelihood distributions is 
-a broadening of the error bars on the mean of the samples, with little effect 
-on the mean of the samples.  However, the alternative methods are more strongly 
-affected; as the standard deviation of the photo-z likelihood functions 
-increases, the stacked result becomes so broad as to erase all features from 
-the estimate of $N(z)$, while the marginalized MLE enhances peaks and troughs 
-to bias the estimate.
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/sig2/samps.pdf}
-\caption{The mean of sampled values (thick, black line) is quite comparable to 
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{figs/sig2/samps.pdf}
+%\caption{The mean of sampled values (thick, black line) is quite comparable to 
 that of the original fiducial case even though the data is twice as noisy.  
 However, the error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) are 
 somewhat larger.}
-\label{fig:sig2-samp}
-\end{figure}
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/sig2/comps.pdf}
-\caption{The mean of sampled values (thick, black line) is prone to 
+%\label{fig:sig2-samp}
+%\end{figure}
+%
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{figs/sig2/comps.pdf}
+%\caption{The mean of sampled values (thick, black line) is prone to 
 overestimating the peak values and underestimating the trough values relative 
 to the true $N(z)$ (thin, black line).  The result of stacking (dotted line), 
 on the other hand, underestimates the peak values, overestimates the trough 
@@ -823,19 +888,19 @@ values, and increases the weight of the tails, leading to a greater KLD than
 for the sampler.  The marginalized MLE (dashed line) performs well, but is more 
 prone to the biases that affect the sampler, so has a larger KLD than the 
 sampler as well.}
-\label{fig:sig2-comp}
-\end{figure}
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/sig4/samps.pdf}
-\caption{Compared to Fig. \ref{fig:null-samp}, the greatest difference between 
+%\label{fig:sig2-comp}
+%\end{figure}
+%
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{figs/sig4/samps.pdf}
+%\caption{Compared to Fig. \ref{fig:null-samp}, the greatest difference between 
 the original fiducial case and the quadruply noisy case is the size of the 
 error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) about the true 
 $N(z)$ (thin, black line), as exemplified by the plotted random samples 
 (colored lines) that scatter further from the mean of the sampled values 
 (thick, black line).}
-\label{fig:sig4-samp}
-\end{figure}
+%\label{fig:sig4-samp}
+%\end{figure}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/sig4/comps.pdf}
@@ -851,48 +916,48 @@ the marginalized MLE (dashed line).}
 \subsection{Inaccurate interim photo-z posteriors}
 \label{sec:multi}
 
+\textbf{Should I cut these two tests out of the paper?  Both violate the 
+generative model, which is kind of the point.  I'm just not confident in my 
+interpretation of the biases of the results of sampling.}
+
 In this pair of tests, we aim to simulate more realistic interim photo-z 
 posteriors by modifying the procedure of Sec. \ref{sec:mock} to introduce 
 inaccuracy that causes catastrophic photo-z errors.  Catastrophic photo-z 
 errors arise from a degeneracy in the space of galaxy SEDs and redshifts, 
 wherein a galaxy of one SED type at one redshift has photometry 
 indistinguishable from a galaxy of another SED type at another redshift.  In 
-this case, the Gaussian components may have standard deviations that do not 
-correspond to the true standard deviation used to generate the data, or there 
-may be multiple components to the interim photo-z posteriors.  Both cases will 
-be considered here by introducing one change in the steps of Sec. 
-\ref{sec:mock}.  
+this case, the Gaussian components of the likelihood may have standard 
+deviations that do not correspond to the true standard deviation used to 
+generate the data, or there may be multiple components to the interim photo-z 
+posteriors.  Both cases will be considered here by introducing one change in 
+the steps of Sec. \ref{sec:mock}.  
 
 The first case modifies the generative model of Eq. \ref{eq:genmod} is modified 
 to have $\epsilon_{j}\sim\mathcal{N}(0,\sigma'^{2}_{j})$ for 
-$\sigma'_{j}\sim\mathcal{N}(\bar{\Delta},\bar{\Delta}^{2})$.  Some interim 
-redshift posteriors from such a test are shown in Fig. \ref{fig:noisypzs}.  The 
-rest of the steps in Sec. \ref{sec:mcmc} are then followed precisely.
+$\sigma'_{j}\sim\mathcal{N}(\bar{\Delta},\bar{\Delta}^{2})$.  The mean of the 
+sampled hyperparameter values is compared to the results of stacking and other 
+alternatives in Fig. \ref{fig:noisy-comp}.  It can be seen that inaccurate 
+interim photo-z posteriors are best handled by the sampler, whose KLD is lower 
+than that of stacking and marginalized likelihood maximization.
 
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/vars/samplepzs.pdf}
-\caption{Several examples of noisified individual interim photo-z posterior 
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{figs/vars/samplepzs.pdf}
+%\caption{Several examples of noisified individual interim photo-z posterior 
 distributions (colored lines) are shown with their true redshifts (dotted 
 lines) and the central redshift of the distribution (dotted lines).  Note that 
 the widths of the Gaussians vary randomly over the samples and do not 
 necessarily correlate with redshift.}
-\label{fig:noisypzs}
-\end{figure}
-
-Fig. \ref{fig:noisy-samp} shows random sample values and their $1\sigma$ errors 
-as well as the true value of $N(z)$.  The mean of the sample values is compared 
-to the results of stacking in Fig. \ref{fig:noisy-comp}.  It can be seen that 
-inaccurate interim photo-z posteriors are best handled by the sampler, whose 
-KLD is lower than that of stacking and marginalized likelihood maximization.
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/vars/samps.pdf}
-\caption{The mean of the sampled values (thick, black line) accurately 
+%\label{fig:noisypzs}
+%\end{figure}
+%
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{figs/vars/samps.pdf}
+%\caption{The mean of the sampled values (thick, black line) accurately 
 reproduces the true $N(z)$ distribution (thin, black line) such that the true 
 values always fall within the error bars ($1\sigma$ in dark gray, $2\sigma$ in 
 light gray).  Some samples (colored lines) are shown as well.}
-\label{fig:noisy-samp}
-\end{figure}
+%\label{fig:noisy-samp}
+%\end{figure}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/vars/comps.pdf}
@@ -914,7 +979,12 @@ $r=1,\dots,R_{j}$, and one $z'_{jr}$ is selected from the corresponding
 $\mathcal{N}(z^{0}_{j},\sigma^{2}_{jr})$.  The components are summed and 
 normalized to yield the likelihood, which is then convolved with the interim 
 prior to produce the interim posterior.  Some examples of the multimodal 
-interim photo-z posteriors are shown in Fig. \ref{fig:multipzs}.  
+interim photo-z posteriors are shown in Fig. \ref{fig:multipzs}.  \textbf{I 
+redid this test with fewer summed components, but they're still not multimodal, 
+just asymmetric.  This is because the generative model doesn't let the peaks be 
+far enough apart relative to their variances.  Unless I violate the generative 
+model as in the previous case, I should probably cut this test out of the 
+paper.}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/mult/samplepzs.pdf}
@@ -926,23 +996,22 @@ simply asymmetric in spite of the flat interim prior.}
 \label{fig:multipzs}
 \end{figure}
 
-Figs. \ref{fig:multi-samp} and \ref{fig:multi-comp} show samples from the full 
-posterior distribution and a comparison to alternative methods.  It can be seen 
-that the lessened quality of the data does impact the accuracy of the mean of 
-the samples as an estimator of the truth.  However, the alternatives do worse 
-as measured by the KLD, with stacking smoothing the peaks and troughs and the 
-marginalized MLE enhancing them.
+Fig. \ref{fig:multi-comp} shows a comparison to alternative methods.  It can be 
+seen that the lessened quality of the data does impact the accuracy of the mean 
+of the posterior samples as an estimator of the truth, exaggerating the signal 
+at the peaks and troughs.  However, the alternatives do worse as measured by 
+the KLD, with stacking smoothing the peaks and troughs.
 
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/mult/samps.pdf}
-\caption{The mean of the sampled values (thick, black line) appears to do a 
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{figs/mult/samps.pdf}
+%\caption{The mean of the sampled values (thick, black line) appears to do a 
 relatively poor job of recovering the true $N(z)$ (thin, black line), enhancing 
 peaks and troughs compared to the true distribution and underestimating the 
 probability density in the tails.  The samples (colored lines) are quite close 
 to the mean with error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) 
 tight enough to exclude the true value.}
-\label{fig:multi-samp}
-\end{figure}
+%\label{fig:multi-samp}
+%\end{figure}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/mult/comps.pdf}
@@ -965,19 +1034,28 @@ distribution $p(z|\vec{\theta}')$ as in Sec \ref{sec:mock}, we assign all
 galaxies the same true redshift.  Further, the prior is taken to have identity 
 covariance instead of that of Sec. \ref{sec:prior}.  
 
-Fig. \ref{fig:toy-samp} shows some samples from the posterior and Fig. 
-\ref{fig:toy-comp} compares the mean of the posterior samples to the results of 
-stacking and marginalized likelihood maximization.  
+Fig. \ref{fig:toy-comp} compares the mean of the posterior samples to the 
+results of stacking and marginalized likelihood maximization.  It can be seen 
+that the marginalized maximum likelihood estimator is best at recovering the 
+true distribution of a delta function, whereas stacking and the point 
+estimators broaden it considerably.  The sampler does a fair job of recovering 
+the true distribution, with minimal broadening.
 
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/delt/samps.pdf}
-\caption{}
-\label{fig:toy-samp}
-\end{figure}
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{figs/delt/samps.pdf}
+%\caption{}
+%\label{fig:toy-samp}
+%\end{figure}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/delt/comps.pdf}
-\caption{}
+\caption{In this case, the underlying $N(z)$ is a delta function, but the KDE 
+of the true redshift values is a narrow Gaussian.  The sampler (thick, black 
+line) and marginalized MLE (dark dot-dashed line) recover the underlying $N(z)$ 
+but not the true $N(z)$ (thin, black line).  The results of stacking (dotted 
+line) and the point estimators estimate very broad $N(z)$ parameters that .  It 
+is less unstable than the marginalized MLE and displaces less probability 
+density at the tails than stacking.}
 \label{fig:toy-comp}
 \end{figure}
 
@@ -1055,7 +1133,12 @@ examples of sampled parameter values from the full posterior and Fig.
 the true values and the result of stacking.  What is most striking is that 
 stacking is very strongly affected by the choice of the interim prior, whereas 
 the mean of the samples is only weakly affected by it and the marginalized MLE 
-is not affected by it very much at all.
+is not affected by it very much at all.  Based on these results, it can be 
+concluded that when the interim prior is known to be inappropriate, the 
+marginalized MLE is the best estimator of the truth.  \textbf{I'm redoing this 
+test with a less exaggerated bimodal interim prior because a realistic case 
+would have some overlap between the two components anyway so there is even-ish 
+coverage of the entire redshift range.}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/bint/samps.pdf}
@@ -1074,30 +1157,28 @@ sensitive to it and more accurately recover the true $N(z)$ (thin, black line).}
 \label{fig:intb-comp}
 \end{figure}
 
-Based on these results, it can be concluded that when the interim prior is 
-known to be inappropriate, the marginalized MLE is the best estimator of the 
-truth.
-
 \clearpage
 \subsection{Data}
 \label{sec:boss}
 
 In addition to simulated tests, we also apply this method to a samples of the 
-data described in Sec. \ref{sec:data}.  In these cases the true $N(z)$ is not 
-known, but the fully probabilistic method presented here may still be compared 
-to what is obtained by alternative approaches.
+data described in Sec. \ref{sec:data}.  The interim prior is taken from 
+\citet{Sheldon2012}.  In these cases the true $N(z)$ is not known, but the 
+fully probabilistic method presented here may still be compared to what is 
+obtained by alternative approaches.
 
 \clearpage
 \subsubsection{Unbiased Data}
 \label{sec:unbiased}
 
-A pseudo-random sampling of the full dataset is examined to approximate the 
-behavior of an unbiased galaxy survey.  The results of the inference are shown 
-in Fig. \ref{fig:dataparam}.
+A pseudo-random sampling of the full BOSS dataset is examined to approximate 
+the behavior of an unbiased galaxy survey.  The results of the inference are 
+shown in Fig. \ref{fig:dataparam}.
 
 \begin{figure}
 %\includegraphics[width=0.5\textwidth]{data/samps.png}
-\caption{}
+\caption{Samples from the full posterior (colored lines) of the subsample 
+differ substantially from the interim prior (gray).}
 \label{fig:dataparam}
 \end{figure}
 
@@ -1107,12 +1188,15 @@ in Fig. \ref{fig:dataparam}.
 
 A pseudo-random sampling of the full dataset with a cut in $r$-band magnitude 
 is examined to approximate the behavior of a biased galaxy survey with a 
-magnitude limit.  The results of the inference are shown in Fig. 
-\ref{fig:biasparam}.
+magnitude limit.  In this case, the dataset is the same as used in Sec. 
+\ref{sec:boss}, excluding the dimmest half of the galaxies.  The results of the 
+inference are shown in Fig. \ref{fig:biasparam}.
 
 \begin{figure}
 %\includegraphics[width=0.5\textwidth]{data/samps.png}
-\caption{}
+\caption{Samples from the full posterior (colored lines) of the subsample 
+differ substantially from the interim prior (gray) as well as the result of the 
+unbiased sample.}
 \label{fig:biasparam}
 \end{figure}
 
@@ -1127,7 +1211,7 @@ with a graphical model corresponding to equations for the full posterior.  The
 technique developed in this paper is applied to the example of the redshift 
 distribution function $N(z)$ with promising results on mock data; not only is 
 this the only mathematically correct approach to the problem, it also recovers 
-the true parameter values better than popular alternatives.
+the true parameter values better than popular alternatives.  
 
 When data suffers from imprecision, as in the case of high intrinsic scatter, 
 and when data suffers from inaccuracies, as in the case of catastrophic 
@@ -1135,7 +1219,8 @@ outliers, the mean of sampled values is an improvement over the point estimates
 of stacking and the marginalized MLE.  In cases of perversely featured true 
 redshift distributions and inappropriate but known choices of interim priors, 
 the marginalized MLE is a better choice than stacking or sampling, although 
-sampling still performs better than stacking.  
+sampling still performs better than stacking.  See Tab. \ref{tab:kld} for a 
+summary of the results of these comparisons.
 
 By showing that this method is effective in recovering the true redshift 
 distribution function and posterior distributions on its parameters from 
@@ -1157,7 +1242,12 @@ mean distance ratio.  Future work will also include the extension of this fully
 probabilistic approach to higher-order statistics of redshift such as the 
 two-point correlation function.
 
+\textbf{What else should I be putting here?  It seems a bit terse.}
+
 \clearpage
+\textbf{I am aware something is screwed up with my references.  I'm still 
+trying to find a good reference manager and have made a mess trying out a few.  
+Recommendations would be appreciated.}
 \bibliographystyle{apj}
 \bibliography{zPDF}
 
