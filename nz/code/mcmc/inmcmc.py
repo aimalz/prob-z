@@ -177,16 +177,6 @@ class setup(object):
 #             self.Nz_range = self.ngals*self.Pz_range
 #             self.lNz_range = um.safelog(self.Nz_range)
 
-#             truNz = [sys.float_info.epsilon]*self.nbins
-#             for z in self.truZs:
-#                 for k in xrange(self.nbins):
-#                     if z > self.binlos[k] and z < self.binhis[k]:
-#                         truNz[k] += 1./self.bindifs[k]
-#             self.truNz = np.array(truNz)
-#             self.logtruNz = np.log(self.truNz)
-#             self.truPz = self.truNz/np.sum(self.truNz)
-#             self.logtruPz = np.log(self.truPz)
-
         # take truth directly from mathematical distribution from which it was drawn
         if os.path.exists(os.path.join(self.datadir,'truth.p')):
             with open(os.path.join(self.datadir,'truth.p'), "rb") as cpfile:
@@ -200,6 +190,16 @@ class setup(object):
             self.lPz_range = um.safelog(self.Pz_range)
             self.Nz_range = self.ngals*self.Pz_range
             self.lNz_range = um.safelog(self.Nz_range)
+
+            truNz = [sys.float_info.epsilon]*self.nbins
+            for z in self.truZs:
+                for k in xrange(self.nbins):
+                    if z > self.binlos[k] and z < self.binhis[k]:
+                        truNz[k] += 1./self.bindifs[k]
+            self.truNz = np.array(truNz)
+            self.logtruNz = np.log(self.truNz)
+            self.truPz = self.truNz/np.sum(self.truNz)
+            self.logtruPz = np.log(self.truPz)
 
         self.samples = os.path.join(self.topdir, 'samples.csv')
 #         with open(self.samples,'wb') as csvfile:
