@@ -160,11 +160,6 @@ class setup(object):
         self.zrange = None
 
 #         # reconstruct true N(z) from known true redshifts by way of KDE
-#         if os.path.exists(os.path.join(self.datadir,'logtrue.csv')):
-#             with open(os.path.join(self.datadir,'logtrue.csv'),'rb') as csvfile:
-#                 tuples = (line.split(None) for line in csvfile)
-#                 trudata = [float(pair[k]) for k in range(0,len(pair)) for pair in tuples]
-#             self.truZs = np.array(trudata)
 
 #             self.zrange = np.arange(self.binends[0],self.binends[-1],0.001)[:, np.newaxis]
 
@@ -190,6 +185,12 @@ class setup(object):
             self.lPz_range = um.safelog(self.Pz_range)
             self.Nz_range = self.ngals*self.Pz_range
             self.lNz_range = um.safelog(self.Nz_range)
+
+        if os.path.exists(os.path.join(self.datadir,'logtrue.csv')):
+            with open(os.path.join(self.datadir,'logtrue.csv'),'rb') as csvfile:
+                tuples = (line.split(None) for line in csvfile)
+                trudata = [float(pair[k]) for k in range(0,len(pair)) for pair in tuples]
+            self.truZs = np.array(trudata)
 
             truNz = [sys.float_info.epsilon]*self.nbins
             for z in self.truZs:
