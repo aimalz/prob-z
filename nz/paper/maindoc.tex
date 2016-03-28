@@ -10,21 +10,9 @@
 \usetikzlibrary{shapes.geometric, arrows}
 \usetikzlibrary{fit}
 
-\tikzstyle{hyper} = [circle, text centered, draw=black]%, fill=blue!30]
-\tikzstyle{param} = [circle, text centered, draw=black]%, fill=green!30]
-\tikzstyle{data} = [circle, text centered, draw=black, line width=2pt]%, 
-fill=red!30]
-%\tikzstyle{hyper} = [trapezium, trapezium left angle=70, trapezium right 
-angle=110, minimum width=1cm, minimum height=0.5cm, text centered, draw=black, 
-fill=green!30]
-%\tikzstyle{param} = [rectangle, minimum width=1cm, minimum height=0.5cm, text 
-centered, draw=black, fill=green!30]
-%\tikzstyle{data} = [diamond, minimum width=1cm, minimum height=1cm, text 
-centered, draw=black, fill=red!30]
-%\tikzstyle{eqn} = [rectangle, minimum width=1cm, minimum height=0.5cm, text 
-centered, draw=black]%, fill=green!30]
-%\tikzstyle{latent} = [diamond, minimum width=1cm, minimum height=0.5cm, text 
-centered, draw=black]%, fill=green!30]
+\tikzstyle{hyper} = [circle, text centered, draw=black]
+\tikzstyle{param} = [circle, text centered, draw=black]
+\tikzstyle{data} = [circle, text centered, draw=black, line width=2pt]
 \tikzstyle{arrow} = [thick,->,>=stealth]
 
 \newcommand{\myemail}{aimalz@nyu.edu}
@@ -596,28 +584,9 @@ The \texttt{emcee} \citep{Foreman-Mackey2013} implementation of ensemble
 sampling is applied to sample the full posterior of Eq. \ref{eq:final}.   For 
 each of some $W$ walkers at each iteration $i$, a proposal distribution 
 $\vec{\theta}^{i}$ generated from the hyperprior distribution and evaluated for 
-acceptance to or rejection from the desired posterior distribution.  % 
-according to the algorithm outlined below.  
-%
-%\begin{enumerate}
-%\item \label{it:randsamp} Sample the hyperprior $\ln[p(\vec{\theta})]$ to 
-generate a proposal $\vec{\theta}^{i}$.
-%\item Calculate the log posterior as in Eq. \ref{eq:final} to produce a 
-quantity proportional to $\ln[p(\vec{\theta}^{i}|\{\vec{d}_{j}\}_{J})]$.
-%\item Calculate 
-$a=\ln[p(\vec{\theta}^{i}|\{\vec{d}_{j}\}_{J})]-\ln[p(\vec{\theta}|\{\vec{d}_{j}
-\}_{J})]$.
-%\item If $a\geq0$, set and record $\vec{\theta}=\vec{\theta}^{i}$.\\
-%If $a<0$, select a random number $n$ from the uniform distribution between 0 
-and 1.
-%\begin{enumerate}
-%\item If $n<\exp[a]$, set and record $\vec{\theta}=\vec{\theta}^{i}$.
-%\end{enumerate}
-%\item Check if the threshold condition has been achieved; if not, return to 
-Step \ref{it:randsamp}.
-%\end{enumerate}
-Two threshold conditions are defined, one designating all previous samples to 
-be ignored as as products of a "burn-in" phase and another indicating when a 
+acceptance to or rejection from the desired posterior distribution.  Two 
+threshold conditions are defined, one designating all previous samples to be 
+ignored as as products of a "burn-in" phase and another indicating when a 
 sufficient number of "post-burn" samples have been accepted.  In this case, the 
 first threshold (described in Sec. \ref{sec:acorr}) is defined in terms of 
 sub-runs of $I_{0}=100$ accepted samples, and the second is defined as an 
@@ -744,13 +713,6 @@ KL_{ab} &=& \sum_{k=1}^{K}\ \exp[\theta_{k}^{a}]\
 \ln\left[\frac{\theta_{k}^{a}}{\theta_{k}^{b}}\right]\ \Delta_{k}
 \end{eqnarray}
 
-%The mean squared error of samples may also be calculated.  If there is a 
-strongly peaked distribution of values for a parameter, it ought to peak close 
-to the true value (and is in fact guaranteed to asymptotically approach the 
-marginalized maximum likelihood value) if we are to conclude that the sampler 
-is successful; if the distribution is broad, it may reflect inherent 
-uncertainty in inferring the hyperparameters.
-
 \clearpage
 \section{Validation Tests}
 \label{sec:valid}
@@ -846,17 +808,17 @@ sentence suffices.}
 
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/sig2/samplepzs.pdf}
-%\caption{The interim photo-z posteriors (colored lines) here have the same 
-true redshifts (dotted lines) and means of the distribution (dotted lines) as 
-those of Fig. \ref{fig:nullpzs} but have two times the standard deviation.}
+%\caption{The interim photo-z posteriors (colored lines) here have the same true
+% redshifts (dotted lines) and means of the distribution (dotted lines) as those
+% of Fig. \ref{fig:nullpzs} but have two times the standard deviation.}
 %\label{fig:sig2pzs}
 %\end{figure}
 %
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/sig4/samplepzs.pdf}
-%\caption{The interim photo-z posteriors (colored lines) here have the same 
-true redshifts (dotted lines) and means of the distribution (dotted lines) as 
-those of Fig. \ref{fig:nullpzs} but have four times the standard deviation.}
+%\caption{The interim photo-z posteriors (colored lines) here have the same true
+% redshifts (dotted lines) and means of the distribution (dotted lines) as those
+% of Fig. \ref{fig:nullpzs} but have four times the standard deviation.}
 %\label{fig:sig4pzs}
 %\end{figure}
 
@@ -872,33 +834,32 @@ peaks and troughs to bias the estimate.
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/sig2/samps.pdf}
 %\caption{The mean of sampled values (thick, black line) is quite comparable to 
-that of the original fiducial case even though the data is twice as noisy.  
-However, the error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) are 
-somewhat larger.}
+%that of the original fiducial case even though the data is twice as noisy.  How
+%ever, the error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) are some
+%what larger.}
 %\label{fig:sig2-samp}
 %\end{figure}
 %
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/sig2/comps.pdf}
-%\caption{The mean of sampled values (thick, black line) is prone to 
-overestimating the peak values and underestimating the trough values relative 
-to the true $N(z)$ (thin, black line).  The result of stacking (dotted line), 
-on the other hand, underestimates the peak values, overestimates the trough 
-values, and increases the weight of the tails, leading to a greater KLD than 
-for the sampler.  The marginalized MLE (dashed line) performs well, but is more 
-prone to the biases that affect the sampler, so has a larger KLD than the 
-sampler as well.}
+%\caption{The mean of sampled values (thick, black line) is prone to overestimat
+%ing the peak values and underestimating the trough values relative to the true 
+%$N(z)$ (thin, black line).  The result of stacking (dotted line), on the other 
+%hand, underestimates the peak values, overestimates the trough values, and incr
+%eases the weight of the tails, leading to a greater KLD than for the sampler.  
+%The marginalized MLE (dashed line) performs well, but is more prone to the bias
+%es that affect the sampler, so has a larger KLD than the sampler as well.}
 %\label{fig:sig2-comp}
 %\end{figure}
 %
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/sig4/samps.pdf}
 %\caption{Compared to Fig. \ref{fig:null-samp}, the greatest difference between 
-the original fiducial case and the quadruply noisy case is the size of the 
-error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) about the true 
-$N(z)$ (thin, black line), as exemplified by the plotted random samples 
-(colored lines) that scatter further from the mean of the sampled values 
-(thick, black line).}
+%the original fiducial case and the quadruply noisy case is the size of the erro
+%r bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) about the true $N(z)$ 
+%(thin, black line), as exemplified by the plotted random samples (colored lines
+%) that scatter further from the mean of the sampled values (thick, black line).
+%}
 %\label{fig:sig4-samp}
 %\end{figure}
 
@@ -942,20 +903,20 @@ than that of stacking and marginalized likelihood maximization.
 
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/vars/samplepzs.pdf}
-%\caption{Several examples of noisified individual interim photo-z posterior 
-distributions (colored lines) are shown with their true redshifts (dotted 
-lines) and the central redshift of the distribution (dotted lines).  Note that 
-the widths of the Gaussians vary randomly over the samples and do not 
-necessarily correlate with redshift.}
+%\caption{Several examples of noisified individual interim photo-z posterior dis
+%tributions (colored lines) are shown with their true redshifts (dotted lines) a
+%nd the central redshift of the distribution (dotted lines).  Note that the widt
+%hs of the Gaussians vary randomly over the samples and do not necessarily corre
+%late with redshift.}
 %\label{fig:noisypzs}
 %\end{figure}
 %
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/vars/samps.pdf}
-%\caption{The mean of the sampled values (thick, black line) accurately 
-reproduces the true $N(z)$ distribution (thin, black line) such that the true 
-values always fall within the error bars ($1\sigma$ in dark gray, $2\sigma$ in 
-light gray).  Some samples (colored lines) are shown as well.}
+%\caption{The mean of the sampled values (thick, black line) accurately reproduc
+%es the true $N(z)$ distribution (thin, black line) such that the true values al
+%ways fall within the error bars ($1\sigma$ in dark gray, $2\sigma$ in light gra
+%y).  Some samples (colored lines) are shown as well.}
 %\label{fig:noisy-samp}
 %\end{figure}
 
@@ -1004,12 +965,12 @@ the KLD, with stacking smoothing the peaks and troughs.
 
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/mult/samps.pdf}
-%\caption{The mean of the sampled values (thick, black line) appears to do a 
-relatively poor job of recovering the true $N(z)$ (thin, black line), enhancing 
-peaks and troughs compared to the true distribution and underestimating the 
-probability density in the tails.  The samples (colored lines) are quite close 
-to the mean with error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) 
-tight enough to exclude the true value.}
+%\caption{The mean of the sampled values (thick, black line) appears to do a rel
+%atively poor job of recovering the true $N(z)$ (thin, black line), enhancing pe
+%aks and troughs compared to the true distribution and underestimating the proba
+%bility density in the tails.  The samples (colored lines) are quite close to th
+%e mean with error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) tight 
+%enough to exclude the true value.}
 %\label{fig:multi-samp}
 %\end{figure}
 
@@ -1098,10 +1059,10 @@ KLD than the result of stacking.
 
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/uint/samps.pdf}
-%\caption{The mean (thick, black line) of the samples (colored lines) show no 
-influence of the interim prior (gray line) and accurately replicates the 
-features of the true $N(z)$ (thin, black line) everywhere that the interim 
-prior supports the data.}
+%\caption{The mean (thick, black line) of the samples (colored lines) show no in
+%fluence of the interim prior (gray line) and accurately replicates the features
+% of the true $N(z)$ (thin, black line) everywhere that the interim prior suppor
+%ts the data.}
 %\label{fig:intu-samp}
 %\end{figure}
 
@@ -1140,8 +1101,8 @@ coverage of the entire redshift range.}
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/bint/samps.pdf}
 %\caption{The mean (thick, black line) of the samples (colored lines) show some 
-influence of the interim prior (gray line) but also replicate some of the 
-features of the true $N(z)$ (thin, black line).}
+%influence of the interim prior (gray line) but also replicate some of the featu
+%res of the true $N(z)$ (thin, black line).}
 %\label{fig:intb-samp}
 %\end{figure}
 
