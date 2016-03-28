@@ -728,27 +728,7 @@ given in Sec. \ref{sec:mock}.  Seven other cases vary the shapes of the photo-z
 likelihoods (Secs. \ref{sec:noisy} and \ref{sec:unc}), the true redshift 
 distribution function (Sec. \ref{sec:fake}), and the interim prior (Sec. 
 \ref{sec:interim}).  Two additional cases with SDSS-III BOSS data described in 
-Sec. \ref{sec:data} are also considered.  A summary of all KLD values is given 
-in Tab. \ref{tab:kld}, with the best fit estimator in bold.
-
-\begin{table}
-\begin{tabular}{lccccc}
-& Mean of & Marginalized & Stacking & Marginalized & Marginalized\\
-& Samples & MLE & & MAP & Expected Value\\
-Fiducial &&&&&\\
-Doubly Imprecise Likelihoods &&&&&\\
-Quadruply Imprecise Likelihoods &&&&&\\
-Inaccurate Likelihoods &&&&&\\
-Multimodal Likelihoods &&&&&\\
-Toy Model True $N(z)$ &&&&&\\
-Low-$z$ Favoring Interim Prior &&&&&\\
-Mid-$z$ Disfavoring Interim Prior &&&&&\\
-BOSS Data &&&&&\\
-Biased BOSS Data &&&&&\\
-\end{tabular}
-\caption{}
-\label{tab:kld}
-\end{table}
+Sec. \ref{sec:data} are also considered.
 
 \clearpage
 \subsection{Fiducial Case}
@@ -1134,7 +1114,7 @@ the behavior of an unbiased galaxy survey.  The results of the inference are
 shown in Fig. \ref{fig:dataparam}.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/boss/samps.png}
+\includegraphics[width=0.5\textwidth]{figs/boss/samps.pdf}
 \caption{Samples from the full posterior (colored lines) of the subsample 
 differ substantially from the interim prior (gray).}
 \label{fig:dataparam}
@@ -1151,10 +1131,9 @@ magnitude limit.  In this case, the dataset is the same as used in Sec.
 inference are shown in Fig. \ref{fig:biasparam}.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/bias/samps.png}
+\includegraphics[width=0.5\textwidth]{figs/bias/samps.pdf}
 \caption{Samples from the full posterior (colored lines) of the subsample 
-differ substantially from the interim prior (gray) as well as the result of the 
-unbiased sample.}
+differ substantially from the interim prior (gray).}
 \label{fig:biasparam}
 \end{figure}
 
@@ -1179,6 +1158,24 @@ redshift distributions and inappropriate but known choices of interim priors,
 the marginalized MLE is a better choice than stacking or sampling, although 
 sampling still performs better than stacking.  See Tab. \ref{tab:kld} for a 
 summary of the results of these comparisons.
+
+\begin{table}
+\begin{tabular}{lccccc}
+& Mean of & Marginalized & Stacking & Marginalized & Marginalized\\
+& Samples & MLE & & MAP & Expected Value\\
+Fiducial &&&&&\\
+Doubly Imprecise Likelihoods &&&&&\\
+Quadruply Imprecise Likelihoods &&&&&\\
+Inaccurate Likelihoods &&&&&\\
+Multimodal Likelihoods &&&&&\\
+Toy Model True $N(z)$ &&&&&\\
+Low-$z$ Favoring Interim Prior &&&&&\\
+Mid-$z$ Disfavoring Interim Prior &&&&&
+\end{tabular}
+\caption{The best-fit estimator in each case is bolded.  \textbf{This table 
+will be filled in once I'm certain I won't be re-running any tests.}}
+\label{tab:kld}
+\end{table}
 
 By showing that this method is effective in recovering the true redshift 
 distribution function and posterior distributions on its parameters from 
