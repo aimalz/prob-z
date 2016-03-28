@@ -453,10 +453,12 @@ class plotter_samps(plotter):
             tuples = (line.split(None) for line in csvfile)
             alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
             alldata = np.array(alldata).T
+            print(type(alldata))
 #             print(str(self.last_key.r)+' alldata shape '+str(np.shape(alldata)))
 
         locs,scales = [],[]
         x_cors,y_cors,y_cors2 = [],[],[]
+        alldata = np.array(alldata)
         for k in xrange(self.meta.nbins):
             print(type(alldata[k]))
             y_all = alldata[k].flatten()
