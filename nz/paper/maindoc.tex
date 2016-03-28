@@ -1092,19 +1092,18 @@ inappropriate.  In this test, we choose an interim prior with most of its
 weight at low redshifts and observe its influence on the recovery of the true 
 $N(z)$ by different methods.  
 
-Examples of parameter values sampled from the full posterior are shown in Fig. 
-\ref{fig:intu-samp}.  A comparison of the sampler to other approaches is shown 
-in Fig. \ref{fig:intu-comp}.  It can be seen that the mean of the samples has a 
-lower KLD than the result of stacking.
+A comparison of the sampler to other approaches is shown in Fig. 
+\ref{fig:intu-comp}.  It can be seen that the mean of the samples has a lower 
+KLD than the result of stacking.
 
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/uint/samps.pdf}
-\caption{The mean (thick, black line) of the samples (colored lines) show no 
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{figs/uint/samps.pdf}
+%\caption{The mean (thick, black line) of the samples (colored lines) show no 
 influence of the interim prior (gray line) and accurately replicates the 
 features of the true $N(z)$ (thin, black line) everywhere that the interim 
 prior supports the data.}
-\label{fig:intu-samp}
-\end{figure}
+%\label{fig:intu-samp}
+%\end{figure}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/uint/comps.pdf}
@@ -1127,10 +1126,8 @@ survey even though it provides support over the same redshift range.  To
 simulate this case, we choose an interim prior with more weight at high and low 
 redshifts than for mid-range redshifts.  
 
-The results of the inference are shown in Fig. \ref{fig:intb-samp} shows 
-examples of sampled parameter values from the full posterior and Fig. 
-\ref{fig:intb-comp} shows the comparison of the mean of the sample values to 
-the true values and the result of stacking.  What is most striking is that 
+Fig. \ref{fig:intb-comp} shows the comparison of the mean of the sample values 
+to the true values and the result of stacking.  What is most striking is that 
 stacking is very strongly affected by the choice of the interim prior, whereas 
 the mean of the samples is only weakly affected by it and the marginalized MLE 
 is not affected by it very much at all.  Based on these results, it can be 
@@ -1140,13 +1137,13 @@ test with a less exaggerated bimodal interim prior because a realistic case
 would have some overlap between the two components anyway so there is even-ish 
 coverage of the entire redshift range.}
 
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/bint/samps.pdf}
-\caption{The mean (thick, black line) of the samples (colored lines) show some 
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{figs/bint/samps.pdf}
+%\caption{The mean (thick, black line) of the samples (colored lines) show some 
 influence of the interim prior (gray line) but also replicate some of the 
 features of the true $N(z)$ (thin, black line).}
-\label{fig:intb-samp}
-\end{figure}
+%\label{fig:intb-samp}
+%\end{figure}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/bint/comps.pdf}
@@ -1176,7 +1173,7 @@ the behavior of an unbiased galaxy survey.  The results of the inference are
 shown in Fig. \ref{fig:dataparam}.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{data/samps.png}
+\includegraphics[width=0.5\textwidth]{figs/boss/samps.png}
 \caption{Samples from the full posterior (colored lines) of the subsample 
 differ substantially from the interim prior (gray).}
 \label{fig:dataparam}
@@ -1193,7 +1190,7 @@ magnitude limit.  In this case, the dataset is the same as used in Sec.
 inference are shown in Fig. \ref{fig:biasparam}.
 
 \begin{figure}
-%\includegraphics[width=0.5\textwidth]{data/samps.png}
+\includegraphics[width=0.5\textwidth]{figs/bias/samps.png}
 \caption{Samples from the full posterior (colored lines) of the subsample 
 differ substantially from the interim prior (gray) as well as the result of the 
 unbiased sample.}
