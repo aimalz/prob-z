@@ -752,10 +752,13 @@ within the error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray).}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/null/comps.pdf}
-\caption{It can be seen that the mean of the samples (thick, black line) is a 
-better estimator of the true distribution (thin, black line); stacking (dotted 
-line) overestimates $N(z)$ at the tails and underestimates $N(z)$ at the peaks, 
-and marginalized likelihood maximization (dashed line) is unstable.}
+\caption{The mean of the samples (thick, solid line; KLD $0.002$) and 
+marginalized MLE (thick, dotted line; KLD $0.003$) are the best estimators of 
+the true distribution (thin, black line); stacking (thick, dashed line; KLD 
+$0.012$) overestimates $N(z)$ at the tails and underestimates $N(z)$ at the 
+peaks.  The two point estimators considered here, marginalized MAP (thin, 
+dashed line; KLD $0.009$) and marginalized expected value (thin, dotted line; 
+KLD $0.007$) fall between these two extremes.}
 \label{fig:null-comp}
 \end{figure}
 
@@ -845,11 +848,15 @@ peaks and troughs to bias the estimate.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/sig4/comps.pdf}
-\caption{Here it is most obvious that stacking (dotted line) erases features 
-from an estimate of the true $N(z)$ (thin, black line).  The mean of sampled 
-values (thick, black line) does exhibit some bias at the peaks and troughs of 
-the distribution, but it overall performs better than the stacked estimator and 
-the marginalized MLE (dashed line).}
+\caption{Here it is most obvious that the alternative methods erase features in 
+estimating the true $N(z)$ (thin, black line).  The marginalized MAP (thin, 
+dashed line; KLD $0.1$) is heavily biased by the systematics of the rigid 
+binning but otherwise performs similarly to stacking (thick, dashed line; KLD 
+$0.082$) and the marginalized expected value (thin, dotted line; KLD $0.036$), 
+smoothing the features of the distribution.  The mean of sampled values (thick, 
+solid line; KLD $0.006$) and marginalized MLE (thick, dotted line; KLD $0.011$) 
+exhibit some bias at the peaks of the distribution but overall perform far 
+better than the alternatives.}
 \label{fig:sig4-comp}
 \end{figure}
 
@@ -902,11 +909,14 @@ than that of stacking and marginalized likelihood maximization.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/vars/comps.pdf}
-\caption{The result of the sampler (thick, black line), like the marginalized 
-MLE (dashed line), does have a bias to overestimate density in the peaks and 
-underestimate it in the troughs.  However, the effect is not as severe as for 
-the result of stacking (dotted line), which smooths out all features and 
-increases probability density in the tails.}
+\caption{\textbf{Something has gone wrong with this test numerically, despite 
+the fact that no such error occurs with other test cases; I'm investigating.}} 
+%Th
+%e result of the sampler (thick, black line), like the marginalized MLE (dashed 
+%line), does have a bias to overestimate density in the peaks and underestimate 
+%it in the troughs.  However, the effect is not as severe as for the result of s
+%tacking (dotted line), which smooths out all features and increases probability
+% density in the tails.}
 \label{fig:noisy-comp}
 \end{figure}
 
@@ -933,7 +943,10 @@ paper.}
 lines) are shown, along with the true redshift (dashed lines) and the $R_{j}$ 
 centers of the Gaussian components (dotted lines).  Note that some 
 distributions are multimodal, with peaks of different heights, while others are 
-simply asymmetric in spite of the flat interim prior.}
+simply asymmetric in spite of the flat interim prior.  \textbf{I would like to 
+redo this test with more obviously multimodal distributions, by deviating from 
+the generative model more severely.  I wanted to check that this was an okay 
+thing to propose before doing it.}}
 \label{fig:multipzs}
 \end{figure}
 
@@ -956,11 +969,14 @@ the KLD, with stacking smoothing the peaks and troughs.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/mult/comps.pdf}
-\caption{Though the sampler (thick, black line) fails to recover the true 
-$N(z)$ (thin, black line), it still does better than stacking (dotted line) and 
-marginalized likelihood maximization (dashed line).  It is less unstable than 
-the marginalized MLE and displaces less probability density at the tails than 
-stacking.}
+\caption{\textbf{The point estimators are doing well because I'm not straying 
+far enough from the generative model.  I will note that the MMLE has trouble 
+with these kinds of distributions.}}%Though the sampler (thick, black line) 
+fails to 
+%recover the true $N(z)$ (thin, black line), it still does better than stacking 
+%(dotted line) and marginalized likelihood maximization (dashed line).  It is le
+%ss unstable than the marginalized MLE and displaces less probability density at
+% the tails than stacking.}
 \label{fig:multi-comp}
 \end{figure}
 
@@ -990,13 +1006,14 @@ the true distribution, with minimal broadening.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/delt/comps.pdf}
-\caption{In this case, the underlying $N(z)$ is a delta function, but the KDE 
-of the true redshift values is a narrow Gaussian.  The sampler (thick, black 
-line) and marginalized MLE (dark dot-dashed line) recover the underlying $N(z)$ 
-but not the true $N(z)$ (thin, black line).  The results of stacking (dotted 
-line) and the point estimators estimate very broad $N(z)$ parameters that .  It 
-is less unstable than the marginalized MLE and displaces less probability 
-density at the tails than stacking.}
+\caption{In this case, the marginalized MLE (thick, dotted line; KLD $<0.001$) 
+recovers the true $N(z)$ (thin, solid line) to greater than 0.1\% precision.  
+The mean of the samples (thick, solid line; KLD $0.352$) performs almost as 
+well, with some low amplitude residuals due to the form of the prior.  The 
+point estimators (marginalized MAP as a thin, dashed line and marginalized 
+expected value as a thin, dotted line), which share KLD $0.89$, broaden the 
+distribution more than the mean of the samples but not quite as much as 
+stacking (thick, dashed line; KLD $1.123$).}
 \label{fig:toy-comp}
 \end{figure}
 
@@ -1034,8 +1051,10 @@ weight at low redshifts and observe its influence on the recovery of the true
 $N(z)$ by different methods.  
 
 A comparison of the sampler to other approaches is shown in Fig. 
-\ref{fig:intu-comp}.  It can be seen that the mean of the samples has a lower 
-KLD than the result of stacking.
+\ref{fig:intu-comp}.  The methods that account for the nontrivial interim prior 
+(the marginalized MLE and the sampler) yield substantially less biased results 
+than the methods that do not (stacking and the point estimators, the 
+marginalized MAP and marginalized expected value).
 
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/uint/samps.pdf}
@@ -1048,12 +1067,16 @@ KLD than the result of stacking.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/uint/comps.pdf}
-\caption{It is clear that the interim prior (gray line) biases the result of 
-stacking (dotted line), while the mean of the sampled values (thick, black 
-line) is less sensitive to it and more accurately recover the true $N(z)$ 
-(thin, black line).  When the interim prior does not support the full range of 
-the data, the marginalized MLE (dashed line) does not converge, so the sampler 
-must be preferred.}
+\caption{The interim prior (gray line) is biased towards lower redshifts.  The 
+mean of the sampled values (thick, solid line; KLD $0.002$) and marginalized 
+MLE (thick, dotted line; KLD $0.003$) are unaffected by the nontrivial interim 
+prior, taking the same KLD values as in the fiducial case with a flat interim 
+prior.  However, the alternatives yield biased estimates, both smoothing the 
+features of the true $N(z)$ (thin, solid line) and showing a bias to low 
+redshift values according to the interim prior.  Stacking (thick, dashed line; 
+KLD $0.017$) does the worst of the three alternatives, with the marginalized 
+MAP (thin, dashed line; KLD $0.015$) and marginalized expected value (thin, 
+dotted line; KLD $0.014$) doing slightly better.}
 \label{fig:intu-comp}
 \end{figure}
 
@@ -1088,10 +1111,14 @@ coverage of the entire redshift range.}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/bint/comps.pdf}
-\caption{It is clear that the result of stacking (dotted line) is strongly 
-influenced by the interim prior (gray line), while the mean of the sampled 
-values (thick, black line) and the marginalized MLE (dashed line) are less 
-sensitive to it and more accurately recover the true $N(z)$ (thin, black line).}
+\caption{The interim prior (gray line) is biased toward low and high redshifts. 
+ In this case, the marginalized MLE (thick, dotted line; KLD $0.003$) best 
+recovers the true $N(z)$ (thin, solid line), with the mean of samples (thick, 
+solid line; KLD $0.005$) as a close second.  The point estimators and stacking 
+have comparable results, with the marginalized MAP (thin, dashed line; KLE 
+$0.01$) being the best of them and the marginalized expected value (thin, 
+dotted line) and stacked result (thick, dashed line) sharing the same KLD of 
+$0.012$.}
 \label{fig:intb-comp}
 \end{figure}
 
@@ -1103,7 +1130,8 @@ In addition to simulated tests, we also apply this method to a samples of the
 data described in Sec. \ref{sec:data}.  The interim prior is taken from 
 \citet{Sheldon2012}.  In these cases the true $N(z)$ is not known, but the 
 fully probabilistic method presented here may still be compared to what is 
-obtained by alternative approaches.
+obtained by alternative approaches.  \textbf{I currently don't show the results 
+of other methods for these cases but will add that in soon.}
 
 \clearpage
 \subsubsection{Unbiased Data}
@@ -1115,8 +1143,10 @@ shown in Fig. \ref{fig:dataparam}.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/boss/samps.pdf}
-\caption{Samples from the full posterior (colored lines) of the subsample 
-differ substantially from the interim prior (gray).}
+\caption{\textbf{I don't know why the mean of samples is garbled like this when 
+the sampled values look fine because it's being handled identically to the next 
+case, which works without issue.  I'm looking into the problem, but 
+unfortunately it's the slowest test case to run.}}
 \label{fig:dataparam}
 \end{figure}
 
@@ -1133,7 +1163,9 @@ inference are shown in Fig. \ref{fig:biasparam}.
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/bias/samps.pdf}
 \caption{Samples from the full posterior (colored lines) of the subsample 
-differ substantially from the interim prior (gray).}
+differ substantially from the interim prior (gray).  The mean of samples 
+(thick, black line) and associated error bars ($1\sigma$ in dark gray, 
+$2\sigma$ in light gray) are in line with the sampled values.}
 \label{fig:biasparam}
 \end{figure}
 
@@ -1201,8 +1233,8 @@ two-point correlation function.
 
 \clearpage
 \textbf{I am aware something is screwed up with my references.  I'm still 
-trying to find a good reference manager and have made a mess trying out a few.  
-Recommendations would be appreciated.}
+trying to find a good reference manager and have made a mess of my references 
+trying out a few.  Recommendations would be appreciated.}
 \bibliographystyle{apj}
 \bibliography{zPDF}
 
