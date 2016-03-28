@@ -458,6 +458,7 @@ class plotter_samps(plotter):
         locs,scales = [],[]
         x_cors,y_cors,y_cors2 = [],[],[]
         for k in xrange(self.meta.nbins):
+            print(type(alldata[k]))
             y_all = alldata[k].flatten()
             loc,scale = sp.stats.norm.fit_loc_scale(y_all)
             x_cor = [self.meta.binends[k],self.meta.binends[k],self.meta.binends[k+1],self.meta.binends[k+1]]
@@ -566,130 +567,130 @@ class plotter_samps(plotter):
         self.f_comps.savefig(os.path.join(self.meta.topdir,'comps.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
         self.f_comps.savefig(os.path.join(self.meta.topdir,'comps.pdf'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
 
-#plot full posterior chain evolution
-class plotter_chains(plotter):
+# #plot full posterior chain evolution
+# class plotter_chains(plotter):
 
-    def __init__(self, meta):
-        self.meta = meta
-        self.ncolors = len(self.meta.colors)
-        self.a_chain = 1.#/self.meta.nsteps#self.ncolors/ self.meta.nwalkers
-        self.f_chains = plt.figure(figsize=(10,5*self.meta.nbins))
-        self.sps_chains = [self.f_chains.add_subplot(self.meta.nbins,2,2*k+1) for k in xrange(self.meta.nbins)]
-        self.sps_pdfs = [self.f_chains.add_subplot(self.meta.nbins,2,2*(k+1)) for k in xrange(self.meta.nbins)]
-        self.f_chains.subplots_adjust(hspace=0, wspace=0)
-        self.randwalks = random.sample(xrange(self.meta.nwalkers),1)#xrange(self.meta.nwalkers)#self.ncolors)
-
-        for k in xrange(self.meta.nbins):
-            sps_chain = self.sps_chains[k]
-            sps_chain.plot([0],[0],color=c_smp,label=l_smp+r'$\theta_{'+str(k)+r'}$',alpha=a_smp,linewidth=w_smp,linestyle=s_smp)#,rasterized = True)
-            sps_chain.set_ylim(-np.log(self.meta.ngals), np.log(self.meta.ngals / self.meta.bindif)+1)
-            sps_chain.set_xlabel('iteration number')
-            sps_chain.set_ylabel(r'$\ln N_{'+str(k+1)+r'}(z)$')
-            self.sps_pdfs[k].set_ylim(0.,1.)
-            #self.sps_pdfs[k].semilogy()
-            sps_pdf = self.sps_pdfs[k]
-            sps_pdf.set_xlabel(r'$\theta_{'+str(k+1)+r'}$')
-            sps_pdf.set_ylabel('kernel density estimate')
-#             self.yrange = [-1.,0.,1.,2.]
-            sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle=s_stk,linewidth=w_stk,color=c_stk,alpha=a_stk,label=l_stk+t+r'$_{k}$')
-#             plotv(sps_pdf,self.meta.logstkNz[k],yrange,s=s_stk,w=w_stk,c=c_stk,a=a_stk,l=l_stk+t+r'$_{k}$')
-#             sps_pdf.vlines(self.meta.logmapNz[k],0.,1.,linestyle='-.',w=2.)
-#           plotv(sps_pdf,self.meta.logmapNz[k],yrange,s=s_map,w=w_map,c=c_map,a=a_map,l=l_map+t+r'$_{k}$')
-# #             sps_pdf.vlines(self.meta.logexpNz[k],0.,1.,linestyle=':',w=2.,label=r'$E(z)$ value')
-# #             plotv(sps_pdf,self.meta.logexpNz[k],yrange,s=s_exp,w=w_exp,c=c_exp,a=a_exp,l=l_exp+t+r'$_{k}$')
-            sps_pdf.vlines(self.meta.logmmlNz[k],0.,1.,linestyle=s_mml,linewidth=w_mml,color=c_mml,alpha=a_mml,label=l_mml+t+r'$_{k}$')
-#             plotv(sps_pdf,self.meta.logmmlNz[k],yrange,s=s_mml,w=w_mml,c=c_mml,a=a_mml,l=l_mml+t+r'$_{k}$')
-            sps_pdf.vlines(self.meta.logintNz[k],0.,1.,linestyle=s_int,linewidth=w_int,color=c_int,alpha=a_int,label=l_int+t+r'$_{k}$')
-#             plotv(sps_pdf,self.meta.logintNz[k],yrange,s=s_int,w=w_int,c=c_int,a=a_int,l=l_int+t+r'$_{k}$')
-            if self.meta.logtruNz is not None:
-                sps_pdf.vlines(self.meta.logtruNz[k],0.,1.,linestyle=s_tru,linewidth=w_tru,color=c_tru,alpha=a_tru,label=l_tru+t+r'$_{k}$')
-#                 plotv(sps_pdf,self.meta.logtruNz[k],yrange,s=s_tru,w=w_tru,c=c_tru,a=a_tru,l=l_tru+t+r'$_{k}$')
-
-    def plot(self,key):
-
-      if key.burnin == False:
-
-        data = key.load_state(self.meta.topdir)['chains']
-
-        plot_y_c = np.swapaxes(data,0,1).T
-
-        randsteps = xrange(self.meta.ntimes)#random.sample(xrange(self.meta.ntimes),self.meta.ncolors)
-
-        for k in xrange(self.meta.nbins):
-            sps_pdf = self.sps_pdfs[k]
-            mean = np.sum(plot_y_c[k])/(self.meta.ntimes*self.meta.nwalkers)
-            self.sps_chains[k].plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,#i_run.eachtimenos[r],
-                                    [mean]*self.meta.ntimes,
-                                    color = 'k')#,
-                                    #rasterized = True)
-
-            x_all = plot_y_c[k].flatten()
-            x_kde = x_all[:, np.newaxis]
-            kde = skl.neighbors.KernelDensity(kernel='gaussian', bandwidth=1.0).fit(x_kde)
-            x_plot = np.arange(np.min(plot_y_c[k]),np.max(plot_y_c[k]),0.1)[:, np.newaxis]
-            log_dens = kde.score_samples(x_plot)
-            sps_pdf.plot(x_plot[:, 0],np.exp(log_dens),color=self.meta.colors[key.r%self.ncolors],rasterized=True)
-            for x in randsteps:
-                for w in self.randwalks:
-                    self.sps_chains[k].plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,#i_run.eachtimenos[r],
-                                            plot_y_c[k][w],
-                                            color = self.meta.colors[w%self.ncolors],
-                                            alpha = self.a_chain)#,
-                                            #rasterized = True)
-
-            loc,scale = sp.stats.norm.fit_loc_scale(x_all)
-            sps_pdf.vlines(loc,0.,1.,color=self.meta.colors[key.r%self.ncolors],linestyle=s_smp,linewidth=w_smp,alpha=a_smp)
-#             plotv(sps_pdf,yrange,loc,s=s_smp,w=w_smp,c=self.meta.colors[key.r%self.ncolors],a=a_chain)
-#             sps_pdf.axvspan(loc-scale,loc+scale,color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
-
-        with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
-              both = cpkl.load(statboth)
+#     def __init__(self, meta):
+#         self.meta = meta
+#         self.ncolors = len(self.meta.colors)
+#         self.a_chain = 1.#/self.meta.nsteps#self.ncolors/ self.meta.nwalkers
+#         self.f_chains = plt.figure(figsize=(10,5*self.meta.nbins))
+#         self.sps_chains = [self.f_chains.add_subplot(self.meta.nbins,2,2*k+1) for k in xrange(self.meta.nbins)]
+#         self.sps_pdfs = [self.f_chains.add_subplot(self.meta.nbins,2,2*(k+1)) for k in xrange(self.meta.nbins)]
+#         self.f_chains.subplots_adjust(hspace=0, wspace=0)
+#         self.randwalks = random.sample(xrange(self.meta.nwalkers),1)#xrange(self.meta.nwalkers)#self.ncolors)
 
 #         for k in xrange(self.meta.nbins):
-#             self.sps_pdfs[k].vlines(both['mapvals'][-1][k],0.,1.,linewidth=2,color=self.meta.colors[key.r%self.ncolors])
+#             sps_chain = self.sps_chains[k]
+#             sps_chain.plot([0],[0],color=c_smp,label=l_smp+r'$\theta_{'+str(k)+r'}$',alpha=a_smp,linewidth=w_smp,linestyle=s_smp)#,rasterized = True)
+#             sps_chain.set_ylim(-np.log(self.meta.ngals), np.log(self.meta.ngals / self.meta.bindif)+1)
+#             sps_chain.set_xlabel('iteration number')
+#             sps_chain.set_ylabel(r'$\ln N_{'+str(k+1)+r'}(z)$')
+#             self.sps_pdfs[k].set_ylim(0.,1.)
+#             #self.sps_pdfs[k].semilogy()
+#             sps_pdf = self.sps_pdfs[k]
+#             sps_pdf.set_xlabel(r'$\theta_{'+str(k+1)+r'}$')
+#             sps_pdf.set_ylabel('kernel density estimate')
+# #             self.yrange = [-1.,0.,1.,2.]
+#             sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle=s_stk,linewidth=w_stk,color=c_stk,alpha=a_stk,label=l_stk+t+r'$_{k}$')
+# #             plotv(sps_pdf,self.meta.logstkNz[k],yrange,s=s_stk,w=w_stk,c=c_stk,a=a_stk,l=l_stk+t+r'$_{k}$')
+# #             sps_pdf.vlines(self.meta.logmapNz[k],0.,1.,linestyle='-.',w=2.)
+# #           plotv(sps_pdf,self.meta.logmapNz[k],yrange,s=s_map,w=w_map,c=c_map,a=a_map,l=l_map+t+r'$_{k}$')
+# # #             sps_pdf.vlines(self.meta.logexpNz[k],0.,1.,linestyle=':',w=2.,label=r'$E(z)$ value')
+# # #             plotv(sps_pdf,self.meta.logexpNz[k],yrange,s=s_exp,w=w_exp,c=c_exp,a=a_exp,l=l_exp+t+r'$_{k}$')
+#             sps_pdf.vlines(self.meta.logmmlNz[k],0.,1.,linestyle=s_mml,linewidth=w_mml,color=c_mml,alpha=a_mml,label=l_mml+t+r'$_{k}$')
+# #             plotv(sps_pdf,self.meta.logmmlNz[k],yrange,s=s_mml,w=w_mml,c=c_mml,a=a_mml,l=l_mml+t+r'$_{k}$')
+#             sps_pdf.vlines(self.meta.logintNz[k],0.,1.,linestyle=s_int,linewidth=w_int,color=c_int,alpha=a_int,label=l_int+t+r'$_{k}$')
+# #             plotv(sps_pdf,self.meta.logintNz[k],yrange,s=s_int,w=w_int,c=c_int,a=a_int,l=l_int+t+r'$_{k}$')
+#             if self.meta.logtruNz is not None:
+#                 sps_pdf.vlines(self.meta.logtruNz[k],0.,1.,linestyle=s_tru,linewidth=w_tru,color=c_tru,alpha=a_tru,label=l_tru+t+r'$_{k}$')
+# #                 plotv(sps_pdf,self.meta.logtruNz[k],yrange,s=s_tru,w=w_tru,c=c_tru,a=a_tru,l=l_tru+t+r'$_{k}$')
 
-        self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
+#     def plot(self,key):
 
-        timesaver(self.meta,'chains',key)
+#       if key.burnin == False:
 
-    def plotone(self,subplot,plot_x,plot_y,w=2,c='k',s='--',d=[(0,(1,0.0001))],l=' ',a=1.):
-        subplot.plot(plot_x,
-                     plot_y,
-                     color=c,
-                     linewidth=w,
-                     linestyle=s,
-                     dashes=d,
-                     alpha=a,
-                     label=l)
-        return
+#         data = key.load_state(self.meta.topdir)['chains']
 
-    def finish(self):
-        timesaver(self.meta,'chains-start',key)
+#         plot_y_c = np.swapaxes(data,0,1).T
 
-        with open(os.path.join(self.meta.topdir,'samples.csv'),'rb') as csvfile:
-            tuples = (line.split(None) for line in csvfile)
-            alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
-            alldata = np.array(alldata).T
+#         randsteps = xrange(self.meta.ntimes)#random.sample(xrange(self.meta.ntimes),self.meta.ncolors)
 
-        maxsteps = self.last_key.r+2
-        maxiternos = np.arange(0,maxsteps)
-        for k in xrange(self.meta.nbins):
-            sps_chain = self.sps_chains[k]
-            sps_chain.set_xlim(-1*self.meta.miniters,(maxsteps+1)*self.meta.miniters)
+#         for k in xrange(self.meta.nbins):
+#             sps_pdf = self.sps_pdfs[k]
+#             mean = np.sum(plot_y_c[k])/(self.meta.ntimes*self.meta.nwalkers)
+#             self.sps_chains[k].plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,#i_run.eachtimenos[r],
+#                                     [mean]*self.meta.ntimes,
+#                                     color = 'k')#,
+#                                     #rasterized = True)
 
-            sps_pdf = self.sps_pdfs[k]
+#             x_all = plot_y_c[k].flatten()
+#             x_kde = x_all[:, np.newaxis]
+#             kde = skl.neighbors.KernelDensity(kernel='gaussian', bandwidth=1.0).fit(x_kde)
+#             x_plot = np.arange(np.min(plot_y_c[k]),np.max(plot_y_c[k]),0.1)[:, np.newaxis]
+#             log_dens = kde.score_samples(x_plot)
+#             sps_pdf.plot(x_plot[:, 0],np.exp(log_dens),color=self.meta.colors[key.r%self.ncolors],rasterized=True)
+#             for x in randsteps:
+#                 for w in self.randwalks:
+#                     self.sps_chains[k].plot(np.arange(key.r*self.meta.ntimes,(key.r+1)*self.meta.ntimes)*self.meta.thinto,#i_run.eachtimenos[r],
+#                                             plot_y_c[k][w],
+#                                             color = self.meta.colors[w%self.ncolors],
+#                                             alpha = self.a_chain)#,
+#                                             #rasterized = True)
 
-            y_all = alldata[k]
-            loc,scale = sp.stats.norm.fit_loc_scale(y_all)
-            yrange = [-1.,0.,1.,2.]
-#             plotv(sps_pdf,loc,yrange,s=s_bfe,w=w_bfe,c=c_bfe,a=a_bfe,l=l_bfe+t+r'$_{k}$')
-            sps_pdf.vlines(loc,0.,1.,linestyle=s_bfe,linewidth=w_bfe,color=c_bfe,alpha=a_bfe,label=l_bfe+t+r'$_{k}$')
-            sps_pdf.axvspan(loc-scale,loc+scale,color='k',alpha=0.1)
+#             loc,scale = sp.stats.norm.fit_loc_scale(x_all)
+#             sps_pdf.vlines(loc,0.,1.,color=self.meta.colors[key.r%self.ncolors],linestyle=s_smp,linewidth=w_smp,alpha=a_smp)
+# #             plotv(sps_pdf,yrange,loc,s=s_smp,w=w_smp,c=self.meta.colors[key.r%self.ncolors],a=a_chain)
+# #             sps_pdf.axvspan(loc-scale,loc+scale,color=self.meta.colors[key.r%self.ncolors],alpha=0.1)
 
-            sps_pdf.legend(fontsize='xx-small',loc='upper left')
-            sps_chain.legend(fontsize='xx-small', loc='lower right')
-            sps_chain.set_xlim(0,(self.last_key.r+1)*self.meta.miniters)
+#         with open(os.path.join(self.meta.topdir,'stat_both.p'),'rb') as statboth:
+#               both = cpkl.load(statboth)
 
-        self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
+# #         for k in xrange(self.meta.nbins):
+# #             self.sps_pdfs[k].vlines(both['mapvals'][-1][k],0.,1.,linewidth=2,color=self.meta.colors[key.r%self.ncolors])
 
-        timesaver(self.meta,'chains-done',key)
+#         self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
+
+#         timesaver(self.meta,'chains',key)
+
+#     def plotone(self,subplot,plot_x,plot_y,w=2,c='k',s='--',d=[(0,(1,0.0001))],l=' ',a=1.):
+#         subplot.plot(plot_x,
+#                      plot_y,
+#                      color=c,
+#                      linewidth=w,
+#                      linestyle=s,
+#                      dashes=d,
+#                      alpha=a,
+#                      label=l)
+#         return
+
+#     def finish(self):
+#         timesaver(self.meta,'chains-start',key)
+
+#         with open(os.path.join(self.meta.topdir,'samples.csv'),'rb') as csvfile:
+#             tuples = (line.split(None) for line in csvfile)
+#             alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
+#             alldata = np.array(alldata).T
+
+#         maxsteps = self.last_key.r+2
+#         maxiternos = np.arange(0,maxsteps)
+#         for k in xrange(self.meta.nbins):
+#             sps_chain = self.sps_chains[k]
+#             sps_chain.set_xlim(-1*self.meta.miniters,(maxsteps+1)*self.meta.miniters)
+
+#             sps_pdf = self.sps_pdfs[k]
+
+#             y_all = alldata[k]
+#             loc,scale = sp.stats.norm.fit_loc_scale(y_all)
+#             yrange = [-1.,0.,1.,2.]
+# #             plotv(sps_pdf,loc,yrange,s=s_bfe,w=w_bfe,c=c_bfe,a=a_bfe,l=l_bfe+t+r'$_{k}$')
+#             sps_pdf.vlines(loc,0.,1.,linestyle=s_bfe,linewidth=w_bfe,color=c_bfe,alpha=a_bfe,label=l_bfe+t+r'$_{k}$')
+#             sps_pdf.axvspan(loc-scale,loc+scale,color='k',alpha=0.1)
+
+#             sps_pdf.legend(fontsize='xx-small',loc='upper left')
+#             sps_chain.legend(fontsize='xx-small', loc='lower right')
+#             sps_chain.set_xlim(0,(self.last_key.r+1)*self.meta.miniters)
+
+#         self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
+
+#         timesaver(self.meta,'chains-done',key)
