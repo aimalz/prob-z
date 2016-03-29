@@ -449,31 +449,30 @@ class plotter_samps(plotter):
 
     def calcbfe(self):
 
-        with open(os.path.join(self.meta.topdir,'samples.csv'),'rb') as csvfile:
-            tuples = (line.split(None) for line in csvfile)
-            alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
-            alldata = np.array(alldata).T
+        self.locs,self.scales = sm.calcbfe(os.path.join(self.meta.topdir,'samples.csv'))
+#         with open(os.path.join(self.meta.topdir,'samples.csv'),'rb') as csvfile:
+#             tuples = (line.split(None) for line in csvfile)
+#             alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
+#             alldata = np.array(alldata).T
 #             print(str(self.last_key.r)+' alldata shape '+str(np.shape(alldata)))
 
-        locs,scales = [],[]
-        x_cors,y_cors,y_cors2 = [],[],[]
+        x_cors,y_cors,y_cors2,y_cors3 = [],[],[],[]
         for k in xrange(self.meta.nbins):
-            alldata[k] = np.array(alldata[k])
-            y_all = alldata[k].flatten()
-            loc,scale = sp.stats.norm.fit_loc_scale(y_all)
+#             alldata[k] = np.array(alldata[k])
+#             y_all = alldata[k].flatten()
+#             loc,scale = sp.stats.norm.fit_loc_scale(y_all)
             x_cor = [self.meta.binends[k],self.meta.binends[k],self.meta.binends[k+1],self.meta.binends[k+1]]
-            y_cor = np.array([loc-scale,loc+scale,loc+scale,loc-scale])
-            y_cor2 = np.array([loc-2*scale,loc+2*scale,loc+2*scale,loc-2*scale])
-            locs.append(loc)
-            scales.append(scale)
+            y_cor = np.array([self.locs[k]-self.scales[k],self.locs[k]+self.scales[k],self.locs[k]+self.scales[k],self.locs[k]-self.scales[k]])
+            y_cor2 = np.array([self.locs[k]-2*self.scales[k],self.locs[k]+2*self.scales[k],self.locs[k]+2*self.scales[k],self.locs[k]-2*self.scales[k]])#np.array([loc-2*scale,loc+2*scale,loc+2*scale,loc-2*scale])
+            y_cor3 = np.array([self.locs[k]-3*self.scales[k],self.locs[k]+3*self.scales[k],self.locs[k]+3*self.scales[k],self.locs[k]-3*self.scales[k]])
             x_cors.append(x_cor)
             y_cors.append(y_cor)
             y_cors2.append(y_cor2)
-        self.locs = np.array(locs)
-        self.scales = np.array(scales)
+            y_cors3.append(y_cor3)
         self.x_cors = np.array(x_cors)
         self.y_cors = np.array(y_cors)
         self.y_cors2 = np.array(y_cors2)
+        self.y_cors3 = np.array(y_cors3)
 
         return
 
@@ -508,11 +507,11 @@ class plotter_samps(plotter):
 #         for v in lrange(both['mapvals']):
 #             plotstep(sps_samp_log,self.meta.binends,both['mapvals'][v],w=2,c=self.meta.colors[v%self.ncolors])
 #             plotstep(sps_samp,self.meta.binends,np.exp(both['mapvals'][v]),w=2,c=self.meta.colors[v%self.ncolors])
-        self.kl_mml = min(kls['kl_mmlvtru'],kls['kl_truvmml'])
-        self.kl_stk = min(kls['kl_stkvtru'],kls['kl_truvstk'])
-        self.kl_map = min(kls['kl_mapvtru'],kls['kl_truvmap'])
-        self.kl_exp = min(kls['kl_expvtru'],kls['kl_truvexp'])
-        self.kl_smp = min(sm.calckl(self.meta.bindifs,self.locs,self.meta.logtruNz))
+        self.kl_mml = round(min(kls['kl_mmlvtru'],kls['kl_truvmml']),4)
+        self.kl_stk = round(min(kls['kl_stkvtru'],kls['kl_truvstk']),4)
+        self.kl_map = round(min(kls['kl_mapvtru'],kls['kl_truvmap']),4)
+        self.kl_exp = round(min(kls['kl_expvtru'],kls['kl_truvexp']),4)
+        self.kl_smp = round(min(sm.calckl(self.meta.bindifs,self.locs,self.meta.logtruNz)),4)
 
     def summary(self):
 
