@@ -66,11 +66,11 @@ class setup(object):
 
         # create files for outputting timing data for performance evaluation
         self.calctime = os.path.join(self.topdir, 'calctimer.txt')
-#         if os.path.exists(self.calctime):
-#             os.remove(self.calctime)
+        if os.path.exists(self.calctime):
+            os.remove(self.calctime)
         self.plottime = os.path.join(self.topdir, 'plottimer.txt')
-#         if os.path.exists(self.plottime):
-#             os.remove(self.plottime)
+        if os.path.exists(self.plottime):
+            os.remove(self.plottime)
 #         self.iotime = os.path.join(self.testdir, 'iotimer.txt')
 #         if os.path.exists(self.iotime):
 #             os.remove(self.iotime)
@@ -203,6 +203,8 @@ class setup(object):
             self.logtruPz = np.log(self.truPz)
 
         self.samples = os.path.join(self.topdir, 'samples.csv')
+        if os.path.exists(self.samples):
+            os.remove(self.samples)
 #         with open(self.samples,'wb') as csvfile:
 #             out = csv.writer(csvfile,delimiter=' ')
 #             out.writerow(self.binends)
