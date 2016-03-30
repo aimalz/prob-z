@@ -782,12 +782,13 @@ inappropriate, leading to broader features.
 Here we vary the fiducial case with noisier data to demonstrate that the 
 results of the sampler and of stacking diverge for broader photo-z likelihoods. 
  In these cases, $\sigma_{j}$ is drawn from a normal distribution as described 
-in Sec. \ref{sec:mock} but with the factor $f=2$ in one case and $f=4$ in 
-another.  \textbf{Should I even mention the $f=2$ case?  It's not nearly as 
-dramatic.}  In both cases, the corresponding sample interim photo-z posteriors 
-to those of Fig. \ref{fig:nullpzs} are broader, with central redshifts farther 
-from the true redshift on average.  \textbf{I cut the figure since I think this 
-sentence suffices.}
+in Sec. \ref{sec:mock} but with the factor $f=2$ ("doubly imprecise" compared 
+to the fiducial case) in one case and $f=4$ ("quadruply imprecise" compared to 
+the fiducial case) in another.  \textbf{Should I even mention the $f=2$ case?  
+It's not nearly as dramatic.}  In both cases, the corresponding sample interim 
+photo-z posteriors to those of Fig. \ref{fig:nullpzs} are broader, with central 
+redshifts farther from the true redshift on average.  \textbf{I cut the figure 
+since I think this sentence suffices.}
 
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/sig2/samplepzs.pdf}
@@ -860,13 +861,15 @@ better than the alternatives.}
 \label{fig:sig4-comp}
 \end{figure}
 
+From these two test cases, it can be seen that the mean of the sampled 
+hyperparameter values is a robust estimator of the true $N(z)$, regardless of 
+the imprecision of the data.  The error bars accurately reflect our beliefs 
+about the uncertainty of this estimator.  Stacking and the point estimators 
+fail to recover the distinctive features of the true $N(z)$.
+
 \clearpage
 \subsection{Inaccurate interim photo-z posteriors}
 \label{sec:multi}
-
-\textbf{Should I cut these two tests out of the paper?  Both violate the 
-generative model, which is kind of the point.  I'm just not confident in my 
-interpretation of the biases of the results of sampling.}
 
 In this pair of tests, we aim to simulate more realistic interim photo-z 
 posteriors by modifying the procedure of Sec. \ref{sec:mock} to introduce 
@@ -909,33 +912,36 @@ than that of stacking and marginalized likelihood maximization.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/vars/comps.pdf}
-\caption{\textbf{Something has gone wrong with this test numerically, despite 
-the fact that no such error occurs with other test cases; I'm investigating.}} 
-%Th
-%e result of the sampler (thick, black line), like the marginalized MLE (dashed 
-%line), does have a bias to overestimate density in the peaks and underestimate 
-%it in the troughs.  However, the effect is not as severe as for the result of s
-%tacking (dotted line), which smooths out all features and increases probability
-% density in the tails.}
+\caption{The marginalized MLE (thick, dotted line; KLD $0.004$) is in this case 
+the best estimator of the true $N(z)$.  The mean of the samples (thick, solid 
+line; KLD $0.006$) shows some bias at the peaks and troughs of the 
+distribution, but not as much as stacking (thick, dashed line; KLD $0.016$).  
+The marginalized MAP (thin, dashed line; KLD $0.009$) and marginalized expected 
+value (thin, dotted line; KLD $0.007$) have intermediate accuracy, with the 
+same bias at the peaks and troughs of the distribution.}
 \label{fig:noisy-comp}
 \end{figure}
 
-In the second test case, inaccuracy is simulated by considering multimodal 
-photo-z likelihoods.  To achieve this goal we introduce another change in Sec. 
-\ref{sec:mock}.  Here, the redshift posteriors are sums of Gaussians of the 
-form of those tested in Sec. \ref{sec:null}.  Each galaxy is assigned a number 
-$R_{j}$ of Gaussian elements to be summed, chosen randomly from $1,\dots,K$ 
-with weights proportional to $K^{-1}$.  One $\sigma_{jr}$ is drawn for each 
-$r=1,\dots,R_{j}$, and one $z'_{jr}$ is selected from the corresponding 
-$\mathcal{N}(z^{0}_{j},\sigma^{2}_{jr})$.  The components are summed and 
-normalized to yield the likelihood, which is then convolved with the interim 
-prior to produce the interim posterior.  Some examples of the multimodal 
-interim photo-z posteriors are shown in Fig. \ref{fig:multipzs}.  \textbf{I 
-redid this test with fewer summed components, but they're still not multimodal, 
-just asymmetric.  This is because the generative model doesn't let the peaks be 
-far enough apart relative to their variances.  Unless I violate the generative 
-model as in the previous case, I should probably cut this test out of the 
-paper.}
+In the second test case, catastrophic errors are simulated by considering 
+multimodal photo-z likelihoods.  To achieve this goal we introduce another 
+change in Sec. \ref{sec:mock}.  Here, the redshift posteriors are sums of 
+Gaussians of the form of those tested in Sec. \ref{sec:null}.  Each galaxy is 
+assigned a number $R_{j}$ of Gaussian elements to be summed, chosen randomly 
+from $1,\dots,K$ with weights proportional to $k^{-1}$.  One $\sigma_{jr}$ is 
+drawn for each $r=1,\dots,R_{j}$, and one $z'_{jr}$ is selected from the 
+corresponding $\mathcal{N}(z^{0}_{j},\sigma^{2}_{jr})$.  The components are 
+summed and normalized to yield the likelihood, which is then convolved with the 
+interim prior to produce the interim posterior.  Some examples of the 
+multimodal interim photo-z posteriors are shown in Fig. \ref{fig:multipzs}.  
+
+\textbf{I redid this test with a few different schemes for attempting to make 
+multimodal likelihoods but none worked well.  The one included here was 
+especially bad because the sum of Gaussians with centers that are Gaussian 
+distributed around the true redshift is guaranteed to lead to a MAP and 
+expected value closer to the truth than the average individual Gaussian 
+component.  I need to think of a good way to violate the generative model (as 
+in the previous case in this section) that really gives likelihoods that look 
+like the real data.}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/mult/samplepzs.pdf}
@@ -943,10 +949,7 @@ paper.}
 lines) are shown, along with the true redshift (dashed lines) and the $R_{j}$ 
 centers of the Gaussian components (dotted lines).  Note that some 
 distributions are multimodal, with peaks of different heights, while others are 
-simply asymmetric in spite of the flat interim prior.  \textbf{I would like to 
-redo this test with more obviously multimodal distributions, by deviating from 
-the generative model more severely.  I wanted to check that this was an okay 
-thing to propose before doing it.}}
+simply asymmetric in spite of the flat interim prior.}
 \label{fig:multipzs}
 \end{figure}
 
@@ -971,14 +974,17 @@ the KLD, with stacking smoothing the peaks and troughs.
 \includegraphics[width=0.5\textwidth]{figs/mult/comps.pdf}
 \caption{\textbf{The point estimators are doing well because I'm not straying 
 far enough from the generative model.  I will note that the MMLE has trouble 
-with these kinds of distributions.}}%Though the sampler (thick, black line) 
-fails to 
-%recover the true $N(z)$ (thin, black line), it still does better than stacking 
-%(dotted line) and marginalized likelihood maximization (dashed line).  It is le
-%ss unstable than the marginalized MLE and displaces less probability density at
-% the tails than stacking.}
+with these kinds of distributions.}}
 \label{fig:multi-comp}
 \end{figure}
+
+The performance of the mean of the samples as an estimator in these two test 
+cases is weaker than in test cases that do not vary the generative model.  It 
+can thus be concluded that it is essential for the success of this approach 
+that the form of the likelihood passed to MCMC accurately reflect the way the 
+photo-z posteriors were produced.  In cases where we are uncertain as to the 
+accuracy of the generative model for the photo-z posteriors, it is recommended 
+to use the marginalized MLE.
 
 \clearpage
 \subsection{Toy Model $N(z)$}
@@ -988,15 +994,9 @@ We test the sampler in a case of a highly unrealistic but strongly featured
 true $N(z)$.  This is done to show that the sampler works even in extreme and 
 unanticipated conditions.  Instead of sampling the physically motivated true 
 distribution $p(z|\vec{\theta}')$ as in Sec \ref{sec:mock}, we assign all 
-galaxies the same true redshift.  Further, the prior is taken to have identity 
-covariance instead of that of Sec. \ref{sec:prior}.  
-
-Fig. \ref{fig:toy-comp} compares the mean of the posterior samples to the 
-results of stacking and marginalized likelihood maximization.  It can be seen 
-that the marginalized maximum likelihood estimator is best at recovering the 
-true distribution of a delta function, whereas stacking and the point 
-estimators broaden it considerably.  The sampler does a fair job of recovering 
-the true distribution, with minimal broadening.
+galaxies the same true redshift.  Fig. \ref{fig:toy-comp} compares the mean of 
+the posterior samples to the results of stacking and marginalized likelihood 
+maximization.    
 
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/delt/samps.pdf}
@@ -1016,6 +1016,18 @@ distribution more than the mean of the samples but not quite as much as
 stacking (thick, dashed line; KLD $1.123$).}
 \label{fig:toy-comp}
 \end{figure}
+
+It can be seen that the marginalized MLE is best at recovering the true 
+distribution of a delta function due to the nature of the optimizer, which 
+considers each component of the hyperparameter vector to be independent of all 
+others.  Other estimators predict a broader distribution than the truth, with 
+stacking broadening it the most and the mean of the samples broadening it the 
+least.  Though the sampler does not consider components of the hyperparameter 
+vector to be independent, it is flexible enough to provide good constraints on 
+the true $N(z)$.  In cases where we expect an extremely strongly featured 
+$N(z)$, such as one might find in an area with a small number of galaxy 
+clusters, the marginalized MLE is the recommended estimator; if for numerical 
+reasons optimization is not possible, the mean of MCMC samples is recommended.
 
 \clearpage
 \subsection{Variable Interim Prior}
@@ -1096,10 +1108,7 @@ stacking is very strongly affected by the choice of the interim prior, whereas
 the mean of the samples is only weakly affected by it and the marginalized MLE 
 is not affected by it very much at all.  Based on these results, it can be 
 concluded that when the interim prior is known to be inappropriate, the 
-marginalized MLE is the best estimator of the truth.  \textbf{I'm redoing this 
-test with a less exaggerated bimodal interim prior because a realistic case 
-would have some overlap between the two components anyway so there is even-ish 
-coverage of the entire redshift range.}
+marginalized MLE is the best estimator of the truth.  
 
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/bint/samps.pdf}
@@ -1130,16 +1139,11 @@ In addition to simulated tests, we also apply this method to a samples of the
 data described in Sec. \ref{sec:data}.  The interim prior is taken from 
 \citet{Sheldon2012}.  In these cases the true $N(z)$ is not known, but the 
 fully probabilistic method presented here may still be compared to what is 
-obtained by alternative approaches.  \textbf{I currently don't show the results 
-of other methods for these cases but will add that in soon.}
+obtained by alternative approaches.
 
-\clearpage
-\subsubsection{Unbiased Data}
-\label{sec:unbiased}
-
-A pseudo-random sampling of the full BOSS dataset is examined to approximate 
-the behavior of an unbiased galaxy survey.  The results of the inference are 
-shown in Fig. \ref{fig:dataparam}.
+A pseudo-random sampling of the full BOSS dataset is first examined to 
+approximate the behavior of an average galaxy survey.  The results of the 
+inference are shown in Fig. \ref{fig:dataparam}.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/boss/samps.pdf}
@@ -1150,15 +1154,17 @@ unfortunately it's the slowest test case to run.}}
 \label{fig:dataparam}
 \end{figure}
 
-\clearpage
-\subsubsection{Biased Data}
-\label{sec:biased}
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/boss/comps.pdf}
+\caption{\textbf{Yes, I know, it happens on this one, too.  At least it's 
+consistent.}}
+\label{fig:datacomp}
+\end{figure}
 
-A pseudo-random sampling of the full dataset with a cut in $r$-band magnitude 
-is examined to approximate the behavior of a biased galaxy survey with a 
-magnitude limit.  In this case, the dataset is the same as used in Sec. 
-\ref{sec:boss}, excluding the dimmest half of the galaxies.  The results of the 
-inference are shown in Fig. \ref{fig:biasparam}.
+The BOSS subsample is further subsampled by imposing a cut in $r$-band 
+magnitude (at the median magnitude) to approximate the behavior of a heavily 
+biased galaxy survey with a magnitude limit.  The results of the inference are 
+shown in Fig. \ref{fig:biasparam}.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/bias/samps.pdf}
@@ -1167,6 +1173,18 @@ differ substantially from the interim prior (gray).  The mean of samples
 (thick, black line) and associated error bars ($1\sigma$ in dark gray, 
 $2\sigma$ in light gray) are in line with the sampled values.}
 \label{fig:biasparam}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/bias/comps.pdf}
+\caption{The results of each of several estimators are shown here.  First, it 
+should be noted that the interim prior (gray, solid line) differs substantially 
+from all the estimators.  Second, it can be seen that stacking (thick, dashed 
+line) estimates a broader distribution with fewer features than the mean of the 
+samples (thick, solid line).  The marginalized MLE (thick, dotted line) is 
+highly unstable, as was true in the simulated case with multimodal photo-z 
+likelihoods that more closely resembled the data.}
+\label{fig:biascomp}
 \end{figure}
 
 \clearpage
@@ -1182,14 +1200,37 @@ distribution function $N(z)$ with promising results on mock data; not only is
 this the only mathematically correct approach to the problem, it also recovers 
 the true parameter values better than popular alternatives.  
 
-When data suffers from imprecision, as in the case of high intrinsic scatter, 
-and when data suffers from inaccuracies, as in the case of catastrophic 
-outliers, the mean of sampled values is an improvement over the point estimates 
-of stacking and the marginalized MLE.  In cases of perversely featured true 
-redshift distributions and inappropriate but known choices of interim priors, 
-the marginalized MLE is a better choice than stacking or sampling, although 
-sampling still performs better than stacking.  See Tab. \ref{tab:kld} for a 
-summary of the results of these comparisons.
+In the tests on simulated data performed here, the full posterior distribution 
+over the hyperparameters defining $N(z)$ derived by this method is consistent 
+with the true hyperparameter values, making the mean of sampled values an 
+excellent estimator of $N(z)$.  The results of those tests is summarized below 
+and in Tab. \ref{tab:kld}, where lower values indicate a closer match between 
+the true $N(z)$ and the estimator.  Tests were performed on subsets of BOSS 
+data with results consistent with those of simulations.
+
+\begin{enumerate}
+\item Both the marginalized MLE and the mean of the samples are good estimators 
+of $N(z)$ for the simplest photo-z posteriors.
+\item When data suffers from imprecision, as in the case of high intrinsic 
+scatter, the difference between stacking and sampling is highly pronounced, 
+with stacking yielding a much smoother estimator of $N(z)$ and sampling 
+producing a broader posterior with the same mean hyperparameter values as in 
+the case of cleaner data.
+\item When data suffers from inaccuracies, as in the case of catastrophic 
+outliers, the marginalized MLE is unstable, point estimators are subject to 
+catastrophic errors, and stacking yields an especially smoothed estimate of 
+$N(z)$; sampling does the best job of recovering the true $N(z)$, but it does 
+not do as well as in cases where the generative model reflected in the full 
+likelihood matches the way the data were produced.
+\item The marginalized MLE is an excellent estimator for strongly featured 
+$N(z)$ with simple, clean photo-z posteriors; stacking smooths features more 
+than sampling and photo-z point estimation.
+\item When the interim prior is known to be a poor approximation to the data, 
+only the marginalized MLE and mean of sampled values are satisfactory 
+estimators of $N(z)$ because they are the only methods that can account for the 
+bias introduced into the photo-z posteriors; this is the most compelling case 
+because of the ubiquity of using inappropriate interim priors.
+\end{enumerate}
 
 \begin{table}
 \begin{tabular}{lccccc}
@@ -1229,12 +1270,11 @@ mean distance ratio.  Future work will also include the extension of this fully
 probabilistic approach to higher-order statistics of redshift such as the 
 two-point correlation function.
 
-\textbf{What else should I be putting here?  It seems a bit terse.}
+\textbf{What else should I be putting here?  Is this too terse?}
 
 \clearpage
-\textbf{I am aware something is screwed up with my references.  I'm still 
-trying to find a good reference manager and have made a mess of my references 
-trying out a few.  Recommendations would be appreciated.}
+\textbf{Let me know if anything is screwed up with my references; I made a mess 
+wrestling with Mendeley and BibDesk.}
 \bibliographystyle{apj}
 \bibliography{zPDF}
 
