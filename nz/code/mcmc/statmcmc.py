@@ -438,7 +438,7 @@ def calcbfe(samples):
         tuples = (line.split(None) for line in csvfile)
         alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
         nbins = len(alldata[0])
-        alldata = np.array(alldata).T
+        alldata = np.array(alldata[1:]).T
 #             print(str(self.last_key.r)+' alldata shape '+str(np.shape(alldata)))
 
     locs,scales = [],[]

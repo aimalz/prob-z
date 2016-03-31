@@ -449,7 +449,7 @@ class plotter_samps(plotter):
 
     def calcbfe(self):
 
-        self.locs,self.scales = sm.calcbfe(os.path.join(self.meta.topdir,'samples.csv'))
+        self.locs,self.scales = sm.calcbfe(self.meta.samples)
 #         with open(os.path.join(self.meta.topdir,'samples.csv'),'rb') as csvfile:
 #             tuples = (line.split(None) for line in csvfile)
 #             alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
