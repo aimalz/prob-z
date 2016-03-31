@@ -118,6 +118,8 @@ def plot_pdfs(meta):
     sps.set_ylabel(r'$p(z|\vec{d})$')
     sps.set_xlabel(r'$z$')
     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
+    sps.set_ylim(0.,1./meta.bindif)
+    sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
     f.savefig(os.path.join(meta.topdir,'samplepzs.png'),bbox_inches='tight', pad_inches = 0)
     return
 

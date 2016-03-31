@@ -207,7 +207,7 @@ class stat_chains(calcstats):
 #         print('about to write samples to file: '+str(self.meta.key.burnin))
 #         if self.meta.key.burnin == False:
 
-        with open(os.path.join(self.meta.topdir,self.meta.samples),'ab') as csvfile:
+        with open(self.meta.samples,'ab') as csvfile:
             out = csv.writer(csvfile,delimiter=' ')
             for w in xrange(self.meta.nwalkers):
                 out.writerows(self.ydata[w])#[[x for x in row] for row in self.ydata])

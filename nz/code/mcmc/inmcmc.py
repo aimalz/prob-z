@@ -130,6 +130,14 @@ class setup(object):
         self.bindif = sum(self.bindifs)/self.nbins
         self.binmids = (self.binlos+self.binhis)/2.
 
+        self.samples = os.path.join(self.topdir, 'samples.csv')
+#         if os.path.exists(self.samples):
+#             os.remove(self.samples)
+        with open(self.samples,'wb') as csvfile:
+            out = csv.writer(csvfile,delimiter=' ')
+            out.writerow(self.binends)
+        print('made samples.csv')
+
         # number of walkers
         self.nwalkers = 2*self.nbins
 
@@ -197,13 +205,6 @@ class setup(object):
             self.logtruNz = np.log(self.truNz)
             self.truPz = self.truNz/np.sum(self.truNz)
             self.logtruPz = np.log(self.truPz)
-
-        self.samples = os.path.join(self.topdir, 'samples.csv')
-#         if os.path.exists(self.samples):
-#             os.remove(self.samples)
-#         with open(self.samples,'wb') as csvfile:
-#             out = csv.writer(csvfile,delimiter=' ')
-#             out.writerow(self.binends)
 
         return
 
