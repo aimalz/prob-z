@@ -436,28 +436,19 @@ def calckl(difs,lqn,lpn):
 def calcbfe(samples):
     with open(samples,'rb') as csvfile:
         tuples = (line.split(None) for line in csvfile)
-        alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
+        alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples][1:]
         nbins = len(alldata[0])
-        alldata = np.array(alldata[1:]).T
+        alldata = np.array(alldata).T
+        print('alldata shape = '+str(np.shape(alldata)))
 #             print(str(self.last_key.r)+' alldata shape '+str(np.shape(alldata)))
 
     locs,scales = [],[]
-        #x_cors,y_cors,y_cors2 = [],[],[]
     for k in xrange(nbins):
-        alldata[k] = np.array(alldata[k])
         y_all = alldata[k].flatten()
+        print('y_all shape before = '+str(np.shape(y_all)))
         loc,scale = sp.stats.norm.fit_loc_scale(y_all)
-            #x_cor = [self.meta.binends[k],self.meta.binends[k],self.meta.binends[k+1],self.meta.binends[k+1]]
-            #y_cor = np.array([loc-scale,loc+scale,loc+scale,loc-scale])
-            #y_cor2 = np.array([loc-2*scale,loc+2*scale,loc+2*scale,loc-2*scale])
         locs.append(loc)
         scales.append(scale)
-            #x_cors.append(x_cor)
-            #y_cors.append(y_cor)
-            #y_cors2.append(y_cor2
     locs = np.array(locs)
     scales = np.array(scales)
-        #self.x_cors = np.array(x_cors)
-        #self.y_cors = np.array(y_cors)
-        #self.y_cors2 = np.array(y_cors2)
     return(locs,scales)

@@ -452,17 +452,9 @@ class plotter_samps(plotter):
     def calcbfe(self):
 
         self.locs,self.scales = sm.calcbfe(self.meta.samples)
-#         with open(os.path.join(self.meta.topdir,'samples.csv'),'rb') as csvfile:
-#             tuples = (line.split(None) for line in csvfile)
-#             alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples]
-#             alldata = np.array(alldata).T
-#             print(str(self.last_key.r)+' alldata shape '+str(np.shape(alldata)))
 
         x_cors,y_cors,y_cors2,y_cors3 = [],[],[],[]
         for k in xrange(self.meta.nbins):
-#             alldata[k] = np.array(alldata[k])
-#             y_all = alldata[k].flatten()
-#             loc,scale = sp.stats.norm.fit_loc_scale(y_all)
             x_cor = [self.meta.binends[k],self.meta.binends[k],self.meta.binends[k+1],self.meta.binends[k+1]]
             y_cor = np.array([self.locs[k]-self.scales[k],self.locs[k]+self.scales[k],self.locs[k]+self.scales[k],self.locs[k]-self.scales[k]])
             y_cor2 = np.array([self.locs[k]-2*self.scales[k],self.locs[k]+2*self.scales[k],self.locs[k]+2*self.scales[k],self.locs[k]-2*self.scales[k]])#np.array([loc-2*scale,loc+2*scale,loc+2*scale,loc-2*scale])
