@@ -13,10 +13,10 @@ import shutil
 import emcee
 import itertools
 import timeit
-import sklearn as skl
 import sys
 import csv
 import multiprocessing as mp
+# import sklearn as skl
 
 import utilmcmc as um
 import keymcmc as key
@@ -50,14 +50,18 @@ class setup(object):
 
         # make directory into which to put output of this test
         self.topdir = os.path.join(self.updir,'mcmc')
-#         if os.path.exists(self.topdir):
-#             shutil.rmtree(self.topdir)
-# #             os.remove(os.path.join(self.topdir,'samples.csv'))
-# #             os.remove(os.path.join(self.topdir,'calctimer.txt'))
-# #             os.remove(os.path.join(self.topdir,'plottimer.txt'))
-# #         else:
-        if not os.path.exists(self.topdir):
+
+        # enable plotting without sampling
+        if 'plotonly' in indict:
+            self.plotonly = bool(int(indict['plotonly'][0]))
+        else:
+            self.plotonly = bool(0)
+        if self.plotonly == False:
+            if os.path.exists(self.topdir):
+                shutil.rmtree(self.topdir)
             os.makedirs(self.topdir)
+        else:
+            self.iterno = self.key.load_iterno(self.topdir)
 
         iterplace = os.path.join(self.topdir,'iterno.p')
         if os.path.exists(iterplace):
@@ -66,14 +70,7 @@ class setup(object):
 
         # create files for outputting timing data for performance evaluation
         self.calctime = os.path.join(self.topdir, 'calctimer.txt')
-        if os.path.exists(self.calctime):
-            os.remove(self.calctime)
         self.plottime = os.path.join(self.topdir, 'plottimer.txt')
-        if os.path.exists(self.plottime):
-            os.remove(self.plottime)
-#         self.iotime = os.path.join(self.testdir, 'iotimer.txt')
-#         if os.path.exists(self.iotime):
-#             os.remove(self.iotime)
 
         # load and parse data
         self.proc_data()
@@ -203,8 +200,8 @@ class setup(object):
             self.logtruPz = np.log(self.truPz)
 
         self.samples = os.path.join(self.topdir, 'samples.csv')
-        if os.path.exists(self.samples):
-            os.remove(self.samples)
+#         if os.path.exists(self.samples):
+#             os.remove(self.samples)
 #         with open(self.samples,'wb') as csvfile:
 #             out = csv.writer(csvfile,delimiter=' ')
 #             out.writerow(self.binends)
@@ -348,14 +345,6 @@ class setup(object):
         return
 
     def setup_mcmc(self,indict):
-
-        # enable plotting without sampling
-        if 'plotonly' in indict:
-            self.plotonly = bool(int(indict['plotonly'][0]))
-            if self.plotonly == True:
-                self.iterno = self.key.load_iterno(self.topdir)
-        else:
-            self.plotonly = bool(0)
 
         if 'miniters' in indict:
             self.miniters = 10**int(indict['miniters'])
