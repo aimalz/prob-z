@@ -233,12 +233,12 @@ class pertest(object):
             # normalize probabilities to integrate (not sum)) to 1
             pdf = pdf/max(np.dot(pdf,self.bindifs),sys.float_info.epsilon)
 
-#             # sample posterior if noisy observation
-#             if self.meta.noise == True:
-#                 spdf = [0]*self.nbins
-#                 for k in xrange(self.nbins):
-#                     spdf[us.choice(xrange(self.nbins), pdf)] += 1
-#                 pdf = np.array(spdf)/np.dot(spdf,self.bindifs)
+            # sample posterior if noisy observation
+            if self.meta.noise == True:
+                spdf = [0]*self.nbins
+                for k in xrange(self.nbins):
+                    spdf[us.choice(xrange(self.nbins), pdf)] += 1
+                pdf = np.array(spdf)/np.dot(spdf,self.bindifs)
 
             mapZ = self.binmids[np.argmax(pdf)]
             expZ = sum(self.binmids*self.bindifs*pdf)

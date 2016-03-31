@@ -129,6 +129,8 @@ class setup(object):
         # 0 for noiseless, 1 for noisy
         if 'noise' in indict:
             self.noise = bool(int(indict['noise'][0]))
+        elif self.shape == True:
+            self.noise = True
         else:
             self.noise = bool(0)
 
