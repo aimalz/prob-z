@@ -51,7 +51,11 @@ class setup(object):
         # make directory into which to put output of this test
         self.topdir = os.path.join(self.updir,'mcmc')
 
-        # enable plotting without sampling
+        # create files for outputting timing data for performance evaluation
+        self.calctime = os.path.join(self.topdir, 'calctimer.txt')
+        self.plottime = os.path.join(self.topdir, 'plottimer.txt')
+
+        # remove previous run unless plotting without sampling
         if 'plotonly' in indict:
             self.plotonly = bool(int(indict['plotonly'][0]))
         else:
@@ -62,15 +66,10 @@ class setup(object):
             os.makedirs(self.topdir)
         else:
             self.iterno = self.key.load_iterno(self.topdir)
-
-        iterplace = os.path.join(self.topdir,'iterno.p')
-        if os.path.exists(iterplace):
-            iterfile = open(iterplace)
-            self.iterno = cpkl.load(iterfile)
-
-        # create files for outputting timing data for performance evaluation
-        self.calctime = os.path.join(self.topdir, 'calctimer.txt')
-        self.plottime = os.path.join(self.topdir, 'plottimer.txt')
+# iterplace = os.path.join(self.topdir,'iterno.p')
+#         if os.path.exists(iterplace):
+#             iterfile = open(iterplace)
+#             self.iterno = cpkl.load(iterfile)
 
         # load and parse data
         self.proc_data()

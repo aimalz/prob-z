@@ -203,6 +203,18 @@ class stat_chains(calcstats):
 
         self.ydata = ydata
         self.eydata = np.exp(self.ydata)
+
+#         print('about to write samples to file: '+str(self.meta.key.burnin))
+#         if self.meta.key.burnin == False:
+
+        with open(os.path.join(self.meta.topdir,self.meta.samples),'ab') as csvfile:
+            out = csv.writer(csvfile,delimiter=' ')
+            for w in xrange(self.meta.nwalkers):
+                out.writerows(self.ydata[w])#[[x for x in row] for row in self.ydata])
+#             print(str(self.meta.key.burnin)+'wrote samples to file')
+#         else:
+#             print('not writing samples to file because still burning in: '+str(self.meta.key.burnin))
+
         y = np.swapaxes(self.ydata.T,0,1).T#nwalkers*nbins*ntimes
         ey = np.swapaxes(self.eydata.T,0,1).T#np.exp(y)
 
@@ -212,21 +224,6 @@ class stat_chains(calcstats):
         else:
             my = np.array([[[k]*self.meta.ntimes for k in self.meta.logtruNz]]*self.meta.nwalkers)#nwalkers*nbins*ntimes
             mey = np.array([[[k]*self.meta.ntimes for k in self.meta.truNz]]*self.meta.nwalkers)#nwalkers*nbins*ntimes
-
-        if self.meta.key.burnin == False:
-            for w in xrange(self.meta.nwalkers):
-
-                with open(os.path.join(self.meta.topdir,'samples.csv'),'ab') as csvfile:
-                    out = csv.writer(csvfile,delimiter=' ')
-                    out.writerows(self.ydata[w])#[[x for x in row] for row in self.ydata])
-
-#                 for x in xrange(self.meta.ntimes):
-#                     #ulog = np.exp(self.chains[w][x])
-#                     #ulogpz = ulog/sum(ulog)
-#                     #logpz = np.log(ulogpz)
-#                     pq,qp = calckl(self.meta.bindifs,self.ydata[w][x],self.meta.logtruNz)
-#                     self.kl_smpvtru.append(pq)
-#                     self.kl_truvsmp.append(qp)
 
         self.sy = np.swapaxes((y-my),1,2)#nwalkers*ntimes*nbins to #nwalkers*nbins*ntimes
         self.sey = np.swapaxes((ey-mey),1,2)
