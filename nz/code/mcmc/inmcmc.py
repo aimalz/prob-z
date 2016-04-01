@@ -50,10 +50,14 @@ class setup(object):
 
         # make directory into which to put output of this test
         self.topdir = os.path.join(self.updir,'mcmc')
+        self.samples = os.path.join(self.topdir, 'samples.csv')
 
         # create files for outputting timing data for performance evaluation
         self.calctime = os.path.join(self.topdir, 'calctimer.txt')
         self.plottime = os.path.join(self.topdir, 'plottimer.txt')
+
+        # load and parse data
+        self.proc_data()
 
         # remove previous run unless plotting without sampling
         if 'plotonly' in indict:
@@ -64,15 +68,15 @@ class setup(object):
             if os.path.exists(self.topdir):
                 shutil.rmtree(self.topdir)
             os.makedirs(self.topdir)
+            with open(self.samples,'wb') as csvfile:
+                out = csv.writer(csvfile,delimiter=' ')
+                out.writerow(self.binends)
         else:
             self.iterno = self.key.load_iterno(self.topdir)
 # iterplace = os.path.join(self.topdir,'iterno.p')
 #         if os.path.exists(iterplace):
 #             iterfile = open(iterplace)
 #             self.iterno = cpkl.load(iterfile)
-
-        # load and parse data
-        self.proc_data()
 
         # name of test for plots
         if 'name' in indict:
@@ -129,14 +133,6 @@ class setup(object):
         self.bindifs = self.binhis-self.binlos
         self.bindif = sum(self.bindifs)/self.nbins
         self.binmids = (self.binlos+self.binhis)/2.
-
-        self.samples = os.path.join(self.topdir, 'samples.csv')
-#         if os.path.exists(self.samples):
-#             os.remove(self.samples)
-        with open(self.samples,'wb') as csvfile:
-            out = csv.writer(csvfile,delimiter=' ')
-            out.writerow(self.binends)
-        print('made samples.csv')
 
         # number of walkers
         self.nwalkers = 2*self.nbins

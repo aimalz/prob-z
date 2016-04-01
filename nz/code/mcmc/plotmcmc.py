@@ -432,7 +432,7 @@ class plotter_samps(plotter):
 #             sps_samp_log.set_ylim(np.min(self.meta.lNz_range)-1.,np.max(self.meta.lNz_range)+1.)
 #             sps_samp.set_ylim(0,max(self.meta.Nz_range)+self.meta.ngals)
         #sps_samp_log.legend(fontsize='xx-small', loc='upper left')
-        sps_samp.legend(fontsize='xx-small', loc='upper left')
+        sps_samp.legend(fontsize='xx-small', loc='upper right')
         footer(sps_samp_log)
 #         footer(sps_samp)
 
@@ -553,7 +553,7 @@ class plotter_samps(plotter):
         sps_comp.set_ylim(0,max(np.exp(self.locs))+self.meta.ngals)
 
         #sps_comp_log.legend(fontsize='xx-small', loc='upper left')
-        sps_comp.legend(fontsize='xx-small', loc='upper left')
+        sps_comp.legend(fontsize='xx-small', loc='upper right')
         footer(sps_comp_log)
 #         footer(sps_comp)
 

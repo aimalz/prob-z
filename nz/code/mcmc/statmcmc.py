@@ -439,13 +439,10 @@ def calcbfe(samples):
         alldata = [[float(pair[k]) for k in range(0,len(pair))] for pair in tuples][1:]
         nbins = len(alldata[0])
         alldata = np.array(alldata).T
-        print('alldata shape = '+str(np.shape(alldata)))
-#             print(str(self.last_key.r)+' alldata shape '+str(np.shape(alldata)))
 
     locs,scales = [],[]
     for k in xrange(nbins):
         y_all = alldata[k].flatten()
-        print('y_all shape before = '+str(np.shape(y_all)))
         loc,scale = sp.stats.norm.fit_loc_scale(y_all)
         locs.append(loc)
         scales.append(scale)
