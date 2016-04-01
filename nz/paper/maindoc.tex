@@ -922,26 +922,22 @@ same bias at the peaks and troughs of the distribution.}
 \label{fig:noisy-comp}
 \end{figure}
 
-In the second test case, catastrophic errors are simulated by considering 
-multimodal photo-z likelihoods.  To achieve this goal we introduce another 
-change in Sec. \ref{sec:mock}.  Here, the redshift posteriors are sums of 
-Gaussians of the form of those tested in Sec. \ref{sec:null}.  Each galaxy is 
-assigned a number $R_{j}$ of Gaussian elements to be summed, chosen randomly 
-from $1,\dots,K$ with weights proportional to $k^{-1}$.  One $\sigma_{jr}$ is 
-drawn for each $r=1,\dots,R_{j}$, and one $z'_{jr}$ is selected from the 
-corresponding $\mathcal{N}(z^{0}_{j},\sigma^{2}_{jr})$.  The components are 
-summed and normalized to yield the likelihood, which is then convolved with the 
-interim prior to produce the interim posterior.  Some examples of the 
-multimodal interim photo-z posteriors are shown in Fig. \ref{fig:multipzs}.  
-
-\textbf{I redid this test with a few different schemes for attempting to make 
-multimodal likelihoods but none worked well.  The one included here was 
-especially bad because the sum of Gaussians with centers that are Gaussian 
-distributed around the true redshift is guaranteed to lead to a MAP and 
-expected value closer to the truth than the average individual Gaussian 
-component.  I need to think of a good way to violate the generative model (as 
-in the previous case in this section) that really gives likelihoods that look 
-like the real data.}
+In the second test case of inaccurate photo-z posteriors, catastrophic errors 
+are simulated by considering multimodal photo-z likelihoods.  To achieve this 
+goal we introduce another change in Sec. \ref{sec:mock}.  Here, the redshift 
+posteriors are sums of Gaussians of the form of those tested in Sec. 
+\ref{sec:null}.  Each galaxy is assigned a number $R_{j}$ of Gaussian elements 
+to be summed, chosen randomly from $1,\dots,K$ with weights proportional to 
+$k^{-1}$.  One $\sigma_{jr}$ is drawn for each $r=1,\dots,R_{j}$, and one 
+$z'_{jr}$ is selected from the corresponding 
+$\mathcal{N}(z^{0}_{j},\sigma^{2}_{jr})$.  The components are summed and 
+normalized to yield the likelihood, which is then convolved with the interim 
+prior to produce a true interim posterior, which is sampled $K$ times and 
+renormalized to produce the final interim posterior used in the analysis.  
+\textbf{Is taking samples an okay modification?  Without it, the interim 
+photo-z posteriors are actually less biased than in the fiducial case and 
+rarely multimodal.}  Some examples of the multimodal interim photo-z posteriors 
+are shown in Fig. \ref{fig:multipzs}.  
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/mult/samplepzs.pdf}
@@ -1147,17 +1143,25 @@ inference are shown in Fig. \ref{fig:dataparam}.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/boss/samps.pdf}
-\caption{\textbf{I don't know why the mean of samples is garbled like this when 
-the sampled values look fine because it's being handled identically to the next 
-case, which works without issue.  I'm looking into the problem, but 
-unfortunately it's the slowest test case to run.}}
+\caption{Samples from the full posterior (colored lines) of the subsample 
+differ substantially from the interim prior (gray).  The mean of samples 
+(thick, black line) and associated error bars ($1\sigma$ in dark gray, 
+$2\sigma$ in light gray) are in line with the sampled values.  \textbf{Not sure 
+what's happening with the errors at high $z$\dots}}
 \label{fig:dataparam}
 \end{figure}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/boss/comps.pdf}
-\caption{\textbf{Yes, I know, it happens on this one, too.  At least it's 
-consistent.}}
+\caption{The results of each of several estimators are shown here.  It can be 
+seen that stacking (thick, dashed line) and the point estimators (marginalized 
+MAP as thin, dashed line; marginalized expected value as thin, dotted line) 
+yield a broader distribution with fewer features, closely matching the interim 
+prior (gray, solid line) than the mean of the samples (thick, solid line).  The 
+marginalized MLE (thick, dotted line) is highly unstable, as was true in the 
+simulated case with multimodal photo-z likelihoods that more closely resembled 
+the data of this case, and far from all other estimators, possibly because the 
+optimizer experiences challenges with so many galaxies.}
 \label{fig:datacomp}
 \end{figure}
 
@@ -1168,9 +1172,9 @@ shown in Fig. \ref{fig:biasparam}.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/bias/samps.pdf}
-\caption{Samples from the full posterior (colored lines) of the subsample 
-differ substantially from the interim prior (gray).  The mean of samples 
-(thick, black line) and associated error bars ($1\sigma$ in dark gray, 
+\caption{Samples from the full posterior (colored lines) of the biased 
+subsample differ substantially from the interim prior (gray).  The mean of 
+samples (thick, black line) and associated error bars ($1\sigma$ in dark gray, 
 $2\sigma$ in light gray) are in line with the sampled values.}
 \label{fig:biasparam}
 \end{figure}
@@ -1274,7 +1278,8 @@ two-point correlation function.
 
 \clearpage
 \textbf{Let me know if anything is screwed up with my references; I made a mess 
-wrestling with Mendeley and BibDesk.}
+wrestling with Mendeley and BibDesk and may have missed something when cleaning 
+up.}
 \bibliographystyle{apj}
 \bibliography{zPDF}
 
