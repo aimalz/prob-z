@@ -121,7 +121,7 @@ def plot_physgen(meta,test):
     #sps.semilogy()
     sps.set_ylabel(r'$p(z)$')
     sps.set_xlabel(r'$z$')
-    sps.legend(fontsize='small',loc='upper left')
+    sps.legend(fontsize='small',loc='upper right')
     f.savefig(os.path.join(meta.simdir,'physPz.pdf'),bbox_inches='tight', pad_inches = 0)
     return
 
@@ -134,7 +134,7 @@ def plot_pdfs(meta,test):
     dummy_x,dummy_y = np.array([-1,-2,-3]),np.array([-1,-2,-3])
     plotstep(sps,dummy_x,dummy_y,c=c_tru,s=s_tru,w=w_tru,l=l_tru+r'$z$',d=d_tru,a=a_tru)
     plotstep(sps,dummy_x,dummy_y,c=c_exp,s=s_map,w=w_exp,l=r'Observed $z$',d=d_map,a=a_map)
-    sps.legend(loc='upper left',fontsize='x-small')
+    sps.legend(loc='upper right',fontsize='x-small')
     #sps.set_title('multimodal='+str(meta.shape)+', noisy='+str(meta.noise))
     for r in us.lrange(test.randos):
         plotstep(sps,test.binends,test.pdfs[test.randos[r]],c=meta.colors[r],s=s_smp,w=w_smp,d=d_smp,a=a_smp)
