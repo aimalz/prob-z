@@ -383,6 +383,7 @@ class plotter_samps(plotter):
 #         sps_samp.set_ylim(0.,self.meta.ngals/self.meta.bindif+self.meta.ngals)
         sps_samp.set_xlabel(r'$z$')
         sps_samp.set_ylabel(r'$N(z)$')
+        sps_samp.ticklabel_format(style='sci',axis='y')
 
         if self.meta.logtruNz is not None:
             plotstep(sps_samp_log,self.meta.zrange,self.meta.lNz_range,w=w_tru,s=s_tru,a=a_tru,c=c_tru,d=d_tru,l=l_tru,r=False)#+lnz)
@@ -521,6 +522,7 @@ class plotter_samps(plotter):
         sps_comp.set_xlim(self.meta.binends[0]-self.meta.bindif,self.meta.binends[-1]+self.meta.bindif)
         sps_comp.set_xlabel(r'$z$')
         sps_comp.set_ylabel(r'$N(z)$')
+        sps_comp.ticklabel_format(style='sci',axis='y')
 
         if self.meta.logtruNz is not None:
             self.prepstats()
