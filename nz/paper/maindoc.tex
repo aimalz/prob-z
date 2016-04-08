@@ -18,40 +18,54 @@
 \newcommand{\myemail}{aimalz@nyu.edu}
 \newcommand{\textul}{\underline}
 
-\shorttitle{A Probabilistic Approach to the Redshift Distribution Function}
+\shorttitle{One-point statistics from a probabilistic photo-z survey}
 \shortauthors{Malz and Hogg}
 
 \begin{document}
 
-\title{A Fully Probabilistic Approach to the Redshift Distribution Function}
+\title{How to obtain one-point statistics from a survey of photometric redshift 
+probability density functions}
 
-\author{A.I. Malz\altaffilmark{1}}
+\author{A.I. Malz\altaffilmark{1}, David W. Hogg\altaffilmark{1,2,3,4}}
 \email{aimalz@nyu.edu}
 
-\author{D.W. Hogg\altaffilmark{1}}
-\email{david.hogg@nyu.edu}
-
-\altaffiltext{1}{New York University Center for Cosmology and Particle Physics}
+\altaffiltext{1}{Center for Cosmology and Particle Physics, Department of 
+Physics,
+  New York University, 4 Washington Pl., room 424, New York, NY 10003, USA}
+\altaffiltext{2}{Simons Center for Data Analysis, 160 Fifth Avenue, 7th floor, 
+New York, NY 10010, USA}
+\altaffiltext{3}{Center for Data Science, New York University, 726 Broadway, 
+7th floor, New York, NY 10003, USA}
+\altaffiltext{4}{Max-Planck-Institut f\"ur Astronomie, K\"onigstuhl 17, D-69117 
+Heidelberg, Germany}
 
 \begin{abstract}
-Photometric redshift probability distribution functions are rapidly replacing 
-redshift point estimates as data products of photometric galaxy surveys.  
-Though there is not yet agreement on the best way to derive such data products, 
-they are most commonly stacked to obtain an estimate of the redshift 
+Photometric redshift (photo-z) probability distribution functions are rapidly 
+replacing photo-z point estimates as data products of photometric galaxy 
+surveys.  Though there is not yet agreement on the best way to derive such data 
+products, they are most often employed in estimation of the redshift 
 distribution function $N(z)$ necessary for weak gravitational lensing 
 calculations and reduced to point estimates in calculations of more complicated 
-statistics.  This work challenges that paradigm and proposes a mathematically 
-consistent technique motivated by fundamental probability theory in which a 
-probabilistic graphical model elucidates the relation of interim photometric 
-redshift posteriors to a full posterior distribution over relevant physical 
-parameters, sampled by Monte Carlo-Markov Chain procedures.  The approach is 
-applied to the one-point statistic of the redshift distribution function $N(z)$ 
-and validated on synthetic data.  It is demonstrated that this method improves 
-accuracy compared to popular alternatives such as stacking and conversion of 
-photometric redshift probability distributions to point estimates of redshift.
+statistics.  This work challenges that paradigm, outlining instead a 
+mathematically consistent technique motivated by fundamental probability theory 
+in which a probabilistic graphical model corresponds to the hierarchical 
+Bayesian relation of photo-z interim posteriors to a full posterior 
+distribution over relevant physical hyperparameters.  The publicly available 
+code produced herein takes as input a survey of photo-z interim posteriors and 
+the interim prior used to derive them, and it produces as output Monte 
+Carlo-Markov Chain samples of the full posterior distribution of 
+hyperparameters describing the one-point statistic of redshift given a survey 
+of photometric data used to derive the photo-z interim posteriors.  The 
+approach is applied to the one-point statistic of the redshift distribution 
+function $N(z)$, validated on synthetic data and tested on BOSS DR10 data.  It 
+is demonstrated that this method improves accuracy, both qualitatively and as 
+quantified by the Kullback-Leibler Divergence, compared to popular alternatives 
+(such as stacking and conversion of photo-z interim posteriors to point 
+estimates).
 \end{abstract}
 
-\keywords{photo-z}
+\keywords{methods: analytical, methods: data analysis, methods: statistical, 
+techniques: photometric, galaxies: statistics, }
 
 \clearpage
 \section{Introduction}
@@ -185,7 +199,14 @@ generative model, illustrated by the directed acyclic graph of Fig.
 \draw [arrow] (z) -- (mags);
 
 \end{tikzpicture}
-\caption{This directed acyclic graph illustrates a hierarchical model.}
+\caption{This directed acyclic graph illustrates a hierarchical model.  The 
+redshift distribution function $N(z)$ exists independent of the survey of $J$ 
+galaxies, indicated as a box.  The redshifts $\{z_{j}\}_{J}$ of all galaxies in 
+the survey are parameters independently drawn from $N(z)$.  The photometric 
+data $\vec{d}_{j}$ encircled in bold are observable quantities determined by 
+the corresponding galaxy's redshift $z_{j}$.  Because the data $\vec{d}_{j}$ of 
+each galaxy can be used to infer its redshift $z_{j}$, $N(z)$ may be inferred 
+from the collection of $\{\vec{d}_{j}\}_{J}$.}
 \label{fig:flow}
 \end{center}
 \end{figure}
