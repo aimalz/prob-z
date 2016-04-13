@@ -18,13 +18,13 @@
 \newcommand{\myemail}{aimalz@nyu.edu}
 \newcommand{\textul}{\underline}
 
-\shorttitle{One-point statistics from a probabilistic photo-$z$ survey}
+\shorttitle{Galaxy population statistics from redshift distribution functions}
 \shortauthors{Malz and Hogg}
 
 \begin{document}
 
-\title{How to obtain one-point statistics of redshift from a survey of 
-photometric redshift probability density functions}
+\title{Computation of galaxy population statistics from redshift distribution 
+functions: a generalized and generalizable method}
 
 \author{A.I. Malz\altaffilmark{1}, David W. Hogg\altaffilmark{1,2,3,4}}
 \email{aimalz@nyu.edu}
@@ -40,23 +40,21 @@ New York, NY 10010, USA}
 Heidelberg, Germany}
 
 \begin{abstract}
-Since photometric redshift (photo-$z$) errors have become a limiting factor in 
-constraining cosmological parameters from galaxy surveys, photo-$z$ point 
-estimates are becoming subdominant to probability distribution functions (PDFs) 
-as data products of photometric galaxy surveys.  In this paper, a fully 
-probabilistic approach is developed to obtain MCMC samples of the full 
-posterior distribution on a one-point statistic of redshift from a survey of 
-photo-$z$ interim posteriors and the interim prior used to derive them.  The 
-resulting technique uses a probabilistic graphical model corresponding to the 
-hierarchical Bayesian relation of photo-$z$ PDFs to a posterior distribution 
-over arbitrary redshift-dependent physical hyperparameters.  This 
-mathematically consistent method is applied to the redshift distribution 
-function $N(z)$ necessary for the calculation of cosmological parameters from 
-weak lensing surveys, validated on synthetic data, and tested on BOSS DR10 
-data.  It is demonstrated that this method improves accuracy, both 
-qualitatively and as quantified by the Kullback-Leibler Divergence, compared to 
-popular alternatives (such as stacking and conversion of photo-$z$ PDFs to 
-point estimates).
+Ongoing and upcoming galaxy surveys aiming to constrain cosmological parameters 
+will produce photometric redshift (photo-$z$) probability distribution 
+functions.  In this paper, a fully probabilistic approach is developed to 
+obtain MCMC samples of the full posterior distribution on a one-point statistic 
+of redshift from a survey of photo-$z$ interim posteriors and the interim prior 
+used to derive them.  The resulting technique uses a probabilistic graphical 
+model corresponding to the hierarchical Bayesian relation of photo-$z$ PDFs to 
+a posterior distribution over arbitrary redshift-dependent physical 
+hyperparameters.  This mathematically consistent method is applied to the 
+redshift distribution function $N(z)$ necessary for the calculation of 
+cosmological parameters from weak lensing surveys, validated on synthetic data, 
+and tested on BOSS DR10 data.  It is demonstrated that this method improves 
+accuracy, both qualitatively and as quantified by the Kullback-Leibler 
+Divergence, compared to popular alternatives (such as stacking and conversion 
+of photo-$z$ PDFs to point estimates).
 \end{abstract}
 
 \keywords{methods: analytical, methods: data analysis, methods: statistical, 
@@ -168,16 +166,16 @@ one-point statistics, though future work will extend this methodology to
 higher-order statistics.
 
 The redshift distribution function $N(z)$ serves as an ideal statistic upon 
-which to demonstrate such an approach.  $N(z)$ is necessary for calculations of 
-two-point correlation functions of weak gravitational lensing and counting 
+which to demonstrate this novel approach.  $N(z)$ is necessary for calculations 
+of two-point correlation functions of weak gravitational lensing and counting 
 statistics that are used to probe dark energy \citep{Masters2015}.  $N(z)$ for 
 observed galaxies has also been used to validate survey selection functions 
 used in generation of realistic, multi-purpose mock catalogs 
 \citep{Norberg2002}.  Additionally, $N(z)$ has been the subject of inference 
 using photo-$z$ probability distributions before \citep{Sheldon2012, 
 Hildebrandt2012, Kelly2014, Benjamin2013, Bonnett2015a, Viironen2015, 
-Asorey2016}, so comparisons to the literature may be easily made.\textbf{Also 
-discuss \citet{Leistedt2016} here for contrast.}
+Asorey2016, Leistedt2016}, so comparisons to the literature may easily be made. 
+ 
 
 Sec. \ref{sec:meth} will derive the framework for exploring the full posterior 
 of distribution for $N(z)$ using photo-$z$ probability distribution functions.  
@@ -820,7 +818,9 @@ are closer, driving up photometric errors in flux-limited surveys.  The nature
 of the galaxy sample at higher redshifts also changes, meaning the generation 
 of the photometric redshift posterior based on an a locally-calibrated SED 
 template library or spectroscopically-confirmed training is more likely to be 
-inappropriate, leading to broader features.
+inappropriate, leading to broader features.  In general, the galaxies that 
+could not have been observed spectroscopically will have different and noisier 
+photo-$z$ PDFs than those that could fall into a spectroscopic training set.
 
 Here we vary the fiducial case with noisier data to demonstrate that the 
 results of the sampler and of stacking diverge for broader photo-$z$ 
