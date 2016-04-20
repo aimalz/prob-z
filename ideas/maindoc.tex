@@ -132,47 +132,47 @@ zPDFs have been used in the literature to estimate parameters relevant to cosmol
 
 Future work is planned for use of zPDFs in higher-order statistics for cosmology, such as angular correlation functions and weak gravitational lensing shear fields, as has been done by \citet{man07}.  (It is likely that direct application of any theoretical results of such an investigation would be computationally prohibitive, so MCMC methods would probably need to be employed to advance estimators of such statistics.)  These statistics have the added complication of observables other than $\{\vec{m}_{n}\}_{N}$, including angular positions $\vec{\phi}=(\alpha,\delta)$.  
 
-One avenue to explore is to combine Questions \ref{it:posterior} and \ref{it:inference} to simultaneously determine both the posteriors of the individual galaxies $p(z|\vec{d}_{n})$ and the hyperparameters of interest $p(\vec{\theta}|\{\vec{d}_{n}\}_{N})$.  A first stab at this possibility is demonstrated by the hierarchical model displayed graphically by Fig. \ref{fig:inference}, applicable to the angular correlation function.  (For the weak lensing shear field, there would be additional parameters for the shape $\vec{S}_{n}$ that would have to be implicitly estimated along with the posteriors over redshift like the SEDs $\vec{t}_{n}$ in Eq. \ref{eq:prior}.)  An equation summarizing the generative model presented in Fig \ref{fig:inference} is given by Eq. \ref{eq:fullcc}.
+One avenue to explore is to combine Questions \ref{it:posterior} and \ref{it:inference} to simultaneously determine both the posteriors of the individual galaxies $p(z|\vec{d}_{n})$ and the hyperparameters of interest $p(\vec{\theta}|\{\vec{d}_{n}\}_{N})$.  A first stab at this possibility is demonstrated by the hierarchical model displayed graphically by Fig. \textbf{redacted}, applicable to the angular correlation function.  (For the weak lensing shear field, there would be additional parameters for the shape $\vec{S}_{n}$ that would have to be implicitly estimated along with the posteriors over redshift like the SEDs $\vec{t}_{n}$ in Eq. \ref{eq:prior}.)  An equation summarizing the generative model presented in Fig \textbf{redacted} is given by Eq. \textbf{redacted}.
 
-\begin{figure}
-\label{fig:inference}
-\vspace{0.5cm}
-\begin{center}
-\begin{tikzpicture}[node distance=1cm]
+%\begin{figure}
+%\label{fig:inference}
+%\vspace{0.5cm}
+%\begin{center}
+%\begin{tikzpicture}[node distance=1cm]
+%
+%\node (powspec) [hyper] {$\vec{\mathcal{P}}$};
+%\node (nz) [hyper, below of=powspec, xshift=+0.75cm] {$\vec{\mathcal{N}}$};
+%\node (croscor) [hyper, below of=powspec, xshift=-0.75cm] {$\vec{\xi}$};
+%\node (prior) [hyper, below of=powspec,xshift=+2cm] {$\vec{T}$};
+%\node (z) [param, below of=nz, yshift=-0.25cm] {$z_{n}$};
+%\node (nuisance) [param, below of=prior, yshift=-0.25cm] {$\vec{t}_{n}$};
+%\node (ang) [data, below of=croscor, yshift=-0.5cm] {$\Delta_{n,n'}$};
+%\node (anglab) [yshift=-0.25cm] at (ang.south) {$n'=1,\dots,N'$};
+%\node (mags) [data, below of=z,yshift=-0.25cm,xshift=+0.5cm] {$\vec{m}_{n}$};
+%%\node (pos) [data, below of=ang,yshift=-0.25cm] {$\vec{\phi}_{n}$};
+%\node (survey) [draw=black,fit={(nuisance.east)(ang.north)(mags.south)(anglab.west)}] {};
+%\node (survlab) [xshift=+2.5cm,yshift=-0.25cm] at (survey.south) {$n=1,\dots,N$};
+%
+%\draw [arrow] (prior) -- (nuisance);
+%\draw [arrow] (powspec) -- (nz);
+%\draw [arrow] (powspec) -- (croscor);
+%\draw [arrow] (nz) -- (z);
+%\draw [arrow] (z) -- (mags);
+%\draw [arrow] (nuisance) -- (mags);
+%\draw [arrow] (croscor) -- (ang);
+%%\draw [arrow] (ang) -- (pos);
+%
+%\end{tikzpicture}
+%\caption{This directed acyclic graph illustrates a generative model in which the hyperparameters $\vec{\mathcal{P}}$ determining the power spectrum may be projected into the angular correlation function parametrized by $\vec{\xi}$ and redshift distribution function parametrized by $\vec{\mathcal{N}}$.  Thus $\vec{\mathcal{P}}$ is effectively separable into components contributing to observable angular distances $\{\Delta_{nn'}\}_{N'}$ and redshifts $z_{n}$ we will have to estimate from the observable brightness $\vec{m}_{n}$ that may be considered independently.  (Though the position $\vec{\phi}_{n}$ is truly what is observed, we may assume that $\{\Delta_{nn'}\}_{N'}$ is a simple transformation of perfectly measured $\vec{\phi}_{n}$ and $\{\vec{\phi}_{n'}\}_{N'}$.)  The effect of the nuisance parameters $\vec{t}_{n}$ cannot be disentangled from that of $z_{n}$ in determining $\vec{m}_{n}$, but they are constraied by the parameters $\vec{T}$ which may have a strong prior.}
+%\end{center}
+%\end{figure}
 
-\node (powspec) [hyper] {$\vec{\mathcal{P}}$};
-\node (nz) [hyper, below of=powspec, xshift=+0.75cm] {$\vec{\mathcal{N}}$};
-\node (croscor) [hyper, below of=powspec, xshift=-0.75cm] {$\vec{\xi}$};
-\node (prior) [hyper, below of=powspec,xshift=+2cm] {$\vec{T}$};
-\node (z) [param, below of=nz, yshift=-0.25cm] {$z_{n}$};
-\node (nuisance) [param, below of=prior, yshift=-0.25cm] {$\vec{t}_{n}$};
-\node (ang) [data, below of=croscor, yshift=-0.5cm] {$\Delta_{n,n'}$};
-\node (anglab) [yshift=-0.25cm] at (ang.south) {$n'=1,\dots,N'$};
-\node (mags) [data, below of=z,yshift=-0.25cm,xshift=+0.5cm] {$\vec{m}_{n}$};
-%\node (pos) [data, below of=ang,yshift=-0.25cm] {$\vec{\phi}_{n}$};
-\node (survey) [draw=black,fit={(nuisance.east)(ang.north)(mags.south)(anglab.west)}] {};
-\node (survlab) [xshift=+2.5cm,yshift=-0.25cm] at (survey.south) {$n=1,\dots,N$};
-
-\draw [arrow] (prior) -- (nuisance);
-\draw [arrow] (powspec) -- (nz);
-\draw [arrow] (powspec) -- (croscor);
-\draw [arrow] (nz) -- (z);
-\draw [arrow] (z) -- (mags);
-\draw [arrow] (nuisance) -- (mags);
-\draw [arrow] (croscor) -- (ang);
-%\draw [arrow] (ang) -- (pos);
-
-\end{tikzpicture}
-\caption{This directed acyclic graph illustrates a generative model in which the hyperparameters $\vec{\mathcal{P}}$ determining the power spectrum may be projected into the angular correlation function parametrized by $\vec{\xi}$ and redshift distribution function parametrized by $\vec{\mathcal{N}}$.  Thus $\vec{\mathcal{P}}$ is effectively separable into components contributing to observable angular distances $\{\Delta_{nn'}\}_{N'}$ and redshifts $z_{n}$ we will have to estimate from the observable brightness $\vec{m}_{n}$ that may be considered independently.  (Though the position $\vec{\phi}_{n}$ is truly what is observed, we may assume that $\{\Delta_{nn'}\}_{N'}$ is a simple transformation of perfectly measured $\vec{\phi}_{n}$ and $\{\vec{\phi}_{n'}\}_{N'}$.)  The effect of the nuisance parameters $\vec{t}_{n}$ cannot be disentangled from that of $z_{n}$ in determining $\vec{m}_{n}$, but they are constraied by the parameters $\vec{T}$ which may have a strong prior.}
-\end{center}
-\end{figure}
-
-\begin{align}
-\label{eq:fullcc}
-p(\mathcal{P}|\{(\{\Delta_{nn'}\}_{N'},\vec{m}_{n})\}_{N}) =& \ p(\vec{P})\prod_{n=1}^{N}\iint\left[\iint p(\vec{t}_{n}|\vec{T})\ p(z_{n}|\vec{\mathcal{N}})\ p(\{\Delta_{nn'}\}_{N'}|\vec{\xi})\ p(\vec{T})\ p(\vec{\mathcal{N}},\vec{\xi}|\vec{\mathcal{P}})\ d\vec{T}\ d\vec{\mathcal{N}}\ d\vec{\xi}\right]\\
-& %\ \ \ \ \ \ \ \ \ \ 
-\indent\indent\indent\indent\indent\indent\indent p(\vec{m}_{n}|\vec{t}_{n},z_{n})\ d\vec{t}_{n}\ dz_{n}\ d\{\Delta_{nn'}\}_{N'}
-\end{align}
+%\begin{align}
+%\label{eq:fullcc}
+%p(\mathcal{P}|\{(\{\Delta_{nn'}\}_{N'},\vec{m}_{n})\}_{N}) =& \ p(\vec{P})\prod_{n=1}^{N}\iint\left[\iint p(\vec{t}_{n}|\vec{T})\ p(z_{n}|\vec{\mathcal{N}})\ p(\{\Delta_{nn'}\}_{N'}|\vec{\xi})\ p(\vec{T})\ p(\vec{\mathcal{N}},\vec{\xi}|\vec{\mathcal{P}})\ d\vec{T}\ d\vec{\mathcal{N}}\ d\vec{\xi}\right]\\
+%& %\ \ \ \ \ \ \ \ \ \ 
+%\indent\indent\indent\indent\indent\indent\indent p(\vec{m}_{n}|\vec{t}_{n},z_{n})\ d\vec{t}_{n}\ dz_{n}\ d\{\Delta_{nn'}\}_{N'}
+%\end{align}
 
 \dots
 
@@ -180,7 +180,7 @@ p(\mathcal{P}|\{(\{\Delta_{nn'}\}_{N'},\vec{m}_{n})\}_{N}) =& \ p(\vec{P})\prod_
 
 \subsubsection{One-point statistic of redshift}
 
-The simplest one-point statistic of redshift 
+The simplest one-point statistic of redshift is the redshift distribution function.  The probabilistic graphical model of Malz \& Hogg 2016 is given in Fig. \ref{fig:nz}. 
 
 \begin{figure}
 \vspace{0.5cm}
@@ -202,122 +202,169 @@ The simplest one-point statistic of redshift
 \end{center}
 \end{figure}
 
-\subsubsection{One-point statistic of redshift and another parameter}
+In general, redshift is degenerate with nuisance parameters, namely the galaxy SED $\vec{\alpha}$.
 
 \begin{figure}
 \vspace{0.5cm}
 \begin{center}
 \begin{tikzpicture}[node distance=1cm]
 
-\node (mf) [hyper,xshift=-1cm] {$\Phi(M,z)$};
-\node (nz) [hyper,xshift=0.5cm,yshift=-1cm] {$N(z)$};
-\node (z) [param, below of=nz] {$z_{j}$};
-\node (M) [param, below of=mf,yshift=-1cm] {$M_{j}$};
-\node (flux) [data, below of=mf,yshift=-2cm,xshift=0.75cm] {$\vec{d}_{j}$};
-\node (survey) [draw=black,fit={(M.west)(M.north)(flux.south)(z.east)}] {};
+\node (nz) [hyper] {$N(z)$};
+\node (talpha) [hyper,xshift=1.5cm] {$T(\vec{\alpha})$};
+\node (z) [param, below of=nz,yshift=-0.25cm] {$z_{j}$};
+\node (sed) [param, below of=talpha,yshift=-0.25cm] {$\vec{\alpha}_{j}$};
+\node (mags) [data, below of=z,yshift=-0.25cm] {$\vec{d}_{j}$};
+\node (survey) [draw=black,fit={(mags.west)(z.north)(mags.south)(sed.east)}] {};
 \node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
 
-\draw [arrow] (mf) -- (nz);
 \draw [arrow] (nz) -- (z);
-\draw [arrow] (mf) -- (M);
-\draw [arrow] (z) -- (flux);
-\draw [arrow] (M) -- (flux);
+\draw [arrow] (talpha) -- (sed);
+\draw [arrow] (sed) -- (mags);
+\draw [arrow] (z) -- (mags);
 
 \end{tikzpicture}
 \caption{}
-\label{fig:mf}
+\label{fig:nuisance}
 \end{center}
 \end{figure}
 
-\subsubsection{One-point statistic of redshift and many other parameters}
+\subsubsection{One-point statistic of redshift and a scalar parameter}
 
-\begin{figure}
-\vspace{0.5cm}
-\begin{center}
-\begin{tikzpicture}[node distance=1cm]
+%\begin{figure}
+%\vspace{0.5cm}
+%\begin{center}
+%\begin{tikzpicture}[node distance=1cm]
+%
+%\node (mf) [hyper,xshift=-1cm] {$\Phi(M,z)$};
+%\node (nz) [hyper,xshift=0.5cm,yshift=-1cm] {$N(z)$};
+%\node (z) [param, below of=nz] {$z_{j}$};
+%\node (M) [param, below of=mf,yshift=-1cm] {$M_{j}$};
+%\node (flux) [data, below of=mf,yshift=-2cm,xshift=0.75cm] {$\vec{d}_{j}$};
+%\node (survey) [draw=black,fit={(M.west)(M.north)(flux.south)(z.east)}] {};
+%\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
+%
+%\draw [arrow] (mf) -- (nz);
+%\draw [arrow] (nz) -- (z);
+%\draw [arrow] (mf) -- (M);
+%\draw [arrow] (z) -- (flux);
+%\draw [arrow] (M) -- (flux);
+%
+%\end{tikzpicture}
+%\caption{}
+%\label{fig:mf}
+%\end{center}
+%\end{figure}
 
-\node (lf) [hyper] {$\Phi(\vec{L},z)$};
-\node (z) [param, below of=lf,yshift=-0.75cm,xshift=0.5cm] {$z_{j}$};
-\node (L) [param, below of=lf,yshift=-0.75cm,xshift=-0.5cm] {$\vec{L}_{j}$};
-\node (flux) [data, below of=lf,yshift=-2cm] {$\vec{d}_{j}$};
-\node (survey) [draw=black,fit={(L.west)(z.north)(flux.south)(z.east)}] {};
-\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
+\subsubsection{One-point statistic of redshift and a vector of parameters}
 
-\draw [arrow] (lf) -- (z);
-\draw [arrow] (lf) -- (L);
-\draw [arrow] (z) -- (flux);
-\draw [arrow] (L) -- (flux);
-
-\end{tikzpicture}
-\caption{}
-\label{fig:mf}
-\end{center}
-\end{figure}
-
-\begin{figure}
-\vspace{0.5cm}
-\begin{center}
-\begin{tikzpicture}[node distance=1cm]
-
-\node (nz) [hyper,xshift=-2cm] {$N(z)$};
-\node (tf) [hyper,xshift=2cm] {$\theta(\vec{L},v,z)$};
-\node (lf) [hyper] {$\Phi(\vec{L},z)$};
-\node (z) [param, below of=lf,yshift=-0.75cm,xshift=-1cm] {$z_{j}$};
-\node (L) [param, below of=z,yshift=-0.75cm,xshift=1cm] {$\vec{L}_{j}$};
-\node (v) [param, below of=z,yshift=-0.75cm,xshift=2cm] {$v_{j}$};
-\node (flux) [data, below of=L,yshift=-1cm] {$\vec{d}_{j}$};
-\node (survey) [draw=black,fit={(z.west)(z.north)(flux.south)(v.east)}] {};
-\node [xshift=2.25cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
-
-\draw [arrow] (nz) -- (z);
-\draw [arrow] (lf) -- (L);
-\draw [arrow] (lf) -- (z);
-\draw [arrow] (tf) -- (L);
-\draw [arrow] (tf) -- (v);
-\draw [arrow] (z) -- (L);
-\draw [arrow] (v) -- (flux);
-\draw [arrow] (z) -- (flux);
-\draw [arrow] (L) -- (flux);
-
-\end{tikzpicture}
-\caption{}
-\label{fig:tf}
-\end{center}
-\end{figure}
-
-\begin{figure}
-\vspace{0.5cm}
-\begin{center}
-\begin{tikzpicture}[node distance=1cm]
-
-\node (nz) [hyper,xshift=-1cm] {$N(z)$};
-\node (fj) [hyper,xshift=1cm] {$\theta(\vec{L},\sigma,z)$};
-\node (z) [param, below of=nz,yshift=-0.75cm] {$z_{j}$};
-\node (L) [param, below of=z,yshift=-0.75cm,xshift=1cm] {$\vec{L}_{j}$};
-\node (v) [param, below of=z,yshift=-0.75cm,xshift=2cm] {$\sigma_{j}$};
-\node (flux) [data, below of=z,yshift=-2cm,xshift=0.5cm] {$\vec{d}_{j}$};
-\node (survey) [draw=black,fit={(z.west)(z.north)(flux.south)(v.east)}] {};
-\node [xshift=2.25cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
-
-\draw [arrow] (nz) -- (z);
-\draw [arrow] (tf) -- (L);
-\draw [arrow] (tf) -- (v);
-\draw [arrow] (z) -- (L);
-\draw [arrow] (z) -- (v);
-\draw [arrow] (v) -- (flux);
-\draw [arrow] (z) -- (flux);
-\draw [arrow] (L) -- (flux);
-
-\end{tikzpicture}
-\caption{}
-\label{fig:fj}
-\end{center}
-\end{figure}
+%\begin{figure}
+%\vspace{0.5cm}
+%\begin{center}
+%\begin{tikzpicture}[node distance=1cm]
+%
+%\node (lf) [hyper] {$\Phi(\vec{L},z)$};
+%\node (z) [param, below of=lf,yshift=-0.75cm,xshift=0.5cm] {$z_{j}$};
+%\node (L) [param, below of=lf,yshift=-0.75cm,xshift=-0.5cm] {$\vec{L}_{j}$};
+%\node (flux) [data, below of=lf,yshift=-2cm] {$\vec{d}_{j}$};
+%\node (survey) [draw=black,fit={(L.west)(z.north)(flux.south)(z.east)}] {};
+%\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
+%
+%\draw [arrow] (lf) -- (z);
+%\draw [arrow] (lf) -- (L);
+%\draw [arrow] (z) -- (flux);
+%\draw [arrow] (L) -- (flux);
+%
+%\end{tikzpicture}
+%\caption{}
+%\label{fig:mf}
+%\end{center}
+%\end{figure}
+%
+%\begin{figure}
+%\vspace{0.5cm}
+%\begin{center}
+%\begin{tikzpicture}[node distance=1cm]
+%
+%\node (nz) [hyper,xshift=-2cm] {$N(z)$};
+%\node (tf) [hyper,xshift=2cm] {$\theta(\vec{L},v,z)$};
+%\node (lf) [hyper] {$\Phi(\vec{L},z)$};
+%\node (z) [param, below of=lf,yshift=-0.75cm,xshift=-1cm] {$z_{j}$};
+%\node (L) [param, below of=z,yshift=-0.75cm,xshift=1cm] {$\vec{L}_{j}$};
+%\node (v) [param, below of=z,yshift=-0.75cm,xshift=2cm] {$v_{j}$};
+%\node (flux) [data, below of=L,yshift=-1cm] {$\vec{d}_{j}$};
+%\node (survey) [draw=black,fit={(z.west)(z.north)(flux.south)(v.east)}] {};
+%\node [xshift=2.25cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
+%
+%\draw [arrow] (nz) -- (z);
+%\draw [arrow] (lf) -- (L);
+%\draw [arrow] (lf) -- (z);
+%\draw [arrow] (tf) -- (L);
+%\draw [arrow] (tf) -- (v);
+%\draw [arrow] (z) -- (L);
+%\draw [arrow] (v) -- (flux);
+%\draw [arrow] (z) -- (flux);
+%\draw [arrow] (L) -- (flux);
+%
+%\end{tikzpicture}
+%\caption{}
+%\label{fig:tf}
+%\end{center}
+%\end{figure}
+%
+%\begin{figure}
+%\vspace{0.5cm}
+%\begin{center}
+%\begin{tikzpicture}[node distance=1cm]
+%
+%\node (nz) [hyper,xshift=-1cm] {$N(z)$};
+%\node (fj) [hyper,xshift=1cm] {$\theta(\vec{L},\sigma,z)$};
+%\node (z) [param, below of=nz,yshift=-0.75cm] {$z_{j}$};
+%\node (L) [param, below of=z,yshift=-0.75cm,xshift=1cm] {$\vec{L}_{j}$};
+%\node (v) [param, below of=z,yshift=-0.75cm,xshift=2cm] {$\sigma_{j}$};
+%\node (flux) [data, below of=z,yshift=-2cm,xshift=0.5cm] {$\vec{d}_{j}$};
+%\node (survey) [draw=black,fit={(z.west)(z.north)(flux.south)(v.east)}] {};
+%\node [xshift=2.25cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
+%
+%\draw [arrow] (nz) -- (z);
+%\draw [arrow] (tf) -- (L);
+%\draw [arrow] (tf) -- (v);
+%\draw [arrow] (z) -- (L);
+%\draw [arrow] (z) -- (v);
+%\draw [arrow] (v) -- (flux);
+%\draw [arrow] (z) -- (flux);
+%\draw [arrow] (L) -- (flux);
+%
+%\end{tikzpicture}
+%\caption{}
+%\label{fig:fj}
+%\end{center}
+%\end{figure}
 
 \subsection{Two-point statistics}
 \subsubsection{Two-point statistics of redshift}
-\subsubsection{Two-point statistics of redshift and another parameter}
-\subsubsection{Two-point statistics of redshift and many other parameters}
+
+%\begin{figure}
+%\vspace{0.5cm}
+%\begin{center}
+%\begin{tikzpicture}[node distance=1cm]
+%
+%\node (fz) [hyper] {$\xi(z,|\vec{r}|)$};
+%\node (z) [param, below of=fz,yshift=-0.25cm] {$z_{j}$};
+%\node (mags) [data, below of=z,yshift=-0.25cm] {$\vec{d}_{j}$};
+%\node (survey) [draw=black,fit={(mags.west)(z.north)(mags.south)(mags.east)}] {};
+%\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
+%
+%\draw [arrow] (fz) -- (z);
+%\draw [arrow] (z) -- (mags);
+%
+%\end{tikzpicture}
+%\caption{}
+%\label{fig:fz}
+%\end{center}
+%\end{figure}
+
+\subsubsection{Two-point statistics of redshift and a scalar parameter}
+\subsubsection{Two-point statistics of redshift and a vector of parameters}
 \subsection{Higher-order statistics}
 
 %\acknowledgments
