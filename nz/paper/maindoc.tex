@@ -23,8 +23,8 @@
 
 \begin{document}
 
-\title{Inference of galaxy or quasar population statistics given photometric 
-redshift probability distribution functions}
+\title{Inference of galaxy population statistics given photometric redshift 
+probability distribution functions}
 
 \author{A.I. Malz\altaffilmark{1} \& David W. Hogg\altaffilmark{1,2,3,4}}
 \email{aimalz@nyu.edu}
@@ -193,17 +193,13 @@ fully probabilistic approach to mock and real datasets.
 \section{Method}
 \label{sec:meth}
 
-\textbf{I'm quite confident in this section as a whole.  Let me know where that 
-confidence is inappropriate.}
-
-It is best to begin with a general description of the problem at hand.  Let us 
-consider a survey of $J$ galaxies $j$, each with photometric data 
+Consider a survey of $J$ galaxies $j$, each with photometric data 
 $\vec{d}_{j}$; thus the entire survey over some solid angle $\Omega$ produces 
 the ensemble of photometric magnitudes (or colors) and their associated 
-observational errors $\{\vec{d}_{j}\}_{J}$.  Each galaxy $j$ has a redshift 
-$z_{j}$ that we would like to learn; redshift is a parameter in this case.  The 
-distribution of the ensemble of redshifts $\{z_{j}\}_{J}$ may be described by 
-the hyperparameters defining the redshift distribution function $N(z)$ that we 
+observational errors $\{\vec{d}_{j}\}$.  Each galaxy $j$ has a redshift $z_{j}$ 
+that we would like to learn; redshift is a parameter in this case.  The 
+distribution of the ensemble of redshifts $\{z_{j}\}$ may be described by the 
+hyperparameters defining the redshift distribution function $N(z)$ that we 
 would like to quantify.  This situation may be considered to be a probabilistic 
 generative model, illustrated by the directed acyclic graph of Fig. 
 \ref{fig:flow}.  
@@ -227,30 +223,31 @@ generative model, illustrated by the directed acyclic graph of Fig.
 \caption{This directed acyclic graph illustrates the hierarchical model 
 presented in this paper.  The redshift distribution function $N(z)$ exists 
 independent of the survey of $J$ galaxies, indicated as a box.  The redshifts 
-$\{z_{j}\}_{J}$ of all galaxies in the survey are parameters independently 
-drawn from $N(z)$.  The photometric data $\vec{d}_{j}$ encircled in bold are 
+$\{z_{j}\}$ of all galaxies in the survey are parameters independently drawn 
+from $N(z)$.  The photometric data $\vec{d}_{j}$ encircled in bold are 
 observable quantities determined by the corresponding galaxy's redshift 
 $z_{j}$.  Because the data $\vec{d}_{j}$ of each galaxy can be used to infer 
 its redshift $z_{j}$, $N(z)$ may be inferred from the collection of 
-$\{\vec{d}_{j}\}_{J}$.}
+$\{\vec{d}_{j}\}$.}
 \label{fig:flow}
 \end{center}
 \end{figure}
 
-The redshift distribution function $N(z)$ shown in Eq. \ref{eq:distribution} 
-gives the number of galaxies per unit redshift, effectively defining the 
-evolution in the number of galaxies \citep{Menard2013}.  In the following 
-sections, we will present and compare methods for calculating $N(z)$ from 
-photometric redshift probability distribution functions.  Sec. \ref{sec:prob} 
-contains the mathematical derivation of a probabilistic model for $N(z)$ 
-dependent on photo-$z$ probability distribution functions, and Sec. 
-\ref{sec:sheldon} contrasts the probabilistic model with alternative methods.
+The redshift distribution function 
+\begin{equation}N(z)=dN/dz\label{eq:distribution}\end{equation} is the number 
+of galaxies per unit redshift, effectively defining the evolution in the number 
+of galaxies \citep{Menard2013}.  In the following sections, we will present and 
+compare methods for calculating $N(z)$ from photometric redshift probability 
+distribution functions.  Sec. \ref{sec:prob} contains the mathematical 
+derivation of a probabilistic model for $N(z)$ dependent on photo-$z$ 
+probability distribution functions, and Sec. \ref{sec:sheldon} contrasts the 
+probabilistic model with alternative methods.
 
-\begin{eqnarray}
-\label{eq:distribution}
-N(z) &=& \frac{dN}{dz}
-\end{eqnarray}
-
+%\begin{eqnarray}
+%\label{eq:distribution}
+%N(z) &=& \frac{dN}{dz}
+%\end{eqnarray}
+%
 \clearpage
 \subsection{Probabilistic Model}
 \label{sec:prob}
@@ -263,158 +260,144 @@ set of means and variances defining Gaussians that sum to the desired
 distribution, a set of histogram heights that describe a binned version of the 
 redshift distribution function, etc.  We define a function 
 $f_{\vec{\theta}}(z)=N(z)$ that transforms these hyperparameters into the 
-redshift distribution function $N(z)$.
+redshift distribution function $N(z)$.  Because 
+\begin{equation}\label{eq:definition} N(z)=J\ p(z|\vec{\theta}),\end{equation} 
+we may discontinue discussion of $N(z)$ in favor of the likelihood 
+$p(z|\vec{\theta})$.
 
 In this paper, we shall work exclusively with log-probabilities.  What we wish 
-to estimate is the full posterior probability distribution (hereafter the full 
-posterior) of the hyperparameters $\vec{\theta}$ given the data 
-$\{\vec{d}_{j}\}_{J}$.  By Bayes' Rule, the full posterior 
-$\ln[p(\vec{\theta}|\{\vec{d}_{j}\}_{J})]$ may be expressed in terms of the 
-full likelihood probability distribution (hereafter the full likelihood) 
-$\ln[p(\{\vec{d}_{j}\}_{J}|\vec{\theta})]$ by way of a hyperprior probability 
+to estimate is the full log-posterior probability distribution (hereafter the 
+full log-posterior) of the hyperparameters $\vec{\theta}$ given the data 
+$\{\vec{d}_{j}\}$.  By Bayes' Rule, the full log-posterior 
+$\ln[p(\vec{\theta}|\{\vec{d}_{j}\})]$ may be expressed in terms of the full 
+log-likelihood probability distribution (hereafter the full log-likelihood) 
+$\ln[p(\{\vec{d}_{j}\}|\vec{\theta})]$ by way of a hyperprior log-probability 
 distribution (hereafter the hyperprior) $\ln p(\vec{\theta})$ over the 
-hyperparameters and the probability of the data $\ln[p(\{\vec{d}_{j}\}_{J})]$.  
+hyperparameters and the log-probability of the data $\ln[p(\{\vec{d}_{j}\})]$.  
 The hyperprior expresses our beliefs about the distribution of the 
 hyperparameters comprising $\vec{\theta}$; this matter (discussed further in 
 Sec. \ref{sec:prior}) is a choice we cannot avoid making and one which is often 
-inspired by the results of previous galaxy surveys.  The probability of the 
-data is generally unknowable, but the full posterior can be probed with a 
-quantity proportional to it so it is never explicitly necessary.  The full 
-likelihood may be expanded in terms of a marginalization over the redshifts as 
-parameters, as in Eq. \ref{eq:marginalize}.  
-
-\begin{eqnarray}
-\label{eq:marginalize}
-\ln[p(\{\vec{d}_{j}\}_{J}|\vec{\theta})] &=& \ln\left[\int\ 
-p(\{\vec{d}_{j}\}_{J}|\{z_{j}\}_{J})\ p(\{z_{j}\}_{J}|\vec{\theta})\ 
-d\{z_{j}\}\right]
-\end{eqnarray}
+inspired by the results of previous galaxy surveys.  The full log-posterior can 
+be probed with a quantity proportional to it so the log-probability of the data 
+is never explicitly necessary.  The full log-likelihood may be expanded in 
+terms of a marginalization over the redshifts as parameters, as in 
+\begin{equation}\label{eq:marginalize} \ln[p(\{\vec{d}_{j}\}|\vec{\theta})] = 
+\ln\left[\int\ p(\{\vec{d}_{j}\}|\{z_{j}\})\ p(\{z_{j}\}|\vec{\theta})\ 
+d\{z_{j}\}\right].\end{equation}
 
 We shall make two assumptions of independence in order to make the problem 
 tractable; their limitations are be discussed below.  First, we take 
-$\ln[p(\{\vec{d}_{j}\}_{J}|\{z_{j}\}_{J})]$ to be the sum of $J$ individual 
-likelihood distribution functions $\ln[p(\vec{d}_{j}|z_{j})]$, as in Eq. 
-\ref{eq:indiedat}, a result of the definition of probabilistic independence.  
-Second, we shall assume the true redshifts $\{z_{j}\}_{J}$ are $J$ independent 
-draws from the true $N(z)$.  Additionally, $J$ itself is a Poisson random 
-variable with expected value $J'$.  The combination of these assumptions is 
-given by Eq. \ref{eq:indie}.  It is important to note that the integral $\int 
-N(z)\ dz$ is not constrained to equal $J'$ but instead $J$, which can be 
+$\ln[p(\{\vec{d}_{j}\}|\{z_{j}\})]$ to be the sum of $J$ individual 
+log-likelihood distribution functions $\ln[p(\vec{d}_{j}|z_{j})]$, as in 
+\begin{equation}\label{eq:indiedat} \ln[p(\{\vec{d}_{j}\}|\{z_{j}\})] = 
+\sum_{j=1}^{J}\ \ln[p(\vec{d}_{j}|z_{j})],\end{equation} a result of the 
+definition of probabilistic independence.  Second, we shall assume the true 
+redshifts $\{z_{j}\}$ are $J$ independent draws from the true 
+$p(z|\vec{\theta})$.  Additionally, $J$ itself is a Poisson random variable.  
+The combination of these assumptions is given by 
+\begin{equation}\label{eq:indie} \ln[p(\{z_{j}\}|\vec{\theta})] = -\int\ 
+f_{\vec{\theta}}(z)\ dz +  \sum_{j=1}^{J}\ 
+\ln[p(z_{j}|\vec{\theta})].\end{equation}  It is important to note that the 
+integral $\int N(z)\ dz$ is not constrained to equal the variable defining the 
+Poisson distribution but instead $J$ by Eq. \ref{eq:definition}, which can be 
 thought of as another parameter.  A detailed discussion of this matter may be 
-found in \citet{Foreman-Mackey2014}.  Applying Bayes' Rule, we may combine 
-terms to obtain Eq. \ref{eq:posterior}.  
-
-\begin{eqnarray}
-\label{eq:indiedat}
-\ln[p(\{\vec{d}_{j}\}_{J}|\{z_{j}\}_{J})] &=& \sum_{j=1}^{J}\ 
-\ln[p(\vec{d}_{j}|z_{j})]
-\end{eqnarray}
-
-\begin{eqnarray}
-\label{eq:indie}
-\ln[p(\{z_{j}\}_{J}|\vec{\theta})] &=& -\int\ f_{\vec{\theta}}(z)\ dz +  
-\sum_{j=1}^{J}\ \ln[p(z_{j}|\vec{\theta})]
-\end{eqnarray}
-
-\begin{eqnarray}
-\label{eq:posterior}
-\ln[p(\vec{\theta}|\{\vec{d}_{j}\}_{J})] &\propto& \ln[p(\vec{\theta})]\ -\int 
+found in \citet{ForemanMackey2014}.  Applying Bayes' Rule, we may combine terms 
+to obtain \begin{equation}\label{eq:posterior} 
+\ln[p(\vec{\theta}|\{\vec{d}_{j}\})] \propto \ln[p(\vec{\theta})]\ -\int 
 f_{\vec{\theta}}(z)\ dz + \sum_{j=1}^{J}\ \ln\left[\int\ p(\vec{d}_{j}|z_{j})\ 
-p(z_{j}|\vec{\theta})\ dz_{j}\right]
-\end{eqnarray}
+p(z_{j}|\vec{\theta})\ dz_{j}\right].\end{equation}
 
-Eq. \ref{eq:posterior} still contains the photo-$z$ likelihoods 
-$\ln[p(\vec{d}_{j}|z_{j})]$ unaddressed since Eq. \ref{eq:marginalize} that are 
-in this case inaccessible.  Both empirical and data-driven methods for 
-obtaining photo-$z$ probability distributions effectively assign to each 
-galaxy's photometry $\vec{d}_{j}$ both a redshift parameter $z_{j}$ and some 
-nuisance parameters determined by an interim prior $\vec{\theta}^{0}$, 
-encapsulated by the reported interim photo-$z$ posteriors 
-$\ln[p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})]$.  The interim prior may be thought 
-of as an initial guess for $\vec{\theta}$ inspired by the generative model for 
-photometry from the redshift distribution functions and including some 
+Eq. \ref{eq:posterior} still contains the photo-$z$ log-likelihoods 
+$\ln[p(\vec{d}_{j}|z_{j})]$ that have not been mentioned since Eq. 
+\ref{eq:marginalize}.  Though photo-$z$ log-likelihoods would be desirable for 
+use in these equations, they are not generally the product of either empirical 
+and data-driven methods for obtaining photo-$z$ probability distributions.  
+Though probabilistic photo-$z$s are typically reported as generic probability 
+distributions $p(z_{j})$, the methods that produce them may be understood to 
+always yield posteriors, probability distributions conditioned on the data we 
+believe to be true.  If they were not based in this assumption, they would 
+require a sum over an infinite space of possible datasets.
+
+Posteriors differ from likelihoods by way of a prior distribution, so we cannot 
+simply assume that the available data products are photo-$z$ posteriors 
+$p(z_{j}|\vec{d}_{j})$.  Rather, we consider the published catalog of 
+$p(z_{j})$ interim photo-$z$ posteriors 
+$p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})$.  There must have been some interim 
+prior distribution $p(z|\vec{\theta}^{0})$ explicitly chosen or implicitly made 
+to perform the calculation of the probabilistic photo-$z$s.  If it is implicit, 
+it may not be representable in the parametrization we have chosen, and 
+furthermore it may not be known at all.  A method that produces interim 
+photo-$z$ posteriors of this kind is not suitable for inference.  However, so 
+long as the interim prior is known, hierarchical inference is possible.
+
+%The production of photo-$z$ posteriors effectively assigns to each galaxy's 
+photometry $\vec{d}_{j}$ both a redshift parameter $z_{j}$ and some nuisance 
+parameters determined by an interim prior $\vec{\theta}^{0}$, encapsulated by 
+the reported interim photo-$z$ posteriors 
+$\ln[p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})]$.  
+
+The interim prior $\vec{\theta}^{0}$ may be thought of as an initial guess for 
+the parameters contained in $\vec{\theta}$, inspired by the generative model 
+for photometry from the redshift distribution functions and including some 
 parameters defining intrinsic galaxy spectra and instrumental effects. (See 
-\citet{Benitez2000} for more detail.)  For statistical purposes, we would like 
-any interim prior to be uninformative, but this is rarely achievable.  In the 
-case of estimating $N(z)$ photometrically it is common to use 
+\citealt{Benitez2000} for more detail.)  For statistical purposes, we would 
+like any interim prior to be uninformative, but this is rarely achievable.  In 
+the case of estimating $N(z)$ photometrically, it is common to use 
 $\vec{\theta}^{0}$ corresponding to $N(z)$ derived from some different, 
 spectroscopically confirmed sample or from a cosmological simulation.
 
 Since we only have access to interim photo-$z$ posteriors, we must be able to 
-write the full posterior in terms of the interim photo-$z$ posteriors rather 
-than the likelihoods of Eq. \ref{eq:posterior}.  However, we will need an 
-explicit statement of this interim prior for whatever method is chosen to 
-produce the interim photo-$z$ posteriors.  To perform the necessary 
+write the full log-posterior in terms of interim photo-$z$ log-posteriors 
+rather than the log-likelihoods of Eq. \ref{eq:posterior}.  However, we will 
+need an explicit statement of this interim prior for whatever method is chosen 
+to produce the interim photo-$z$ posteriors.  To perform the necessary 
 transformation from likelihoods to posteriors, we follow the reasoning of 
 \citet{Marshall2015}.  Let us consider the probability of the parameters 
 conditioned on the data and an interim prior and rewrite the problematic 
-likelihood of Eq. \ref{eq:posterior} as Eq. \ref{eq:trick}.  
-
-\begin{eqnarray}
-\label{eq:trick}
-p(\vec{d}_{j}|z_{j}) &=& p(\vec{d}_{j}|z_{j})\ 
+likelihood of Eq. \ref{eq:posterior} as \begin{equation}\label{eq:trick} 
+p(\vec{d}_{j}|z_{j}) = p(\vec{d}_{j}|z_{j})\ 
 \frac{p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})}{p(z_{j}|\vec{d}_{j},\vec{\theta}^{0
-})}
-\end{eqnarray}
+})}.\end{equation}
 
 Once the interim prior $\vec{\theta}^{0}$ is explicitly introduced, we may 
-expand the denominator according to Bayes' Rule to get Eq. \ref{eq:expand}.  
-Because there is no direct dependence of the data upon the hyperparameters, we 
-may again expand the term $p(\vec{d}_{j}|z_{j},\vec{\theta}^{0})$ to obtain Eq. 
-\ref{eq:indterm}.  Canceling the undesirable likelihood terms 
-$p(\vec{d}_{j}|z_{j})$ and $p(\vec{d}_{j}|\vec{\theta}^{0})$ yields Eq. 
-\ref{eq:cancel}.  We put this all together to get the full posterior 
-probability distribution of Eq. \ref{eq:final}.
-
-\begin{eqnarray}
-\label{eq:expand}
-p(\vec{d}_{j}|z_{j}) &=& p(\vec{d}_{j}|z_{j})\ 
+expand the denominator according to Bayes' Rule to get 
+\begin{equation}\label{eq:expand} p(\vec{d}_{j}|z_{j}) = p(\vec{d}_{j}|z_{j})\ 
 p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})\ 
 \frac{p(\vec{d}_{j}|\vec{\theta}^{0})}{p(z_{j}|\vec{\theta}^{0})\ 
-p(\vec{d}_{j}|z_{j},\vec{\theta}^{0})}
-\end{eqnarray}
-
-\begin{eqnarray}
-\label{eq:indterm}
-p(\vec{d}_{j}|z_{j}) &=& p(\vec{d}_{j}|z_{j})\ 
+p(\vec{d}_{j}|z_{j},\vec{\theta}^{0})}.\end{equation}  Because there is no 
+direct dependence of the data upon the hyperparameters, we may again expand the 
+term $p(\vec{d}_{j}|z_{j},\vec{\theta}^{0})$ to obtain 
+\begin{equation}\label{eq:indterm} p(\vec{d}_{j}|z_{j}) = p(\vec{d}_{j}|z_{j})\ 
 p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})\ 
 \frac{p(\vec{d}_{j}|\vec{\theta}^{0})}{p(z_{j}|\vec{\theta}^{0})\ 
-p(\vec{d}_{j}|z_{j})\ p(\vec{d}_{j}|\vec{\theta}^{0})}
-\end{eqnarray}
-
-\begin{eqnarray}
-\label{eq:cancel}
-p(\vec{d}_{j}|z_{j}) &=& 
-\frac{p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})}{p(z_{j}|\vec{\theta}^{0})}
-\end{eqnarray}
-
-\begin{eqnarray}
-\label{eq:final}
-\ln[p(\vec{\theta}|\{\vec{d}_{j}\}_{J})] &\propto& \ln[p(\vec{\theta})]-\int 
+p(\vec{d}_{j}|z_{j})\ p(\vec{d}_{j}|\vec{\theta}^{0})}.\end{equation}  
+Canceling the undesirable likelihood terms $p(\vec{d}_{j}|z_{j})$ and 
+$p(\vec{d}_{j}|\vec{\theta}^{0})$ yields \begin{equation}\label{eq:cancel} 
+p(\vec{d}_{j}|z_{j}) = 
+\frac{p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})}{p(z_{j}|\vec{\theta}^{0})}.\end{equ
+ation}  We put this all together to get the full log-posterior probability 
+distribution of \begin{equation}\label{eq:final} 
+\ln[p(\vec{\theta}|\{\vec{d}_{j}\})] \propto \ln[p(\vec{\theta})]-\int 
 f_{\vec{\theta}}(z)\ dz + \sum_{j=1}^{J}\ \ln\left[\int\ 
 p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})\ 
-\frac{p(z_{j}|\vec{\theta})}{p(z_{j}|\vec{\theta}^{0})}\ dz_{j}\right]
-\end{eqnarray}
+\frac{p(z_{j}|\vec{\theta})}{p(z_{j}|\vec{\theta}^{0})}\ 
+dz_{j}\right].\end{equation}
 
-The argument of the integral in the posterior of Eq. \ref{eq:final} depends 
+The argument of the integral in the log-posterior of Eq. \ref{eq:final} depends 
 solely on knowable quantities (and those we must assume) and can be calculated 
-for a given set of interim photo-$z$ posteriors 
-$\{p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})\}_{J}$ and the interim prior 
-$\vec{\theta}^{0}$ upon which their determination was based, noting the 
-relation of Eq. \ref{eq:params}.  Since we cannot know constant of 
-proportionality, we sample the desired full posterior 
-$\ln[p(\vec{\theta}|\{\vec{d}_{j}\}_{J})]$ using Monte Carlo-Markov chain 
-(MCMC) methods.  The method outlined here is valid regardless of how the 
-interim photo-$z$ posteriors are calculated so the many approaches to producing 
-photo-$z$ probability distributions will not be discussed; though the matter is 
-outside the scope of this paper, various methods have been presented in the 
-literature \citep{Sheldon2012, Ball2008, CarrascoKind2013, CarrascoKind2014a}.
-
-\begin{eqnarray}
-\label{eq:params}
-p(z_{j}|\vec{\theta}) &=& \frac{f_{\vec{\theta}}(z_{j})}{\int\ 
-f_{\vec{\theta}}(z_{j})\ dz_{j}}
-\end{eqnarray}
+for a given set of interim photo-$z$ log-posteriors 
+$\{\ln[p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})]\}$ and the interim prior 
+$p(z|\vec{\theta}^{0})$ upon which their determination was based, noting the 
+relation of \begin{equation}\label{eq:params}p(z_{j}|\vec{\theta}) = 
+\frac{f_{\vec{\theta}}(z_{j})}{\int\ f_{\vec{\theta}}(z_{j})\ 
+dz_{j}}.\end{equation}  Since we cannot know constant of proportionality, we 
+sample the desired full log-posterior $\ln[p(\vec{\theta}|\{\vec{d}_{j}\})]$ 
+using Monte Carlo-Markov chain (MCMC) methods.  The method outlined here is 
+valid regardless of how the interim photo-$z$ log-posteriors are calculated so 
+the many approaches to producing photo-$z$ probability distributions will not 
+be discussed; though the matter is outside the scope of this paper, reviews of 
+various methods have been presented in the literature \citep{Sheldon2012, 
+Ball2008, CarrascoKind2013, CarrascoKind2014a}.
 
 To be clear, the following assumptions must be made in order to apply this 
 method:
@@ -426,7 +409,7 @@ hold.
 \item We take the reported interim photo-$z$ posteriors to be accurate 
 estimates of the true photo-$z$ posteriors and assume we are given the interim 
 prior used to produce them.
-\item We must assume a hyperprior constraining the underlying probability 
+\item We must assume a log-hyperprior constraining the underlying probability 
 distribution of the hyperparameters.
 \end{enumerate}
 
@@ -453,17 +436,14 @@ to one another by \citet{Hildebrandt2012}, \citet{Benjamin2013}, and
 \citet{Asorey2016}.
 
 Stacking directly calculates the full posterior for the entire dataset using 
-the interim photo-$z$ posteriors for each galaxy according to Eq. 
-\ref{eq:stack}\citep{Lima2008}.  Stacking is considered the preferred method 
-for obtaining $N(z)$ from a dataset of interim photo-$z$ posteriors 
-\citep{Sheldon2012, Kelly2014, Benjamin2013, Bonnett2015a, Viironen2015, 
-Asorey2016}.  However, it must be noted here that Eq. \ref{eq:stack} is not 
-mathematically valid.  (See \citet{Hogg2012} for a complete discussion.)  
-
-\begin{eqnarray}
-\label{eq:stack}
-f_{\hat{\theta}}(z) &=& \sum_{j=1}^{J}\ p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})
-\end{eqnarray}
+the interim photo-$z$ posteriors for each galaxy according to 
+\begin{equation}\label{eq:stack} f_{\hat{\theta}}(z) = \sum_{j=1}^{J}\ 
+p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})\end{equation} \citep{Lima2008}.  Stacking 
+is considered the preferred method for obtaining $N(z)$ from a dataset of 
+interim photo-$z$ posteriors \citep{Sheldon2012, Kelly2014, Benjamin2013, 
+Bonnett2015a, Viironen2015, Asorey2016}.  However, it must be noted here that 
+Eq. \ref{eq:stack} is not mathematically valid.  (See \citet{Hogg2012} for a 
+complete discussion.)  
 
 Point estimation converts the interim photo-$z$ posteriors 
 $p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})$ into delta functions with all 
@@ -476,15 +456,11 @@ estimator and the marginalized $E[z]$ estimator.
 
 A final estimator of the hyperparameters is the maximum marginalized likelihood 
 estimator (MLE), the value of $\hat{\theta}$ maximizing the likelihood given by 
-Eq. \ref{eq:mmle}, accessible with any optimization code.
-
-\begin{eqnarray}
-\label{eq:mmle}
-\ln[p(\{\vec{d}_{j}\}_{J}|\vec{\theta})] \propto -\int\ f_{\vec{\theta}}(z)\ 
-dz+\sum_{j=1}^{J}\ln\left[\int\ 
+\begin{equation}\label{eq:mmle} \ln[p(\{\vec{d}_{j}\}|\vec{\theta})] \propto 
+-\int\ f_{\vec{\theta}}(z)\ dz+\sum_{j=1}^{J}\ln\left[\int\ 
 \exp\left[\ln[p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})]+\ln[f_{\vec{\theta}}(z)]-\l
-n[f_{\vec{\theta}^{0}}(z)]\right]\ dz\right]
-\end{eqnarray}
+n[f_{\vec{\theta}^{0}}(z)]\right]\ dz\right],\end{equation} accessible with any 
+optimization code.
 
 \clearpage
 \section{Implementation}
@@ -496,12 +472,12 @@ what's okay to leave out.}
 
 We ran several tests of this approach to demonstrate its usage and validity 
 using a procedure outlined in this section.  In Sec. \ref{sec:alldata} we 
-describe the method by which interim photo-$z$ posteriors 
+describe the method by which interim photo-$z$ log-posteriors 
 $\{\ln[p(z_{j}|\vec{d}_{j})]\}_{J}$ are synthesizes as well as the real 
 datasets considered for comparison.  In Sec. \ref{sec:mcmc} we describe the 
-algorithm used to compute the full posterior distribution 
-$\ln[p(\vec{\theta}|\{\vec{d}_{j}\}_{J})]$.  In Sec. \ref{sec:diag} we outline 
-the measures used to evaluate the performance of the method, including the 
+algorithm used to compute the full log-posterior distribution 
+$\ln[p(\vec{\theta}|\{\vec{d}_{j}\})]$.  In Sec. \ref{sec:diag} we outline the 
+measures used to evaluate the performance of the method, including the 
 alternative methods with which our results will be compared.
 
 \clearpage
@@ -512,8 +488,8 @@ alternative methods with which our results will be compared.
 \subsubsection{Mock Data}
 \label{sec:mock}
 
-To generate mock interim photo-$z$ posteriors, we choose a parametrization of 
-redshift space and impose a $K$-dimensional binning 
+To generate mock interim photo-$z$ log-posteriors, we choose a parametrization 
+of redshift space and impose a $K$-dimensional binning 
 $B^{k}=[z^{B}_{k-1},z^{B}_{k}]$ on the redshift range from $z^{B}_{0}=z_{min}$ 
 to $z^{B}_{K}=z_{max}$ with bin widths $\Delta_{k}$.  All tests in this paper 
 will be conducted with $z_{min}=0.0$, $z_{max}=1.1$, and $K=35$, the endpoints 
@@ -549,15 +525,11 @@ $z'_{j}\sim\mathcal{N}(z^{0}_{j},\sigma_{j})$ separated from the true redshift
 $z^{0}_{j}$ by a Gaussian random variable 
 $\epsilon_{j}\sim\mathcal{N}(0,\sigma^{2}_{j})$ selected from a distribution of 
 mean of 0 and true standard deviation $\sigma_{j}$.   This prescription may be 
-understood as an exposition of the generative model of Eq. \ref{eq:genmod} for 
-the physically-motivated process originating the data, which states that the 
-MLE $z'_{j}$ of the redshift is equal to the true redshift $z^{0}_{j}$ plus a 
-Gaussian random variable $\epsilon_{j}$.
-
-\begin{eqnarray}
-\label{eq:genmod}
-z'_{j} &=& z^{0}_{j}+\epsilon_{j}
-\end{eqnarray}
+understood as an exposition of the generative model of 
+\begin{equation}\label{eq:genmod} z'_{j} = z^{0}_{j}+\epsilon_{j}\end{equation} 
+for the physically-motivated process originating the data, which states that 
+the MLE $z'_{j}$ of the redshift is equal to the true redshift $z^{0}_{j}$ plus 
+a Gaussian random variable $\epsilon_{j}$.
 
 We must also choose the parametrization of the redshift distribution function, 
 in this case $f_{\vec{\theta}}(z)=\exp[\vec{\theta}]$ (introduced in Sec. 
@@ -570,24 +542,16 @@ before by \citet{Viironen2015}.)
 
 To obtain the $J$ desired interim photo-$z$ posteriors $p(z_{j}|\vec{d}_{j})$ 
 from the photo-$z$ likelihoods $p(\vec{d}_{j}|z_{j})$, we simply apply Bayes' 
-rule as in Eq. \ref{eq:likpost}, where the prior on redshift is 
-$p(z_{j}|\vec{\theta}^{0})$ for interim prior $\vec{\theta}^{0}$.  There are 
-two unknown constants of proportionality (the likelihood of the data 
-$p(\vec{d}_{j})$ and $J$) that we may normalize out according to Eq. 
-\ref{eq:norm}.  A random sampling of such interim redshift posteriors is shown 
-in Fig. \ref{fig:nullpzs}.
-
-\begin{eqnarray}
-\label{eq:likpost}
-p(z_{j}|\vec{d}_{j}) &\propto& p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta}^{0})
-\end{eqnarray}
-
-\begin{eqnarray}
-\label{eq:norm}
-p(B^{k}_{j}|\vec{d}_{j}) &=& \frac{\int_{z_{k-1}}^{z_{k}}\ 
-p(\vec{d}_{j}|z_{j})\ \exp[\vec{\theta}^{0}]\ dz_{j}}{\int_{z_{min}}^{z_{max}}\ 
-p(\vec{d}_{j}|z_{j})\ \exp[\vec{\theta}^{0}]\ dz_{j}}
-\end{eqnarray}
+rule as in \begin{equation}\label{eq:likpost} p(z_{j}|\vec{d}_{j}) \propto 
+p(\vec{d}_{j}|z_{j})\ p(z_{j}|\vec{\theta}^{0}),\end{equation} where the prior 
+on redshift is $p(z_{j}|\vec{\theta}^{0})$ for interim prior 
+$\vec{\theta}^{0}$.  There are two unknown constants of proportionality (the 
+likelihood of the data $p(\vec{d}_{j})$ and $J$) that we may normalize out 
+according to \begin{equation}\label{eq:norm} p(B^{k}_{j}|\vec{d}_{j}) = 
+\frac{\int_{z_{k-1}}^{z_{k}}\ p(\vec{d}_{j}|z_{j})\ \exp[\vec{\theta}^{0}]\ 
+dz_{j}}{\int_{z_{min}}^{z_{max}}\ p(\vec{d}_{j}|z_{j})\ \exp[\vec{\theta}^{0}]\ 
+dz_{j}}.\end{equation}  A random sampling of such interim redshift posteriors 
+is shown in Fig. \ref{fig:nullpzs}.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/null/samplepzs.pdf}
@@ -622,17 +586,18 @@ than the simulated data of Fig. \ref{fig:nullpzs}.}
 \subsection{Computation}
 \label{sec:mcmc}
 
-The testing procedure is implemented in \texttt{Python}.  The code takes as 
-input a \texttt{csv} file containing the basis for the binning of redshift 
-space, a specification of the interim prior $\vec{\theta}^{0}$, and a catalog 
-of $J$ interim photo-$z$ log-posteriors 
+The testing procedure is implemented in \texttt{Python} and is made public as 
+Cosmological Hierarchical Inference with Probabilistic Photometric Redshifts 
+(CHIPPR).  The code takes as input a \texttt{csv} file containing the basis for 
+the binning of redshift space, a specification of the interim prior 
+$\vec{\theta}^{0}$, and a catalog of $J$ interim photo-$z$ log-posteriors 
 $\{\ln[p(B_{j}|\vec{d}_{j},\vec{\theta}^{0})]\}_{J}$.
 
 The \texttt{emcee} \citep{Foreman-Mackey2013} implementation of ensemble 
-sampling is applied to sample the full posterior of Eq. \ref{eq:final}.   For 
-each of some $W$ walkers at each iteration $i$, a proposal distribution 
+sampling is applied to sample the full log-posterior of Eq. \ref{eq:final}.   
+For each of some $W$ walkers at each iteration $i$, a proposal distribution 
 $\vec{\theta}^{i}$ generated from the hyperprior distribution and evaluated for 
-acceptance to or rejection from the desired posterior distribution.  Two 
+acceptance to or rejection from the desired log-posterior distribution.  Two 
 threshold conditions are defined, one designating all previous samples to be 
 ignored as as products of a "burn-in" phase and another indicating when a 
 sufficient number of "post-burn" samples have been accepted.  In this case, the 
@@ -646,8 +611,8 @@ ordered \texttt{hickle} files enumerated by $\rho$ containing the state
 information after each sub-run.  The state information includes 
 $\frac{I_{0}}{s}$ actual samples $\vec{\theta}^{i}$ for a pre-specified chain 
 thinning factor $s$ and their full posterior probabilities 
-$p(\vec{\theta}^{i}|\{\vec{d}_{j}\}_{J})$ as well as the autocorrelation times 
-and acceptance fractions calculated for each element of $\vec{\theta}$ over the 
+$p(\vec{\theta}^{i}|\{\vec{d}_{j}\})$ as well as the autocorrelation times and 
+acceptance fractions calculated for each element of $\vec{\theta}$ over the 
 entire sub-run.  
 
 \clearpage
@@ -658,18 +623,14 @@ The method described above involves the assumption of a hyperprior distribution
 $p(\vec{\theta})$ over the hyperparameters comprising $\vec{\theta}$.  The 
 prior chosen here is a multivariate normal distribution with mean 
 $\vec{\theta}^{0}$ equal to the interim prior and covariance $\textul{\Sigma}$ 
-inspired by one used in Gaussian processes, given by Eq. \ref{eq:priorcov}.  
-This choice is made to permit draws from this prior distribution to produce 
-shapes similar to that of the true $\tilde{\theta}$.  Here, the parameters of 
-this covariance matrix are set to the small numbers $q=1.0$, $e=100.0$, and 
-$t=q\cdot10^{-5}$.  We adapt the full posterior of Eq. \ref{eq:final} to the 
-binning of redshift space chosen in Sec. \ref{sec:mock}.
-
-\begin{eqnarray}
-\label{eq:priorcov}
-\Sigma_{a,b} &=& q\ \exp[-\frac{e}{2}\ (\bar{z}_{a}-\bar{z}_{b})^{2}]\ +\ 
-t\delta(a,b)%\ \mathbb{I}_{a,b}
-\end{eqnarray}
+inspired by one used in Gaussian processes, given by 
+\begin{equation}\label{eq:priorcov}\Sigma_{a,b} = q\ \exp[-\frac{e}{2}\ 
+(\bar{z}_{a}-\bar{z}_{b})^{2}]\ +\ t\delta(a,b).\end{equation}  This choice is 
+made to permit draws from this prior distribution to produce shapes similar to 
+that of the true $\tilde{\theta}$.  Here, the parameters of this covariance 
+matrix are set to the small numbers $q=1.0$, $e=100.0$, and $t=q\cdot10^{-5}$.  
+We adapt the full log-posterior of Eq. \ref{eq:final} to the binning of 
+redshift space chosen in Sec. \ref{sec:mock}.
 
 The sampler is initialized with $W=100$ walkers each with a value chosen from a 
 Gaussian distribution of identity covariance around a sample from the 
@@ -747,19 +708,15 @@ distribution for each hyperparameter using the standard deviation regardless of
 whether the true values are known.  
 
 In simulated cases where the true parameter values are known, we calculate the 
-Kullback-Leibler divergence (KLD), given in Eq. \ref{eq:kl}, which measures a 
-distance between parameter values $\vec{\theta}^{a}$ and $\vec{\theta}^{b}$ 
-that is invariant under changes of variables.  We note that $KL_{ab}\neq 
-KL_{ba}$, so both must be calculated, and the minimum of the two is reported in 
-this study.  In simulated tests, one of $\vec{\theta}^{a}$ and 
-$\vec{\theta}^{b}$ is the true value and the other is the value produced by one 
-of the methods in question.  
-
-\begin{eqnarray}
-\label{eq:kl}
-KL_{ab} &=& \sum_{k=1}^{K}\ \exp[\theta_{k}^{a}]\ 
-\ln\left[\frac{\theta_{k}^{a}}{\theta_{k}^{b}}\right]\ \Delta_{k}
-\end{eqnarray}
+Kullback-Leibler divergence (KLD), given in \begin{equation}\label{eq:kl} 
+KL_{ab} = \sum_{k=1}^{K}\ \exp[\theta_{k}^{a}]\ 
+\ln\left[\frac{\theta_{k}^{a}}{\theta_{k}^{b}}\right]\ 
+\Delta_{k},\end{equation} which measures a distance between parameter values 
+$\vec{\theta}^{a}$ and $\vec{\theta}^{b}$ that is invariant under changes of 
+variables.  We note that $KL_{ab}\neq KL_{ba}$, so both must be calculated, and 
+the minimum of the two is reported in this study.  In simulated tests, one of 
+$\vec{\theta}^{a}$ and $\vec{\theta}^{b}$ is the true value and the other is 
+the value produced by one of the methods in question.  
 
 \clearpage
 \section{Validation Tests}
