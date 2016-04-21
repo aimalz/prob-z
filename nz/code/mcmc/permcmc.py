@@ -10,9 +10,8 @@ import numpy as np
 
 import statmcmc as stats
 
-# test whether burning in or done with that, true if burning in
 def burntest(outputs,run):# of dimensions nwalkers*miniters
-
+    """test whether burning in or done with that, true if burning in"""
     print('testing burn-in condition')
 
     lnprobs = outputs['probs']
@@ -27,11 +26,11 @@ def burntest(outputs,run):# of dimensions nwalkers*miniters
 
     return(difprob > varprob)
 
-# define class per initialization of MCMC
-# will be changing this object at each iteration as it encompasses state
 class pertest(object):
     """
     class object for MCMC state
+    define class per initialization of MCMC
+    will be changing this object at each iteration as it encompasses state
     """
 
     def __init__(self, meta):
@@ -53,9 +52,9 @@ class pertest(object):
 #                        stats.stat_fracs(self.meta),
                        stats.stat_times(self.meta) ]
 
-    # sample with emcee and provide output
     # TO DO: change emcee parameters to save less data to reduce i/o and storage
     def sampling(self):
+        """sample with emcee and provide output"""
         sampler = self.meta.sampler
         ivals = self.vals
         miniters = self.meta.miniters
@@ -84,9 +83,8 @@ class pertest(object):
 
         return(outputs,elapsed)
 
-    # run one sampling, store new key and state, calculate stats
     def sampnsave(self,r,burnin):
-
+        """run one sampling, store new key and state, calculate stats"""
         self.key = self.meta.key.add(r=r, burnin=burnin)
 
         (outputs,elapsed) = self.sampling()
@@ -118,15 +116,14 @@ class pertest(object):
     def savestats(self):
         for stat in self.meta.stats:
             stat.update(self.outputs[stat.name])
-
         return
 
     def preburn(self, b):
         outputs = self.sampnsave(b,burnin=True)
         return outputs
 
-    # once burn-in complete, know total number of runs remaining
     def atburn(self, b, outputs):
+        """once burn-in complete, know total number of runs remaining"""
         print(str(b*self.meta.miniters)+' iterations of burn-in for '+self.meta.name)
         self.nsteps = b+self.meta.factor-1#*b+1
         self.maxiters = self.nsteps*self.meta.miniters
@@ -140,8 +137,8 @@ class pertest(object):
         self.sampnsave(p,burnin=False)
         return
 
-    # sample until burn-in complete, then do twice that number of runs before finishing
     def samplings(self):
+        """sample until burn-in complete, then do specified number of runs before finishing"""
         # may add ability to pick up where left off
         # if os.path.exists(self.statename):
         #   self = self.state()

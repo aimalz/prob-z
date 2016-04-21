@@ -10,8 +10,8 @@ import cPickle
 import hickle as hkl
 import os
 
-# read/write cPickle
 def safe_load_c(path, num_objs = None):
+    """read cPickle"""
     print 'loading: ' + path
     if not os.path.exists(path):
         return None
@@ -21,6 +21,7 @@ def safe_load_c(path, num_objs = None):
         return [cPickle.load(f) for _ in xrange(num_objs)]
     f.close()
 def safe_store_c(path, o):
+    """write cPickle"""
     print 'storing: ' + path
     directory = path[:path.rfind('/')]
     if not os.path.exists(directory):
@@ -29,8 +30,8 @@ def safe_store_c(path, o):
         cPickle.dump(o, f)
     f.close()
 
-# read/write hickle
 def safe_load_h(path, num_objs = None):
+    """read hickle"""
     if not os.path.exists(path):
         return None
     with open(path, "r") as f:
@@ -39,6 +40,7 @@ def safe_load_h(path, num_objs = None):
         return [hkl.load(f) for _ in xrange(num_objs)]
     f.close()
 def safe_store_h(path, o):
+    """write hickle"""
 #     print 'storing hkl:' + path
     directory = path[:path.rfind('/')]
     if not os.path.exists(directory):
@@ -52,9 +54,8 @@ state_builder = path("{topdir}/state-{r}.p")#hkl")
 iterno_builder = path("{topdir}/iterno.p")
 statistics_builder = path("{topdir}/stat_{stat_name}.p")
 
-# all the dict handling here
 class key(distribute.distribute_key):
-
+    """all the dict handling here"""
     def __init__(self, **kv):
         self.t = None
         self.r = None
@@ -123,28 +124,30 @@ class key(distribute.distribute_key):
 
     # should break this up around here to use inheritance rather than lumping everything into one class
 
-    # state is mutable permcmc object at each stage
     def load_state(self, topdir):
+        """state is mutable permcmc object at each stage"""
         filepath = state_builder.construct(**self.to_dict({'topdir':topdir}))
         return safe_load_c(filepath)#safe_load_h(filepath)
     def store_state(self, topdir, o):
+        """state is mutable permcmc object at each stage"""
         filepath = state_builder.construct(**self.to_dict({'topdir':topdir}))
         safe_store_c(filepath,o)#safe_store_h(filepath, o)
 
-    # need to know iterno for progress
     def load_iterno(self, topdir):
+        """need to know iterno for progress"""
         filepath = iterno_builder.construct(**self.to_dict({'topdir':topdir}))
         return safe_load_c(filepath)
     def store_iterno(self, topdir, o):
+        """need to know iterno for progress"""
         filepath = iterno_builder.construct(**self.to_dict({'topdir':topdir}))
         safe_store_c(filepath, o)
 
-    # intermediate stats now stored as a series of pickled entries, rather than one large list
-    # need to know length of list to read it
     def load_stats(self, topdir, name, size):
+        """intermediate stats now stored as a series of pickled entries, rather than one large list, need to know length of list to read it"""
         filepath = statistics_builder.construct(**self.to_dict({'topdir':topdir, 'stat_name':name}))
         return safe_load_c(filepath, size)
     def add_stats(self, topdir, name, o):
+        """intermediate stats now stored as a series of pickled entries, rather than one large list"""
         filepath = statistics_builder.construct(**self.to_dict({'topdir':topdir, 'stat_name':name}))
         with open(filepath, "ab") as f:
             cPickle.dump(o, f)

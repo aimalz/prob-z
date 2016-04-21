@@ -43,25 +43,25 @@ class mvn(object):
         self.icov = np.linalg.pinv(self.cov, rcond=sys.float_info.epsilon)
         (self.logdetsign, self.logdet) = np.linalg.slogdet(self.cov)
 
-    # log probabilities
     def logpdf(self, x):
+        """log probabilities"""
         delta = x - self.mean
         c = np.dot(delta, np.dot(self.icov, delta))
         prob = -0.5 * c
         return prob
 
-    # W samples directly from distribution
     def sample_ps(self, W):
+        """W samples directly from distribution"""
         outsamp = np.random.multivariate_normal(self.mean, self.cov, W)
         return (outsamp, self.mean)
 
-    # W samples around mean of distribution
     def sample_gm(self,W):
+        """W samples around mean of distribution"""
         outsamp = [self.mean+np.random.randn(self.dims) for w in range(0,W)]
         return (outsamp, self.mean)
 
-    # W samples from a single sample from distribution
     def sample_gs(self, W):
+        """W samples from a single sample from distribution"""
         rando = np.random.multivariate_normal(self.mean, self.cov)
         #outsamp = [rando + np.random.randn(self.dims) for w in range(0,W)]
         outsamp = [np.random.multivariate_normal(rando,self.cov) for w in range(0,W)]
@@ -82,8 +82,8 @@ class post(object):
         self.constterm = self.lndifs-self.interim#self.priormean
         self.lnprob_ext = post_lnprob
 
-    # this is proportional to log prior probability
     def priorprob(self,theta):
+        """this is proportional to log prior probability"""
         return self.prior.logpdf(theta)
 
     def lnlike(self,theta):
@@ -98,9 +98,9 @@ class post(object):
     def mlnlike(self,theta):
         return -1.*self.lnlike(theta)
 
-    # calculate log posterior probability
     # speed this up some more with matrix magic?
     def lnprob(self,theta):
+          """calculate log posterior probability"""
 #         constterms = theta+self.constterm
 #         sumterm = self.priorprob(theta)-np.dot(np.exp(theta),self.difs)#this should sufficiently penalize poor samples but somehow fails on large datasets
 #         for j in lrange(self.postprobs):
@@ -126,14 +126,14 @@ class path(object):
         else:
             self.filled = filled
 
-    # actually constructs the final path, as a string.  Optionally takes in any missing parameters
     def construct(self, **args):
+        """actually constructs the final path, as a string.  Optionally takes in any missing parameters"""
         nfilled = self.filled.copy()
         nfilled.update(args)
         return self.path_template.format(**nfilled)
 
-    # fills any number of missing parameters, returns new object
     def fill(self, **args):
+        """fills any number of missing parameters, returns new object"""
         dct = self.filled.copy()
         dct.update(args)
         return path(self.path_template, dct)

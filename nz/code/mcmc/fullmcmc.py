@@ -25,8 +25,8 @@ from permcmc import pertest
 import plotmcmc as plots
 import keymcmc as key
 
-# define producer functions
 def samplings(runs, idinfo):
+    """define producer functions"""
     run = runs[idinfo]
     for _ in run.samplings():
         print('sampling ' + str(idinfo) + ": this should probably return something")
@@ -87,7 +87,6 @@ def main():
     pool = mp.Pool(nps)
     meta.pool = pool
 
-    # may add back plot-only functionality later
     #keys = runs.keys() #[run.key.add(t=name) for name in lrange(names)]
     print ('generating {} keys'.format(len(runs.keys())))
     start_time = timeit.default_timer()

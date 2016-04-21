@@ -59,8 +59,8 @@ s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '--',1.,1.,'k',[(0,(1,0.0001))],'Sampled '
 global s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe
 s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe = '--',2.,1.,'k',[(0,(1,0.0001))],'Mean of\n Samples '
 
-#making a step function plotter because pyplot is stupid
 def plotstep(subplot,binends,plot,s='--',c='k',a=1,w=1,d=[(0,(1,0.0001))],l=None,r=False):
+    """making a step function plotter because pyplot is stupid"""
     ploth(subplot,binends,plot,s,c,a,w,d,l,r)
     plotv(subplot,binends,plot,s,c,a,w,d,r)
 
@@ -96,8 +96,8 @@ def timesaver(meta,name,key):
         plottimer.write(name+' '+str(timeit.default_timer())+' '+str(key)+'\n')
     return
 
-# make all plots not needing MCMC
 def initial_plots(runs):
+    """make all plots not needing MCMC"""
     for run in runs.keys():
         meta = runs[run]
         plot_pdfs(meta)
@@ -107,8 +107,8 @@ def initial_plots(runs):
 #             plot_true(meta)
         timesaver(meta,'iplot',meta.key)
 
-# plot some individual posteriors
 def plot_pdfs(meta):
+    """plot some individual posteriors"""
     f = plt.figure(figsize=(5,5))
     sps = f.add_subplot(1,1,1)
     f.subplots_adjust(hspace=0, wspace=0)
@@ -123,8 +123,8 @@ def plot_pdfs(meta):
     f.savefig(os.path.join(meta.topdir,'samplepzs.png'),bbox_inches='tight', pad_inches = 0)
     return
 
-# plot some samples from prior for one instantiation of survey
 def plot_priorsamps(meta):
+    """plot some samples from prior for one instantiation of survey"""
     priorsamps = np.array(meta.priordist.sample_ps(len(meta.colors))[0])
     f = plt.figure(figsize=(5,5))
     sps = f.add_subplot(1,1,1)
@@ -139,8 +139,8 @@ def plot_priorsamps(meta):
     f.savefig(os.path.join(meta.topdir, 'priorsamps.png'),bbox_inches='tight', pad_inches = 0)
     return
 
-# plot initial values for all initialization procedures
 def plot_ivals(meta):
+    """plot initial values for all initialization procedures"""
     f = plt.figure(figsize=(5, 5))#plt.subplots(1, nsurvs, figsize=(5*nsurvs,5))
     sps = f.add_subplot(1,1,1)
     f.subplots_adjust(hspace=0, wspace=0)
@@ -187,16 +187,15 @@ def plot_ivals(meta):
 #     f.savefig(os.path.join(meta.topdir,'trueNz.png'),bbox_inches='tight', pad_inches = 0)
 #     return
 
-# most generic plotter, specific plotters below inherit from this to get handle
 class plotter(distribute.consumer):
+    """most generic plotter, specific plotters below inherit from this to get handle"""
     def handle(self, key):
         self.last_key = key
         print(self.meta.name+' last key is '+str(self.last_key))
         self.plot(key)
 
-# plot autocorrelation times and acceptance fractions
 class plotter_times(plotter):
-
+    """plot autocorrelation times and acceptance fractions"""
     def __init__(self, meta):
         self.meta = meta
 
@@ -274,9 +273,8 @@ class plotter_times(plotter):
 #         self.f_fracs.savefig(os.path.join(self.meta.topdir,'fracs.png'),dpi=100)
 #         timesaver(self.meta,'fracs',self.meta.topdir)
 
-# plot log probabilities of samples of full posterior
 class plotter_probs(plotter):
-
+    """plot log probabilities of samples of full posterior"""
     def __init__(self, meta):
         self.meta = meta
         self.ncolors = len(self.meta.colors)
@@ -353,9 +351,8 @@ class plotter_probs(plotter):
     def plotone(self,plot_y,l=None,a=1.,c='k',w=1.,s='--',d=[(0,(1,0.0001))]):
         ploth(self.sps,self.meta.miniters*np.arange(0.,self.last_key.r+1),plot_y,s=s,c=c,a=a,w=w,d=d,l=l)
 
-# plot full posterior samples
 class plotter_samps(plotter):
-
+    """plot full posterior samples"""
     def __init__(self, meta):
         self.meta = meta
 #         self.ncolors = len(self.meta.colors)

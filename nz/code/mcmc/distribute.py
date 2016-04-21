@@ -6,13 +6,13 @@ import multiprocessing as mp
 import sys
 import traceback
 
-# class to access data that's been serialized to disk
 class distribute_key(object):
+    """class to access data that's been serialized to disk"""
     def __init__(self):
         pass
 
-# consumer is the plotter, producer is MCMC calculation
 class consumer(object):
+    """consumer is the plotter, producer is MCMC calculation"""
     def __init__(self, *args):
         pass
     def loop(self, queue):
@@ -41,8 +41,8 @@ def run_offthread_sync(func, *args):
 #     return pool.apply(func, args)
 
 
-# plot results of one run in loop
 def do_consume(ctor, q, args):
+    """plot results of one run in loop"""
     #print(ctor,q,args)
     try:
         obj = ctor(**args)
@@ -56,10 +56,11 @@ def do_consume(ctor, q, args):
 def run_consumer(ctor, q, args):
     return run_offthread(do_consume, ctor, q, args)
 
-# class distributes computation over multiple threads
 class distribute(object):
-
-    # consumers is list of consumers called and added to queue whenever a new key is complete
+    """
+    class distributes computation over multiple threads
+    consumers is list of consumers called and added to queue whenever a new key is complete
+    """
     def __init__(self, consumers, start = True, **args):
         self.queues = [mp.Queue() for _ in consumers]
 #         for q in self.queues:
@@ -70,14 +71,14 @@ class distribute(object):
         self.consumers = [run_consumer(c,q, args) for (c,q) in zip(self.consumer_lambdas, self.queues)]
         self.started = False
 
-    # called by producer when chunk of data has been produced
     def complete_chunk(self, key):
+        """called by producer when chunk of data has been produced"""
         for q in self.queues:
             q.put(key)
             print('putting key '+str(key))
 
-    # called when all producers are done
     def finish(self):
+        """called when all producers are done"""
         for q in self.queues:
             q.put('done')
 #             print('put key '+str('done'))
@@ -87,8 +88,8 @@ class distribute(object):
         for c in self.consumers:
             c.join()
 
-    # start the consumers
     def run(self, args):
+        """start the consumers"""
         if self.started:
             return
         self.started = True

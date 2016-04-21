@@ -11,10 +11,9 @@ import csv
 
 import utilmcmc as um
 
-# unite stats for each output
 class calcstats(object):
     """
-    object class to set up and calculate summary statistics
+    object class to set up and calculate summary statistics, unite stats for each output
     """
     def __init__(self, meta):
         self.meta = meta
@@ -104,10 +103,9 @@ class calcstats(object):
 # #                 self.llr_exp.append(2.*ll_smp-2.*self.ll_exp)
 #         return(var)
 
-# statistics involving parameter values
 class stat_chains(calcstats):
     """
-    calculates statistics that need parameter values: variance, chi^2, KLD
+    calculates statistics that need parameter values: variance, chi^2, KLD; statistics involving parameter values
     """
     def __init__(self, meta):
         calcstats.__init__(self, meta)
@@ -262,9 +260,8 @@ class stat_chains(calcstats):
 #                'var_s': self.var_s
 #               }
 
-    # variance of samples
     def calcvar(self,var,s):
-
+        """variance of samples"""
         ans = np.average([[np.dot(s[w][i],s[w][i]) for i in xrange(len(s[w]))] for w in xrange(len(s))])
         var.append(ans)
 #         var_ls = np.average([[np.dot(self.sy[w][i],self.sy[w][i]) for i in xrange(self.meta.ntimes)] for w in xrange(self.meta.nwalkers)])#/float(self.meta.nwalkers*self.meta.ntimes*self.meta.nbins)
@@ -277,9 +274,8 @@ class stat_chains(calcstats):
         #print(self.meta.name+' var_s='+str(self.var_s))
         return(var)
 
-    # chi^2 (or Wald test) of samples
     def calcchi(self,var,s,data):
-
+        """chi^2 (or Wald test) of samples"""
         v = np.sum([np.average([statistics.variance(walk) for walk in data.T[b]]) for b in xrange(len(data.T))])#abs(np.linalg.det(np.cov(flatdata)))
         ans = np.average(s**2)/v
         var.append(ans)
@@ -390,8 +386,8 @@ class stat_times(calcstats):
         self.var_y.append(var_y)
         return {'var_y': self.var_y}
 
-# calculate autocorrelation times since emcee sometimes fails
 def cft(xtimes,lag):
+    """calculate autocorrelation times since emcee sometimes fails"""
     lent = len(xtimes)-lag
     allt = xrange(lent)
     ans = np.array([xtimes[t+lag]*xtimes[t] for t in allt])
@@ -421,8 +417,8 @@ def acors(xtimeswalkersbins,mode):
         taus = np.array([1. + 2.*sum(cfs(xwalkerstimes,mode)) for xwalkerstimes in xbinswalkerstimes])#/len(xwalkersbinstimes)# 1+2*sum(...)
     return taus
 
-# KL Divergence test
 def calckl(difs,lqn,lpn):
+    """KL Divergence test"""
     pn = np.exp(lpn)*difs
     qn = np.exp(lqn)*difs
     p = pn/np.sum(pn)

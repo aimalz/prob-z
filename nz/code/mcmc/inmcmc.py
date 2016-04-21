@@ -2,8 +2,6 @@
 in-mcmc module contains parameters controlling one run of MCMC p(z) inference program
 """
 
-# TO DO: add docstrings
-
 import os
 import cPickle as cpkl
 import math as m
@@ -23,10 +21,9 @@ import keymcmc as key
 from permcmc import pertest
 import statmcmc as stats
 
-# setup object contains inputs of necessary parameters for code
 class setup(object):
     """
-    setup object specifies all parameters controlling one run of p(z) inference program
+    setup object specifies all parameters controlling one run of p(z) inference program and contains inputs of necessary parameters for code
     """
     def __init__(self, input_address):
 #         self.pool = pool
@@ -378,8 +375,8 @@ class setup(object):
                        stats.stat_times(self) ]
         return
 
-    # retrieve last saved state
     def get_last_state(self):
+        """retrieve last saved state"""
         iterno = self.key.load_iterno(self.topdir)
         print('getting state:' + str(self.key))
         state = self.key.add(r = iterno).load_state(self.topdir)
@@ -388,8 +385,8 @@ class setup(object):
             return state
         return pertest(self)
 
-    # retrieve all saved states
     def get_all_states(self):
+        """retrieve all saved states"""
         iterno = self.key.load_iterno(self.meta.topdir)
         if iterno is None:
             print ("Oops, I couldn't find the number of iterations, assuming 0")
@@ -399,8 +396,8 @@ class setup(object):
         states = [self.key.add(r=r).load_state(self.topdir) for r in xrange(iterno)]
         return states
 
-    # update goodness of fit tests calculated at each set of iterations
     def load_fitness(self, category):
+        """update goodness of fit tests calculated at each set of iterations"""
         iterno = self.key.load_iterno(self.topdir)
         vars = ['tot_ls', 'tot_s', 'var_ls', 'var_s']
         retval = {var : [] for var in vars}
@@ -418,8 +415,8 @@ class setup(object):
                     retval[var].append(per_iter[var])
         return retval
 
-    # sample this using information defined for each run of MCMC
     def samplings(self):
+        """sample this using information defined for each run of MCMC"""
         return pertest(self).samplings()
 
     def plotonlies(self):
