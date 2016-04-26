@@ -114,7 +114,7 @@ def plot_physgen(meta,test):
     sys.stdout.flush()
     sps = f.add_subplot(1,1,1)
 #     f.suptitle(meta.name+' True p(z)')
-    sps.plot(zrange,prange,label=r'True $p(z)$',color='k')
+    sps.plot(zrange,prange,label=meta.name+r' True $p(z)$',color='k')
 #     for k in us.lrange(meta.real):
 #         sps.plot(zrange,pranges[k],color=meta.colors[k],label=str(meta.real[k][2])+r'$\mathcal{N}$('+str(meta.real[k][0])+','+str(meta.real[k][1])+')')
 # #     plotstep(sps,test.z_cont,test.phsPz,lw=3.,col='k',a=1./3.)
