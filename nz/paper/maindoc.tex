@@ -183,6 +183,10 @@ Hildebrandt2012, Kelly2014, Benjamin2013, Bonnett2015a, Viironen2015,
 Asorey2016, Leistedt2016}, so comparisons to the literature may easily be made. 
  
 
+\textbf{New paragraph here: Say what precision is needed for N(z) for future 
+weak lensing surveys. Say what precision the mass function is needed (in, say 
+cluster studies) for precision cosmology; that's also relevant in principle}
+
 Sec. \ref{sec:meth} will derive the framework for exploring the full posterior 
 of distribution for $N(z)$ using photo-$z$ probability distribution functions.  
 Sec. \ref{sec:exp} will describe how the model given in Sec. \ref{sec:meth} is 
@@ -261,9 +265,9 @@ distribution, a set of histogram heights that describe a binned version of the
 redshift distribution function, etc.  We define a function 
 $f_{\vec{\theta}}(z)=N(z)$ that transforms these hyperparameters into the 
 redshift distribution function $N(z)$.  Because 
-\begin{equation}\label{eq:definition} N(z)=J\ p(z|\vec{\theta}),\end{equation} 
-we may discontinue discussion of $N(z)$ in favor of the likelihood 
-$p(z|\vec{\theta})$.
+\begin{equation}\label{eq:definition} N(z)\propto 
+p(z|\vec{\theta}),\end{equation} we may discontinue discussion of $N(z)$ in 
+favor of the likelihood $p(z|\vec{\theta})$.
 
 In this paper, we shall work exclusively with log-probabilities.  What we wish 
 to estimate is the full log-posterior probability distribution (hereafter the 
@@ -374,8 +378,7 @@ p(\vec{d}_{j}|z_{j})\ p(\vec{d}_{j}|\vec{\theta}^{0})}.\end{equation}
 Canceling the undesirable likelihood terms $p(\vec{d}_{j}|z_{j})$ and 
 $p(\vec{d}_{j}|\vec{\theta}^{0})$ yields \begin{equation}\label{eq:cancel} 
 p(\vec{d}_{j}|z_{j}) = 
-\frac{p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})}{p(z_{j}|\vec{\theta}^{0})}.
-\end{equation}  We put this all together to get the full log-posterior probability 
+\frac{p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})}{p(z_{j}|\vec{\theta}^{0})}.\end{equation}  We put this all together to get the full log-posterior probability 
 distribution of \begin{equation}\label{eq:final} 
 \ln[p(\vec{\theta}|\{\vec{d}_{j}\})] \propto \ln[p(\vec{\theta})]-\int 
 f_{\vec{\theta}}(z)\ dz + \sum_{j=1}^{J}\ \ln\left[\int\ 
@@ -498,17 +501,19 @@ and dimensionality of BOSS DR8 photo-$z$ interim posteriors.
 We next choose a physically-motivated $p^{0}(z)$ defining the general shape of 
 $N(z)$ over the specified redshift range $[z_{min},z_{max}]$.  Here we shall 
 set it to a weighted sum of truncated Gaussians chosen to impose recognizably 
-recoverable features on the true $N(z)$, shown in Fig. \ref{fig:physpz}.  The 
-true survey size $J$ is a Poisson random variable distributed about a target 
-survey size of $J'$.
+recoverable features on the true $N(z)$, shown in the left panel of Fig. 
+\ref{fig:physpz}.  In the test case of \ref{sec:fake} it shall be set to a 
+narrow Gaussian shown in the right panel of Fig. \ref{fig:physpz}.  The true 
+survey size $J$ is a Poisson random variable distributed about a target survey 
+size of $J'$.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/null/physPz.png}
+\includegraphics[width=0.25\textwidth]{figs/null/physPz.pdf}\includegraphics[width=0.25\textwidth]{figs/delt/physPz.pdf}
 \caption{The physically-motivated true redshift distribution (black line) used 
-in the mock data tests is a sum of Gaussians chosen to have recognizable 
-features of different scales so the quality of recovery can be easily 
-determined.  The colored curves represent individual Gaussian components each 
-with a mean, standard deviation, and relative magnitude.}
+in the mock data tests is chosen to have recognizable features of different 
+scales so the quality of recovery can be easily determined.  The left panel 
+shows a physically motivated true $N(z)$ for the fiducial test, and the right 
+panel shows a toy model of a highly featured true $N(z)$.}
 \label{fig:physpz}
 \end{figure}
 
@@ -551,16 +556,28 @@ according to \begin{equation}\label{eq:norm} p(B^{k}_{j}|\vec{d}_{j}) =
 \frac{\int_{z_{k-1}}^{z_{k}}\ p(\vec{d}_{j}|z_{j})\ \exp[\vec{\theta}^{0}]\ 
 dz_{j}}{\int_{z_{min}}^{z_{max}}\ p(\vec{d}_{j}|z_{j})\ \exp[\vec{\theta}^{0}]\ 
 dz_{j}}.\end{equation}  A random sampling of such interim redshift posteriors 
-is shown in Fig. \ref{fig:nullpzs}.
+is shown in the upper left panel of Fig. \ref{fig:allpzs}.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/null/samplepzs.pdf}
-\caption{Several examples of individual photo-$z$ posteriors are shown in 
-colors.  The simplest case outlined here has likelihoods comprised of a single, 
-relatively narrow, Gaussian distribution with a known standard deviation 
+\includegraphics[width=0.25\textwidth]{figs/null/samplepzs.pdf}\\
+\includegraphics[width=0.25\textwidth]{figs/sig2/samplepzs.pdf}\includegraphics[
+width=0.25\textwidth]{figs/sig4/samplepzs.pdf}\\
+\includegraphics[width=0.25\textwidth]{figs/vars/samplepzs.pdf}
+\includegraphics[width=0.25\textwidth]{figs/mult/samplepzs.pdf}\\
+\caption{Several examples of individual photo-$z$ posteriors and their MLE 
+redshifts are shown in colors, along with their true redshifts in the cases of 
+mock data.  The fiducial (top panel), doubly imprecise PDFs (upper left panel), 
+and quadruply imprecise PDFs (upper right panel) cases have likelihoods 
+comprised of a single Gaussian distribution with a known standard deviation 
 centered at a shifted redshift (dotted lines) separated from the true redshift 
-(dashed lines) by a Gaussian random variable with the same standard deviation.}
-\label{fig:nullpzs}
+(dashed lines) by a Gaussian random variable with the same standard deviation; 
+in the two imprecise PDFs cases, these standard deviations are increased by a 
+factor of 2 or 4 respectively.  The imprecise PDFs case (middle left panel) 
+differs in that the generative model for the data is violated.  The inaccurate 
+PDFs case (middle right panel) shows the same quantities as the other panels 
+but for multimodal and asymmetric PDFs, where the likelihood is a noisy 
+sampling of a sum of Gaussians chosen as in the fiducial case.}
+\label{fig:allpzs}
 \end{figure}
 
 %\clearpage
@@ -570,15 +587,19 @@ centered at a shifted redshift (dotted lines) separated from the true redshift
 We also test this method on subsets of the published interim photo-$z$ 
 posteriors of SDSS III DR 10.  A sampling of the provided interim photo-$z$ 
 posteriors of dimension $K=35$ for $z_{min}=0.3$ and $z_{max}=1.4$ is shown in 
-Fig. \ref{fig:datapzs}.  The interim prior used for this set of interim 
-redshift posteriors is the reweighted estimator of $N(z)$ of 
+the lower panels of Fig. \ref{fig:datapzs}.  The interim prior used for this 
+set of interim redshift posteriors is the reweighted estimator of $N(z)$ of 
 \citet{Sheldon2012}.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/boss/samplepzs.png}
-\caption{Pictured here are examples of actual photo-$z$ posteriors produced by 
-\citet{Sheldon2012}.  It can be seen that the real data is much more structured 
-than the simulated data of Fig. \ref{fig:nullpzs}.}
+\includegraphics[width=0.25\textwidth]{figs/boss/samplepzs.pdf}
+\includegraphics[width=0.25\textwidth]{figs/bias/samplepzs.pdf}
+\caption{Here is shown the same information as in Fig. \ref{fig:allpzs} for 
+real data.  A pseudo-random sampling of BOSS DR 10 photo-$z$ posteriors 
+produced by \citet{Sheldon2012} (lower left panel) are clearly much noisier 
+than those of the fiducial case.  A random sampling of the brightest half of 
+the pseudo-random BOSS DR10 sample (lower right panel) corresponds to much 
+cleaner photo-$z$ PDFs.}
 \label{fig:datapzs}
 \end{figure}
 
@@ -622,8 +643,9 @@ entire sub-run.
 The method described above involves the assumption of a hyperprior distribution 
 $p(\vec{\theta})$ over the hyperparameters comprising $\vec{\theta}$.  The 
 prior chosen here is a multivariate normal distribution with mean 
-$\vec{\theta}^{0}$ equal to the interim prior and covariance $\textul{\Sigma}$ 
-inspired by one used in Gaussian processes, given by 
+\begin{equation}\label{eq:priormean}\vec{\mu}=\vec{\theta}^{0}\end{equation} 
+equal to the interim prior and covariance $\textul{\Sigma}$ inspired by one 
+used in Gaussian processes, given by 
 \begin{equation}\label{eq:priorcov}\Sigma_{a,b} = q\ \exp[-\frac{e}{2}\ 
 (\bar{z}_{a}-\bar{z}_{b})^{2}]\ +\ t\delta(a,b).\end{equation}  This choice is 
 made to permit draws from this prior distribution to produce shapes similar to 
@@ -638,9 +660,10 @@ hyperprior distribution.  An example of such samples from the prior are shown
 in Fig. \ref{fig:prior}.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/null/priorsamps.png}
-\caption{Samples (colored lines) from the prior distribution with a flat mean 
-over $J'=10,000$ galaxies are shown in the figure.}
+%\includegraphics[width=0.5\textwidth]{figs/null/priorsamps.pdf}
+\caption{This figure shows samples (colored lines) from the prior distribution 
+defined by Eqs. \ref{eq:priormean} and \ref{eq:priorcov} normalized to a 
+probability distribution integrating to unity.}
 \label{fig:prior}
 \end{figure}
 
@@ -658,42 +681,32 @@ that converges faster will have a smaller autocorrelation time, and smaller
 autocorrelation times are preferable because it means fewer iterations are 
 wasted on non-independent samples when independent samples are desired.  See 
 \citet{Foreman-Mackey2013} for a more complete exploration of the 
-autocorrelation time.  Fig. \ref{fig:acorr} shows the behavior of the 
-autocorrelation time for a test case representative of all mock data tests.
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/null/times.pdf}
-\caption{The autocorrelation times shown here for the null case are 
-representative of all tests on mock data.  Given an accepted sample, the next 
-independent accepted sample is approximately twenty accepted samples later.  
-The autocorrelation times are plotted here as individual points with one per 
-walker.}
-\label{fig:acorr}
-\end{figure}
+autocorrelation time.  
 
 We examine the evolution of the posterior probability of accepted samples after 
 each successive sub-run to evaluate the duration of the burn-in phase.  Though 
 the probability associated with the initial values will likely be quite low, it 
 should improve for subsequent accepted parameter values.  As with the 
 autocorrelation time, the posterior probability of samples will asymptotically 
-approach some more favorable value with more iterations.  This behavior is 
-shown in Fig. \ref{fig:probs}.  The burn-in phase may be defined as the number 
-of iterations necessary before the variance of the log probabilities is less 
-than the change in median log probability over the sub-run.  Samples accepted 
-during the burn-in phase are discounted from analysis, and an arbitrary ten 
-additional sub-runs are executed before the sampler terminates.  
+approach some more favorable value with more iterations.  The burn-in phase may 
+be defined as the number of iterations necessary before the variance of the log 
+probabilities is less than the change in median log probability over the 
+sub-run.  Samples accepted during the burn-in phase are discounted from 
+analysis, and an arbitrary ten additional sub-runs are executed before the 
+sampler terminates.  
+
+A final test of convergence is visual inspection of the values of the 
+parameters for each walker as a function of iteration number.  
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/null/probs.pdf}
-\caption{The log-posterior probability evolution of the samples is shown here.  
-One can see that the mean (black line) of the log-posterior probability over 
-all walkers at a given time step quickly converges as the one and two-sigma 
-error regions (dark and light gray regions, respectively) decrease.}
-\label{fig:probs}
+%\includegraphics[width=0.5\textwidth]{figs/null/chains.pdf}
+\caption{This figure shows the evolution of one walker's parameter values for 
+one element of the parameter vector $\vec{\theta}$ as a function of iteration 
+number, demonstrating the completion of the burn-in phase.  The autocorrelation 
+times for each walkers over all sub-runs are between 15 and 20, meaning that 
+samples 15-20 iterations apart are independent of one another.}
+\label{fig:chains}
 \end{figure}
-
-\textbf{Is this sufficient discussion of measures of convergence?  Should I 
-discuss others, even though these are the only ones I actually used?}
 
 %\clearpage
 \subsection{Diagnostics}
@@ -726,24 +739,55 @@ the value produced by one of the methods in question.
 important.  I could use some concrete recommendations of how to change it to be 
 publishable.}
 
-Here we motivate and present the results of several informative tests.  The 
-code was tested on simulated datasets each of size $J'=10,000$.  The fiducial 
-experiment of Sec. \ref{sec:null} was generated by code following the procedure 
-given in Sec. \ref{sec:mock}.  Seven other cases vary the shapes of the 
-photo-$z$ likelihoods (Secs. \ref{sec:noisy} and \ref{sec:unc}), the true 
-redshift distribution function (Sec. \ref{sec:fake}), and the interim prior 
-(Sec. \ref{sec:interim}).  Two additional cases with SDSS-III BOSS data 
-described in Sec. \ref{sec:data} are also considered.
+Here we motivate and present the results of several informative tests, 
+summarized in Tab. \ref{tab:key}.  The code was tested on simulated datasets 
+each of size $J'=10,000$.  The fiducial experiment of Sec. \ref{sec:null} was 
+generated by code following the procedure given in Sec. \ref{sec:mock}.  Seven 
+other cases vary the shapes of the photo-$z$ likelihoods (Secs. \ref{sec:noisy} 
+and \ref{sec:unc}), the true redshift distribution function (Sec. 
+\ref{sec:fake}), and the interim prior (Sec. \ref{sec:interim}).  Two 
+additional cases with SDSS-III BOSS DR10 data described in Sec. \ref{sec:data} 
+are also considered.
+
+\begin{table}
+\begin{tabular}{llll}
+\textul{Title} & \textul{True $N(z)$} & \textul{Interim Prior} & 
+\textul{Photo-$z$ PDFs}\\
+Fiducial & Physically motivated, & Uniform & Single, Narrow Gaussians\\
+& featured $N(z)$ &&\\
+2xImprecise & Physically motivated, & Uniform & Single, Doubly Broad Gaussians\\
+& featured $N(z)$ &&\\
+4xImprecise & Physically motivated, & Uniform & Single, Quadruply Broad 
+Gaussians\\
+& featured $N(z)$ &&\\
+Inaccurate & Physically motivated, & Uniform & Violating Generative Model\\
+& featured $N(z)$ &&\\
+Multimodal & Physically motivated, & Uniform & Randomly Sampled,\\
+& featured $N(z)$ && Multiple, Narrow Gaussians\\
+Featured & Single, Narrow Gaussian & Uniform & Single, Narrow Gaussians\\
+Unimodal & Physically motivated, & Low-$z$ Favoring & Single, Narrow Gaussians\\
+& featured $N(z)$ &&\\
+Bimodal & Physically motivated, & Mid-$z$ Disfavoring & Single, Narrow 
+Gaussians\\
+& featured $N(z)$ &&\\
+Surveyed & Unknown & \citet{Sheldon2012} & pseudo-random sample of BOSS DR10\\
+Biased & Unknown & \citet{Sheldon2012} & brightest 50\% of BOSS test
+\end{tabular}
+\caption{This table summarizes the validation tests using the shorthand names 
+by which the tests are referenced.}
+\label{tab:key}
+\end{table}
 
 %\clearpage
 \subsection{Fiducial Case}
 \label{sec:null}
 
 For the fiducial experiment, we precisely follow the procedures outlined in 
-Sec. \ref{sec:mock} and Sec. \ref{sec:mcmc}.  Fig. \ref{fig:null-samp} shows 
-some random sample values, the true value of $N(z)$.  Fig. \ref{fig:null-comp} 
-compares the mean of the sample values to alternative estimators as well as the 
-truth.
+Sec. \ref{sec:mock} and Sec. \ref{sec:mcmc}.  Recall that the top panel of Fig. 
+\ref{fig:allzs} shows the interim photo-$z$ posteriors used in this test case.  
+Fig. \ref{fig:null-samp} shows some random sample values, the true value of 
+$N(z)$.  Fig. \ref{fig:null-comp} compares the mean of the sample values to 
+alternative estimators as well as the truth.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/null/samps.pdf}
@@ -791,28 +835,10 @@ results of the sampler and of stacking diverge for broader photo-$z$
 likelihoods.  In these cases, $\sigma_{j}$ is drawn from a normal distribution 
 as described in Sec. \ref{sec:mock} but with the factor $f=2$ ("doubly 
 imprecise" compared to the fiducial case) in one case and $f=4$ ("quadruply 
-imprecise" compared to the fiducial case) in another.  \textbf{Should I even 
-mention the $f=2$ case?  It's not nearly as dramatic.}  In both cases, the 
-corresponding sample interim photo-$z$ posteriors to those of Fig. 
-\ref{fig:nullpzs} are broader, with central redshifts farther from the true 
-redshift on average.  \textbf{I cut the figure since I think this sentence 
-suffices.}
-
-%\begin{figure}
-%\includegraphics[width=0.5\textwidth]{figs/sig2/samplepzs.pdf}
-%\caption{The interim photo-z posteriors (colored lines) here have the same true
-% redshifts (dotted lines) and means of the distribution (dotted lines) as those
-% of Fig. \ref{fig:nullpzs} but have two times the standard deviation.}
-%\label{fig:sig2pzs}
-%\end{figure}
-%
-%\begin{figure}
-%\includegraphics[width=0.5\textwidth]{figs/sig4/samplepzs.pdf}
-%\caption{The interim photo-z posteriors (colored lines) here have the same true
-% redshifts (dotted lines) and means of the distribution (dotted lines) as those
-% of Fig. \ref{fig:nullpzs} but have four times the standard deviation.}
-%\label{fig:sig4pzs}
-%\end{figure}
+imprecise" compared to the fiducial case) in another.  In both cases, 
+illustrated the upper panels of Fig. \ref{fig:allpzs}, the corresponding sample 
+interim photo-$z$ posteriors to those of Fig. \ref{fig:nullpzs} are broader, 
+with MLE redshifts farther from the true redshift on average.
 
 The sampler was run on these two, noisier datasets with broader likelihoods and 
 produced broader error bars on the mean of the samples, with little effect on 
@@ -891,25 +917,16 @@ generate the data, or there may be multiple components to the interim photo-$z$
 posteriors.  Both cases will be considered here by introducing one change in 
 the steps of Sec. \ref{sec:mock}.  
 
-The first case modifies the generative model of Eq. \ref{eq:genmod} is modified 
-to have $\epsilon_{j}\sim\mathcal{N}(0,\sigma'^{2}_{j})$ for 
-$\sigma'_{j}\sim\mathcal{N}(\bar{\Delta},\bar{\Delta}^{2})$.  The mean of the 
-sampled hyperparameter values is compared to the results of stacking and other 
+The first case modifies the generative model of Eq. \ref{eq:genmod} to have 
+$\epsilon_{j}\sim\mathcal{N}(0,\sigma'^{2}_{j})$ for 
+$\sigma'_{j}\sim\mathcal{N}(\bar{\Delta},\bar{\Delta}^{2})$.  This modification 
+is reflected in the interim photo-$z$ posteriors, a sampling of which is shown 
+in the left middle panel of Fig. \ref{fig:allpzs}.  The mean of the sampled 
+hyperparameter values is compared to the results of stacking and other 
 alternatives in Fig. \ref{fig:noisy-comp}.  It can be seen that inaccurate 
 interim photo-$z$ posteriors are best handled by the sampler, whose KLD is 
 lower than that of stacking and marginalized likelihood maximization.
 
-%\begin{figure}
-%\includegraphics[width=0.5\textwidth]{figs/vars/samplepzs.pdf}
-%\caption{Several examples of noisified individual interim photo-$z$ posterior 
-dis
-%tributions (colored lines) are shown with their true redshifts (dotted lines) a
-%nd the central redshift of the distribution (dotted lines).  Note that the widt
-%hs of the Gaussians vary randomly over the samples and do not necessarily 
-% correlate with redshift.}
-%\label{fig:noisypzs}
-%\end{figure}
-%
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/vars/samps.pdf}
 %\caption{The mean of the sampled values (thick, black line) accurately reproduc
@@ -942,21 +959,9 @@ $z'_{jr}$ is selected from the corresponding
 $\mathcal{N}(z^{0}_{j},\sigma^{2}_{jr})$.  The components are summed and 
 normalized to yield the likelihood, which is then convolved with the interim 
 prior to produce a true interim posterior, which is sampled $K$ times and 
-renormalized to produce the final interim posterior used in the analysis.  
-\textbf{Is taking samples an okay modification?  Without it, the interim 
-photo-$z$ posteriors are actually less biased than in the fiducial case and 
-rarely multimodal.}  Some examples of the multimodal interim photo-$z$ 
-posteriors are shown in Fig. \ref{fig:multipzs}.  
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/mult/samplepzs.pdf}
-\caption{Several examples of individual interim photo-$z$ posteriors (colored 
-lines) are shown, along with the true redshift (dashed lines) and the $R_{j}$ 
-centers of the Gaussian components (dotted lines).  Note that some 
-distributions are multimodal, with peaks of different heights, while others are 
-simply asymmetric in spite of the flat interim prior.}
-\label{fig:multipzs}
-\end{figure}
+renormalized to produce the final interim posterior used in the analysis.  Some 
+examples of the multimodal interim photo-$z$ posteriors are shown in the right 
+middle panel of Fig. \ref{fig:allpzs}.  
 
 Fig. \ref{fig:multi-comp} shows a comparison to alternative methods.  It can be 
 seen that the lessened quality of the data does impact the accuracy of the mean 
@@ -996,12 +1001,12 @@ recommended to use the marginalized MLE.
 \label{sec:fake}
 
 We test the sampler in a case of a highly unrealistic but strongly featured 
-true $N(z)$.  This is done to show that the sampler works even in extreme and 
-unanticipated conditions.  Instead of sampling the physically motivated true 
-distribution $p(z|\vec{\theta}')$ as in Sec \ref{sec:mock}, we assign all 
-galaxies the same true redshift.  Fig. \ref{fig:toy-comp} compares the mean of 
-the posterior samples to the results of stacking and marginalized likelihood 
-maximization.    
+true $N(z)$, that of the right panel of Fig. \ref{fig:physpz}.  This is done to 
+show that the sampler works even in extreme and unanticipated conditions.  
+Instead of sampling the physically motivated true distribution 
+$p(z|\vec{\theta}')$ as in Sec \ref{sec:mock}, we assign all galaxies the same 
+true redshift.  Fig. \ref{fig:toy-comp} compares the mean of the posterior 
+samples to the results of stacking and marginalized likelihood maximization.    
 
 %\begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/delt/samps.pdf}
@@ -1147,8 +1152,9 @@ fully probabilistic method presented here may still be compared to what is
 obtained by alternative approaches.
 
 A pseudo-random sampling of the full BOSS dataset is first examined to 
-approximate the behavior of an average galaxy survey.  The results of the 
-inference are shown in Fig. \ref{fig:dataparam}.
+approximate the behavior of an average galaxy survey.  Samples of photo-$z$ 
+interim posteriors are shown in the left panel of Fig. \ref{fig:datapzs}.  The 
+results of the inference are shown in Fig. \ref{fig:dataparam}.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/boss/samps.pdf}
@@ -1176,8 +1182,9 @@ because the optimizer experiences challenges with so many galaxies.}
 
 The BOSS subsample is further subsampled by imposing a cut in $r$-band 
 magnitude (at the median magnitude) to approximate the behavior of a heavily 
-biased galaxy survey with a magnitude limit.  The results of the inference are 
-shown in Fig. \ref{fig:biasparam}.
+biased galaxy survey with a magnitude limit.  Samples of photo-$z$ interim 
+posteriors are shown in the right panel of Fig. \ref{fig:datapzs}.  The results 
+of the inference are shown in Fig. \ref{fig:biasparam}.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/bias/samps.pdf}
@@ -1250,13 +1257,13 @@ because of the ubiquity of using inappropriate interim priors.
 & Mean of & Marginalized & Stacking & Marginalized & Marginalized\\
 & Samples & MLE & & MAP & Expected Value\\
 Fiducial &&&&&\\
-Doubly Imprecise Likelihoods &&&&&\\
-Quadruply Imprecise Likelihoods &&&&&\\
-Inaccurate Likelihoods &&&&&\\
-Multimodal Likelihoods &&&&&\\
-Toy Model True $N(z)$ &&&&&\\
-Low-$z$ Favoring Interim Prior &&&&&\\
-Mid-$z$ Disfavoring Interim Prior &&&&&
+2xImprecise &&&&&\\
+4xImprecise &&&&&\\
+Inaccurate &&&&&\\
+Multimodal &&&&&\\
+Featured &&&&&\\
+Unimodal &&&&&\\
+Bimodal &&&&&
 \end{tabular}
 \caption{The best-fit estimator in each case is bolded.  \textbf{This table 
 will be filled in once I'm certain I won't be re-running any tests.}}
