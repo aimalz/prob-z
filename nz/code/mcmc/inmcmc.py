@@ -145,11 +145,14 @@ class setup(object):
 
         self.logintNz = np.array(alldata[1])
         self.intNz = np.exp(self.logintNz)
+        self.intPz = np.exp(self.logintNz)/self.ngals
+        self.logintPz = um.safelog(self.intPz)
         self.lik_intNz = self.calclike(self.logintNz)
         self.mleZs = np.array([self.binmids[np.argmax(pdf)] for pdf in self.pdfs])
 
         self.fltNz = np.array([float(self.ngals)/float(self.nbins)/self.bindif]*self.nbins)
         self.logfltNz = np.log(self.fltNz)
+        self.logfltPz = self.logfltNz-np.log(self.ngals)
 
         self.truth = None
         self.truZs = None
