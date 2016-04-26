@@ -14,7 +14,7 @@ import math as m
 
 import utilsim as us
 
-title = 20
+title = 15
 label = 15
 mpl.rcParams['axes.titlesize'] = title
 mpl.rcParams['axes.labelsize'] = label
@@ -29,19 +29,19 @@ mpl.rcParams['figure.subplot.hspace'] = 0.5
 #print('set spaces')
 
 global s_tru,w_tru,a_tru,c_tru,d_tru,l_tru
-s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',1.,1.,'k',[(0,(1,0.0001))],r'True '
+s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',1.,1.,'k',[(0,(1,0.0001))],r' True '
 global s_int,w_int,a_int,c_int,d_int,l_int
-s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,0.5,'k',[(0,(1,0.0001))],r'Interim '
+s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,0.5,'k',[(0,(1,0.0001))],r' Interim '
 global s_stk,w_stk,a_stk,c_stk,d_stk,l_stk
-s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,'k',[(0,(1,2))],r'Stacked '
+s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,'k',[(0,(1,2))],r' Stacked '
 global s_map,w_map,a_map,c_map,d_map,l_map
-s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,0.75,'k',[(0,(4,4,2,4))],r'MMAP '
+s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,0.75,'k',[(0,(4,4,2,4))],r' MMAP '
 global s_exp,w_exp,a_exp,c_exp,d_exp,l_exp
-s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,0.25,'k',[(0,(4,4,2,4))],r'MExp '
+s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,0.25,'k',[(0,(4,4,2,4))],r' MExp '
 global s_mml,w_mml,a_mml,c_mml,d_mml,l_mml
-s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,'k',[(0,(3,2))],r'MMLE '
+s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,'k',[(0,(3,2))],r' MMLE '
 global s_smp,w_smp,a_smp,c_smp,d,smp,l_smp
-s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '--',1.,1.,'k',[(0,(1,0.0001))],r'Sampled '
+s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '--',1.,1.,'k',[(0,(1,0.0001))],r' Sampled '
 
 #making a step function plotter because pyplot is stupid
 def plotstep(subplot,binends,plot,s='--',d=[(0,(1,0.0001))],c='k',w=1,l=None,a=1.):
@@ -114,14 +114,15 @@ def plot_physgen(meta,test):
     sys.stdout.flush()
     sps = f.add_subplot(1,1,1)
 #     f.suptitle(meta.name+' True p(z)')
-    sps.plot(zrange,prange,label=meta.name+r' True $p(z)$',color='k')
+    sps.set_title(meta.name+r' True $p(z)$')
+    sps.plot(zrange,prange,color='k')
 #     for k in us.lrange(meta.real):
 #         sps.plot(zrange,pranges[k],color=meta.colors[k],label=str(meta.real[k][2])+r'$\mathcal{N}$('+str(meta.real[k][0])+','+str(meta.real[k][1])+')')
 # #     plotstep(sps,test.z_cont,test.phsPz,lw=3.,col='k',a=1./3.)
     #sps.semilogy()
     sps.set_ylabel(r'$p(z)$')
     sps.set_xlabel(r'$z$')
-    sps.legend(fontsize='small',loc='upper right')
+#     sps.legend(fontsize='small',loc='upper right')
     f.savefig(os.path.join(meta.simdir,'physPz.pdf'),bbox_inches='tight', pad_inches = 0)
     return
 
@@ -129,17 +130,17 @@ def plot_physgen(meta,test):
 def plot_pdfs(meta,test):
     f = plt.figure(figsize=(5,5))
     sps = f.add_subplot(1,1,1)
-#     f.suptitle('Observed galaxy posteriors for '+meta.name)
+    sps.set_title(meta.name+r' PDFs')
     plotstep(sps,test.binends,test.intPz,c=c_int,l=l_int+r'$P(z)$',s=s_int,w=w_int,d=d_int,a=a_int)
     dummy_x,dummy_y = np.array([-1,-2,-3]),np.array([-1,-2,-3])
     plotstep(sps,dummy_x,dummy_y,c=c_tru,s=s_tru,w=w_tru,l=l_tru+r'$z$',d=d_tru,a=a_tru)
-    plotstep(sps,dummy_x,dummy_y,c=c_exp,s=s_map,w=w_exp,l=r'Observed $z$',d=d_map,a=a_map)
+    plotstep(sps,dummy_x,dummy_y,c=c_exp,s=s_map,w=w_exp,l=r' MLE $z$',d=d_map,a=a_map)
     sps.legend(loc='upper right',fontsize='x-small')
     #sps.set_title('multimodal='+str(meta.shape)+', noisy='+str(meta.noise))
     for r in us.lrange(test.randos):
         plotstep(sps,test.binends,test.pdfs[test.randos[r]],c=meta.colors[r],s=s_smp,w=w_smp,d=d_smp,a=a_smp)
         sps.vlines(test.truZs[test.randos[r]],0.,max(test.pdfs[test.randos[r]]),color=meta.colors[r],linestyle=s_tru,linewidth=w_tru,dashes=d_tru,alpha=a_tru)
-        sps.vlines(test.obsZs[test.randos[r]],0.,max(test.pdfs[test.randos[r]]),color=meta.colors[r],linestyle=s_map,linewidth=w_map,dashes=d_map,alpha=a_map)
+        sps.vlines(test.mapZs[test.randos[r]],0.,max(test.pdfs[test.randos[r]]),color=meta.colors[r],linestyle=s_map,linewidth=w_map,dashes=d_map,alpha=a_map)
     sps.set_ylabel(r'$p(z|\vec{d})$')
     sps.set_xlabel(r'$z$')
     sps.set_xlim(test.binlos[0]-meta.zdif,test.binhis[-1]+meta.zdif)

@@ -132,7 +132,7 @@ class pertest(object):
         if self.meta.random == False:
             center = (self.allzs[0]+self.allzs[-1])/2.
             self.meta.real = np.array([np.array([center,1./self.surv,1.])])
-            self.real = us.gmix(self.meta.real,(self.allzs[0],self.allzs[-1]))
+        self.real = us.gmix(self.meta.real,(self.allzs[0],self.allzs[-1]))
 #             self.truZs = np.array([center]*self.ngals)
         np.random.seed(seed=self.seed)
         self.truZs = self.real.sample(self.ngals)
@@ -234,7 +234,7 @@ class pertest(object):
             pdf = pdf/max(np.dot(pdf,self.bindifs),sys.float_info.epsilon)
 
             # sample posterior if noisy observation
-            if self.meta.noise == True:
+            if self.meta.noise == True or self.meta.shape == True:
                 spdf = [0]*self.nbins
                 for k in xrange(self.nbins):
                     spdf[us.choice(xrange(self.nbins), pdf)] += 1
