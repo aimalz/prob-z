@@ -62,7 +62,7 @@ luminosity, mass, star formation rate, etc.
 \keywords{methods: analytical "\_\_\_" methods: data analysis "\_\_\_" methods: 
 statistical "\_\_\_" techniques: photometric "\_\_\_" galaxies: statistics, }
 
-\clearpage
+%\clearpage
 \section{Introduction}
 \label{sec:intro}
 
@@ -189,7 +189,7 @@ Sec. \ref{sec:exp} will describe how the model given in Sec. \ref{sec:meth} is
 implemented.  Sec. \ref{sec:valid} will discuss the results of applying the 
 fully probabilistic approach to mock and real datasets.
 
-\clearpage
+%\clearpage
 \section{Method}
 \label{sec:meth}
 
@@ -248,7 +248,7 @@ probabilistic model with alternative methods.
 %N(z) &=& \frac{dN}{dz}
 %\end{eqnarray}
 %
-\clearpage
+%\clearpage
 \subsection{Probabilistic Model}
 \label{sec:prob}
 
@@ -425,7 +425,7 @@ appropriate or even known to us as consumers of interim photo-$z$ posteriors.
 Third, the hyperprior may be quite arbitrary and poorly motivated if the 
 underlying physics is complex.
 
-\clearpage
+%\clearpage
 \subsection{Alternative Methods}
 \label{sec:sheldon}
 
@@ -462,7 +462,7 @@ estimator (MLE), the value of $\hat{\theta}$ maximizing the likelihood given by
 n[f_{\vec{\theta}^{0}}(z)]\right]\ dz\right],\end{equation} accessible with any 
 optimization code.
 
-\clearpage
+%\clearpage
 \section{Implementation}
 \label{sec:exp}
 
@@ -480,11 +480,11 @@ $\ln[p(\vec{\theta}|\{\vec{d}_{j}\})]$.  In Sec. \ref{sec:diag} we outline the
 measures used to evaluate the performance of the method, including the 
 alternative methods with which our results will be compared.
 
-\clearpage
+%\clearpage
 \subsection{Data}
 \label{sec:alldata}
 
-\clearpage
+%\clearpage
 \subsubsection{Mock Data}
 \label{sec:mock}
 
@@ -563,7 +563,7 @@ centered at a shifted redshift (dotted lines) separated from the true redshift
 \label{fig:nullpzs}
 \end{figure}
 
-\clearpage
+%\clearpage
 \subsubsection{BOSS Data}
 \label{sec:data}
 
@@ -582,7 +582,7 @@ than the simulated data of Fig. \ref{fig:nullpzs}.}
 \label{fig:datapzs}
 \end{figure}
 
-\clearpage
+%\clearpage
 \subsection{Computation}
 \label{sec:mcmc}
 
@@ -615,7 +615,7 @@ $p(\vec{\theta}^{i}|\{\vec{d}_{j}\})$ as well as the autocorrelation times and
 acceptance fractions calculated for each element of $\vec{\theta}$ over the 
 entire sub-run.  
 
-\clearpage
+%\clearpage
 \subsubsection{Prior}
 \label{sec:prior}
 
@@ -644,7 +644,7 @@ over $J'=10,000$ galaxies are shown in the figure.}
 \label{fig:prior}
 \end{figure}
 
-\clearpage
+%\clearpage
 \subsubsection{Convergence Criteria}
 \label{sec:acorr}
 
@@ -695,7 +695,7 @@ error regions (dark and light gray regions, respectively) decrease.}
 \textbf{Is this sufficient discussion of measures of convergence?  Should I 
 discuss others, even though these are the only ones I actually used?}
 
-\clearpage
+%\clearpage
 \subsection{Diagnostics}
 \label{sec:diag}
 
@@ -718,7 +718,7 @@ the minimum of the two is reported in this study.  In simulated tests, one of
 $\vec{\theta}^{a}$ and $\vec{\theta}^{b}$ is the true value and the other is 
 the value produced by one of the methods in question.  
 
-\clearpage
+%\clearpage
 \section{Validation Tests}
 \label{sec:valid}
 
@@ -735,7 +735,7 @@ redshift distribution function (Sec. \ref{sec:fake}), and the interim prior
 (Sec. \ref{sec:interim}).  Two additional cases with SDSS-III BOSS data 
 described in Sec. \ref{sec:data} are also considered.
 
-\clearpage
+%\clearpage
 \subsection{Fiducial Case}
 \label{sec:null}
 
@@ -772,7 +772,7 @@ distribution function, whereas stacking tends to smear them out.  The
 difference between stacking and the mean of the samples is more evident in 
 cases of noisier data, discussed in Sec. \ref{sec:noisy}.
 
-\clearpage
+%\clearpage
 \subsection{Imprecise interim photo-$z$ posteriors}
 \label{sec:noisy}
 
@@ -875,7 +875,7 @@ the imprecision of the data.  The error bars accurately reflect our beliefs
 about the uncertainty of this estimator.  Stacking and the point estimators 
 fail to recover the distinctive features of the true $N(z)$.
 
-\clearpage
+%\clearpage
 \subsection{Inaccurate interim photo-$z$ posteriors}
 \label{sec:multi}
 
@@ -991,7 +991,7 @@ photo-$z$ posteriors were produced.  In cases where we are uncertain as to the
 accuracy of the generative model for the photo-$z$ posteriors, it is 
 recommended to use the marginalized MLE.
 
-\clearpage
+%\clearpage
 \subsection{Toy Model $N(z)$}
 \label{sec:fake}
 
@@ -1034,7 +1034,7 @@ $N(z)$, such as one might find in an area with a small number of galaxy
 clusters, the marginalized MLE is the recommended estimator; if for numerical 
 reasons optimization is not possible, the mean of MCMC samples is recommended.
 
-\clearpage
+%\clearpage
 \subsection{Variable Interim Prior}
 \label{sec:interim}
 
@@ -1136,7 +1136,7 @@ $0.012$.}
 \label{fig:intb-comp}
 \end{figure}
 
-\clearpage
+%\clearpage
 \subsection{Data}
 \label{sec:boss}
 
@@ -1200,7 +1200,7 @@ likelihoods that more closely resembled the data.}
 \label{fig:biascomp}
 \end{figure}
 
-\clearpage
+%\clearpage
 \section{Conclusion}
 \label{sec:con}
 
@@ -1285,7 +1285,7 @@ two-point correlation function.
 
 \textbf{What else should I be putting here?  Is this too terse?}
 
-\clearpage
+%\clearpage
 
 \begin{acknowledgements}
 AIM thanks Boris Leistedt for helpful comments provided in the preparation of 
