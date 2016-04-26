@@ -37,6 +37,7 @@ class mvn(object):
     mvn object is multivariate normal distribution, to be used in data generation and prior to emcee
     """
     def __init__(self, mean, cov):
+        """input multidimensional mean and covariance matrix as numpy arrays"""
         self.dims = len(mean)
         self.mean = mean
         self.cov = cov
@@ -71,7 +72,8 @@ class post(object):
     """
     post object is posterior distribution we wish to sample
     """
-    def __init__(self,idist,xvals,yprobs,interim):#data are logged posteriors (ngals*nbins), idist is mvn object
+    def __init__(self,idist,xvals,yprobs,interim):
+        """data are logged posteriors (ngals*nbins), idist is mvn object"""
         self.prior = idist
         #self.priormean = idist.mean
         self.interim = interim
@@ -87,6 +89,7 @@ class post(object):
         return self.prior.logpdf(theta)
 
     def lnlike(self,theta):
+        """specific to N(z) problem"""
         #return self.lnprob(theta)-self.priorprob(theta)
         constterms = theta+self.constterm
         sumterm = -1.*np.dot(np.exp(theta),self.difs)
@@ -100,7 +103,7 @@ class post(object):
 
     # speed this up some more with matrix magic?
     def lnprob(self,theta):
-          """calculate log posterior probability"""
+        """calculate log posterior probability"""
 #         constterms = theta+self.constterm
 #         sumterm = self.priorprob(theta)-np.dot(np.exp(theta),self.difs)#this should sufficiently penalize poor samples but somehow fails on large datasets
 #         for j in lrange(self.postprobs):
@@ -112,8 +115,8 @@ class post(object):
         return self.lnlike(theta)+self.priorprob(theta)
 
 def post_lnprob(theta, other_self):
-  ret = other_self.lnprob(theta)
-  return ret
+    ret = other_self.lnprob(theta)
+    return ret
 
 class path(object):
     """
@@ -139,6 +142,7 @@ class path(object):
         return path(self.path_template, dct)
 
 class tnorm(object):
+    """truncated normal distribution object"""
     def __init__(self,mu,sig,ends):
         self.mu = mu
         self.sig = sig

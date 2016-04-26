@@ -112,15 +112,22 @@ def plot_pdfs(meta):
     f = plt.figure(figsize=(5,5))
     sps = f.add_subplot(1,1,1)
     f.subplots_adjust(hspace=0, wspace=0)
+    sps.set_title(meta.name+r' PDFs')
+    plotstep(sps,meta.binends,meta.intNz/meta.ngals,c=c_int,l=l_int+r'$P(z)$',s=s_int,w=w_int,d=d_int,a=a_int)
+    dummy_x,dummy_y = np.array([-1,-2,-3]),np.array([-1,-2,-3])
+    plotstep(sps,dummy_x,dummy_y,c=c_exp,s=s_map,w=w_exp,l=r' MAP $z$',d=d_map,a=a_map)
+    sps.legend(loc='upper right',fontsize='x-small')
+    np.random.seed(seed=meta.ngals)
     randos = random.sample(xrange(meta.ngals),len(meta.colors))
     for r in lrange(randos):
         plotstep(sps,meta.binends,meta.pdfs[randos[r]],c=meta.colors[r%len(meta.colors)])
+        sps.vlines(meta.mleZs[randos[r]],0.,max(meta.pdfs[randos[r]]),color=meta.colors[r],linestyle=s_map,linewidth=w_map,dashes=d_map,alpha=a_map)
     sps.set_ylabel(r'$p(z|\vec{d})$')
     sps.set_xlabel(r'$z$')
     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
     sps.set_ylim(0.,1./meta.bindif)
     sps.set_xlim(meta.binlos[0]-meta.bindif,meta.binhis[-1]+meta.bindif)
-    f.savefig(os.path.join(meta.topdir,'samplepzs.png'),bbox_inches='tight', pad_inches = 0)
+    f.savefig(os.path.join(meta.topdir,'samplepzs.pdf'),bbox_inches='tight', pad_inches = 0)
     return
 
 def plot_priorsamps(meta):
@@ -352,7 +359,7 @@ class plotter_probs(plotter):
         ploth(self.sps,self.meta.miniters*np.arange(0.,self.last_key.r+1),plot_y,s=s,c=c,a=a,w=w,d=d,l=l)
 
 class plotter_samps(plotter):
-    """plot full posterior samples"""
+    """"""
     def __init__(self, meta):
         self.meta = meta
 #         self.ncolors = len(self.meta.colors)
