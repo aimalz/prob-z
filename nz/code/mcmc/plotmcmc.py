@@ -693,6 +693,6 @@ class plotter_chains(plotter):
             sps_chain.legend(fontsize='xx-small', loc='lower right')
             sps_chain.set_xlim(0,(self.last_key.r+1)*self.meta.miniters)
 
-        self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
+        self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.pdf'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
 
         timesaver(self.meta,'chains-done',key)
