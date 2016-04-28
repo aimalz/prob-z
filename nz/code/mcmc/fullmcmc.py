@@ -50,7 +50,7 @@ def fsamp(idinfo):
         print ('Done with '+str(idinfo))
 
 # initialize all plotters
-all_plotters = [#plots.plotter_chains,
+all_plotters = [plots.plotter_chains,
                 plots.plotter_samps,
                 plots.plotter_probs,
                 plots.plotter_times]
