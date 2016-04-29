@@ -1213,15 +1213,15 @@ obtained by alternative approaches.
 A pseudo-random sampling of the full BOSS dataset is first examined to 
 approximate the behavior of an average galaxy survey.  Samples of photo-$z$ 
 interim posteriors are shown in the left panel of Fig. \ref{fig:datapzs}.  The 
-results of the inference are shown in Fig. \ref{fig:dataparam}.
+results of the inference are shown in Figs. \ref{fig:dataparam} and 
+\ref{fig:datacomp}.  
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/boss/samps.pdf}
 \caption{Samples from the full posterior (colored lines) of the subsample 
 differ substantially from the interim prior (gray).  The mean of samples 
 (thick, black line) and associated error bars ($1\sigma$ in dark gray, 
-$2\sigma$ in light gray) are in line with the sampled values.  \textbf{Not sure 
-what's happening with the errors at high $z$\dots}}
+$2\sigma$ in light gray) are in line with the sampled values.}
 \label{fig:dataparam}
 \end{figure}
 
@@ -1234,16 +1234,26 @@ yield a broader distribution with fewer features, closely matching the interim
 prior (gray, solid line) than the mean of the samples (thick, solid line).  The 
 marginalized MLE (thick, dotted line) is highly unstable, as was true in the 
 simulated case with multimodal photo-$z$ likelihoods that more closely 
-resembled the data of this case, and far from all other estimators, possibly 
-because the optimizer experiences challenges with so many galaxies.}
+resembled the data of this case.}
 \label{fig:datacomp}
 \end{figure}
+
+It is worth discussing two systematic effects evident in the results.  Because 
+the data itself exhibits high uncertainty at high $z$ in the form of local 
+maxima of the photo-$z$ interim posteriors, a reflection of the inherent 
+degeneracies that give rise to catastrophic photo-$z$ errors, it is natural 
+that there be large errors in that region.  Another effect worth investigating 
+is the instability of the marginalized maximum likelihood estimator.  
+\textbf{I'm not sure how to justify my explanation that the MMLE fails more 
+severely on more strongly multimodal data without showing the results of the 
+tests that proved it.}
 
 The BOSS subsample is further subsampled by imposing a cut in $r$-band 
 magnitude (at the median magnitude) to approximate the behavior of a heavily 
 biased galaxy survey with a magnitude limit.  Samples of photo-$z$ interim 
 posteriors are shown in the right panel of Fig. \ref{fig:datapzs}.  The results 
-of the inference are shown in Fig. \ref{fig:biasparam}.
+of the inference are shown in Figs. \ref{fig:biasparam} and \ref{fig:biascomp}. 
+ 
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/bias/samps.pdf}
@@ -1265,6 +1275,16 @@ highly unstable, as was true in the simulated case with multimodal photo-$z$
 likelihoods that more closely resembled the data.}
 \label{fig:biascomp}
 \end{figure}
+
+One can note that in these figures, the large error bars at high $z$ are 
+reduced to the size of those at lower redshifts.  Because the cut in magnitude 
+eliminates the dimmest galaxies for which redshifts cannot be well constrained, 
+the interim photo-$z$ posteriors that had local maxima at those redshifts are 
+not included in the sample.  Nonetheless, the marginalized MLE is still 
+unstable, although not as much as in the case of unbiased pseudo-random data.  
+The instability is due to the fact that the photo-$z$ interim posteriors are 
+still highly multimodal, but the improved agreement with the other methods is 
+due to the fact that they are less so than in the unbiased case.
 
 %\clearpage
 \section{Conclusion}
