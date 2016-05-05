@@ -11,20 +11,56 @@ import numpy as np
 import statmcmc as stats
 
 def burntest(outputs,run):# of dimensions nwalkers*miniters
-    """test whether burning in or done with that, true if burning in"""
+    """Gelman-Rubin test whether burning in or done with that, true if burning in"""
     print('testing burn-in condition')
 
-    lnprobs = outputs['probs']
-    lnprobs = np.swapaxes(lnprobs,0,1).T
-    varprob = sum([statistics.variance(w) for w in lnprobs])/run.meta.nwalkers
-    difprob = statistics.median([(lnprobs[w][0]-lnprobs[w][-1])**2 for w in xrange(run.meta.nwalkers)])
+#     lnprobs = outputs['probs']
+#     lnprobs = np.swapaxes(lnprobs,0,1).T
+#     varprob = sum([statistics.variance(w) for w in lnprobs])/run.meta.nwalkers
+#     difprob = statistics.median([(lnprobs[w][0]-lnprobs[w][-1])**2 for w in xrange(run.meta.nwalkers)])
 
-    if difprob > varprob:
-        print(run.meta.name+' burning-in '+str(difprob)+' > '+str(varprob))
+    chains = outputs['chains']#nwalkers*nsteps*nbins
+    dims = np.shape(chains)
+    all_i = dims[1]/2
+    all_m = dims[0]
+    all_k = dims[2]
+    steps = chains[:,all_i:,:]
+    gr = []
+    for k in xrange(all_k):
+        s = []
+        tbs = []
+        for m in xrange(all_m):
+            tbm = np.average(steps[m,:,k])
+            tbs.append(tbm)
+            sm = np.array([1./(all_i-1.)*np.sum((steps[m,:,k]-tbm)**2)])
+            assert np.all(sm) > 0
+            s.append(sm)
+        tbs = np.array(tbs)
+        s = np.array(s)
+        w = np.average(s)
+        assert w > 0
+        tbb = np.average(tbs)
+        b = all_i/(all_m-1.)*np.dot((tbs-tbb),(tbs-tbb))
+        assert b > 0
+        var = (1.-1./all_i)*w+b/all_i
+        assert var > 0
+        grk = np.sqrt(var/w)
+        assert grk > 0
+        gr.append(grk)
+    gr = np.array(gr)
+#     if difprob > varprob:
+#         print(run.meta.name+' burning-in '+str(difprob)+' > '+str(varprob))
+#     else:
+#         print(run.meta.name+' post-burn '+str(difprob)+' < '+str(varprob))
+
+#     return(difprob > varprob)
+
+    if np.all(gr > 1.1):
+        print(run.meta.name+' burning-in '+str(gr)+' > '+str(1.1))
     else:
-        print(run.meta.name+' post-burn '+str(difprob)+' < '+str(varprob))
+        print(run.meta.name+' post-burn '+str(gr)+' < '+str(1.1))
 
-    return(difprob > varprob)
+    return(np.all(gr > 1.1))
 
 class pertest(object):
     """
