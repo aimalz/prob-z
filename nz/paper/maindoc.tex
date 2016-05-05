@@ -256,7 +256,7 @@ dependent on photo-$z$ probability distribution functions, and Sec.
 %\end{eqnarray}
 %
 %\clearpage
-\subsection{Probabilistic Model}
+\subsection{Probabilistic Model Generalities}
 \label{sec:prob}
 
 We begin by parametrizing $N(z)$ in terms of $\vec{\theta}$, comprising some 
@@ -285,12 +285,15 @@ $\ln[p(\{\vec{d}_{j}\}|\vec{\theta})]$ by way of a hyperprior log-probability
 distribution (hereafter the hyperprior) $\ln p(\vec{\theta})$ over the 
 hyperparameters and the log-probability of the data $\ln[p(\{\vec{d}_{j}\})]$.  
 The hyperprior expresses our beliefs about the distribution of the 
-hyperparameters comprising $\vec{\theta}$; this matter (discussed further in 
-Sec. \ref{sec:prior}) is a choice we cannot avoid making and one which is often 
-inspired by the results of previous galaxy surveys.  The full log-posterior can 
-be probed with a quantity proportional to it so the log-probability of the data 
-is never explicitly necessary.  The full log-likelihood may be expanded in 
-terms of a marginalization over the redshifts as parameters, as in 
+hyperparameters comprising $\vec{\theta}$.  This matter is a choice we cannot 
+avoid making and one which is often inspired by the results of previous galaxy 
+surveys.  The hyperprior chosen here will be elaborated upon in Sec. 
+\ref{sec:alldata}.
+
+The full log-posterior can be probed with a quantity proportional to it so the 
+log-probability of the data is never explicitly necessary.  The full 
+log-likelihood may be expanded in terms of a marginalization over the redshifts 
+as parameters, as in 
 \begin{equation}
 \label{eq:marginalize}
 \ln[p(\{\vec{d}_{j}\}|\vec{\theta})] = \ln\left[\int\ 
@@ -315,10 +318,10 @@ The combination of these assumptions is given by
 \sum_{j=1}^{J}\ \ln[p(z_{j}|\vec{\theta})].
 \end{equation}
 It is important to note that the integral $\int N(z)\ dz$ is not constrained to 
-equal the variable defining the Poisson distribution but instead $J$ by Eq. 
-\ref{eq:definition}, which can be thought of as another parameter.  A detailed 
-discussion of this matter may be found in \citet{ForemanMackey2014}.  Applying 
-Bayes' Rule, we may combine terms to obtain 
+equal the variable defining the Poisson distribution but instead $J$ by 
+(\ref{eq:definition}), which can be thought of as another parameter.  A 
+detailed discussion of this matter may be found in \citet{ForemanMackey2014}.  
+Applying Bayes' Rule, we may combine terms to obtain 
 \begin{equation}
 \label{eq:posterior}
 \ln[p(\vec{\theta}|\{\vec{d}_{j}\})] \propto \ln[p(\vec{\theta})]\ -\int 
@@ -326,34 +329,32 @@ f_{\vec{\theta}}(z)\ dz + \sum_{j=1}^{J}\ \ln\left[\int\ p(\vec{d}_{j}|z_{j})\
 p(z_{j}|\vec{\theta})\ dz_{j}\right].
 \end{equation}
 
-Eq. \ref{eq:posterior} still contains the photo-$z$ log-likelihoods 
-$\ln[p(\vec{d}_{j}|z_{j})]$ that have not been mentioned since Eq. 
-\ref{eq:marginalize}.  Though photo-$z$ log-likelihoods would be desirable for 
-use in these equations, they are not generally the product of either empirical 
-and data-driven methods for obtaining photo-$z$ probability distributions.  
-Though probabilistic photo-$z$s are typically reported as generic probability 
-distributions $p(z_{j})$, the methods that produce them may be understood to 
-always yield posteriors, probability distributions conditioned on the data we 
-believe to be true.  If they were not based in this assumption, they would 
-require a sum over an infinite space of possible datasets.
+(\ref{eq:posterior}) contains two quantities that merit further discussion, the 
+prior distribution $p(\vec{\theta})$ discussed further in Sec. 
+\ref{sec:alldata} and the photo-$z$ log-likelihoods $\ln[p(\vec{d}_{j}|z_{j})]$ 
+that have not been mentioned since (\ref{eq:marginalize}).  Though photo-$z$ 
+log-likelihoods would be desirable for use in these equations, they are not 
+generally the product of either empirical and data-driven methods for obtaining 
+photo-$z$ probability distributions.  Though probabilistic photo-$z$s are 
+typically reported as generic probability distributions $p(z_{j})$, the methods 
+that produce them may be understood to always yield posteriors, probability 
+distributions conditioned on the data we believe to be true.  If they were not 
+based in this assumption, they would require a sum over an infinite space of 
+possible datasets.
 
 Posteriors differ from likelihoods by way of a prior distribution, so we cannot 
 simply assume that the available data products are photo-$z$ posteriors 
 $p(z_{j}|\vec{d}_{j})$.  Rather, we consider the published catalog of 
 $p(z_{j})$ interim photo-$z$ posteriors 
 $p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})$.  There must have been some interim 
-prior distribution $p(z|\vec{\theta}^{0})$ explicitly chosen or implicitly made 
-to perform the calculation of the probabilistic photo-$z$s.  If it is implicit, 
-it may not be representable in the parametrization we have chosen, and 
-furthermore it may not be known at all.  A method that produces interim 
-photo-$z$ posteriors of this kind is not suitable for inference.  However, so 
-long as the interim prior is known, hierarchical inference is possible.
-
-%The production of photo-$z$ posteriors effectively assigns to each galaxy's 
-photometry $\vec{d}_{j}$ both a redshift parameter $z_{j}$ and some nuisance 
-parameters determined by an interim prior $\vec{\theta}^{0}$, encapsulated by 
-the reported interim photo-$z$ posteriors 
-$\ln[p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})]$.  
+prior probability distribution $p(z|\vec{\theta}^{0})$ defined in terms of the 
+interim prior parameter values (hereafter the interim prior) $\vec{\theta}^{0}$ 
+explicitly chosen or implicitly made to perform the calculation of the 
+probabilistic photo-$z$s.  If it is implicit, it may not be representable in 
+the parametrization we have chosen, and furthermore it may not be known at all; 
+a method that produces interim photo-$z$ posteriors of this kind is not 
+suitable for inference.  However, so long as the interim prior is known, 
+hierarchical inference is possible. 
 
 The interim prior $\vec{\theta}^{0}$ may be thought of as an initial guess for 
 the parameters contained in $\vec{\theta}$, inspired by the generative model 
@@ -367,13 +368,13 @@ spectroscopically confirmed sample or from a cosmological simulation.
 
 Since we only have access to interim photo-$z$ posteriors, we must be able to 
 write the full log-posterior in terms of interim photo-$z$ log-posteriors 
-rather than the log-likelihoods of Eq. \ref{eq:posterior}.  However, we will 
-need an explicit statement of this interim prior for whatever method is chosen 
-to produce the interim photo-$z$ posteriors.  To perform the necessary 
+rather than the log-likelihoods of (\ref{eq:posterior}).  However, we will need 
+an explicit statement of this interim prior for whatever method is chosen to 
+produce the interim photo-$z$ posteriors.  To perform the necessary 
 transformation from likelihoods to posteriors, we follow the reasoning of 
 \citet{Marshall2015}.  Let us consider the probability of the parameters 
 conditioned on the data and an interim prior and rewrite the problematic 
-likelihood of Eq. \ref{eq:posterior} as 
+likelihood of (\ref{eq:posterior}) as 
 \begin{equation}
 \label{eq:trick}
 p(\vec{d}_{j}|z_{j}) = p(\vec{d}_{j}|z_{j})\ 
@@ -416,7 +417,7 @@ p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})\
 \frac{p(z_{j}|\vec{\theta})}{p(z_{j}|\vec{\theta}^{0})}\ dz_{j}\right].
 \end{equation}
 
-The argument of the integral in the log-posterior of Eq. \ref{eq:final} depends 
+The argument of the integral in the log-posterior of (\ref{eq:final}) depends 
 solely on knowable quantities (and those we must assume) and can be calculated 
 for a given set of interim photo-$z$ log-posteriors 
 $\{\ln[p(z_{j}|\vec{d}_{j},\vec{\theta}^{0})]\}$ and the interim prior 
@@ -463,7 +464,7 @@ Third, the hyperprior may be quite arbitrary and poorly motivated if the
 underlying physics is complex.
 
 %\clearpage
-\subsection{Alternative Methods}
+\subsection{Alternative Approaches}
 \label{sec:sheldon}
 
 It will be desirable to compare the result of this method to the estimates of 
@@ -481,7 +482,7 @@ f_{\hat{\theta}}(z) = \sum_{j=1}^{J}\ p(z_{j}|\vec{d}_{j},\vec{\theta}^{0}
 \citep{Lima2008}.  Stacking is considered the preferred method for obtaining 
 $N(z)$ from a dataset of interim photo-$z$ posteriors \citep{Sheldon2012, 
 Kelly2014, Benjamin2013, Bonnett2015a, Viironen2015, Asorey2016}.  However, it 
-must be noted here that Eq. \ref{eq:stack} is not mathematically valid.  (See 
+must be noted here that (\ref{eq:stack}) is not mathematically valid.  (See 
 \citet{Hogg2012} for a complete discussion.)  
 
 Point estimation converts the interim photo-$z$ posteriors 
@@ -505,12 +506,8 @@ n[f_{\vec{\theta}^{0}}(z)]\right]\ dz\right],
 accessible with any optimization code.
 
 %\clearpage
-\section{Implementation}
+\section{Model Specifics}
 \label{sec:exp}
-
-\textbf{I'm fairly confident in this section as a whole.  I think it could be 
-condensed further but don't know what information is considered essential and 
-what's okay to leave out.}
 
 We ran several tests of this approach to demonstrate its usage and validity 
 using a procedure outlined in this section.  In Sec. \ref{sec:alldata} we 
@@ -526,16 +523,30 @@ alternative methods with which our results will be compared.
 \subsection{Data}
 \label{sec:alldata}
 
+The parametrization of $N(z)$ chosen here is a histogram formulation such that 
+$f_{\vec{\theta}}(z\in B_{k})=\theta_{k}$, where $B_{k}$ refers to the 
+$K$-dimensional binning $B^{k}=[z^{B}_{k-1},z^{B}_{k}]$ on the redshift range 
+from $z^{B}_{0}=z_{min}$ to $z^{B}_{K}=z_{max}$ with bin widths $\Delta_{k}$.  
+All tests in this paper will be conducted with $z_{min}=0.0$, $z_{max}=1.1$, 
+and $K=35$, the endpoints and dimensionality of the published BOSS DR8 
+photo-$z$ interim posteriors \citet{Sheldon2012}.
+
+The hyperprior distribution chosen here is a multivariate normal distribution 
+with mean $\vec{\mu}$ equal to the interim prior \vec{\theta}^{0} and covariance
+\begin{equation}
+\label{eq:priorcov}
+\Sigma_{k,k'} = q\ \exp[-\frac{e}{2}\ (\bar{z}_{k}-\bar{z}_{k'})^{2}]\ +\ 
+t\delta(k,k')
+\end{equation}
+inspired by one used in Gaussian processes, where $k$ and $k'$ are indices 
+ranging from $1$ to $K$ and $q=1.0$, $e=100.0$, and $t=q\cdot10^{-5}$ are 
+constants chosen to permit draws from this prior distribution to produce shapes 
+similar to that of a true $\tilde{\theta}$.  We adapt the full log-posterior of 
+(\ref{eq:final}) to the binning of redshift space chosen in Sec. \ref{sec:mock}.
+
 %\clearpage
 \subsubsection{Mock Data}
 \label{sec:mock}
-
-To generate mock interim photo-$z$ log-posteriors, we choose a parametrization 
-of redshift space and impose a $K$-dimensional binning 
-$B^{k}=[z^{B}_{k-1},z^{B}_{k}]$ on the redshift range from $z^{B}_{0}=z_{min}$ 
-to $z^{B}_{K}=z_{max}$ with bin widths $\Delta_{k}$.  All tests in this paper 
-will be conducted with $z_{min}=0.0$, $z_{max}=1.1$, and $K=35$, the endpoints 
-and dimensionality of BOSS DR8 photo-$z$ interim posteriors.
 
 We next choose a physically-motivated $p^{0}(z)$ defining the general shape of 
 $N(z)$ over the specified redshift range $[z_{min},z_{max}]$.  Here we shall 
@@ -654,7 +665,7 @@ cleaner photo-$z$ PDFs.}
 \end{figure}
 
 %\clearpage
-\subsection{Computation}
+\subsection{Implementation Details}
 \label{sec:mcmc}
 
 The testing procedure is implemented in \texttt{Python} and is made public as 
@@ -665,50 +676,16 @@ $\vec{\theta}^{0}$, and a catalog of $J$ interim photo-$z$ log-posteriors
 $\{\ln[p(B_{j}|\vec{d}_{j},\vec{\theta}^{0})]\}_{J}$.
 
 The \texttt{emcee} \citep{Foreman-Mackey2013} implementation of ensemble 
-sampling is applied to sample the full log-posterior of Eq. \ref{eq:final}.   
-For each of some $W$ walkers at each iteration $i$, a proposal distribution 
+sampling is applied to sample the full log-posterior of (\ref{eq:final}).   For 
+each of some $W$ walkers at each iteration $i$, a proposal distribution 
 $\vec{\theta}^{i}$ generated from the hyperprior distribution and evaluated for 
 acceptance to or rejection from the desired log-posterior distribution.  Two 
 threshold conditions are defined, one designating all previous samples to be 
 ignored as as products of a "burn-in" phase and another indicating when a 
 sufficient number of "post-burn" samples have been accepted.  In this case, the 
 first threshold (described in Sec. \ref{sec:acorr}) is defined in terms of 
-sub-runs of $I_{0}=100$ accepted samples, and the second is defined as an 
-accumulation of an arbitrary 6000 samples.
-
-The input/output format chosen for this work is \texttt{HDF5} because of its 
-efficiency for large amounts of data.  The resulting output is a set of $I$ 
-ordered \texttt{hickle} files enumerated by $\rho$ containing the state 
-information after each sub-run.  The state information includes 
-$\frac{I_{0}}{s}$ actual samples $\vec{\theta}^{i}$ for a pre-specified chain 
-thinning factor $s$ and their full posterior probabilities 
-$p(\vec{\theta}^{i}|\{\vec{d}_{j}\})$ as well as the autocorrelation times and 
-acceptance fractions calculated for each element of $\vec{\theta}$ over the 
-entire sub-run.  
-
-%\clearpage
-\subsubsection{Prior}
-\label{sec:prior}
-
-The method described above involves the assumption of a hyperprior distribution 
-$p(\vec{\theta})$ over the hyperparameters comprising $\vec{\theta}$.  The 
-prior chosen here is a multivariate normal distribution with mean 
-\begin{equation}
-\label{eq:priormean}
-\vec{\mu}=\vec{\theta}^{0}
-\end{equation}
-equal to the interim prior and covariance
-\begin{equation}
-\label{eq:priorcov}
-\Sigma_{a,b} = q\ \exp[-\frac{e}{2}\ (\bar{z}_{a}-\bar{z}_{b})^{2}]\ +\ 
-t\delta(a,b)
-\end{equation}
-inspired by one used in Gaussian processes.  This choice is made to permit 
-draws from this prior distribution to produce shapes similar to that of the 
-true $\tilde{\theta}$.  Here, the parameters of this covariance matrix are set 
-to the small numbers $q=1.0$, $e=100.0$, and $t=q\cdot10^{-5}$.  We adapt the 
-full log-posterior of Eq. \ref{eq:final} to the binning of redshift space 
-chosen in Sec. \ref{sec:mock}.
+sub-runs of $I_{0}=10^{3}$ accepted samples, and the second is defined as an 
+accumulation of $I_{tot}=10^{4}$ samples.
 
 The sampler is initialized with $W=100$ walkers each with a value chosen from a 
 Gaussian distribution of identity covariance around a sample from the 
@@ -723,12 +700,23 @@ probability distribution integrating to unity.}
 \label{fig:prior}
 \end{figure}
 
+The input/output format chosen for this work is \texttt{HDF5} because of its 
+efficiency for large amounts of data.  The resulting output is a set of $I$ 
+ordered \texttt{hickle} files enumerated by $\rho$ containing the state 
+information after each sub-run.  The state information includes 
+$\frac{I_{0}}{s}$ actual samples $\vec{\theta}^{i}$ for a pre-specified chain 
+thinning factor $s$ and their full posterior probabilities 
+$p(\vec{\theta}^{i}|\{\vec{d}_{j}\})$ as well as the autocorrelation times and 
+acceptance fractions calculated for each element of $\vec{\theta}$ over the 
+entire sub-run.  
+
 %\clearpage
 \subsubsection{Convergence Criteria}
 \label{sec:acorr}
 
-Two quantities that probe the convergence of the sampler are used in this 
-study, the autocorrelation time and the posterior probability evolution.
+In addition to qualitative visual inspection of the chains, two quantities that 
+probe the convergence of the sampler are used in this study, the 
+autocorrelation time and the Gelman-Rubin convergence criterion.
 
 The autocorrelation time is effectively a measure of the convergence rate of 
 the method and can be described as the expected number of iterations necessary 
@@ -751,8 +739,10 @@ sub-run.  Samples accepted during the burn-in phase are discounted from
 analysis, and an arbitrary ten additional sub-runs are executed before the 
 sampler terminates.  
 
-A final test of convergence is visual inspection of the values of the 
-parameters for each walker as a function of iteration number.  
+%The Gelman-Rubin statistic is calculated for each parameter and effectively 
+compares the variance within each walker's chain with the variance between 
+chains of different walkers.  Convergence is achieved when the weighted sum of 
+these variances approaches unity.
 
 \begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/null/chain0.pdf}
@@ -976,7 +966,7 @@ generate the data, or there may be multiple components to the interim photo-$z$
 posteriors.  Both cases will be considered here by introducing one change in 
 the steps of Sec. \ref{sec:mock}.  
 
-The first case modifies the generative model of Eq. \ref{eq:genmod} to have 
+The first case modifies the generative model of (\ref{eq:genmod}) to have 
 $\epsilon_{j}\sim\mathcal{N}(0,\sigma'^{2}_{j})$ for 
 $\sigma'_{j}\sim\mathcal{N}(\bar{\Delta},\bar{\Delta}^{2})$.  This modification 
 is reflected in the interim photo-$z$ posteriors, a sampling of which is shown 

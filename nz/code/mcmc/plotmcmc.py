@@ -138,11 +138,11 @@ def plot_priorsamps(meta):
     sps.set_title(meta.name)
     f.subplots_adjust(hspace=0, wspace=0)
     sps.set_xlabel(r'$z$')
-    sps.set_ylabel(r'$\ln P(z)$')
+    sps.set_ylabel(r'$p(z|\vec{\theta})$')
     sps.set_xlim(meta.binends[0]-meta.bindif,meta.binends[-1]+meta.bindif)#,s_run.seed)#max(n_run.full_logfltNz)+m.log(s_run.seed/meta.zdif)))
-    plotstep(sps,meta.binends,meta.logintPz,l=r'Interim Prior $\ln P(z)$')
+    plotstep(sps,meta.binends,meta.intPz,l=r'Interim Prior $p(z|\vec{\theta}^{0})$')
     for c in lrange(meta.colors):
-        plotstep(sps,meta.binends,priorsamps[c]-np.log(meta.ngals),c=meta.colors[c])
+        plotstep(sps,meta.binends,np.exp(priorsamps[c]-np.log(meta.ngals)),c=meta.colors[c])
     sps.legend(loc='upper left',fontsize='x-small')
     f.savefig(os.path.join(meta.topdir, 'priorsamps.pdf'),bbox_inches='tight', pad_inches = 0)
     return
@@ -589,24 +589,17 @@ class plotter_chains(plotter):
             sps_chain.set_xlabel('iteration number')
             sps_chain.set_ylabel(r'$\ln N_{'+str(k+1)+r'}(z)$')
             self.sps_pdfs[k].set_ylim(0.,1.)
-            #self.sps_pdfs[k].semilogy()
             sps_pdf = self.sps_pdfs[k]
             sps_pdf.set_xlabel(r'$\theta_{'+str(k+1)+r'}$')
             sps_pdf.set_ylabel('kernel density estimate')
 #             self.yrange = [-1.,0.,1.,2.]
-            sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle=s_stk,dashes=d_stk,linewidth=w_stk,color=c_stk,alpha=a_stk,label=l_stk+t+r'$_{k}$')
-#             plotv(sps_pdf,self.meta.logstkNz[k],yrange,s=s_stk,w=w_stk,c=c_stk,a=a_stk,l=l_stk+t+r'$_{k}$')
-#             sps_pdf.vlines(self.meta.logmapNz[k],0.,1.,linestyle='-.',w=2.)
-#           plotv(sps_pdf,self.meta.logmapNz[k],yrange,s=s_map,w=w_map,c=c_map,a=a_map,l=l_map+t+r'$_{k}$')
-# #             sps_pdf.vlines(self.meta.logexpNz[k],0.,1.,linestyle=':',w=2.,label=r'$E(z)$ value')
-# #             plotv(sps_pdf,self.meta.logexpNz[k],yrange,s=s_exp,w=w_exp,c=c_exp,a=a_exp,l=l_exp+t+r'$_{k}$')
-            sps_pdf.vlines(self.meta.logmmlNz[k],0.,1.,linestyle=s_mml,dashes=d_mml,linewidth=w_mml,color=c_mml,alpha=a_mml,label=l_mml+t+r'$_{k}$')
-#             plotv(sps_pdf,self.meta.logmmlNz[k],yrange,s=s_mml,w=w_mml,c=c_mml,a=a_mml,l=l_mml+t+r'$_{k}$')
-            sps_pdf.vlines(self.meta.logintNz[k],0.,1.,linestyle=s_int,dashes=d_int,linewidth=w_int,color=c_int,alpha=a_int,label=l_int+t+r'$_{k}$')
-#             plotv(sps_pdf,self.meta.logintNz[k],yrange,s=s_int,w=w_int,c=c_int,a=a_int,l=l_int+t+r'$_{k}$')
+            sps_pdf.vlines(self.meta.logstkNz[k],0.,1.,linestyle=s_stk,dashes=d_stk,linewidth=w_stk,color=c_stk,alpha=a_stk,label=l_stk+t+r'$_{'+str(k)+'}$')
+            sps_pdf.vlines(self.meta.logmapNz[k],0.,1.,linestyle=s_map,dashes=d_map,linewidth=w_map,color=c_map,alpha=a_map,label=l_map+t+r'$_{'+str(k)+'}$')
+            sps_pdf.vlines(self.meta.logexpNz[k],0.,1.,linestyle=s_exp,dashes=d_exp,linewidth=w_exp,color=c_exp,alpha=a_exp,label=l_exp+t+r'$_{'+str(k)+'}$')
+            sps_pdf.vlines(self.meta.logmmlNz[k],0.,1.,linestyle=s_mml,dashes=d_mml,linewidth=w_mml,color=c_mml,alpha=a_mml,label=l_mml+t+r'$_{'+str(k)+'}$')
+            sps_pdf.vlines(self.meta.logintNz[k],0.,1.,linestyle=s_int,dashes=d_int,linewidth=w_int,color=c_int,alpha=a_int,label=l_int+t+r'$_{'+str(k)+'}$')
             if self.meta.logtruNz is not None:
                 sps_pdf.vlines(self.meta.logtruNz[k],0.,1.,linestyle=s_tru,dashes=d_tru,linewidth=w_tru,color=c_tru,alpha=a_tru,label=l_tru+t+r'$_{k}$')
-#                 plotv(sps_pdf,self.meta.logtruNz[k],yrange,s=s_tru,w=w_tru,c=c_tru,a=a_tru,l=l_tru+t+r'$_{k}$')
 
     def plot(self,key):
 
@@ -685,7 +678,6 @@ class plotter_chains(plotter):
             y_all = alldata[k]
             loc,scale = sp.stats.norm.fit_loc_scale(y_all)
             yrange = [-1.,0.,1.,2.]
-#             plotv(sps_pdf,loc,yrange,s=s_bfe,w=w_bfe,c=c_bfe,a=a_bfe,l=l_bfe+t+r'$_{k}$')
             sps_pdf.vlines(loc,0.,1.,linestyle=s_bfe,dashes=d_bfe,linewidth=w_bfe,color=c_bfe,alpha=a_bfe,label=l_bfe+t+r'$_{k}$')
             sps_pdf.axvspan(loc-scale,loc+scale,color='k',alpha=0.1)
 

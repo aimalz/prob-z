@@ -40,8 +40,9 @@ class setup(object):
             self.allzs = np.array([float(indict['allzs'][i]) for i in range(0,self.allnbins+1)])
         elif 'nbins' in indict:
             self.allnbins = int(indict['nbins'][0])
-            binstep = 1. / self.allnbins
-            self.allzs = np.arange(0.,1.+binstep,binstep)
+            endpoints = [0.0,1.1]
+            binstep = (endpoints[-1]-endpoints[0]) / self.allnbins
+            self.allzs = np.arange(endpoints[0],endpoints[-1]+binstep,binstep)
         else:
             self.allnbins = 35
             binstep = 1. / self.allnbins
