@@ -320,7 +320,7 @@ The combination of these assumptions is given by
 It is important to note that the integral $\int N(z)\ dz$ is not constrained to 
 equal the variable defining the Poisson distribution but instead $J$ by 
 (\ref{eq:definition}), which can be thought of as another parameter.  A 
-detailed discussion of this matter may be found in \citet{ForemanMackey2014}.  
+detailed discussion of this matter may be found in \citet{Foreman-Mackey2014}.  
 Applying Bayes' Rule, we may combine terms to obtain 
 \begin{equation}
 \label{eq:posterior}
@@ -372,7 +372,7 @@ rather than the log-likelihoods of (\ref{eq:posterior}).  However, we will need
 an explicit statement of this interim prior for whatever method is chosen to 
 produce the interim photo-$z$ posteriors.  To perform the necessary 
 transformation from likelihoods to posteriors, we follow the reasoning of 
-\citet{Marshall2015}.  Let us consider the probability of the parameters 
+\citet{Foreman-Mackey2014}.  Let us consider the probability of the parameters 
 conditioned on the data and an interim prior and rewrite the problematic 
 likelihood of (\ref{eq:posterior}) as 
 \begin{equation}
@@ -695,9 +695,9 @@ in Fig. \ref{fig:prior}.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/null/priorsamps.pdf}
-\caption{This figure shows samples (colored lines) from the prior distribution 
-defined by Eqs. \ref{eq:priormean} and \ref{eq:priorcov} normalized to a 
-probability distribution integrating to unity.}
+\caption{This figure shows samples (colored lines) of $p(z|\vec{\theta})$ where 
+each $\vec{\theta}$ is drawn from the hyperprior distribution $p(\vec{\theta})$ 
+defined in Sec. \ref{sec:alldata} with \ref{eq:priorcov}.}
 \label{fig:prior}
 \end{figure}
 
