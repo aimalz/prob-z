@@ -688,7 +688,7 @@ first threshold (described in Sec. \ref{sec:acorr}) is defined in terms of
 sub-runs of $I_{0}=10^{3}$ accepted samples, and the second is defined as an 
 accumulation of $I_{tot}=10^{4}$ samples.
 
-The sampler is initialized with $W=100$ walkers each with a value chosen from a 
+The sampler is initialized with $M=100$ walkers each with a value chosen from a 
 Gaussian distribution of identity covariance around a sample from the 
 hyperprior distribution.  An example of such samples from the prior are shown 
 in Fig. \ref{fig:prior}.
@@ -717,43 +717,41 @@ entire sub-run.
 
 In addition to qualitative visual inspection of the chains, two quantities that 
 probe the convergence of the sampler are used in this study, the 
-autocorrelation time and the Gelman-Rubin convergence criterion.
-
-The autocorrelation time is effectively a measure of the convergence rate of 
-the method and can be described as the expected number of iterations necessary 
-to accept a new sample independent of the current accepted sample.  A sampler 
-that converges faster will have a smaller autocorrelation time, and smaller 
-autocorrelation times are preferable because it means fewer iterations are 
-wasted on non-independent samples when independent samples are desired.  See 
-\citet{Foreman-Mackey2013} for a more complete exploration of the 
-autocorrelation time.  
-
-We examine the evolution of the posterior probability of accepted samples after 
-each successive sub-run to evaluate the duration of the burn-in phase.  Though 
-the probability associated with the initial values will likely be quite low, it 
-should improve for subsequent accepted parameter values.  As with the 
-autocorrelation time, the posterior probability of samples will asymptotically 
-approach some more favorable value with more iterations.  The burn-in phase may 
-be defined as the number of iterations necessary before the variance of the log 
-probabilities is less than the change in median log probability over the 
-sub-run.  Samples accepted during the burn-in phase are discounted from 
-analysis, and an arbitrary ten additional sub-runs are executed before the 
-sampler terminates.  
-
-%The Gelman-Rubin statistic is calculated for each parameter and effectively 
-compares the variance within each walker's chain with the variance between 
-chains of different walkers.  Convergence is achieved when the weighted sum of 
-these variances approaches unity.
+autocorrelation time and the Gelman-Rubin convergence criterion.  Fig. 
+\ref{fig:chains} shows the evolution of the values of one parameter of one 
+walker over the course of all iterations of the sampler.
 
 \begin{figure}
 %\includegraphics[width=0.5\textwidth]{figs/null/chain0.pdf}
 \caption{This figure shows the evolution of one walker's parameter values for 
 one element of the parameter vector $\vec{\theta}$ as a function of iteration 
-number, demonstrating the completion of the burn-in phase.  The autocorrelation 
-times for each walkers over all sub-runs are between 15 and 20, meaning that 
-samples 15-20 iterations apart are independent of one another.}
+number, demonstrating the completion of the burn-in phase.}
 \label{fig:chains}
 \end{figure}
+
+The autocorrelation time is effectively a measure of the efficiency of the 
+method and can be described as the expected number of iterations necessary to 
+accept a new sample independent of the current accepted sample.  A sampler that 
+converges faster will have a smaller autocorrelation time, and smaller 
+autocorrelation times are preferable because it means fewer iterations are 
+wasted on non-independent samples when independent samples are desired.  See 
+\citet{Foreman-Mackey2013} for a more complete exploration of the 
+autocorrelation time.  In all tests discussed here, autocorrelation times 
+across walkers and parameters were approximately 20, meaning two samples 20 or 
+more iterations apart were independent, a satisfactory level of efficiency.  
+Low autocorrelation times are a necessary but not always sufficient convergence 
+condition, as the autocorrelation times calculated for tests in this paper were 
+constant across all sub-runs, even those that were obviously burning in.  
+
+The Gelman-Rubin statistic
+\begin{equation}
+\label{eq:gr}
+R_{k}^{i} = \sqrt{\frac{(1-\frac{2}{I_{0}})w_{k}+\frac{2}{I_{0}}b_{k}}{w_{k}}},
+\end{equation}
+a weighted sum of the mean $w_{k}$ of the variances within individual walkers' 
+chains and the variance $b_{k}$ between chains of different walkers $m$, is 
+calculated to determine the duration of the burn-in period.  Convergence is 
+achieved when the statistic approaches unity.  
 
 %\clearpage
 \subsection{Diagnostics}
