@@ -7,8 +7,61 @@ import statistics
 import timeit
 import psutil
 import numpy as np
+#import pymc
 
 import statmcmc as stats
+
+#stolen wholesale from https://github.com/mjvakili/gambly/blob/master/code/diagnosis/grtest.py
+def single_parameter_gr_test(chains):
+    """
+    inputs:
+      chains : MCMC samples for one parameter.
+      shape = (nwalkers , niters)
+    returns:
+      potential scale reduction factor
+      and the variance of the distribution
+    """
+    nwalkers =  chains.shape[0]
+    niters =  chains.shape[1]
+    #Discarding the first half of draws:
+    chains = chains[: , niters/2:]
+    nwalkers , niters = chains.shape[0] , chains.shape[1]
+    #Calculating the within-chain variance:
+    W = np.mean(np.var(chains, axis=1))
+    #Calculating the between-chain variance:
+    chains_means = np.mean(chains, axis=1)
+    mean_of_chains_means = np.mean(chains_means)
+    B = (niters/(nwalkers-1.0)) * np.sum((chains_means - mean_of_chains_means)**2.)
+    # Estimating the variance of distribution:
+    V = (1. - 1./niters) * W + (1./niters) * B
+    # Calculating the potential scale reduction factor:
+    R = np.sqrt(V/W)
+    return R , V
+def gr_test(sample , dims):
+    """
+    inputs:
+      sample = an emcee sample
+      nwalkers = number of walkers
+    returns:
+      Rs = npar-dimensional vector of the
+      potential scale reduction factors
+      Vs = npar-dimensional vector of the
+      variances
+    """
+    #npar = len(sample[0])
+    #niters = len(sample)
+    (nwalkers,niters,npars) = dims
+    nburnins = niters/2
+    chain_ensemble = sample.reshape(niters , nwalkers , npars)
+    chain_ensemble = chain_ensemble[nburnins: , :]
+    Rs = np.zeros((npars))
+    Vs = np.zeros((npars))
+    for i in range(npars):
+        chains = chain_ensemble[ : , : , i].T
+        output = single_parameter_gr_test(chains)
+        Rs[i] = output[0]
+        Vs[i] = output[1]
+    return Rs , Vs
 
 def burntest(outputs,run):# of dimensions nwalkers*miniters
     """Gelman-Rubin test whether burning in or done with that, true if burning in"""
@@ -21,46 +74,50 @@ def burntest(outputs,run):# of dimensions nwalkers*miniters
 
     chains = outputs['chains']#nwalkers*nsteps*nbins
     dims = np.shape(chains)
-    all_i = dims[1]/2
-    all_m = dims[0]
-    all_k = dims[2]
-    steps = chains[:,all_i:,:]
-    gr = []
-    for k in xrange(all_k):
-        s = []
-        tbs = []
-        for m in xrange(all_m):
-            tbm = np.average(steps[m,:,k])
-            tbs.append(tbm)
-            sm = np.array([1./(all_i-1.)*np.sum((steps[m,:,k]-tbm)**2)])
-            assert np.all(sm) > 0
-            s.append(sm)
-        tbs = np.array(tbs)
-        s = np.array(s)
-        w = np.average(s)
-        assert w > 0
-        tbb = np.average(tbs)
-        b = all_i/(all_m-1.)*np.dot((tbs-tbb),(tbs-tbb))
-        assert b > 0
-        var = (1.-1./all_i)*w+b/all_i
-        assert var > 0
-        grk = np.sqrt(var/w)
-        assert grk > 0
-        gr.append(grk)
-    gr = np.array(gr)
+    print('dims='+str(dims))
+#     all_i = dims[1]/2
+#     all_m = dims[0]
+#     all_k = dims[2]
+#     steps = chains[:,all_i:,:]
+#     gr = []
+#     for k in xrange(all_k):
+#         s = []
+#         tbs = []
+#         for m in xrange(all_m):
+#             tbm = np.average(steps[m,:,k])
+#             tbs.append(tbm)
+#             sm = 1./(all_i-1.)*np.sum((steps[m,:,k]-tbm)**2)
+#             assert sm > 0
+#             s.append(sm)
+#         tbs = np.array(tbs)
+#         s = np.array(s)
+#         w = np.average(s)
+#         assert w > 0
+#         tbb = np.average(tbs)
+#         b = all_i/(all_m-1.)*np.dot((tbs-tbb),(tbs-tbb))
+#         assert b > 0
+#         var = (1.-1./all_i)*w+b/all_i
+#         assert var > 0
+#         grk = np.sqrt(var/w)**(-1)
+#         assert grk > 0
+#         gr.append(grk)
+#     gr = np.array(gr)#converges at nonsense
+#     gr = pymc.gelman_rubin(chains)#also converges at nonsense
 #     if difprob > varprob:
 #         print(run.meta.name+' burning-in '+str(difprob)+' > '+str(varprob))
 #     else:
 #         print(run.meta.name+' post-burn '+str(difprob)+' < '+str(varprob))
 
 #     return(difprob > varprob)
-
-    if np.all(gr > 1.1):
-        print(run.meta.name+' burning-in '+str(gr)+' > '+str(1.1))
+    gr = gr_test(chains , dims)[0]
+    #print(gr)
+    #print(np.all(gr)<1.)
+    if np.max(gr) > 1.:
+        print(run.meta.name+' burning-in '+str(gr)+' > '+str(1))
     else:
-        print(run.meta.name+' post-burn '+str(gr)+' < '+str(1.1))
+        print(run.meta.name+' post-burn '+str(gr)+' < '+str(1))
 
-    return(np.all(gr > 1.1))
+    return(np.max(gr) > 1.)
 
 class pertest(object):
     """
