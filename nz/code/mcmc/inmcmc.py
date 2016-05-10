@@ -352,10 +352,10 @@ class setup(object):
             self.thinto = bool(int(indict['thinto'][0]))
             if self.thinto == True:
                 self.thinto = self.miniters/10#int(indict['thinto'])
+            else:
+                self.thinto = 1
         else:
             self.thinto = 1
-
-        assert(self.miniters%self.thinto==0)
 
         self.ntimes = self.miniters / self.thinto
 
