@@ -133,17 +133,23 @@ def plot_pdfs(meta):
 def plot_priorsamps(meta):
     """plot some samples from prior for one instantiation of survey"""
     priorsamps = np.array(meta.priordist.sample_ps(len(meta.colors))[0])
-    f = plt.figure(figsize=(5,5))
-    sps = f.add_subplot(1,1,1)
-    sps.set_title(meta.name)
+    f = plt.figure(figsize=(5,10))
+    sps_log = f.add_subplot(2,1,1)
+    sps_lin = f.add_subplot(2,1,2)
+    sps_log.set_title(meta.name)
     f.subplots_adjust(hspace=0, wspace=0)
-    sps.set_xlabel(r'$z$')
-    sps.set_ylabel(r'$p(z|\vec{\theta})$')
-    sps.set_xlim(meta.binends[0]-meta.bindif,meta.binends[-1]+meta.bindif)#,s_run.seed)#max(n_run.full_logfltNz)+m.log(s_run.seed/meta.zdif)))
-    plotstep(sps,meta.binends,meta.intPz,l=r'Interim Prior $p(z|\vec{\theta}^{0})$')
+    sps_log.set_ylabel(r'$\ln[p(z|\vec{\theta})]$')
+    sps_lin.set_xlabel(r'$z$')
+    sps_lin.set_ylabel(r'$p(\vec{\theta})$')
+    sps_log.set_xlim(meta.binends[0]-meta.bindif,meta.binends[-1]+meta.bindif)#,s_run.seed)#max(n_run.full_logfltNz)+m.log(s_run.seed/meta.zdif)))
+    sps_lin.set_xlim(meta.binends[0]-meta.bindif,meta.binends[-1]+meta.bindif)#,s_run.seed)#max(n_run.full_logfltNz)+m.log(s_run.seed/meta.zdif)))
+    plotstep(sps_log,meta.binends,meta.logintPz,l=r'Log Interim Prior $\ln[p(z|\vec{\theta}^{0})$]')
+    plotstep(sps_lin,meta.binends,meta.intPz,l=r'Interim Prior $p(z|\vec{\theta}^{0})$')
     for c in lrange(meta.colors):
-        plotstep(sps,meta.binends,np.exp(priorsamps[c]-np.log(meta.ngals)),c=meta.colors[c])
-    sps.legend(loc='upper left',fontsize='x-small')
+        plotstep(sps_log,meta.binends,priorsamps[c]-np.log(meta.ngals),c=meta.colors[c])
+        plotstep(sps_lin,meta.binends,np.exp(priorsamps[c]-np.log(meta.ngals)),c=meta.colors[c])
+    sps_log.legend(loc='upper right',fontsize='x-small')
+    sps_lin.legend(loc='upper right',fontsize='x-small')
     f.savefig(os.path.join(meta.topdir, 'priorsamps.pdf'),bbox_inches='tight', pad_inches = 0)
     return
 
