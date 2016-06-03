@@ -182,7 +182,7 @@ class pertest(object):
         self.truNz = self.ngals*self.truPz
         self.logtruNz = us.safelog(self.truNz)
 
-        self.zgrid = np.arange(self.zlos[0],self.zhis[-1]+1./self.surv,1./self.surv)
+        self.zgrid = np.arange(self.zlos[0],self.zhis[-1]+1./100,1./100)
         self.gridmids = self.zgrid[1:]-self.zgrid[:-1]
         global p
 
@@ -251,15 +251,15 @@ class pertest(object):
 #                     spdf[us.choice(xrange(self.nbins), pdf)] += 1
 #                 pdf = np.array(spdf)/np.dot(spdf,self.bindifs)
             pdf = self.makepdfs(j,self.binends,self.intPz)[0]
-            ip,l = self.makepdfs(j,self.zgrid,p)
-            lf = [[ip[zo]*[zt] for zo in us.lrange(self.gridmids)] for zt in us.lrange(self.gridmids)]
-
+            if j in self.randos:
+                ip,l = self.makepdfs(j,self.zgrid,p)
+                lf = np.array([np.array([l[zo]*l[zt] for zo in us.lrange(self.gridmids)]) for zt in us.lrange(self.gridmids)])
+                lfs.append(lf)
             mapZ = self.binmids[np.argmax(pdf)]
             expZ = sum(self.binmids*self.bindifs*pdf)
             logpdf = us.safelog(pdf)
             logpdfs.append(logpdf)
             pdfs.append(pdf)
-            lfs.append(lf)
             mapZs.append(mapZ)
             expZs.append(expZ)
         self.pdfs = np.array(pdfs)

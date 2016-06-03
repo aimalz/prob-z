@@ -299,7 +299,7 @@ def plot_lfs(meta,test):
         sps.set_xlabel(r'$z_{tru}$')
         sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
         sps.set_ylim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-
+        print(np.shape(test.lfs[j]))
         sps.pcolorfast(test.zgrid,test.zgrid,test.lfs[j],cmap=cm.Greys)
 
         f.savefig(os.path.join(meta.simdir,'zobsvztru'+str(test.randos[j]).zfill(int(np.log10(meta.surv)))+'.pdf'),bbox_inches='tight', pad_inches = 0)
