@@ -5,6 +5,7 @@ plot-sim module makes plots of data generation
 # TO DO: split up datagen and pre-run plots
 
 import matplotlib as mpl
+import matplotlib.cm as cm
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
@@ -27,6 +28,9 @@ mpl.rcParams['figure.subplot.top'] = 0.9
 mpl.rcParams['figure.subplot.wspace'] = 0.5
 mpl.rcParams['figure.subplot.hspace'] = 0.5
 #print('set spaces')
+
+cmap = np.linspace(0.,1.,4)
+colors = [cm.Greys(i) for i in cmap]#"gnuplot" works well
 
 global s_tru,w_tru,a_tru,c_tru,d_tru,l_tru
 s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',1.,1.,'k',[(0,(1,0.0001))],r' True '
@@ -99,7 +103,8 @@ def initial_plots(meta, test):
 #     plot_true(meta,test)
 #     plot_liktest(meta,test)
     plot_pdfs(meta,test)
-#     plot_truevmap(meta,test)
+#    plot_truevmap(meta,test)
+    plot_lfs(meta,test)
     print(meta.name+' plotted setup')
 
 # plot the underlying P(z) and its components
@@ -213,13 +218,15 @@ def plot_pdfs(meta,test):
 # def plot_truevmap(meta,test):
 #     f = plt.figure(figsize=(5,5))
 #     sps = f.add_subplot(1,1,1)
-#     f.suptitle(meta.name+' True Redshifts vs. Point Estimates')
+#     f.suptitle(meta.name+r' $p(z_{obs}|z_{tru})$')
 #     a_point = 10./test.ngals
 #     a_bar = float(len(meta.colors))*a_point
 #     #randos = random.sample(pdfs[-1][0],ncolors)
-#     sps.set_ylabel('Point Estimate')
-#     sps.set_xlabel(r'True $z$')
-#     sps.plot(test.binmids,test.binmids,c='k')
+#     sps.set_ylabel(r'$z_{obs}$')
+#     sps.set_xlabel(r'$z_{tru}$')
+#     sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
+#     sps.set_ylim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
+#     #sps.plot(test.binmids,test.binmids,c='k')
 #     plotpdfs = (test.pdfs*meta.zdif)
 #     plotpdfs = plotpdfs/np.max(plotpdfs)
 #     for k in xrange(test.nbins):
@@ -228,11 +235,11 @@ def plot_pdfs(meta,test):
 #                         color=meta.colors[2],
 #                         alpha=plotpdfs[j][k]*a_bar,
 #                         linewidth=2,rasterized=True)
-#     sps.scatter(test.truZs, test.mapZs,
-#                 c=meta.colors[0],
-#                 alpha = a_point,
-#                 label=r'MAP $z$',
-#                 linewidth=0.1,rasterized=True)
+# #     sps.scatter(test.truZs, test.mapZs,
+# #                 c=meta.colors[0],
+# #                 alpha = a_point,
+# #                 label=r'MAP $z$',
+# #                 linewidth=0.1,rasterized=True)
 # #     sps.scatter(test.truZs, test.expZs,
 # #                 c=meta.colors[1],
 # #                 alpha = a_bar,
@@ -240,7 +247,7 @@ def plot_pdfs(meta,test):
 # #                 linewidth=0.1)
 #     sps.plot([-1],[-1],c=meta.colors[2],alpha=0.5,linewidth=2,label=r'$p(z|\vec{d})$',rasterized=True)
 #     sps.legend(loc='upper left',fontsize='small')
-#     f.savefig(os.path.join(meta.simdir,'truevmap.png'),bbox_inches='tight', pad_inches = 0)
+#     f.savefig(os.path.join(meta.simdir,'zobsvztru.pdf'),bbox_inches='tight', pad_inches = 0)
 #     return
 
 # def plot_liktest(meta,test):
@@ -281,3 +288,18 @@ def plot_pdfs(meta,test):
 #         plotstep(sps[1],test.binends,mix,lab=str(frac_t[i])+r'\ True $\ln N(z)$, '+str(frac_i[i])+r'\ Interim Prior')
 
 #     f.savefig(os.path.join(meta.simdir,'liktest.png'),bbox_inches='tight', pad_inches = 0)
+
+def plot_lfs(meta,test):
+    lfdir = os.path.join(meta.datadir,'lfs')
+    for j in us.lrange(test.randos):
+        f = plt.figure(figsize=(5,5))
+        sps = f.add_subplot(1,1,1)
+        f.suptitle(meta.name+r' $p_{'+str(j)+r'}(z_{obs}|z_{tru})$')
+        sps.set_ylabel(r'$z_{obs}$')
+        sps.set_xlabel(r'$z_{tru}$')
+        sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
+        sps.set_ylim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
+
+        sps.pcolorfast(test.zgrid,test.zgrid,test.lfs[j],cmap=cm.Greys)
+
+        f.savefig(os.path.join(meta.simdir,'zobsvztru'+str(test.randos[j]).zfill(int(np.log10(meta.surv)))+'.pdf'),bbox_inches='tight', pad_inches = 0)

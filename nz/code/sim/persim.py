@@ -113,7 +113,8 @@ class pertest(object):
         if self.meta.shape == True:
             np.random.seed(seed=self.seed)
             weights = [1./k for k in xrange(1,self.ndims)]
-            self.npeaks = np.array([us.choice(xrange(1,self.ndims),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
+            #self.npeaks = np.array([us.choice(xrange(1,self.ndims),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
+            self.npeaks = [1]*self.ngals
         else:
             self.npeaks = [1]*self.ngals
 
@@ -181,10 +182,16 @@ class pertest(object):
         self.truNz = self.ngals*self.truPz
         self.logtruNz = us.safelog(self.truNz)
 
+        self.zgrid = np.arange(self.zlos[0],self.zhis[-1]+1./self.surv,1./self.surv)
+        self.gridmids = self.zgrid[1:]-self.zgrid[:-1]
+        global p
+
         #nontrivial interim prior
         if self.meta.interim == 'flat':
+            fun = 1.
             intP = self.fltPz
 #             intP = sp.stats.uniform(loc=self.binends[0],scale=self.binrange)
+            p = np.array([fun for z in self.gridmids])
         elif self.meta.interim == 'unimodal':
 #            percentile(self.binends,0)
             fun = us.tnorm(min(self.binends),(max(self.binends)-min(self.binends))/5.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,25),np.sqrt(np.mean(self.binends)))
@@ -192,6 +199,8 @@ class pertest(object):
 #             intP = sp.stats.poisson(2.0)
             intP = np.array([z*fun.pdf(z) for z in self.binmids])
             intP = intP-min(intP)+1./self.ngals/self.bindif
+            p = np.array([z*fun.pdf(z) for z in self.gridmids])
+            p = p-min(p)+1./self.ngals/self.bindif
         elif self.meta.interim == 'bimodal':
             mulo = np.percentile(self.binends,25)
             muhi = np.percentile(self.binends,75)
@@ -202,10 +211,11 @@ class pertest(object):
 #             intP = sp.stats.pareto(self.nbins)
             intP = np.array([1.25*funlo.pdf(z)+funhi.pdf(z) for z in self.binmids])
             intP = intP-min(intP)+1./self.ngals/self.bindif#(1.+self.binmids*(max(pdf)-pdf))**2
+            p = np.array([1.25*funlo.pdf(z)+funhi.pdf(z) for z in self.gridmids])
+            p = p-min(p)+1./self.ngals/self.bindif
 #         elif self.meta.interim == 'multimodal':
 #             intP = self.real.binned(self.binends)
 # #             intP = self.real
-
         self.intPz = us.normed(intP,self.bindifs)
         self.logintPz = us.safelog(self.intPz)
         self.intNz = float(self.ngals)*self.intPz
@@ -217,38 +227,44 @@ class pertest(object):
 
         pdfs = []
         logpdfs = []
+        lfs = []
         mapZs = []
         expZs = []
 
         for j in xrange(self.ngals):
-            allsummed = np.array([0.]*self.nbins)
-            for pn in xrange(self.npeaks[j]):
-                func = us.tnorm(self.obsZs[j][pn],self.sigZs[j][pn],(self.allzs[0],self.allzs[-1]))
-                cdfs = np.array([func.cdf(binend) for binend in self.binends])
-                spread = cdfs[1:]-cdfs[:-1]
+#             allsummed = np.array([0.]*self.nbins)
+#             for pn in xrange(self.npeaks[j]):
+#                 func = us.tnorm(self.obsZs[j][pn],self.sigZs[j][pn],(self.allzs[0],self.allzs[-1]))
+#                 cdfs = np.array([func.cdf(binend) for binend in self.binends])
+#                 spread = cdfs[1:]-cdfs[:-1]
 
-                allsummed += spread
+#                 allsummed += spread
 
-            pdf = self.intPz*allsummed
-            # normalize probabilities to integrate (not sum)) to 1
-            pdf = pdf/max(np.dot(pdf,self.bindifs),sys.float_info.epsilon)
+#             pdf = self.intPz*allsummed
+#             # normalize probabilities to integrate (not sum)) to 1
+#             pdf = pdf/max(np.dot(pdf,self.bindifs),sys.float_info.epsilon)
 
-            # sample posterior if noisy observation
-            if self.meta.noise == True or self.meta.shape == True:
-                spdf = [0]*self.nbins
-                for k in xrange(self.nbins):
-                    spdf[us.choice(xrange(self.nbins), pdf)] += 1
-                pdf = np.array(spdf)/np.dot(spdf,self.bindifs)
+#             # sample posterior if noisy observation
+#             if self.meta.noise == True or self.meta.shape == True:
+#                 spdf = [0]*self.nbins
+#                 for k in xrange(self.nbins):
+#                     spdf[us.choice(xrange(self.nbins), pdf)] += 1
+#                 pdf = np.array(spdf)/np.dot(spdf,self.bindifs)
+            pdf = self.makepdfs(j,self.binends,self.intPz)[0]
+            ip,l = self.makepdfs(j,self.zgrid,p)
+            lf = [[ip[zo]*[zt] for zo in us.lrange(self.gridmids)] for zt in us.lrange(self.gridmids)]
 
             mapZ = self.binmids[np.argmax(pdf)]
             expZ = sum(self.binmids*self.bindifs*pdf)
             logpdf = us.safelog(pdf)
             logpdfs.append(logpdf)
             pdfs.append(pdf)
+            lfs.append(lf)
             mapZs.append(mapZ)
             expZs.append(expZ)
         self.pdfs = np.array(pdfs)
         self.logpdfs = np.array(logpdfs)
+        self.lfs = np.array(lfs)
         self.mapZs = np.array(mapZs)
         self.expZs = np.array(expZs)
 
@@ -375,3 +391,26 @@ class pertest(object):
                 out.writerow(item)
         with open(os.path.join(self.meta.simdir,'truth.p'),'wb') as cpfile:
             cpkl.dump(self.meta.real, cpfile)
+
+    def makepdfs(self,j,grid,intp):
+        difs = grid[1:]-grid[:-1]
+        allsummed = np.array([0.]*(len(grid)-1))
+        for pn in xrange(self.npeaks[j]):
+            func = us.tnorm(self.obsZs[j][pn],self.sigZs[j][pn],(min(grid),max(grid)))
+            cdfs = np.array([func.cdf(binend) for binend in grid])
+            spread = cdfs[1:]-cdfs[:-1]
+
+            allsummed += spread
+
+        pdf = intp*allsummed
+        # normalize probabilities to integrate (not sum)) to 1
+        pdf = pdf/max(np.dot(pdf,difs),sys.float_info.epsilon)
+
+        # sample posterior if noisy observation
+        if self.meta.noise == True or self.meta.shape == True:
+            spdf = [0]*len(grid)
+            for k in xrange(len(grid)):
+                spdf[us.choice(xrange(len(grid)), pdf)] += 1
+            pdf = np.array(spdf)/np.dot(spdf,difs)
+
+        return(pdf,allsummed)
