@@ -514,11 +514,12 @@ class plotter_samps(plotter):
 #         for v in lrange(both['mapvals']):
 #             plotstep(sps_samp_log,self.meta.binends,both['mapvals'][v],w=2,c=self.meta.colors[v%self.ncolors])
 #             plotstep(sps_samp,self.meta.binends,np.exp(both['mapvals'][v]),w=2,c=self.meta.colors[v%self.ncolors])
-        self.kl_mml = round(min(kls['kl_mmlvtru'],kls['kl_truvmml']),4)
-        self.kl_stk = round(min(kls['kl_stkvtru'],kls['kl_truvstk']),4)
-        self.kl_map = round(min(kls['kl_mapvtru'],kls['kl_truvmap']),4)
-        self.kl_exp = round(min(kls['kl_expvtru'],kls['kl_truvexp']),4)
-        self.kl_smp = round(min(sm.calckl(self.meta.bindifs,self.locs,self.meta.logtruNz)),4)
+#         self.kl_mml = (round(kls['kl_mmlvtru'],4),round(kls['kl_truvmml'],4))
+        self.kl_stk = (round(kls['kl_stkvtru'],4),round(kls['kl_truvstk'],4))
+#         self.kl_map = (round(kls['kl_mapvtru'],4),round(kls['kl_truvmap'],4))
+#         self.kl_exp = (round(kls['kl_expvtru'],4),round(kls['kl_truvexp'],4))
+        self.kl_smp = sm.calckl(self.meta.bindifs,self.locs,self.meta.logtruNz)
+        self.kl_smp = (round(self.kl_smp[0],4),round(self.kl_smp[1],4))
 
     def summary(self):
 
@@ -546,9 +547,9 @@ class plotter_samps(plotter):
 
             self.plotcomp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,d=d_int,l=l_int)#+kld+str(self.kl_stk))
             self.plotcomp(self.meta.logstkNz,self.meta.stkNz,w=w_stk,s=s_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk+kld+str(self.kl_stk))
-            self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,d=d_map,l=l_map+kld+str(self.kl_map))
-            self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+kld+str(self.kl_exp))
-            self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+kld+str(self.kl_mml))
+#             self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,d=d_map,l=l_map+kld+str(self.kl_map))
+#             self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp+kld+str(self.kl_exp))
+#             self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml+kld+str(self.kl_mml))
             self.plotcomp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe+kld+str(self.kl_smp))
         else:
             self.kl_stk,self.kl_mml,self.kl_smp = None,None,None
@@ -557,9 +558,9 @@ class plotter_samps(plotter):
 #         plotstep(sps_comp,self.meta.binends,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,l=l_int+nz)
             self.plotcomp(self.meta.logintNz,self.meta.intNz,w=w_int,s=s_int,a=a_int,c=c_int,d=d_int,l=l_int)
             self.plotcomp(self.meta.logstkNz,self.meta.stkNz,w=w_stk,s=s_stk,a=a_stk,c=c_stk,d=d_stk,l=l_stk)
-            self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,d=d_map,l=l_map)
-            self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp)
-            self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml)
+#             self.plotcomp(self.meta.logmapNz,self.meta.mapNz,w=w_map,s=s_map,a=a_map,c=c_map,d=d_map,l=l_map)
+#             self.plotcomp(self.meta.logexpNz,self.meta.expNz,w=w_exp,s=s_exp,a=a_exp,c=c_exp,d=d_exp,l=l_exp)
+#             self.plotcomp(self.meta.logmmlNz,self.meta.mmlNz,w=w_mml,s=s_mml,a=a_mml,c=c_mml,d=d_mml,l=l_mml)
             self.plotcomp(self.locs,np.exp(self.locs),w=w_bfe,s=s_bfe,a=a_bfe,c=c_bfe,d=d_bfe,l=l_bfe)
 
         self.ploterr(sps_comp_log,sps_comp)
