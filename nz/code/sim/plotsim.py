@@ -302,7 +302,6 @@ def makelfs(meta,test,j):
         gridpdf = []
         for z_obs in gridmids:
             val = sys.float_info.epsilon
-            print(test.npeaks[j])
             for pn in xrange(test.npeaks[j]):
                 p = np.exp(-1.*(z_tru-z_obs-test.shift[j][pn])**2/test.sigZs[j][pn]**2)/np.sqrt(2*np.pi*test.sigZs[j][pn]**2)
                 val += p
