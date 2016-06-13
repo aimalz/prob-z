@@ -137,9 +137,9 @@ class pertest(object):
         # choose npeaks before sigma so you know how many to pick
         if self.meta.shape == True:
             np.random.seed(seed=self.seed)
-            weights = [1./k for k in xrange(1,self.ndims)]
-            #self.npeaks = np.array([us.choice(xrange(1,self.ndims),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
-            self.npeaks = [1]*self.ngals
+            weights = [1./k**k for k in xrange(1,self.ndims)]
+            self.npeaks = np.array([us.choice(xrange(1,self.ndims),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
+            #self.npeaks = [1]*self.ngals
         else:
             self.npeaks = [1]*self.ngals
 
@@ -229,7 +229,6 @@ class pertest(object):
 
         pdfs = []
         logpdfs = []
-#         lfs = []
         mapZs = []
         expZs = []
 
@@ -266,7 +265,6 @@ class pertest(object):
             expZs.append(expZ)
         self.pdfs = np.array(pdfs)
         self.logpdfs = np.array(logpdfs)
-#         self.lfs = np.array(lfs)
         self.mapZs = np.array(mapZs)
         self.expZs = np.array(expZs)
 
@@ -409,9 +407,10 @@ class pertest(object):
         pdf = pdf/max(np.dot(pdf,difs),sys.float_info.epsilon)
 
         # sample posterior if noisy observation
-        if self.meta.noise == True or self.meta.shape == True:
-            spdf = [0]*len(grid)
-            for k in xrange(len(grid)):
+
+        if self.meta.noise == True:# or self.meta.shape == True:
+            spdf = [0]*(len(grid)-1)
+            for k in xrange(len(grid)-1):
                 spdf[us.choice(xrange(len(grid)-1), pdf)] += 1
             pdf = np.array(spdf)/np.dot(spdf,difs)
 

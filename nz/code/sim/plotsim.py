@@ -301,9 +301,13 @@ def makelfs(meta,test,j):
         #gridpdf = np.array([sys.float_info.epsilon]*len(gridmids))
         gridpdf = []
         for z_obs in gridmids:
-            p = np.exp(-1.*(z_tru-z_obs)**2/test.sigZs[j][0]**2)/np.sqrt(2*np.pi*test.sigZs[j][0]**2)
+            val = sys.float_info.epsilon
+            print(test.npeaks[j])
+            for pn in xrange(test.npeaks[j]):
+                p = np.exp(-1.*(z_tru-z_obs-test.shift[j][pn])**2/test.sigZs[j][pn]**2)/np.sqrt(2*np.pi*test.sigZs[j][pn]**2)
+                val += p
             # normalize probabilities to integrate (not sum)) to 1
-            gridpdf.append(max(sys.float_info.epsilon,p))
+            gridpdf.append(val)
         gridpdf = gridpdf/np.dot(gridpdf,griddifs)
         gridpdfs.append(gridpdf)
     gridpdfs = np.array(gridpdfs)
