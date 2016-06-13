@@ -144,7 +144,7 @@ class pertest(object):
 
         # test increasing sigma associated with increasing z
         if self.meta.sigma == True:# or self.meta.shape == True:
-            np.random.seed(seed=self.seed*2)
+            np.random.seed(seed=self.seed)
 #             self.sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j],scale=self.varZs[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
             self.sigZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
         else:
