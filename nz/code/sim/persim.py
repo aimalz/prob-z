@@ -39,15 +39,15 @@ class pertest(object):
         print(self.meta.name+' N chosen in '+str(elapsed))
 
         start_time = timeit.default_timer()
+        self.makelf()
+        elapsed = timeit.default_timer() - start_time
+        print(self.meta.name+' parameters chosen in '+str(elapsed))
+
+        start_time = timeit.default_timer()
         self.choosetrue()
         elapsed = timeit.default_timer() - start_time
         print(self.meta.name+' true zs chosen in '+str(elapsed))
 #         self.prepinterim()
-
-        start_time = timeit.default_timer()
-        self.makedat()
-        elapsed = timeit.default_timer() - start_time
-        print(self.meta.name+' parameters chosen in '+str(elapsed))
 
         start_time = timeit.default_timer()
         self.makecat()
@@ -109,6 +109,31 @@ class pertest(object):
 
     def choosetrue(self):
 
+        # test all galaxies in survey have same true redshift vs. sample from physPz
+#         if self.meta.random == True:
+#             np.random.seed(seed=self.seed)
+#             self.truZs = self.real.sample(self.ngals)
+#         else:
+        if self.meta.random == False:
+            center = (self.allzs[0]+self.allzs[-1])/2.
+            self.meta.real = np.array([np.array([center,1./self.surv,1.])])
+        self.real = us.gmix(self.meta.real,(self.allzs[0],self.allzs[-1]))
+#             self.truZs = np.array([center]*self.ngals)
+        np.random.seed(seed=self.seed)
+        self.truZs = self.real.sample(self.ngals)
+#         np.random.seed(seed=self.seed)
+#         np.random.shuffle(self.truZs)
+
+        # jitter peak zs given sigma to simulate inaccuracy
+        np.random.seed(seed=self.seed)
+        self.shift = np.array([[np.random.normal(loc=0.,scale=self.varZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+        self.obsZs = np.array([[self.truZs[j]+self.shift[j][p] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+
+        self.minobs = min(min(self.obsZs))
+        self.maxobs = max(max(self.obsZs))
+
+    def makelf(self):
+
         # choose npeaks before sigma so you know how many to pick
         if self.meta.shape == True:
             np.random.seed(seed=self.seed)
@@ -125,23 +150,6 @@ class pertest(object):
         self.varZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])#*self.zdif
         # np.random.shuffle(self.modZs)
 
-        # test all galaxies in survey have same true redshift vs. sample from physPz
-#         if self.meta.random == True:
-#             np.random.seed(seed=self.seed)
-#             self.truZs = self.real.sample(self.ngals)
-#         else:
-        if self.meta.random == False:
-            center = (self.allzs[0]+self.allzs[-1])/2.
-            self.meta.real = np.array([np.array([center,1./self.surv,1.])])
-        self.real = us.gmix(self.meta.real,(self.allzs[0],self.allzs[-1]))
-#             self.truZs = np.array([center]*self.ngals)
-        np.random.seed(seed=self.seed)
-        self.truZs = self.real.sample(self.ngals)
-#         np.random.seed(seed=self.seed)
-#         np.random.shuffle(self.truZs)
-
-    def makedat(self):
-
         # test increasing sigma associated with increasing z
         if self.meta.sigma == True:# or self.meta.shape == True:
             np.random.seed(seed=self.seed)
@@ -149,13 +157,6 @@ class pertest(object):
             self.sigZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
         else:
             self.sigZs = self.varZs#np.array([[self.varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-
-        # jitter peak zs given sigma to simulate inaccuracy
-        np.random.seed(seed=self.seed)
-        self.obsZs = np.array([[np.random.normal(loc=self.truZs[j],scale=self.varZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-
-        self.minobs = min(min(self.obsZs))
-        self.maxobs = max(max(self.obsZs))
 
     def setup_pdfs(self):
 
@@ -182,16 +183,17 @@ class pertest(object):
         self.truNz = self.ngals*self.truPz
         self.logtruNz = us.safelog(self.truNz)
 
-        self.zgrid = np.arange(self.zlos[0],self.zhis[-1]+1./100,1./100)
-        self.gridmids = self.zgrid[1:]-self.zgrid[:-1]
-        global p
+#         self.zgrid = np.arange(self.zlos[0],self.zhis[-1]+1./100,1./100)
+#         self.gridmids = (self.zgrid[1:]+self.zgrid[:-1])/2.
+#         self.griddifs = self.zgrid[1:]-self.zgrid[:-1]
+#         global p
 
         #nontrivial interim prior
         if self.meta.interim == 'flat':
             fun = 1.
             intP = self.fltPz
 #             intP = sp.stats.uniform(loc=self.binends[0],scale=self.binrange)
-            p = np.array([fun for z in self.gridmids])
+#             p = np.array([fun for z in self.gridmids])
         elif self.meta.interim == 'unimodal':
 #            percentile(self.binends,0)
             fun = us.tnorm(min(self.binends),(max(self.binends)-min(self.binends))/5.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,25),np.sqrt(np.mean(self.binends)))
@@ -199,8 +201,8 @@ class pertest(object):
 #             intP = sp.stats.poisson(2.0)
             intP = np.array([z*fun.pdf(z) for z in self.binmids])
             intP = intP-min(intP)+1./self.ngals/self.bindif
-            p = np.array([z*fun.pdf(z) for z in self.gridmids])
-            p = p-min(p)+1./self.ngals/self.bindif
+#             p = np.array([z*fun.pdf(z) for z in self.gridmids])
+#             p = p-min(p)+1./self.ngals/self.bindif
         elif self.meta.interim == 'bimodal':
             mulo = np.percentile(self.binends,25)
             muhi = np.percentile(self.binends,75)
@@ -211,8 +213,8 @@ class pertest(object):
 #             intP = sp.stats.pareto(self.nbins)
             intP = np.array([1.25*funlo.pdf(z)+funhi.pdf(z) for z in self.binmids])
             intP = intP-min(intP)+1./self.ngals/self.bindif#(1.+self.binmids*(max(pdf)-pdf))**2
-            p = np.array([1.25*funlo.pdf(z)+funhi.pdf(z) for z in self.gridmids])
-            p = p-min(p)+1./self.ngals/self.bindif
+#             p = np.array([1.25*funlo.pdf(z)+funhi.pdf(z) for z in self.gridmids])
+#             p = p-min(p)+1./self.ngals/self.bindif
 #         elif self.meta.interim == 'multimodal':
 #             intP = self.real.binned(self.binends)
 # #             intP = self.real
@@ -227,7 +229,7 @@ class pertest(object):
 
         pdfs = []
         logpdfs = []
-        lfs = []
+#         lfs = []
         mapZs = []
         expZs = []
 
@@ -250,11 +252,11 @@ class pertest(object):
 #                 for k in xrange(self.nbins):
 #                     spdf[us.choice(xrange(self.nbins), pdf)] += 1
 #                 pdf = np.array(spdf)/np.dot(spdf,self.bindifs)
-            pdf = self.makepdfs(j,self.binends,self.intPz)[0]
-            if j in self.randos:
-                ip,l = self.makepdfs(j,self.zgrid,p)
-                lf = np.array([np.array([l[zo]*l[zt] for zo in us.lrange(self.gridmids)]) for zt in us.lrange(self.gridmids)])
-                lfs.append(lf)
+            pdf = self.makepdfs(j,self.binends,self.intPz)
+#             j = self.randos[0]
+#             lf = self.makelfs(j,self.zgrid)
+#             #lf = np.array([np.array([l[zo]*l[zt] for zo in us.lrange(self.gridmids)]) for zt in us.lrange(self.gridmids)])
+#             lfs.append(lf)
             mapZ = self.binmids[np.argmax(pdf)]
             expZ = sum(self.binmids*self.bindifs*pdf)
             logpdf = us.safelog(pdf)
@@ -264,7 +266,7 @@ class pertest(object):
             expZs.append(expZ)
         self.pdfs = np.array(pdfs)
         self.logpdfs = np.array(logpdfs)
-        self.lfs = np.array(lfs)
+#         self.lfs = np.array(lfs)
         self.mapZs = np.array(mapZs)
         self.expZs = np.array(expZs)
 
@@ -410,7 +412,7 @@ class pertest(object):
         if self.meta.noise == True or self.meta.shape == True:
             spdf = [0]*len(grid)
             for k in xrange(len(grid)):
-                spdf[us.choice(xrange(len(grid)), pdf)] += 1
+                spdf[us.choice(xrange(len(grid)-1), pdf)] += 1
             pdf = np.array(spdf)/np.dot(spdf,difs)
 
-        return(pdf,allsummed)
+        return(pdf)

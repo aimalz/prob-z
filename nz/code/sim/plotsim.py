@@ -9,6 +9,7 @@ import matplotlib.cm as cm
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy as sp
 import sys
 import os
 import math as m
@@ -289,16 +290,46 @@ def plot_pdfs(meta,test):
 
 #     f.savefig(os.path.join(meta.simdir,'liktest.png'),bbox_inches='tight', pad_inches = 0)
 
+def makelfs(meta,test,j):
+
+    zgrid = np.arange(test.zlos[0],test.zhis[-1]+1./100,1./100)
+    gridmids = (zgrid[1:]+zgrid[:-1])/2.
+    griddifs = zgrid[1:]-zgrid[:-1]
+
+    gridpdfs = []
+    for z_tru in gridmids:
+        #gridpdf = np.array([sys.float_info.epsilon]*len(gridmids))
+        gridpdf = []
+        for z_obs in gridmids:
+            p = np.exp(-1.*(z_tru-z_obs)**2/test.sigZs[j][0]**2)/np.sqrt(2*np.pi*test.sigZs[j][0]**2)
+            # normalize probabilities to integrate (not sum)) to 1
+            gridpdf.append(max(sys.float_info.epsilon,p))
+        gridpdf = gridpdf/np.dot(gridpdf,griddifs)
+        gridpdfs.append(gridpdf)
+    gridpdfs = np.array(gridpdfs)
+    #lf = np.array([np.array([allsummed[zo]*allsummed[zt] for zo in us.lrange(self.gridmids)]) for zt in us.lrange(self.gridmids)])
+    #print(gridpdfs)
+    return(gridpdfs)
+
+
+
 def plot_lfs(meta,test):
     lfdir = os.path.join(meta.datadir,'lfs')
-    for j in us.lrange(test.randos):
-        f = plt.figure(figsize=(5,5))
-        sps = f.add_subplot(1,1,1)
-        f.suptitle(meta.name+r' $p_{'+str(j)+r'}(z_{obs}|z_{tru})$')
-        sps.set_ylabel(r'$z_{obs}$')
-        sps.set_xlabel(r'$z_{tru}$')
-        sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-        sps.set_ylim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-        sps.pcolorfast(test.zgrid,test.zgrid,test.lfs[j],cmap=cm.Greys)
+    j = test.randos[0]#for j in us.lrange(test.randos):
+    f = plt.figure(figsize=(5,5))
+    sps = f.add_subplot(1,1,1)
+    f.suptitle(meta.name+r' $p_{'+str(j)+r'}(z_{obs}|z_{tru})$')
+    sps.set_ylabel(r'$z_{obs}$')
+    sps.set_xlabel(r'$z_{tru}$')
+    sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
+    sps.set_ylim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
 
-        f.savefig(os.path.join(meta.simdir,'zobsvztru'+str(test.randos[j]).zfill(int(np.log10(meta.surv)))+'.pdf'),bbox_inches='tight', pad_inches = 0)
+    lf = makelfs(meta,test,j)
+    #print(''np.shape(lf))
+                #lf = np.array([np.array([l[zo]*l[zt] for zo in us.lrange(self.gridmids)]) for zt in us.lrange(self.gridmids)])
+#                 lfs.append(lf)
+
+    zgrid = np.arange(test.zlos[0],test.zhis[-1]+1./100,1./100)
+    sps.pcolorfast(zgrid,zgrid,lf,cmap=cm.Greys)
+
+    f.savefig(os.path.join(meta.simdir,'zobsvztru.pdf'),bbox_inches='tight', pad_inches = 0)
