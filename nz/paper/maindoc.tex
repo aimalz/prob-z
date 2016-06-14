@@ -557,21 +557,18 @@ described in Sec. \ref{sec:data} are also considered.
 \begin{tabular}{llll}
 \textul{Title} & \textul{True $N(z)$} & \textul{Interim Prior} & 
 \textul{Photo-$z$ PDFs}\\
-Fiducial & Physically motivated, & Uniform & Single, Narrow Gaussians\\
+Fiducial & Physically motivated, & Uniform & Single, Broad Gaussians\\
 & featured $N(z)$ &&\\
-2xImprecise & Physically motivated, & Uniform & Single, Doubly Broad Gaussians\\
-& featured $N(z)$ &&\\
-4xImprecise & Physically motivated, & Uniform & Single, Quadruply Broad 
-Gaussians\\
+Imprecise/5 & Physically motivated, & Uniform & Single, Narrow Gaussians\\
 & featured $N(z)$ &&\\
 Inaccurate & Physically motivated, & Uniform & Violating Generative Model\\
 & featured $N(z)$ &&\\
 Multimodal & Physically motivated, & Uniform & Randomly Sampled,\\
 & featured $N(z)$ && Multiple, Narrow Gaussians\\
-Featured & Single, Narrow Gaussian & Uniform & Single, Narrow Gaussians\\
-Unimodal & Physically motivated, & Low-$z$ Favoring & Single, Narrow Gaussians\\
+Featured & Single, Narrow Gaussian & Uniform & Single, Broad Gaussians\\
+Unimodal & Physically motivated, & Low-$z$ Favoring & Single, Broad Gaussians\\
 & featured $N(z)$ &&\\
-Bimodal & Physically motivated, & Mid-$z$ Disfavoring & Single, Narrow 
+Bimodal & Physically motivated, & Mid-$z$ Disfavoring & Single, Broad 
 Gaussians\\
 & featured $N(z)$ &&\\
 Surveyed & Unknown & \citet{Sheldon2012} & pseudo-random sample of BOSS DR10\\
@@ -613,7 +610,7 @@ redshift point estimates with reported error bars.  To obtain the standard
 deviations $\sigma_{j}\sim\mathcal{N}(g\bar{\Delta},(g\bar{\Delta})^{2})$ 
 associated with each surveyed galaxy $j$, we first sample a Gaussian 
 distribution with mean and standard deviation equal to $g\bar{\Delta}$ for some 
-factor $g$ (by default set to unity), truncated to enforce positive standard 
+factor $g$ (by default set to 5), truncated to enforce positive standard 
 deviations.  Each Gaussian is centered at an "observed" redshift 
 $z'_{j}\sim\mathcal{N}(z^{*}_{j},\sigma_{j})$ separated from the true redshift 
 $z^{*}_{j}$ by a Gaussian random variable 
@@ -681,22 +678,18 @@ inappropriate, leading to broader features.  In general, the galaxies that
 could not have been observed spectroscopically will have different and noisier 
 photo-$z$ PDFs than those that could fall into a spectroscopic training set.
 
-Here we vary the fiducial case with noisier data to demonstrate that the 
-results of the sampler and of stacking diverge for broader photo-$z$ 
-likelihoods.  In these cases, $\sigma_{j}$ is drawn from a normal distribution 
-as described in Sec. \ref{sec:mock} but with the factor $f=2$ ("doubly 
-imprecise" compared to the fiducial case) in one case and $f=4$ ("quadruply 
-imprecise" compared to the fiducial case) in another.  In both cases, 
+Here we vary the fiducial case with less noisy data to demonstrate that the 
+results of the sampler and of stacking still diverge for narrower photo-$z$ 
+likelihoods representing unrealistically low intrinsic scatter.  In these 
+cases, $\sigma_{j}$ is drawn from a normal distribution as described in Sec. 
+\ref{sec:mock} but with the factor $g=1$ instead of $g=5$.  In this case, 
 illustrated in Fig. \ref{fig:sigspzs}, the corresponding sample interim 
-photo-$z$ posteriors to those of Fig. \ref{fig:nullpzs} are broader, with MLE 
-redshifts farther from the true redshift on average.
+photo-$z$ posteriors to those of Fig. \ref{fig:nullpzs} are narrower.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/sig2/samplepzs.pdf}\\
-\includegraphics[width=0.5\textwidth]{figs/sig4/samplepzs.pdf}
-\caption{Same as Fig \ref{fig:nullpzs}.  The doubly imprecise (top panel) and 
-quadruply imprecise PDFs (bottom panel) cases have standard deviations are 
-increased by a factor of 2 or 4 respectively.}
+\includegraphics[width=0.5\textwidth]{figs/sig1/samplepzs.pdf}
+\caption{Same as Fig \ref{fig:nullpzs}.  The $1/5$ imprecise likelihood cases 
+have standard deviations are decreased by a factor of 5.}
 \label{fig:sigspzs}
 \end{figure}
 
@@ -756,7 +749,7 @@ $p(z|\vec{\theta}')$ as in Sec \ref{sec:mock}, we assign all galaxies the same
 true redshift.  
 
 \subsubsection{Variable Interim Prior}
-\label{sec:interim}
+\label{sec:interim-data}
 
 In the following two cases we vary the interim prior used in Sec. 
 \ref{sec:mock} to show that the sampler is robust to inappropriate choices of 
@@ -1352,8 +1345,7 @@ because of the ubiquity of using inappropriate interim priors.
 & Mean of & Marginalized & Stacking & Marginalized & Marginalized\\
 & Samples & MLE & & MAP & Expected Value\\
 Fiducial &&&&&\\
-2xImprecise &&&&&\\
-4xImprecise &&&&&\\
+Imprecise/5 &&&&&\\
 Inaccurate &&&&&\\
 Multimodal &&&&&\\
 Featured &&&&&\\
