@@ -230,30 +230,42 @@ In general, redshift is degenerate with nuisance parameters, namely the galaxy S
 
 \subsubsection{One-point statistic of redshift and a scalar parameter}
 
-%\begin{figure}
-%\vspace{0.5cm}
-%\begin{center}
-%\begin{tikzpicture}[node distance=1cm]
-%
-%\node (mf) [hyper,xshift=-1cm] {$\Phi(M,z)$};
+We consider a second parameter $M_{j}$ that may represent the luminosity or mass of a galaxy $j$ in a survey.  We assume we are given a survey of joint posteriors $\{p(z_{j},M_{j}|\vec{d}_{j})\}_{J}$.  Fig. \ref{fig:mf} illustrates the conditionals of such a problem.
+
+\begin{figure}
+\vspace{0.5cm}
+\begin{center}
+\begin{tikzpicture}[node distance=1cm]
+
+\node (mf) [hyper,xshift=-1cm] {$\textul{\Phi}(M,z)$};
 %\node (nz) [hyper,xshift=0.5cm,yshift=-1cm] {$N(z)$};
-%\node (z) [param, below of=nz] {$z_{j}$};
-%\node (M) [param, below of=mf,yshift=-1cm] {$M_{j}$};
-%\node (flux) [data, below of=mf,yshift=-2cm,xshift=0.75cm] {$\vec{d}_{j}$};
-%\node (survey) [draw=black,fit={(M.west)(M.north)(flux.south)(z.east)}] {};
-%\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
-%
-%\draw [arrow] (mf) -- (nz);
-%\draw [arrow] (nz) -- (z);
-%\draw [arrow] (mf) -- (M);
-%\draw [arrow] (z) -- (flux);
-%\draw [arrow] (M) -- (flux);
-%
-%\end{tikzpicture}
-%\caption{}
-%\label{fig:mf}
-%\end{center}
-%\end{figure}
+\node (z) [param, below of=mf,yshift=-1cm,xshift=1cm] {$z_{j}$};
+\node (M) [param, below of=mf,yshift=-1cm,xshift=-1cm] {$M_{j}$};
+\node (flux) [data, below of=mf,yshift=-2cm] {$\vec{d}_{j}$};
+\node (survey) [draw=black,fit={(M.west)(M.north)(flux.south)(z.east)}] {};
+\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
+
+\draw [arrow] (mf) -- (z);
+\draw [arrow] (mf) -- (M);
+\draw [arrow] (z) -- (flux);
+\draw [arrow] (M) -- (flux);
+
+\end{tikzpicture}
+\caption{}
+\label{fig:mf}
+\end{center}
+\end{figure}
+
+\begin{align*}
+p(\textul{\Phi}|\{\vec{d}_{j}\}_{J}) &= \frac{p(\textul{\Phi})}{p(\{\vec{d}_{j}\}_{J})}p(\{d_{j}\}_{J}|\textul{\Phi})\\
+&\propto p(\textul{\Phi})\prod_{j=1}^{J}p(\vec{d}_{j}|\textul{\Phi})\\
+&\propto p(\textul{\Phi})\prod_{j=1}^{J}\iint p(\vec{d}_{j}|z_{j},M_{j})p(z_{j},M_{j}|\textul{\Phi})dz_{j}dM_{j}\\
+&\propto p(\textul{\Phi})\prod_{j=1}^{J}\iint p(\vec{d}_{j}|z_{j},M_{j})\frac{p(M_{j},z_{j}|\vec{d}_{j},\textul{\Phi}_{0})}{p(M_{j},z_{j}|\vec{d}_{j},\textul{\Phi}_{0})}p(z_{j},M_{j}|\textul{\Phi})dz_{j}dM_{j}\\
+&\propto p(\textul{\Phi})\prod_{j=1}^{J}\iint p(\vec{d}_{j}|z_{j},M_{j})p(M_{j},z_{j}|\vec{d}_{j},\textul{\Phi}_{0})\frac{p(\vec{d}_{j}|\textul{\Phi}_{0})}{p(\vec{d}_{j}|z_{j},M_{j},\textul{\Phi}_{0})p(z_{j},M_{j}|\textul{\Phi}_{0})}p(z_{j},M_{j}|\textul{\Phi})dz_{j}dM_{j}\\
+&\propto p(\textul{\Phi})\prod_{j=1}^{J}\iint \frac{p(M_{j},z_{j}|\vec{d}_{j},\textul{\Phi}_{0})}{p(z_{j},M_{j}|\textul{\Phi}_{0})}\frac{p(\vec{d}_{j}|z_{j},M_{j})p(\vec{d}_{j}|\textul{\Phi}_{0})}{p(\vec{d}_{j}|z_{j},M_{j},\textul{\Phi}_{0})}p(z_{j},M_{j}|\textul{\Phi})dz_{j}dM_{j}\\
+&\propto p(\textul{\Phi})\prod_{j=1}^{J}\iint \frac{p(M_{j},z_{j}|\vec{d}_{j},\textul{\Phi}_{0})}{p(z_{j},M_{j}|\textul{\Phi}_{0})}p(z_{j},M_{j}|\textul{\Phi})dz_{j}dM_{j}\\
+&\propto p(\textul{\Phi})\prod_{j=1}^{J}\iint p(M_{j},z_{j}|\vec{d}_{j},\textul{\Phi}_{0})\frac{p(z_{j},M_{j}|\textul{\Phi})}{p(z_{j},M_{j}|\textul{\Phi}_{0})}dz_{j}dM_{j}
+\end{align*}
 
 \subsubsection{One-point statistic of redshift and a vector of parameters}
 
