@@ -112,12 +112,13 @@ def burntest(outputs,run):# of dimensions nwalkers*miniters
     gr = gr_test(chains , dims)[0]
     #print(gr)
     #print(np.all(gr)<1.)
-    if np.max(gr) > 1.:
+    critical = 1./1.2
+    if np.max(gr) > critical:
         print(run.meta.name+' burning-in '+str(gr)+' > '+str(1))
     else:
         print(run.meta.name+' post-burn '+str(gr)+' < '+str(1))
 
-    return(np.max(gr) > 1.)
+    return(np.max(gr) > critical)
 
 class pertest(object):
     """
