@@ -110,9 +110,7 @@ def burntest(outputs,run):# of dimensions nwalkers*miniters
 
 #     return(difprob > varprob)
     gr = gr_test(chains , dims)[0]
-    #print(gr)
-    #print(np.all(gr)<1.)
-    critical = 1./1.2
+    critical = 1.
     if np.max(gr) > critical:
         print(run.meta.name+' burning-in '+str(gr)+' > '+str(1))
     else:

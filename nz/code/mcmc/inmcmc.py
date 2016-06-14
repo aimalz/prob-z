@@ -346,7 +346,7 @@ class setup(object):
         if 'miniters' in indict:
             self.miniters = 10**int(indict['miniters'])
         else:
-            self.miniters = int(1e3)
+            self.miniters = int(1e2)
 
         if 'thinto' in indict:
             self.thinto = bool(int(indict['thinto'][0]))

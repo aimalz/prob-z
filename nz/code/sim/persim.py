@@ -137,7 +137,7 @@ class pertest(object):
         # choose npeaks before sigma so you know how many to pick
         if self.meta.shape == True:
             np.random.seed(seed=self.seed)
-            weights = [1./k**k for k in xrange(1,self.ndims)]
+            weights = [1./k**self.meta.noisefact for k in xrange(1,self.ndims)]
             self.npeaks = np.array([us.choice(xrange(1,self.ndims),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
             #self.npeaks = [1]*self.ngals
         else:
