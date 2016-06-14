@@ -118,7 +118,7 @@ class setup(object):
         if 'noisefact' in indict:
             self.noisefact = int(indict['noisefact'][0])
         else:
-            self.noisefact = 1
+            self.noisefact = 2
 
         # permit more complicated p(z)s
         # 0 for unimodal, 1 for multimodal

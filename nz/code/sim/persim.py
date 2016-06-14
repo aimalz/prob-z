@@ -211,8 +211,8 @@ class pertest(object):
 #             x = self.nbins
 #             intP = sp.stats.pareto.pdf(np.arange(1.,2.,1./x),x)+sp.stats.pareto.pdf(np.arange(1.,2.,1./x)[::-1],x)
 #             intP = sp.stats.pareto(self.nbins)
-            intP = np.array([1.25*funlo.pdf(z)+funhi.pdf(z) for z in self.binmids])
-            intP = intP-min(intP)+1./self.ngals/self.bindif#(1.+self.binmids*(max(pdf)-pdf))**2
+            intP = np.array([2.*funlo.pdf(z)+funhi.pdf(z)/2. for z in self.binmids])
+            intP = intP-min(intP)+1./self.ngals#(1.+self.binmids*(max(pdf)-pdf))**2
 #             p = np.array([1.25*funlo.pdf(z)+funhi.pdf(z) for z in self.gridmids])
 #             p = p-min(p)+1./self.ngals/self.bindif
 #         elif self.meta.interim == 'multimodal':
