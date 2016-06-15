@@ -346,7 +346,7 @@ class setup(object):
         if 'miniters' in indict:
             self.miniters = 10**int(indict['miniters'])
         else:
-            self.miniters = int(1e2)
+            self.miniters = int(1e3)
 
         if 'thinto' in indict:
             self.thinto = bool(int(indict['thinto'][0]))
@@ -362,7 +362,7 @@ class setup(object):
         if 'factor' in indict:
             self.factor = int(indict['factor'])
         else:
-            self.factor = 10
+            self.factor = 1
 
         #assert(self.ntimes > self.nwalkers)
         # autocorrelation time mode
