@@ -204,14 +204,14 @@ class pertest(object):
 #             p = np.array([z*fun.pdf(z) for z in self.gridmids])
 #             p = p-min(p)+1./self.ngals/self.bindif
         elif self.meta.interim == 'bimodal':
-            mulo = np.percentile(self.binends,25)
-            muhi = np.percentile(self.binends,75)
+            mulo = np.percentile(self.binends,20)
+            muhi = np.percentile(self.binends,80)
             funlo = us.tnorm(mulo,(max(self.binends)-min(self.binends))/5.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,75),np.sqrt(np.mean(self.binends)))
             funhi = us.tnorm(muhi,(max(self.binends)-min(self.binends))/5.,(min(self.binends),max(self.binends)))
 #             x = self.nbins
 #             intP = sp.stats.pareto.pdf(np.arange(1.,2.,1./x),x)+sp.stats.pareto.pdf(np.arange(1.,2.,1./x)[::-1],x)
 #             intP = sp.stats.pareto(self.nbins)
-            intP = np.array([2.*funlo.pdf(z)+funhi.pdf(z) for z in self.binmids])
+            intP = np.array([funlo.pdf(z)+funhi.pdf(z) for z in self.binmids])
             intP = intP-min(intP)+1./self.ngals#(1.+self.binmids*(max(pdf)-pdf))**2
 #             p = np.array([1.25*funlo.pdf(z)+funhi.pdf(z) for z in self.gridmids])
 #             p = p-min(p)+1./self.ngals/self.bindif
