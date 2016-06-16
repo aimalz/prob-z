@@ -65,7 +65,7 @@ class mvn(object):
         """W samples from a single sample from distribution"""
         rando = np.random.multivariate_normal(self.mean, self.cov)
         #outsamp = [rando + np.random.randn(self.dims) for w in range(0,W)]
-        outsamp = [np.random.multivariate_normal(rando,self.cov) for w in range(0,W)]
+        outsamp = [np.random.multivariate_normal(rando, np.sqrt(np.mean(self.mean))*np.identity(self.dims)) for w in range(0,W)]
         return (outsamp, rando)
 
 class post(object):

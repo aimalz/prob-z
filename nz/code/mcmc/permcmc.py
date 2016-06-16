@@ -74,7 +74,6 @@ def burntest(outputs,run):# of dimensions nwalkers*miniters
 
     chains = outputs['chains']#nwalkers*nsteps*nbins
     dims = np.shape(chains)
-    print('dims='+str(dims))
 #     all_i = dims[1]/2
 #     all_m = dims[0]
 #     all_k = dims[2]
