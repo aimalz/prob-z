@@ -16,8 +16,8 @@ import math as m
 
 import utilsim as us
 
-title = 15
-label = 15
+title = 10
+label = 10
 mpl.rcParams['axes.titlesize'] = title
 mpl.rcParams['axes.labelsize'] = label
 #print('set font sizes')
@@ -292,47 +292,70 @@ def plot_pdfs(meta,test):
 
 def makelfs(meta,test,j):
 
-    zgrid = np.arange(test.zlos[0],test.zhis[-1]+1./100,1./100)
-    gridmids = (zgrid[1:]+zgrid[:-1])/2.
-    griddifs = zgrid[1:]-zgrid[:-1]
+    ztrugrid = np.arange(test.zlos[0],test.zhis[-1]+1./100,1./100)
+    zrange = test.zhis[-1]-test.zlos[0]
+    zobsgrid = np.arange(test.zlos[0]-zrange,test.zhis[-1]+zrange+1./100,1./100)
+    trugridmids = (ztrugrid[1:]+ztrugrid[:-1])/2.
+    obsgridmids = (zobsgrid[1:]+zobsgrid[:-1])/2.
+    trugriddifs = ztrugrid[1:]-ztrugrid[:-1]
+    obsgriddifs = zobsgrid[1:]-zobsgrid[:-1]
 
     gridpdfs = []
-    for z_tru in gridmids:
+    for z_tru in trugridmids:
         #gridpdf = np.array([sys.float_info.epsilon]*len(gridmids))
         gridpdf = []
-        for z_obs in gridmids:
+        for z_obs in obsgridmids:
             val = sys.float_info.epsilon
             for pn in xrange(test.npeaks[j]):
                 p = np.exp(-1.*(z_tru-z_obs-test.shift[j][pn])**2/test.sigZs[j][pn]**2)/np.sqrt(2*np.pi*test.sigZs[j][pn]**2)
                 val += p
             # normalize probabilities to integrate (not sum)) to 1
             gridpdf.append(val)
-        gridpdf = gridpdf/np.dot(gridpdf,griddifs)
+        gridpdf = gridpdf/np.dot(gridpdf,obsgriddifs)
         gridpdfs.append(gridpdf)
     gridpdfs = np.array(gridpdfs)
+    sumx = np.sum(gridpdfs,axis=0)*obsgriddifs
+    sumy = np.sum(gridpdfs,axis=1)*trugriddifs
     #lf = np.array([np.array([allsummed[zo]*allsummed[zt] for zo in us.lrange(self.gridmids)]) for zt in us.lrange(self.gridmids)])
     #print(gridpdfs)
-    return(gridpdfs)
+    return(gridpdfs,sumx,sumy)
 
 
 
 def plot_lfs(meta,test):
     lfdir = os.path.join(meta.datadir,'lfs')
     j = test.randos[0]#for j in us.lrange(test.randos):
-    f = plt.figure(figsize=(5,5))
-    sps = f.add_subplot(1,1,1)
+    f = plt.figure(figsize=(10,10))
+    sps = f.add_subplot(2,2,1)
     f.suptitle(meta.name+r' $p_{'+str(j)+r'}(z_{obs}|z_{tru})$')
     sps.set_ylabel(r'$z_{obs}$')
     sps.set_xlabel(r'$z_{tru}$')
-    sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
-    sps.set_ylim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
+    #sps.set_xlim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
+    #sps.set_ylim(test.binlos[0]-test.bindif,test.binhis[-1]+test.bindif)
 
     lf = makelfs(meta,test,j)
     #print(''np.shape(lf))
                 #lf = np.array([np.array([l[zo]*l[zt] for zo in us.lrange(self.gridmids)]) for zt in us.lrange(self.gridmids)])
 #                 lfs.append(lf)
 
-    zgrid = np.arange(test.zlos[0],test.zhis[-1]+1./100,1./100)
-    sps.pcolorfast(zgrid,zgrid,lf,cmap=cm.Greys)
+    ztrugrid = np.arange(test.zlos[0],test.zhis[-1]+1./100,1./100)
+    zrange = test.zhis[-1]-test.zlos[0]
+    zobsgrid = np.arange(test.zlos[0]-zrange,test.zhis[-1]+zrange+1./100,1./100)
+    trugridmids = (ztrugrid[1:]+ztrugrid[:-1])/2.
+    obsgridmids = (zobsgrid[1:]+zobsgrid[:-1])/2.
+
+    sps.pcolorfast(ztrugrid,zobsgrid,np.transpose(lf[0]),cmap=cm.Greys)
+
+    sps_obs = f.add_subplot(2,2,2)
+    #print(np.shape(zobsgrid),np.shape(lf[1]))
+    sps_obs.plot(lf[1],obsgridmids)
+    sps_obs.set_xlabel('Sum')
+    sps_obs.set_ylabel(r'$z_{obs}$')
+
+    sps_tru = f.add_subplot(2,2,3)
+    #print(np.shape(ztrugrid),np.shape(lf[2]))
+    sps_tru.plot(trugridmids,lf[2])
+    sps_tru.set_ylabel('Sum')
+    sps_tru.set_xlabel(r'$z_{tru}$')
 
     f.savefig(os.path.join(meta.simdir,'zobsvztru.pdf'),bbox_inches='tight', pad_inches = 0)
