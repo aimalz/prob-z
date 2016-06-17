@@ -292,9 +292,10 @@ def plot_pdfs(meta,test):
 
 def makelfs(meta,test,j):
 
-    ztrugrid = np.arange(test.zlos[0],test.zhis[-1]+1./100,1./100)
+    eps = 1./100.
     zrange = test.zhis[-1]-test.zlos[0]
-    zobsgrid = np.arange(test.zlos[0]-zrange,test.zhis[-1]+zrange+1./100,1./100)
+    ztrugrid = np.arange(test.zlos[0],test.zhis[-1]+eps,eps)
+    zobsgrid = np.arange(test.zlos[0]-zrange,test.zhis[-1]+zrange+eps,eps)
     trugridmids = (ztrugrid[1:]+ztrugrid[:-1])/2.
     obsgridmids = (zobsgrid[1:]+zobsgrid[:-1])/2.
     trugriddifs = ztrugrid[1:]-ztrugrid[:-1]
@@ -318,15 +319,15 @@ def makelfs(meta,test,j):
     sumy = np.sum(gridpdfs,axis=1)*trugriddifs
     #lf = np.array([np.array([allsummed[zo]*allsummed[zt] for zo in us.lrange(self.gridmids)]) for zt in us.lrange(self.gridmids)])
     #print(gridpdfs)
-    return(gridpdfs,sumx,sumy)
+    return(gridpdfs,sumx,sumy,ztrugrid,zobsgrid)
 
 
 
 def plot_lfs(meta,test):
     lfdir = os.path.join(meta.datadir,'lfs')
     j = test.randos[0]#for j in us.lrange(test.randos):
-    f = plt.figure(figsize=(10,10))
-    sps = f.add_subplot(2,2,1)
+    f = plt.figure(figsize=(5,10))
+    sps = f.add_subplot(2,1,1)
     f.suptitle(meta.name+r' $p_{'+str(j)+r'}(z_{obs}|z_{tru})$')
     sps.set_ylabel(r'$z_{obs}$')
     sps.set_xlabel(r'$z_{tru}$')
@@ -338,24 +339,29 @@ def plot_lfs(meta,test):
                 #lf = np.array([np.array([l[zo]*l[zt] for zo in us.lrange(self.gridmids)]) for zt in us.lrange(self.gridmids)])
 #                 lfs.append(lf)
 
-    ztrugrid = np.arange(test.zlos[0],test.zhis[-1]+1./100,1./100)
-    zrange = test.zhis[-1]-test.zlos[0]
-    zobsgrid = np.arange(test.zlos[0]-zrange,test.zhis[-1]+zrange+1./100,1./100)
+    ztrugrid = lf[3]#np.arange(test.zlos[0],test.zhis[-1]+1./100,1./100)
+    #zrange = test.zhis[-1]-test.zlos[0]
+    zobsgrid = lf[4]#np.arange(test.zlos[0]-zrange,test.zhis[-1]+zrange+1./100,1./100)
     trugridmids = (ztrugrid[1:]+ztrugrid[:-1])/2.
     obsgridmids = (zobsgrid[1:]+zobsgrid[:-1])/2.
 
-    sps.pcolorfast(ztrugrid,zobsgrid,np.transpose(lf[0]),cmap=cm.Greys)
+    sps.pcolorfast(ztrugrid,zobsgrid,np.log(np.transpose(lf[0])),cmap=cm.Greys)
 
-    sps_obs = f.add_subplot(2,2,2)
-    #print(np.shape(zobsgrid),np.shape(lf[1]))
-    sps_obs.plot(lf[1],obsgridmids)
-    sps_obs.set_xlabel('Sum')
-    sps_obs.set_ylabel(r'$z_{obs}$')
+#     sps_obs = f.add_subplot(2,1,2)
+#     #print(np.shape(zobsgrid),np.shape(lf[1]))
+#     sps_obs.plot(lf[1],obsgridmids)
+#     sps_obs.set_xlabel('Sum')
+#     sps_obs.set_ylabel(r'$z_{obs}$')
 
-    sps_tru = f.add_subplot(2,2,3)
+    sps_tru = f.add_subplot(2,1,2)
     #print(np.shape(ztrugrid),np.shape(lf[2]))
     sps_tru.plot(trugridmids,lf[2])
     sps_tru.set_ylabel('Sum')
     sps_tru.set_xlabel(r'$z_{tru}$')
+
+    sps_tru.set_xlim(ztrugrid[0],ztrugrid[-1])
+    sps_tru.set_ylim(0.,2.)
+    sps.set_xlim(ztrugrid[0],ztrugrid[-1])
+    sps.set_ylim(zobsgrid[0],zobsgrid[-1])
 
     f.savefig(os.path.join(meta.simdir,'zobsvztru.pdf'),bbox_inches='tight', pad_inches = 0)
