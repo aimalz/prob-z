@@ -340,10 +340,12 @@ def plot_lfs(meta,test):
 #                 lfs.append(lf)
 
     ztrugrid = lf[3]#np.arange(test.zlos[0],test.zhis[-1]+1./100,1./100)
-    #zrange = test.zhis[-1]-test.zlos[0]
     zobsgrid = lf[4]#np.arange(test.zlos[0]-zrange,test.zhis[-1]+zrange+1./100,1./100)
+    zrange = test.zhis[-1]-test.zlos[0]
     trugridmids = (ztrugrid[1:]+ztrugrid[:-1])/2.
     obsgridmids = (zobsgrid[1:]+zobsgrid[:-1])/2.
+    extended = np.arange(test.zlos[0]-zrange,test.zhis[-1]+zrange+test.bindif,test.bindif)
+    extmids = (extended[1:]+extended[:-1])/2.
 
     sps.pcolorfast(ztrugrid,zobsgrid,np.log(np.transpose(lf[0])),cmap=cm.Greys)
 
@@ -357,8 +359,11 @@ def plot_lfs(meta,test):
         pdf = np.array([[test.intobss[x][p],test.sigZs[j][p],1.] for p in xrange(test.npeaks[j])])
         pdfs = us.gmix(pdf,(zobsgrid[0],zobsgrid[-1]))
         plot_ys = pdfs.pdfs(zobsgrid)
+        binnedys = pdfs.pdfs(extmids)
         plot_y = np.sum(plot_ys,axis=0)
+        binnedy = np.sum(binnedys,axis=0)
         sps_pdfs.plot(zobsgrid,plot_y,color=meta.colors[x])
+        plotstep(sps_pdfs,extended,binnedy,c=meta.colors[x],a=0.5)
         sps_pdfs.vlines(test.inttrus[x],0.,max(plot_y),color=meta.colors[x],linestyle=s_tru,linewidth=w_tru,dashes=d_tru,alpha=a_tru)
         for p in us.lrange(test.intobss[x]):
             sps.scatter(test.inttrus[x],test.intobss[x][p],color=test.meta.colors[x])
@@ -366,8 +371,8 @@ def plot_lfs(meta,test):
 
     sps_pdfs.set_ylabel(r'$p(z|\vec{d})$')
     sps_pdfs.set_xlabel(r'$z$')
-    sps_pdfs.set_xlim(zobsgrid[0],zobsgrid[-1])
-    sps_pdfs.set_ylim(0.,1./meta.zdif)
+    sps_pdfs.set_xlim(test.binends[0]-10.*test.bindif,test.binends[-1]+10.*test.bindif)
+    sps_pdfs.set_ylim(0.,2.*max(plot_y))
 
 #     sps_obs = f.add_subplot(2,1,2)
 #     #print(np.shape(zobsgrid),np.shape(lf[1]))

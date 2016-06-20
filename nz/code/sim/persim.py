@@ -231,7 +231,7 @@ class pertest(object):
         self.intobss = []
         self.intshift = []
         for inttru in self.inttrus:
-            shift = [np.random.normal(loc=0.,scale=self.varZs[self.randos[0]][p]) for p in xrange(self.npeaks[self.randos[0]])]
+            shift = [np.random.normal(loc=0.,scale=self.sigZs[self.randos[0]][p]) for p in xrange(self.npeaks[self.randos[0]])]
             obsZ = [inttru+shift[p] for p in xrange(self.npeaks[self.randos[0]])]
             self.intshift.append(shift)
             self.intobss.append(obsZ)
