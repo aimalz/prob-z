@@ -319,15 +319,15 @@ def makelfs(meta,test,j):
     sumy = np.sum(gridpdfs,axis=1)*trugriddifs
     #lf = np.array([np.array([allsummed[zo]*allsummed[zt] for zo in us.lrange(self.gridmids)]) for zt in us.lrange(self.gridmids)])
     #print(gridpdfs)
-    return(gridpdfs,sumx,sumy,ztrugrid,zobsgrid)
 
+    return(gridpdfs,sumx,sumy,ztrugrid,zobsgrid)
 
 
 def plot_lfs(meta,test):
     lfdir = os.path.join(meta.datadir,'lfs')
     j = test.randos[0]#for j in us.lrange(test.randos):
-    f = plt.figure(figsize=(5,10))
-    sps = f.add_subplot(2,1,1)
+    f = plt.figure(figsize=(10,10))
+    sps = f.add_subplot(2,2,1)
     f.suptitle(meta.name+r' $p_{'+str(j)+r'}(z_{obs}|z_{tru})$')
     sps.set_ylabel(r'$z_{obs}$')
     sps.set_xlabel(r'$z_{tru}$')
@@ -347,13 +347,35 @@ def plot_lfs(meta,test):
 
     sps.pcolorfast(ztrugrid,zobsgrid,np.log(np.transpose(lf[0])),cmap=cm.Greys)
 
+    sps_pdfs = f.add_subplot(2,2,2)
+    sps_pdfs.set_title(r'Example PDFs')
+    dummy_x,dummy_y = np.array([-1,-2,-3]),np.array([-1,-2,-3])
+    plotstep(sps_pdfs,dummy_x,dummy_y,c=c_tru,s=s_tru,w=w_tru,l=l_tru+r'$z$',d=d_tru,a=a_tru)
+    plotstep(sps_pdfs,dummy_x,dummy_y,c=c_exp,s=s_map,w=w_exp,l=r' MLE $z$',d=d_map,a=a_map)
+    sps_pdfs.legend(loc='upper right',fontsize='x-small')
+    for x in us.lrange(test.inttrus):
+        pdf = np.array([[test.intobss[x][p],test.sigZs[j][p],1.] for p in xrange(test.npeaks[j])])
+        pdfs = us.gmix(pdf,(zobsgrid[0],zobsgrid[-1]))
+        plot_ys = pdfs.pdfs(zobsgrid)
+        plot_y = np.sum(plot_ys,axis=0)
+        sps_pdfs.plot(zobsgrid,plot_y,color=meta.colors[x])
+        sps_pdfs.vlines(test.inttrus[x],0.,max(plot_y),color=meta.colors[x],linestyle=s_tru,linewidth=w_tru,dashes=d_tru,alpha=a_tru)
+        for p in us.lrange(test.intobss[x]):
+            sps.scatter(test.inttrus[x],test.intobss[x][p],color=test.meta.colors[x])
+            sps_pdfs.vlines(test.intobss[x][p],0.,max(plot_y),color=meta.colors[x],linestyle=s_map,linewidth=w_map,dashes=d_map,alpha=a_map)
+
+    sps_pdfs.set_ylabel(r'$p(z|\vec{d})$')
+    sps_pdfs.set_xlabel(r'$z$')
+    sps_pdfs.set_xlim(zobsgrid[0],zobsgrid[-1])
+    sps_pdfs.set_ylim(0.,1./meta.zdif)
+
 #     sps_obs = f.add_subplot(2,1,2)
 #     #print(np.shape(zobsgrid),np.shape(lf[1]))
 #     sps_obs.plot(lf[1],obsgridmids)
 #     sps_obs.set_xlabel('Sum')
 #     sps_obs.set_ylabel(r'$z_{obs}$')
 
-    sps_tru = f.add_subplot(2,1,2)
+    sps_tru = f.add_subplot(2,2,3)
     #print(np.shape(ztrugrid),np.shape(lf[2]))
     sps_tru.plot(trugridmids,lf[2])
     sps_tru.set_ylabel('Sum')

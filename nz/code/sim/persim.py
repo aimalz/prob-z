@@ -107,31 +107,6 @@ class pertest(object):
 #         self.phsNz = self.ngals*self.phsPz
 #         self.logphsNz = us.safelog(self.phsNz)
 
-    def choosetrue(self):
-
-        # test all galaxies in survey have same true redshift vs. sample from physPz
-#         if self.meta.random == True:
-#             np.random.seed(seed=self.seed)
-#             self.truZs = self.real.sample(self.ngals)
-#         else:
-        if self.meta.random == False:
-            center = (self.allzs[0]+self.allzs[-1])/2.
-            self.meta.real = np.array([np.array([center,1./self.surv,1.])])
-        self.real = us.gmix(self.meta.real,(self.allzs[0],self.allzs[-1]))
-#             self.truZs = np.array([center]*self.ngals)
-        np.random.seed(seed=self.seed)
-        self.truZs = self.real.sample(self.ngals)
-#         np.random.seed(seed=self.seed)
-#         np.random.shuffle(self.truZs)
-
-        # jitter peak zs given sigma to simulate inaccuracy
-        np.random.seed(seed=self.seed)
-        self.shift = np.array([[np.random.normal(loc=0.,scale=self.varZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-        self.obsZs = np.array([[self.truZs[j]+self.shift[j][p] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-
-        self.minobs = min(min(self.obsZs))
-        self.maxobs = max(max(self.obsZs))
-
     def makelf(self):
 
         # choose npeaks before sigma so you know how many to pick
@@ -157,6 +132,31 @@ class pertest(object):
             self.sigZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
         else:
             self.sigZs = self.varZs#np.array([[self.varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+
+    def choosetrue(self):
+
+        # test all galaxies in survey have same true redshift vs. sample from physPz
+#         if self.meta.random == True:
+#             np.random.seed(seed=self.seed)
+#             self.truZs = self.real.sample(self.ngals)
+#         else:
+        if self.meta.random == False:
+            center = (self.allzs[0]+self.allzs[-1])/2.
+            self.meta.real = np.array([np.array([center,1./self.surv,1.])])
+        self.real = us.gmix(self.meta.real,(self.allzs[0],self.allzs[-1]))
+#             self.truZs = np.array([center]*self.ngals)
+        np.random.seed(seed=self.seed)
+        self.truZs = self.real.sample(self.ngals)
+#         np.random.seed(seed=self.seed)
+#         np.random.shuffle(self.truZs)
+
+        # jitter peak zs given sigma to simulate inaccuracy
+        np.random.seed(seed=self.seed)
+        self.shift = np.array([[np.random.normal(loc=0.,scale=self.varZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+        self.obsZs = np.array([[self.truZs[j]+self.shift[j][p] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+
+        self.minobs = min(min(self.obsZs))
+        self.maxobs = max(max(self.obsZs))
 
     def setup_pdfs(self):
 
@@ -190,13 +190,14 @@ class pertest(object):
 
         #nontrivial interim prior
         if self.meta.interim == 'flat':
-            fun = 1.
+            fun = sp.stats.uniform(loc=self.binends[0],scale=self.binrange)
+            samps = fun.rvs(len(self.meta.colors))
             intP = self.fltPz
-#             intP = sp.stats.uniform(loc=self.binends[0],scale=self.binrange)
 #             p = np.array([fun for z in self.gridmids])
         elif self.meta.interim == 'unimodal':
 #            percentile(self.binends,0)
             fun = us.tnorm(min(self.binends),(max(self.binends)-min(self.binends))/5.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,25),np.sqrt(np.mean(self.binends)))
+            samps = fun.rvs(len(self.meta.colors))
 #             intP = sp.stats.poisson.pmf(xrange(self.nbins),2.0)
 #             intP = sp.stats.poisson(2.0)
             intP = np.array([z*fun.pdf(z) for z in self.binmids])
@@ -208,20 +209,32 @@ class pertest(object):
             muhi = np.percentile(self.binends,80)
             funlo = us.tnorm(mulo,(max(self.binends)-min(self.binends))/7.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,75),np.sqrt(np.mean(self.binends)))
             funhi = us.tnorm(muhi,(max(self.binends)-min(self.binends))/3.5,(min(self.binends),max(self.binends)))
+            samps = []
+            samps.append(funlo.rvs(len(self.meta.colors)/2.))
+            samps.append(funhi.rvs(len(self.meta.colors)/2.))
 #             x = self.nbins
 #             intP = sp.stats.pareto.pdf(np.arange(1.,2.,1./x),x)+sp.stats.pareto.pdf(np.arange(1.,2.,1./x)[::-1],x)
 #             intP = sp.stats.pareto(self.nbins)
             intP = np.array([funlo.pdf(z)+funhi.pdf(z) for z in self.binmids])
-            intP = intP-min(intP)+1./self.ngals#(1.+self.binmids*(max(pdf)-pdf))**2
+            intP = intP-min(intP)+1./100.#(1.+self.binmids*(max(pdf)-pdf))**2
 #             p = np.array([1.25*funlo.pdf(z)+funhi.pdf(z) for z in self.gridmids])
 #             p = p-min(p)+1./self.ngals/self.bindif
 #         elif self.meta.interim == 'multimodal':
 #             intP = self.real.binned(self.binends)
 # #             intP = self.real
+        self.inttrus = samps
         self.intPz = us.normed(intP,self.bindifs)
         self.logintPz = us.safelog(self.intPz)
         self.intNz = float(self.ngals)*self.intPz
         self.logintNz = us.safelog(self.intNz)
+
+        self.intobss = []
+        self.intshift = []
+        for inttru in self.inttrus:
+            shift = [np.random.normal(loc=0.,scale=self.varZs[self.randos[0]][p]) for p in xrange(self.npeaks[self.randos[0]])]
+            obsZ = [inttru+shift[p] for p in xrange(self.npeaks[self.randos[0]])]
+            self.intshift.append(shift)
+            self.intobss.append(obsZ)
 
     def makecat(self):
 
