@@ -12,31 +12,44 @@ import numpy as np
 import statmcmc as stats
 
 #stolen wholesale from https://github.com/mjvakili/gambly/blob/master/code/diagnosis/grtest.py
-def single_parameter_gr_test(chains):
-    """
-    inputs:
-      chains : MCMC samples for one parameter.
-      shape = (nwalkers , niters)
-    returns:
-      potential scale reduction factor
-      and the variance of the distribution
-    """
-    nwalkers =  chains.shape[0]
-    niters =  chains.shape[1]
-    #Discarding the first half of draws:
-    chains = chains[: , niters/2:]
-    nwalkers , niters = chains.shape[0] , chains.shape[1]
-    #Calculating the within-chain variance:
-    W = np.mean(np.var(chains, axis=1))
-    #Calculating the between-chain variance:
-    chains_means = np.mean(chains, axis=1)
-    mean_of_chains_means = np.mean(chains_means)
-    B = (niters/(nwalkers-1.0)) * np.sum((chains_means - mean_of_chains_means)**2.)
-    # Estimating the variance of distribution:
-    V = (1. - 1./niters) * W + (1./niters) * B
-    # Calculating the potential scale reduction factor:
-    R = np.sqrt(V/W)
-    return R , V
+# def single_parameter_gr_test(chains):
+#     """
+#     inputs:
+#       chains : MCMC samples for one parameter.
+#       shape = (nwalkers , niters)
+#     returns:
+#       potential scale reduction factor
+#       and the variance of the distribution
+#     """
+#     nwalkers =  chains.shape[0]
+#     niters =  chains.shape[1]
+#     #Discarding the first half of draws:
+#     chains = chains[: , niters/2:]
+#     nwalkers , niters = chains.shape[0] , chains.shape[1]
+#     #Calculating the within-chain variance:
+#     W = np.mean(np.var(chains, axis=1))
+#     #Calculating the between-chain variance:
+#     chains_means = np.mean(chains, axis=1)
+#     mean_of_chains_means = np.mean(chains_means)
+#     B = (niters/(nwalkers-1.0)) * np.sum((chains_means - mean_of_chains_means)**2.)
+#     # Estimating the variance of distribution:
+#     V = (1. - 1./niters) * W + (1./niters) * B
+#     # Calculating the potential scale reduction factor:
+#     R = np.sqrt(V/W)
+#     return R , V
+
+def single_parameter_gr_test(chain):
+    ssq = np.var(chain, axis=1, ddof=1)
+    W = np.mean(ssq, axis=0)
+    xb = np.mean(chain, axis=1)
+    xbb = np.mean(xb, axis=0)
+    m = chain.shape[0]
+    n = chain.shape[1]
+    B = n / (m - 1.) * np.sum((xbb - xb)**2., axis=0)
+    var_x = (n - 1.) / n * W + 1. / n * B
+    Rhat = np.sqrt(var_x / W)
+    return Rhat,var_x
+
 def gr_test(sample , dims):
     """
     inputs:
@@ -113,11 +126,11 @@ def burntest(outputs,run):# of dimensions nwalkers*miniters
 #     gr = pymc.gelman_rubin(chains)#also converges at nonsense
 
     gr = gr_test(chains, dims)[0]
-    critical = 1.
+    critical = 1.1
     if np.max(gr) > critical:
-        print(run.meta.name+' burning-in '+str(gr)+' > '+str(1))
+        print(run.meta.name+' burning-in '+str(gr)+' > '+str(critical))
     else:
-        print(run.meta.name+' post-burn '+str(gr)+' < '+str(1))
+        print(run.meta.name+' post-burn '+str(gr)+' < '+str(critical))
 
     return(np.max(gr) > critical)
 
