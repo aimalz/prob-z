@@ -112,8 +112,9 @@ class pertest(object):
         # choose npeaks before sigma so you know how many to pick
         if self.meta.shape == True:
             np.random.seed(seed=self.seed)
-            weights = [1./k**self.meta.noisefact for k in xrange(1,self.ndims)]
-            self.npeaks = np.array([us.choice(xrange(1,self.ndims),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
+            maxpeaks = 5#self.ndims
+            weights = [1./k**self.meta.noisefact for k in xrange(1,maxpeaks)]
+            self.npeaks = np.array([us.choice(xrange(1,maxpeaks),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
             #self.npeaks = [1]*self.ngals
         else:
             self.npeaks = [1]*self.ngals
@@ -209,14 +210,14 @@ class pertest(object):
             muhi = np.percentile(self.binends,80)
             funlo = us.tnorm(mulo,(max(self.binends)-min(self.binends))/7.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,75),np.sqrt(np.mean(self.binends)))
             funhi = us.tnorm(muhi,(max(self.binends)-min(self.binends))/3.5,(min(self.binends),max(self.binends)))
-            samps = []
-            samps.append(funlo.rvs(len(self.meta.colors)/2.))
-            samps.append(funhi.rvs(len(self.meta.colors)/2.))
+            samp1 = funlo.rvs(len(self.meta.colors)/2.)
+            samp2 = funhi.rvs(len(self.meta.colors)/2.)
+            samps = np.concatenate((samp1,samp2))
 #             x = self.nbins
 #             intP = sp.stats.pareto.pdf(np.arange(1.,2.,1./x),x)+sp.stats.pareto.pdf(np.arange(1.,2.,1./x)[::-1],x)
 #             intP = sp.stats.pareto(self.nbins)
             intP = np.array([funlo.pdf(z)+funhi.pdf(z) for z in self.binmids])
-            intP = intP-min(intP)+1./100.#(1.+self.binmids*(max(pdf)-pdf))**2
+            intP = intP-min(intP)+1./self.ngals/self.bindif#(1.+self.binmids*(max(pdf)-pdf))**2
 #             p = np.array([1.25*funlo.pdf(z)+funhi.pdf(z) for z in self.gridmids])
 #             p = p-min(p)+1./self.ngals/self.bindif
 #         elif self.meta.interim == 'multimodal':
