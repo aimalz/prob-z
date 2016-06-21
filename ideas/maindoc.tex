@@ -269,28 +269,41 @@ p(\textul{\Phi}|\{\vec{d}_{j}\}_{J}) &= \frac{p(\textul{\Phi})}{p(\{\vec{d}_{j}\
 
 \subsubsection{One-point statistic of redshift and a vector of parameters}
 
-%\begin{figure}
-%\vspace{0.5cm}
-%\begin{center}
-%\begin{tikzpicture}[node distance=1cm]
-%
-%\node (lf) [hyper] {$\Phi(\vec{L},z)$};
-%\node (z) [param, below of=lf,yshift=-0.75cm,xshift=0.5cm] {$z_{j}$};
-%\node (L) [param, below of=lf,yshift=-0.75cm,xshift=-0.5cm] {$\vec{L}_{j}$};
-%\node (flux) [data, below of=lf,yshift=-2cm] {$\vec{d}_{j}$};
-%\node (survey) [draw=black,fit={(L.west)(z.north)(flux.south)(z.east)}] {};
-%\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
-%
-%\draw [arrow] (lf) -- (z);
-%\draw [arrow] (lf) -- (L);
-%\draw [arrow] (z) -- (flux);
-%\draw [arrow] (L) -- (flux);
-%
-%\end{tikzpicture}
-%\caption{}
-%\label{fig:mf}
-%\end{center}
-%\end{figure}
+Let us consider the three-dimensional lensing potential $\textul{\psi}$ estimated from a survey of $N$ galaxy fluxes $\{\vec{f}_{n}\}_{N}$ and measured angular positions $\{\hat{\theta}_{n}\}_{N}$.  We assume the following quantities are known: $\{p(\vec{\theta}_{n}|\hat{\theta}_{n})\}_{N}$, $\{p(z_{n}|\vec{f}_{n})\}_{N}$, $\{p(\vec{x}_{n}|\textul{\psi})\}_{N}$, $p(\vec{x}_{n}|\vec{\theta}_{n},z_{n}\}_{N}$.
+
+\begin{figure}
+\vspace{0.5cm}
+\begin{center}
+\begin{tikzpicture}[node distance=1cm]
+
+\node (lp) [hyper] {$\textul{\psi}$};
+\node (pos) [param, below of=lp,yshift=-0.5cm] {$\vec{x}_{n}$};
+\node (z) [param, below of=pos,yshift=-0.5cm,xshift=0.5cm] {$z_{n}$};
+\node (t) [param, below of=pos,yshift=-0.5cm,xshift=-0.5cm] {$\vec{\theta}_{n}$};
+\node (flux) [data, below of=z,yshift=-0.5cm] {$\vec{f}_{n}$};
+\node (hatt) [data, below of=t,yshift=-0.5cm] {$\hat{\theta}_{n}$};
+\node (survey) [draw=black,fit={(t.west)(pos.north)(flux.south)(z.east)}] {};
+\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$n=1,\dots,N$};
+
+\draw [arrow] (lp) -- (pos);
+\draw [arrow] (pos) -- (z);
+\draw [arrow] (pos) -- (t);
+\draw [arrow] (z) -- (flux);
+\draw [arrow] (t) -- (hatt);
+
+\end{tikzpicture}
+\caption{}
+\label{fig:lenspot}
+\end{center}
+\end{figure}
+
+\begin{align*}
+p(\textul{\psi}|\{\hat{\theta}_{n},\vec{f}_{n}\}_{N}) &= \frac{p(\textul{\psi})}{p(\{\hat{\theta}_{n},\vec{f}_{n}\}_{N})}p(\{\hat{\theta}_{n},\vec{f}_{n}\}_{N}|\textul{\psi})\\
+&\propto p(\textul{\psi})p(\{\hat{\theta}_{n},\vec{f}_{n}\}_{N}|\textul{\psi})\\
+&\propto p(\textul{\psi})\prod_{n=1}^{N}p(\hat{\theta}_{n},\vec{f}_{n}|\textul{\psi})\\
+&\propto p(\textul{\psi})\prod_{n=1}^{N}\int p(\hat{\theta}_{n},\vec{f}_{n}|\vec{x}_{n})p(\vec{x}_{n}|\textul{\psi})d\vec{x}_{n}\\
+&\propto p(\textul{\psi})\prod_{n=1}^{N}\int p(\vec{x}_{n}|\textul{\psi})\iint p(\hat{\theta}_{n}|\vec{\theta}_{n})p(\vec{f}_{n}|z_{n})p(\vec{\theta}_{n},z_{n}|\vec{x}_{n})d\vec{\theta}_{n}dz_{n}d\vec{x}_{n}\\
+\end{align*}
 %
 %\begin{figure}
 %\vspace{0.5cm}
