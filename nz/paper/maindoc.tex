@@ -627,12 +627,15 @@ a Gaussian random variable $\epsilon_{j}$.
 
 We must also choose the parametrization of the redshift distribution function, 
 in this case $f_{\vec{\theta}}(z)=\exp[\vec{\theta}]$ (introduced in Sec. 
-\ref{sec:prob}).  We next define the elements of $\vec{\theta}$ to be log 
-top-hat functions where the hyperparameters $\theta_{k}$ comprising 
-$\vec{\theta}$ take values equal to $\ln[\int_{z_{k-1}}^{z_{k}}\ 
-f_{\vec{\theta}}(z)\ dz]$.  By default we choose a flat distribution as the 
-interim prior, but others will be tested.  (Such a comparison has been executed 
-before by \citet{Viironen2015}.)
+\ref{sec:prob}).   We emphasize that the choice of parametrization here is 
+arbitrary, but it is a choice that must at some point be made.  From this point 
+on, the discussion is no longer entirely general.  
+
+We next define the elements of $\vec{\theta}$ to be log top-hat functions where 
+the hyperparameters $\theta_{k}$ comprising $\vec{\theta}$ take values equal to 
+$\ln[\int_{z_{k-1}}^{z_{k}}\ f_{\vec{\theta}}(z)\ dz]$.  By default we choose a 
+flat distribution as the interim prior, but others will be tested.  (Such a 
+comparison has been executed before by \citet{Viironen2015}.)
 
 To obtain the $J$ desired interim photo-$z$ posteriors $p(z_{j}|\vec{d}_{j})$ 
 from the photo-$z$ likelihoods $p(\vec{d}_{j}|z_{j})$, we simply apply Bayes' 
