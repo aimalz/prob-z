@@ -67,22 +67,14 @@ def burntest(outputs,run):# of dimensions nwalkers*miniters
     """Gelman-Rubin test whether burning in or done with that, true if burning in"""
     print('testing burn-in condition')
 
-#     #lnprob condition
 #     lnprobs = outputs['probs']
 #     lnprobs = np.swapaxes(lnprobs,0,1).T
 #     varprob = sum([statistics.variance(w) for w in lnprobs])/run.meta.nwalkers
 #     difprob = statistics.median([(lnprobs[w][0]-lnprobs[w][-1])**2 for w in xrange(run.meta.nwalkers)])
 
-#     if difprob > varprob:
-#         print(run.meta.name+' burning-in '+str(difprob)+' > '+str(varprob))
-#     else:
-#         print(run.meta.name+' post-burn '+str(difprob)+' < '+str(varprob))
-
-#     return(difprob > varprob)
-
-    #gelman-rubin condition
     chains = outputs['chains']#nwalkers*nsteps*nbins
     dims = np.shape(chains)
+    print('dims='+str(dims))
 #     all_i = dims[1]/2
 #     all_m = dims[0]
 #     all_k = dims[2]
@@ -111,15 +103,21 @@ def burntest(outputs,run):# of dimensions nwalkers*miniters
 #         gr.append(grk)
 #     gr = np.array(gr)#converges at nonsense
 #     gr = pymc.gelman_rubin(chains)#also converges at nonsense
+#     if difprob > varprob:
+#         print(run.meta.name+' burning-in '+str(difprob)+' > '+str(varprob))
+#     else:
+#         print(run.meta.name+' post-burn '+str(difprob)+' < '+str(varprob))
 
-    gr = gr_test(chains, dims)[0]
-    critical = 1.
-    if np.max(gr) > critical:
+#     return(difprob > varprob)
+    gr = gr_test(chains , dims)[0]
+    #print(gr)
+    #print(np.all(gr)<1.)
+    if np.max(gr) > 1.:
         print(run.meta.name+' burning-in '+str(gr)+' > '+str(1))
     else:
         print(run.meta.name+' post-burn '+str(gr)+' < '+str(1))
 
-    return(np.max(gr) > critical)
+    return(np.max(gr) > 1.)
 
 class pertest(object):
     """
