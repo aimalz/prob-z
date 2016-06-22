@@ -623,7 +623,25 @@ z'_{j} = z^{*}_{j}+\epsilon_{j}
 \end{equation}
 for the physically-motivated process originating the data, which states that 
 the MLE $z'_{j}$ of the redshift is equal to the true redshift $z^{*}_{j}$ plus 
-a Gaussian random variable $\epsilon_{j}$.
+a Gaussian random variable $\epsilon_{j}$.  The top left panel of Fig. 
+\ref{fig:nullpzs} illustrates this procedure by showing the probability 
+distribution $p(z'_{j}|z^{*}_{j})$ for a random galaxy $j$.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{figs/sig5/zobsvztru.pdf}
+\caption{Top left panel: This plot depicts $p(z'_{j}|z^{*}_{j})$ for a randomly 
+chosen galaxy $j$ with areas of high probability in darker grayscale shades.  
+The colored dots represent coordinates at which the function is evaluated to 
+produce the horizontal slices shown in the right panel.  Right panel: In colors 
+are plotted several examples of individual photo-$z$ posteriors (continuous in 
+full opacity and in a binned parametrization in half opacity) in the fiducial 
+case with their MLE redshifts (dashed lines) and true redshifts (solid lines); 
+these represent horizontal slices through the top left panel.  Bottom panel: 
+This plot shows the integral along horizontal slices through the top left 
+panel, demonstrating that the individual photo-$z$ posteriors are properly 
+normalized.}
+\label{fig:nullpzs}
+\end{figure}
 
 We must also choose the parametrization of the redshift distribution function, 
 in this case $f_{\vec{\theta}}(z)=\exp[\vec{\theta}]$ (introduced in Sec. 
@@ -654,19 +672,8 @@ p(B_{k}|\vec{d}_{j}) = \frac{\int_{z_{k-1}}^{z_{k}}\ p(\vec{d}_{j}|z_{j})\
 \exp[\vec{\theta}^{*}]\ dz_{j}}{\int_{z_{min}}^{z_{max}}\ p(\vec{d}_{j}|z_{j})\ 
 \exp[\vec{\theta}^{*}]\ dz_{j}}.
 \end{equation}
-A random sampling of such interim redshift posteriors are shown in Fig. 
-\ref{fig:nullpzs}.  
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/null/samplepzs.pdf}
-\caption{Several examples of individual photo-$z$ posteriors and their MLE 
-redshifts are shown in colors, along with their true redshifts.  The fiducial 
-case has likelihoods comprised of a single Gaussian distribution with a known 
-standard deviation centered at a shifted redshift (dotted lines) separated from 
-the true redshift (dashed lines) by a Gaussian random variable with the same 
-standard deviation.}
-\label{fig:nullpzs}
-\end{figure}
+A random sampling of such interim redshift posteriors are shown in the right 
+panel of Fig. \ref{fig:nullpzs}.  
 
 \subsubsection{Imprecise Data}
 \label{sec:imprecision}
