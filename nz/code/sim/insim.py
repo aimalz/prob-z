@@ -121,6 +121,13 @@ class setup(object):
             self.noisefact = 2
 
         # permit more complicated p(z)s
+
+        # 0 for variance independent of redshift, 1 for variance scaling with redshift
+#         if 'withz' in indict:
+#             self.withz = bool(int(indict['withz'][0]))
+#         else:
+#             self.withz = bool(0)
+
         # 0 for unimodal, 1 for multimodal
         if 'shape' in indict:
             self.shape = bool(int(indict['shape'][0]))
@@ -171,6 +178,7 @@ class setup(object):
             'poisson': self.poisson,
             'random': self.random,
             'shape': self.shape,
+            #'withz': self.withz,
             'noise': self.noise,
             }
 

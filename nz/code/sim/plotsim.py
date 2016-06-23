@@ -295,20 +295,25 @@ def makelfs(meta,test,j):
     eps = 1./100.
     zrange = test.zhis[-1]-test.zlos[0]
     ztrugrid = np.arange(test.zlos[0],test.zhis[-1]+eps,eps)
+    ztrugrid = ztrugrid[ztrugrid!=0.]
     zobsgrid = np.arange(test.zlos[0]-zrange,test.zhis[-1]+zrange+eps,eps)
+    zobsgrid = zobsgrid[zobsgrid!=0.]
     trugridmids = (ztrugrid[1:]+ztrugrid[:-1])/2.
     obsgridmids = (zobsgrid[1:]+zobsgrid[:-1])/2.
     trugriddifs = ztrugrid[1:]-ztrugrid[:-1]
     obsgriddifs = zobsgrid[1:]-zobsgrid[:-1]
 
     gridpdfs = []
+    zfactors = []
     for z_tru in trugridmids:
+        zfactor = meta.noisefact*(z_tru-test.zlos[0])/zrange
+        zfactors.append(zfactor)
         #gridpdf = np.array([sys.float_info.epsilon]*len(gridmids))
         gridpdf = []
         for z_obs in obsgridmids:
             val = sys.float_info.epsilon
             for pn in xrange(test.npeaks[j]):
-                p = np.exp(-1.*(z_tru-z_obs-test.shift[j][pn])**2/test.sigZs[j][pn]**2)/np.sqrt(2*np.pi*test.sigZs[j][pn]**2)
+                p = np.exp(-1.*(z_tru-z_obs+test.shift[j][pn])**2/(test.varZs[j][pn]*zfactor)**2)/np.sqrt(2*np.pi*(test.varZs[j][pn]*zfactor)**2)
                 val += p
             # normalize probabilities to integrate (not sum)) to 1
             gridpdf.append(val)
@@ -320,7 +325,7 @@ def makelfs(meta,test,j):
     #lf = np.array([np.array([allsummed[zo]*allsummed[zt] for zo in us.lrange(self.gridmids)]) for zt in us.lrange(self.gridmids)])
     #print(gridpdfs)
 
-    return(gridpdfs,sumx,sumy,ztrugrid,zobsgrid)
+    return(gridpdfs,sumx,sumy,ztrugrid,zobsgrid,zfactors)
 
 
 def plot_lfs(meta,test):
@@ -347,7 +352,7 @@ def plot_lfs(meta,test):
     extended = np.arange(test.zlos[0]-zrange,test.zhis[-1]+zrange+test.bindif,test.bindif)
     extmids = (extended[1:]+extended[:-1])/2.
 
-    sps.pcolorfast(ztrugrid,zobsgrid,np.log(np.transpose(lf[0])),cmap=cm.Greys)
+    sps.pcolorfast(ztrugrid,zobsgrid,(np.transpose(lf[0]))**(1./meta.noisefact),cmap=cm.gray_r)
 
     sps_pdfs = f.add_subplot(2,2,2)
     sps_pdfs.set_title(r'Example PDFs')
@@ -356,7 +361,7 @@ def plot_lfs(meta,test):
     plotstep(sps_pdfs,dummy_x,dummy_y,c=c_exp,s=s_map,w=w_exp,l=r' MLE $z$',d=d_map,a=a_map)
     sps_pdfs.legend(loc='upper right',fontsize='x-small')
     for x in us.lrange(test.inttrus):
-        pdf = np.array([[test.intobss[x][p],test.sigZs[j][p],1.] for p in xrange(test.npeaks[j])])
+        pdf = np.array([[test.intobss[x][p],meta.noisefact*lf[5][x]*test.varZs[j][p],1.] for p in xrange(test.npeaks[j])])
         pdfs = us.gmix(pdf,(zobsgrid[0],zobsgrid[-1]))
         plot_ys = pdfs.pdfs(zobsgrid)
         binnedys = pdfs.pdfs(extmids)
@@ -369,7 +374,7 @@ def plot_lfs(meta,test):
             sps.scatter(test.inttrus[x],test.intobss[x][p],color=test.meta.colors[x])
             sps_pdfs.vlines(test.intobss[x][p],0.,max(plot_y),color=meta.colors[x],linestyle=s_map,linewidth=w_map,dashes=d_map,alpha=a_map)
 
-    sps_pdfs.set_ylabel(r'$p(z|\vec{d})$')
+    sps_pdfs.set_ylabel(r'$p(\vec{d}|z)$')
     sps_pdfs.set_xlabel(r'$z$')
     sps_pdfs.set_xlim(test.binends[0]-10.*test.bindif,test.binends[-1]+10.*test.bindif)
     sps_pdfs.set_ylim(0.,2.*max(plot_y))
