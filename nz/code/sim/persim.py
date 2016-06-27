@@ -143,6 +143,23 @@ class pertest(object):
 #         np.random.seed(seed=self.seed)
 #         np.random.shuffle(self.truZs)
 
+        #test catastrophic outliers
+        if self.meta.degen != 0:
+            np.random.seed(seed=self.seed)
+            self.mudegen = [sp.stats.uniform.rvs(loc=self.zlos[0],scale=self.zhis[-1]-self.zlos[0],size=2) for x in xrange(self.meta.degen)]
+            sigdegen = us.tnorm(self.zdif,self.zdif,(0.,self.zhis[-1]))
+            self.sigdegen = [sigdegen.rvs(2) for x in xrange(self.meta.degen)]
+            # self.sigdegen = [np.array([self.meta.noisefact*(z-self.allzs[0])/(self.allzs[-1]-self.allzs[0]) for z in self.degen])
+#             self.ratio = self.real.pdf(self.degen)
+#             self.ratio = self.ratio/sum(self.ratio)
+            # self.distdegen = [us.tnorm(self.degen[z],self.sigdegen[z],(self.zlos[0],self.zhis[-1])) for z in xrange(self.meta.degen)]
+            self.distdegen = [sp.stats.multivariate_normal(mean=self.mudegen[x],cov=np.diagflat(self.sigdegen[x])) for x in xrange(self.meta.degen)]
+#             for z in xrange(self.meta.degen):
+#                 dist = us.tnorm(self.degen[z],self.sigdegen[z],(min(grid),max(grid)))
+#                 item = np.array([dist.cdf(binend) for binend in grid])#self.obsZs[j][pn])
+#                 allsummed +=
+#             print(str(self.degen)+' degenerate as '+str(self.ratio)+' with '+str(self.sigdegen))
+
         #test increasing sigma associated with increasing z
         if self.meta.sigma == True:# or self.meta.shape == True:
             self.zfactor = self.meta.noisefact*(self.truZs-self.allzs[0])/(self.allzs[-1]-self.allzs[0])
@@ -153,7 +170,7 @@ class pertest(object):
             self.zfactor = np.array([1.]*self.ngals)
             #self.sigZs = self.varZs#np.array([[self.varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
         np.random.seed(seed=self.seed)
-        self.sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j]*self.zfactor[j],scale=self.varZs[j]*self.zfactor[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+        self.sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j][0]*self.zfactor[j],scale=self.varZs[j][0]*self.zfactor[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
         # jitter peak zs given sigma to simulate inaccuracy
         np.random.seed(seed=self.seed)
@@ -413,12 +430,22 @@ class pertest(object):
     def makepdfs(self,j,grid,intp):
         difs = grid[1:]-grid[:-1]
         allsummed = np.array([0.]*(len(grid)-1))
+
         for pn in xrange(self.npeaks[j]):
             func = us.tnorm(self.obsZs[j][pn],self.sigZs[j][pn],(min(grid),max(grid)))
             cdfs = np.array([func.cdf(binend) for binend in grid])
             spread = cdfs[1:]-cdfs[:-1]
 
             allsummed += spread
+
+        if self.meta.degen != 0:
+            for x in xrange(self.meta.degen):
+                funcs = [us.tnorm(self.mudegen[x][i],self.sigdegen[x][i],(min(grid),max(grid))) for i in xrange(2)]
+                pdfs = funcs[0].pdf(self.truZs[j])
+                cdfs = np.array([funcs[1].cdf(binend) for binend in grid])
+                spread = pdfs*(cdfs[1:]-cdfs[:-1])
+
+                allsummed += spread
 
         pdf = intp*allsummed
         # normalize probabilities to integrate (not sum)) to 1

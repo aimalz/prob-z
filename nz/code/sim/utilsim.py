@@ -118,7 +118,8 @@ class gmix(object):
         return out
 
     def pdf(self,zs):
-        return np.sum(self.pdfs(zs),axis=0)
+        out = np.sum(self.pdfs(zs),axis=0)
+        return out
 
     def cdfs(self,zs):
         out = np.array([self.weights[c]*np.array([self.comps[c].cdf(z) for z in zs]) for c in xrange(self.ncomps)])

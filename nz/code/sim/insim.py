@@ -134,6 +134,12 @@ class setup(object):
         else:
             self.shape = bool(0)
 
+        # 1 for no degeneracies, n for n degenerate redshifts
+        if 'degen' in indict:
+            self.degen = int(indict['degen'][0])
+        else:
+            self.degen = 0
+
         # 0 for noiseless, 1 for noisy
         if 'noise' in indict:
             self.noise = bool(int(indict['noise'][0]))
