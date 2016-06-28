@@ -333,8 +333,8 @@ def makelfs(meta,test,j):
 def plot_lfs(meta,test):
     lfdir = os.path.join(meta.datadir,'lfs')
     j = test.randos[0]#for j in us.lrange(test.randos):
-    f = plt.figure(figsize=(10,10))
-    sps = f.add_subplot(2,2,1)
+    f = plt.figure(figsize=(5,10))
+    sps = f.add_subplot(2,1,1)
     f.suptitle(meta.name+r' $p_{'+str(j)+r'}(z_{obs}|z_{tru})$')
     sps.set_ylabel(r'$z_{obs}$')
     sps.set_xlabel(r'$z_{tru}$')
@@ -359,7 +359,7 @@ def plot_lfs(meta,test):
 
     sps.pcolorfast(ztrugrid,zobsgrid,(np.transpose(lf[0]))**(1./meta.noisefact),cmap=cm.gray_r)
 
-    sps_pdfs = f.add_subplot(2,2,2)
+    sps_pdfs = f.add_subplot(2,1,2)
     sps_pdfs.set_title(r'Example PDFs')
     dummy_x,dummy_y = np.array([-1,-2,-3]),np.array([-1,-2,-3])
     plotstep(sps_pdfs,dummy_x,dummy_y,c=c_tru,s=s_tru,w=w_tru,l=l_tru+r'$z$',d=d_tru,a=a_tru)
@@ -398,15 +398,15 @@ def plot_lfs(meta,test):
 #     sps_obs.set_xlabel('Sum')
 #     sps_obs.set_ylabel(r'$z_{obs}$')
 
-    sps_tru = f.add_subplot(2,2,3)
-    #print(np.shape(ztrugrid),np.shape(lf[2]))
-    sps_tru.plot(trugridmids,lf[2])
-    sps_tru.set_ylabel('Sum')
-    sps_tru.set_xlabel(r'$z_{tru}$')
+#     sps_tru = f.add_subplot(2,2,3)
+#     #print(np.shape(ztrugrid),np.shape(lf[2]))
+#     sps_tru.plot(trugridmids,lf[2])
+#     sps_tru.set_ylabel('Sum')
+#     sps_tru.set_xlabel(r'$z_{tru}$')
 
-    sps_tru.set_xlim(ztrugrid[0],ztrugrid[-1])
-    sps_tru.set_ylim(0.,2.)
-    sps.set_xlim(ztrugrid[0],ztrugrid[-1])
-    sps.set_ylim(zobsgrid[0],zobsgrid[-1])
+#     sps_tru.set_xlim(ztrugrid[0],ztrugrid[-1])
+#     sps_tru.set_ylim(0.,2.)
+#     sps.set_xlim(ztrugrid[0],ztrugrid[-1])
+#     sps.set_ylim(zobsgrid[0],zobsgrid[-1])
 
     f.savefig(os.path.join(meta.simdir,'zobsvztru.pdf'),bbox_inches='tight', pad_inches = 0)
