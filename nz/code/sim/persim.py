@@ -77,6 +77,7 @@ class pertest(object):
         self.zdif = sum(self.zdifs)/self.ndims
         self.zmids = (self.zlos+self.zhis)/2.
         self.zavg = sum(self.zmids)/self.ndims
+        self.zrange = self.zhis[-1]-self.zlos[0]
 
         # define target survey size
         self.surv = self.meta.surv
@@ -135,7 +136,7 @@ class pertest(object):
 #         else:
         if self.meta.random == False:
             center = (self.allzs[0]+self.allzs[-1])/2.
-            self.meta.real = np.array([np.array([center,1./self.surv,1.])])
+            self.meta.real = np.array([np.array([center,1./self.zdif,1.])])
         self.real = us.gmix(self.meta.real,(self.allzs[0],self.allzs[-1]))
 #             self.truZs = np.array([center]*self.ngals)
         np.random.seed(seed=self.seed)
@@ -153,6 +154,7 @@ class pertest(object):
 #             self.ratio = self.real.pdf(self.degen)
 #             self.ratio = self.ratio/sum(self.ratio)
             # self.distdegen = [us.tnorm(self.degen[z],self.sigdegen[z],(self.zlos[0],self.zhis[-1])) for z in xrange(self.meta.degen)]
+            self.sigdegen = [np.array([self.zrange,self.zdif/self.meta.noisefact]) for sig in self.sigdegen]
             self.distdegen = [sp.stats.multivariate_normal(mean=self.mudegen[x],cov=np.diagflat(self.sigdegen[x])) for x in xrange(self.meta.degen)]
 #             for z in xrange(self.meta.degen):
 #                 dist = us.tnorm(self.degen[z],self.sigdegen[z],(min(grid),max(grid)))
@@ -161,7 +163,7 @@ class pertest(object):
 #             print(str(self.degen)+' degenerate as '+str(self.ratio)+' with '+str(self.sigdegen))
 
         #test increasing sigma associated with increasing z
-        if self.meta.sigma == True:# or self.meta.shape == True:
+        # or self.meta.shape == True:
             self.zfactor = self.meta.noisefact*(self.truZs-self.allzs[0])/(self.allzs[-1]-self.allzs[0])
 #             np.random.seed(seed=self.seed)
 #             self.sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j]*self.zfactor[j],scale=self.varZs[j]*self.zfactor[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
