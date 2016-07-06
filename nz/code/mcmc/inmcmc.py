@@ -144,9 +144,6 @@ class setup(object):
         self.ngals = len(self.logpdfs)
 
         self.logintNz = np.array(alldata[1])
-        with open(os.path.join(self.topdir,'logint.csv'),'wb') as csvfile:
-            out = csv.writer(csvfile,delimiter=' ')
-            out.writerow(self.logintNz)
         self.intNz = np.exp(self.logintNz)
         self.intPz = np.exp(self.logintNz)/self.ngals
         self.logintPz = um.safelog(self.intPz)
@@ -203,9 +200,6 @@ class setup(object):
                         truNz[k] += 1./self.bindifs[k]
             self.truNz = np.array(truNz)
             self.logtruNz = np.log(self.truNz)
-            with open(os.path.join(self.topdir,'logtru.csv'),'wb') as csvfile:
-                out = csv.writer(csvfile,delimiter=' ')
-                out.writerow(self.logtruNz)
             self.truPz = self.truNz/np.sum(self.truNz)
             self.logtruPz = np.log(self.truPz)
 
@@ -352,6 +346,14 @@ class setup(object):
         with open(os.path.join(self.topdir,'logexp.csv'),'wb') as csvfile:
             out = csv.writer(csvfile,delimiter=' ')
             out.writerow(self.logexpNz)
+
+        with open(os.path.join(self.topdir,'logint.csv'),'wb') as csvfile:
+            out = csv.writer(csvfile,delimiter=' ')
+            out.writerow(self.logintNz)
+
+        with open(os.path.join(self.topdir,'logtru.csv'),'wb') as csvfile:
+            out = csv.writer(csvfile,delimiter=' ')
+            out.writerow(self.logtruNz)
 
         return
 
