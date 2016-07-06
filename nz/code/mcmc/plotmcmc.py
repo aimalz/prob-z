@@ -17,6 +17,7 @@ import cPickle as cpkl
 import sklearn as skl
 from sklearn import neighbors
 import scipy as sp
+import csv
 
 import distribute
 from utilmcmc import *
@@ -465,6 +466,12 @@ class plotter_samps(plotter):
     def calcbfe(self):
 
         self.locs,self.scales = sm.calcbfe(self.meta.samples)
+        with open(os.path.join(self.meta.topdir,'logbfe.csv'),'wb') as csvfile:
+            out = csv.writer(csvfile,delimiter=' ')
+            out.writerow(self.locs)
+        with open(os.path.join(self.meta.topdir,'logerr.csv'),'wb') as csvfile:
+            out = csv.writer(csvfile,delimiter=' ')
+            out.writerow(self.scales)
 
         x_cors,y_cors,y_cors2,y_cors3 = [],[],[],[]
         for k in xrange(self.meta.nbins):

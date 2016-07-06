@@ -126,7 +126,7 @@ def burntest(outputs,run):# of dimensions nwalkers*miniters
 #     gr = pymc.gelman_rubin(chains)#also converges at nonsense
 
     gr = gr_test(chains, dims)[0]
-    critical = 1.
+    critical = 1.2
     if np.max(gr) > critical:
         print(run.meta.name+' burning-in '+str(gr)+' > '+str(critical))
     else:

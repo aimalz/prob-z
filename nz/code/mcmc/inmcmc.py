@@ -144,6 +144,9 @@ class setup(object):
         self.ngals = len(self.logpdfs)
 
         self.logintNz = np.array(alldata[1])
+        with open(os.path.join(self.topdir,'logint.csv'),'wb') as csvfile:
+            out = csv.writer(csvfile,delimiter=' ')
+            out.writerow(self.logintNz)
         self.intNz = np.exp(self.logintNz)
         self.intPz = np.exp(self.logintNz)/self.ngals
         self.logintPz = um.safelog(self.intPz)
@@ -200,6 +203,9 @@ class setup(object):
                         truNz[k] += 1./self.bindifs[k]
             self.truNz = np.array(truNz)
             self.logtruNz = np.log(self.truNz)
+            with open(os.path.join(self.topdir,'logtru.csv'),'wb') as csvfile:
+                out = csv.writer(csvfile,delimiter=' ')
+                out.writerow(self.logtruNz)
             self.truPz = self.truNz/np.sum(self.truNz)
             self.logtruPz = np.log(self.truPz)
 
@@ -303,13 +309,12 @@ class setup(object):
             loc = sp.optimize.fmin(minlf,self.start,maxiter=maxruns(),maxfun=maxruns(), disp=True)
             like = self.calclike(loc)
             elapsed = timeit.default_timer() - start_time
-            with open(os.path.join(self.datadir,'logmmle.csv'),'wb') as csvfile:
-                out = csv.writer(csvfile,delimiter=' ')
-                out.writerow([like])
-                out.writerow(loc)
             with open(self.calctime,'w') as calctimer:
                 calctimer.write(str(elapsed)+' MMLE for '+str(self.nbins)+'\n')
                 calctimer.close()
+        with open(os.path.join(self.topdir,'logmml.csv'),'wb') as csvfile:
+            out = csv.writer(csvfile,delimiter=' ')
+            out.writerow(loc)
               #print(str(self.ngals)+' galaxies for '+self.name+' MMLE in '+str(elapsed)+': '+str(loc))
         return(like,loc)
 
@@ -320,6 +325,9 @@ class setup(object):
         self.stkNz = np.array([max(sys.float_info.epsilon,stkprep[k]) for k in xrange(self.nbins)])
         self.logstkNz = np.log(self.stkNz)
         self.lik_stkNz = self.calclike(self.logstkNz)
+        with open(os.path.join(self.topdir,'logstk.csv'),'wb') as csvfile:
+            out = csv.writer(csvfile,delimiter=' ')
+            out.writerow(self.logstkNz)
 
         # generate MAP N(z)
         self.mapNz = [sys.float_info.epsilon]*self.nbins
@@ -328,6 +336,9 @@ class setup(object):
               self.mapNz[m] += 1./self.bindifs[m]
         self.logmapNz = np.log(self.mapNz)
         self.lik_mapNz = self.calclike(self.logmapNz)
+        with open(os.path.join(self.topdir,'logmap.csv'),'wb') as csvfile:
+            out = csv.writer(csvfile,delimiter=' ')
+            out.writerow(self.logmapNz)
 
         # generate expected value N(z)
         expprep = [sum(z) for z in self.binmids*self.pdfs*self.bindifs]
@@ -338,6 +349,9 @@ class setup(object):
                       self.expNz[k] += 1./self.bindifs[k]
         self.logexpNz = np.log(self.expNz)
         self.lik_expNz = self.calclike(self.logexpNz)
+        with open(os.path.join(self.topdir,'logexp.csv'),'wb') as csvfile:
+            out = csv.writer(csvfile,delimiter=' ')
+            out.writerow(self.logexpNz)
 
         return
 
@@ -346,7 +360,7 @@ class setup(object):
         if 'miniters' in indict:
             self.miniters = 10**int(indict['miniters'])
         else:
-            self.miniters = int(1e3)
+            self.miniters = int(1e2)
 
         if 'thinto' in indict:
             self.thinto = bool(int(indict['thinto'][0]))
@@ -362,7 +376,7 @@ class setup(object):
         if 'factor' in indict:
             self.factor = int(indict['factor'])
         else:
-            self.factor = 5
+            self.factor = 10
 
         #assert(self.ntimes > self.nwalkers)
         # autocorrelation time mode
