@@ -121,7 +121,7 @@ def plot_physgen(meta,test):
     sps = f.add_subplot(1,1,1)
 #     f.suptitle(meta.name+' True p(z)')
     sps.set_title(meta.name+r' True $p(z)$')
-    sps.plot(zrange,prange,color='k')
+    sps.plot(zrange,prange/np.sum(prange*np.average(zrange[1:]-zrange[:-1])),color='k')
 #     for k in us.lrange(meta.real):
 #         sps.plot(zrange,pranges[k],color=meta.colors[k],label=str(meta.real[k][2])+r'$\mathcal{N}$('+str(meta.real[k][0])+','+str(meta.real[k][1])+')')
 # #     plotstep(sps,test.z_cont,test.phsPz,lw=3.,col='k',a=1./3.)
@@ -290,6 +290,31 @@ def plot_pdfs(meta,test):
 
 #     f.savefig(os.path.join(meta.simdir,'liktest.png'),bbox_inches='tight', pad_inches = 0)
 
+def makepdfs(meta,test,tru,j,zfactor,grid):
+    difs = grid[1:]-grid[:-1]
+    allsummed = np.zeros(len(grid)-1)
+
+    for pn in xrange(test.npeaks[j]):
+        func = us.tnorm(tru,test.varZs[j][pn]*zfactor,(min(grid),max(grid)))
+        cdf = np.array([func.cdf(binend) for binend in grid])
+        spread = cdf[1:]-cdf[:-1]
+
+        allsummed += spread/(test.npeaks[j]+meta.degen)
+
+    if meta.degen != 0:
+        for x in xrange(meta.degen):
+            funcs = us.tnorm(test.mudegen[x][0],test.sigdegen[x][0],(min(grid),max(grid)))
+                #pdfs = funcs.pdf(self.truZs[j])
+            cdfs = np.array([funcs.cdf(binend) for binend in grid])
+            spreads = cdfs[1:]-cdfs[:-1]
+
+            allsummed += spreads/(test.npeaks[j]+meta.degen)
+
+        # normalize probabilities to integrate (not sum)) to 1
+    pdf = allsummed/max(np.dot(allsummed,difs),sys.float_info.epsilon)
+
+    return(pdf)
+
 def makelfs(meta,test,j):
 
     eps = 1./100.
@@ -307,22 +332,31 @@ def makelfs(meta,test,j):
     zfactors = []
     for z_tru in trugridmids:
         if meta.sigma == True:
-            zfactor = meta.noisefact*(z_tru-test.zlos[0])/zrange
+            #const = 1.
+            zfactor = (1.+z_tru)**2#const+(z_tru-test.zlos[0])/zrange
         else:
-            zfactor = meta.noisefact
+            zfactor = 1.
         zfactors.append(zfactor)
         #gridpdf = np.array([sys.float_info.epsilon]*len(gridmids))
-        gridpdf = []
-        for z_obs in obsgridmids:
-            val = sys.float_info.epsilon
-            for pn in xrange(test.npeaks[j]):
-                p = np.exp(-1.*(z_tru-z_obs+test.shift[j][pn])**2/2./(test.varZs[j][pn]*zfactor)**2)/np.sqrt(2*np.pi*(test.varZs[j][pn]*zfactor)**2)
-                val += p
-            for x in xrange(meta.degen):
-                val += test.distdegen[x].pdf(np.array([z_tru,z_obs]))
-            # normalize probabilities to integrate (not sum)) to 1
-            gridpdf.append(val)
-        #gridpdf = gridpdf/np.dot(gridpdf,obsgriddifs)
+        #gridpdf = np.zeros(len(obsgridmids))#[]
+        gridpdf = makepdfs(meta,test,z_tru,j,zfactor,zobsgrid)
+#         for z_obs in obsgridmids:
+#             val = sys.float_info.epsilon
+#         for pn in xrange(test.npeaks[j]):
+#             pfun = us.tnorm(z_tru,test.varZs[j][pn]*zfactor,(min(zobsgrid),max(zobsgrid)))
+#             p = np.array([pfun.cdf(binend) for binend in zobsgrid])
+#             gridpdf += (p[1:]-p[:-1])/(test.npeaks[j]+meta.degen)
+# #                 p = np.exp(-1.*(z_tru-z_obs)**2/2./(test.varZs[j][pn]*zfactor)**2)/np.sqrt(2*np.pi*(test.varZs[j][pn]*zfactor)**2)/(test.npeaks[j]+meta.degen)
+# #                 val += p
+#         for x in xrange(meta.degen):
+#             dfun = us.tnorm(test.mudegen[x][0],test.sigdegen[x],(min(zobsgrid),max(zobsgrid)))
+#             d = np.array([dfun.cdf(binend) for binend in zobsgrid])
+#             gridpdf += (d[1:]-d[:-1])/(test.npeaks[j]+meta.degen)
+# #                 thing = np.exp(-1.*(test.mudegen[x][0]-z_obs)**2/2./test.sigdegen[x]**2)/np.sqrt(2*np.pi*test.sigdegen[x]**2)/(test.npeaks[j]+meta.degen)#us.tnorm(test.mudegen[y][1],test.sigdegen[y][1],(test.zlos[0],test.zhis[-1]))
+# #                 val += thing#test.distdegen[x].pdf(np.array([z_tru,z_obs]))
+# #             # normalize probabilities to integrate (not sum)) to 1
+# #             gridpdf.append(val)
+#         #gridpdf = gridpdf/np.dot(gridpdf,obsgriddifs)
         gridpdfs.append(gridpdf)
     gridpdfs = np.array(gridpdfs)
     sumx = np.sum(gridpdfs,axis=0)*obsgriddifs
@@ -367,26 +401,32 @@ def plot_lfs(meta,test):
     #plotstep(sps_pdfs,dummy_x,dummy_y,c=c_tru,s=s_tru,w=w_tru,l=l_tru+r'$z$',d=d_tru,a=a_tru)
     #plotstep(sps_pdfs,dummy_x,dummy_y,c=c_exp,s=s_map,w=w_exp,l=r' MLE $z$',d=d_map,a=a_map)
     sps_pdfs.legend(loc='upper right',fontsize='x-small')
-    for x in us.lrange(test.inttrus):
-        pdf = [[test.intobss[x][p],lf[5][x]*test.varZs[j][p],1.] for p in xrange(test.npeaks[j])]
+    np.random.seed(seed=test.seed)
+    inttrus = [sp.stats.uniform(loc=ztrugrid[0],scale=zrange).rvs(1)[0] for x in xrange(len(meta.colors))]
+    zfactors = [(1.+inttru)**2 for inttru in inttrus]
+    intshifts = [[np.random.normal(loc=0.,scale=zfactors[x]*test.varZs[j]) for p in xrange(test.npeaks[j])] for x in xrange(len(meta.colors))]
+    intobss = [[inttrus[x]+intshifts[x][p] for p in xrange(test.npeaks[j])] for x in xrange(len(meta.colors))]
+    for x in xrange(len(meta.colors)):
+        print(x)
+        pdf = [[intobss[x][p],zfactors[x]*test.varZs[j][p],1./(test.npeaks[j]+meta.degen)] for p in xrange(test.npeaks[j])]
         if meta.degen != 0:
             for y in xrange(meta.degen):
-                distdegen = us.tnorm(test.mudegen[y][0],test.sigdegen[y][0],(test.zlos[0],test.zhis[-1]))
-                pdf.append([test.mudegen[y][1],test.sigdegen[y][1],distdegen.pdf(test.inttrus[x])])
+                #distdegen = us.tnorm(test.mudegen[y][0],test.sigdegen[y][0],(test.zlos[0],test.zhis[-1]))
+                pdf.append([test.mudegen[y][0],test.sigdegen[y][0],1./(test.npeaks[j]+meta.degen)])#distdegen.pdf(test.inttrus[x])])
         pdf = np.array(pdf)
         pdfs = us.gmix(pdf,(zobsgrid[0],zobsgrid[-1]))
         plot_ys = pdfs.pdfs(obsgridmids)
-        binnedys = pdfs.pdfs(extmids)
+        #binnedys = pdfs.pdfs(extmids)
         plot_y = np.sum(plot_ys,axis=0)
         plot_y = plot_y/sum(plot_y*obsgriddifs)
-        binnedy = np.sum(binnedys,axis=0)
-        binnedy = binnedy/sum(binnedy*extdifs)
+        #binnedy = np.sum(binnedys,axis=0)
+        #binnedy = binnedy/sum(binnedy*extdifs)
         sps_pdfs.plot(obsgridmids,plot_y,color=meta.colors[x])
         #plotstep(sps_pdfs,extended,binnedy,c=meta.colors[x],a=0.5)
-        sps_pdfs.vlines(test.inttrus[x],0.,max(plot_y),color=meta.colors[x],linestyle=s_tru,linewidth=w_tru,dashes=d_tru,alpha=a_tru)
-        for p in us.lrange(test.intobss[x]):
-            sps.scatter(test.inttrus[x],test.intobss[x][p],color=test.meta.colors[x])
-            sps_pdfs.vlines(test.intobss[x][p],0.,max(plot_y),color=meta.colors[x],linestyle=s_map,linewidth=w_map,dashes=d_map,alpha=a_map)
+        sps_pdfs.vlines(inttrus[x],0.,max(plot_y),color=meta.colors[x],linestyle=s_tru,linewidth=w_tru,dashes=d_tru,alpha=a_tru)
+        for p in xrange(test.npeaks[j]):
+            sps.scatter(inttrus[x],intobss[x][p],color=test.meta.colors[x])
+            sps_pdfs.vlines(intobss[x][p],0.,max(plot_y),color=meta.colors[x],linestyle=s_map,linewidth=w_map,dashes=d_map,alpha=a_map)
 
     sps_pdfs.set_ylabel(r'$p(\vec{d}|z)$')
     sps_pdfs.set_xlabel(r'$z$')
