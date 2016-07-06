@@ -231,7 +231,7 @@ class pertest(object):
         elif self.meta.interim == 'bimodal':
             mulo = np.percentile(self.binends,20)
             muhi = np.percentile(self.binends,80)
-            funlo = us.tnorm(mulo,(max(self.binends)-min(self.binends))/7.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,75),np.sqrt(np.mean(self.binends)))
+            funlo = us.tnorm(mulo,(max(self.binends)-min(self.binends))/5.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,75),np.sqrt(np.mean(self.binends)))
             funhi = us.tnorm(muhi,(max(self.binends)-min(self.binends))/3.5,(min(self.binends),max(self.binends)))
             samp1 = funlo.rvs(len(self.meta.colors)/2.)
             samp2 = funhi.rvs(len(self.meta.colors)/2.)
