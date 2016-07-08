@@ -19,6 +19,13 @@ from sklearn import neighbors
 import scipy as sp
 import csv
 
+import randomfield
+from randomfield.lensing import *
+from randomfield.cosmotools import calculate_power
+from randomfield.cosmotools import get_growth_function
+from astropy.cosmology import LambdaCDM
+import astropy.units as u
+
 import distribute
 from utilmcmc import *
 from keymcmc import key
@@ -702,3 +709,148 @@ class plotter_chains(plotter):
         self.f_chains.savefig(os.path.join(self.meta.topdir,'chains.pdf'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
 
         timesaver(self.meta,'chains-done',key)
+
+class plotter_2pcf(plotter):
+    def __init__(self, meta):
+        self.meta = meta
+        self.f = plt.figure(figsize=(5,5))
+        self.sps = self.f.add_subplot(1,1,1)
+        self.f.subplots_adjust(hspace=0, wspace=0)
+
+    def calculate_weights(self,data1_hist, data2_hist, points):
+        num_points = len(points)
+        difs = points[1:]-points[:-1]
+        size1 = np.dot(data1_hist,difs)
+        size2 = np.dot(data2_hist,difs)
+        # Calculate the joint pdf in num_points x num_points bins
+        data1_pdf = data1_hist / size1
+        data2_pdf = data2_hist / size2
+        data12_pdf = data1_pdf[:, np.newaxis] * data2_pdf
+        # Split each bin's probability equally between its four corner points.
+        weights = np.zeros((num_points, num_points), dtype=float)
+        weights[:-1, :-1] += data12_pdf
+        weights[:-1, 1:] += data12_pdf
+        weights[1:, :-1] += data12_pdf
+        weights[1:, 1:] += data12_pdf
+        weights /= 4
+        return weights
+
+    def calcbfe(self):
+
+        self.locs,self.scales = sm.calcbfe(self.meta.samples)
+        with open(os.path.join(self.meta.topdir,'logbfe.csv'),'wb') as csvfile:
+            out = csv.writer(csvfile,delimiter=' ')
+            out.writerow(self.locs)
+        with open(os.path.join(self.meta.topdir,'logerr.csv'),'wb') as csvfile:
+            out = csv.writer(csvfile,delimiter=' ')
+            out.writerow(self.scales)
+
+#         x_cors,y_cors,y_cors2,y_cors3 = [],[],[],[]
+#         for k in xrange(self.meta.nbins):
+#             x_cor = [self.meta.binends[k],self.meta.binends[k],self.meta.binends[k+1],self.meta.binends[k+1]]
+#             y_cor = np.array([self.locs[k]-self.scales[k],self.locs[k]+self.scales[k],self.locs[k]+self.scales[k],self.locs[k]-self.scales[k]])
+#             y_cor2 = np.array([self.locs[k]-2*self.scales[k],self.locs[k]+2*self.scales[k],self.locs[k]+2*self.scales[k],self.locs[k]-2*self.scales[k]])#np.array([loc-2*scale,loc+2*scale,loc+2*scale,loc-2*scale])
+#             y_cor3 = np.array([self.locs[k]-3*self.scales[k],self.locs[k]+3*self.scales[k],self.locs[k]+3*self.scales[k],self.locs[k]-3*self.scales[k]])
+#             x_cors.append(x_cor)
+#             y_cors.append(y_cor)
+#             y_cors2.append(y_cor2)
+#             y_cors3.append(y_cor3)
+#         self.x_cors = np.array(x_cors)
+#         self.y_cors = np.array(y_cors)
+#         self.y_cors2 = np.array(y_cors2)
+#         self.y_cors3 = np.array(y_cors3)
+
+        return
+
+    def calculate(self):
+        flat_model = LambdaCDM(Ob0=0.045, Om0=0.222+0.045, Ode0=0.733, H0=71.0)
+        z = self.meta.binends
+        flat_weights = calculate_lensing_weights(flat_model, z, scaled_by_h=True)
+        flat_DC = flat_model.comoving_distance(z).to(u.Mpc).value * flat_model.h
+        flat_DA = flat_model.comoving_transverse_distance(z).to(u.Mpc).value * flat_model.h
+
+        izmin = 1
+        DA_min = flat_DA[izmin]#min(flat_DA[izmin], open_DA[izmin], closed_DA[izmin])
+        DA_max = flat_DA[-1]#max(flat_DA[-1], open_DA[-1], closed_DA[-1])
+        minl = 1.
+        maxl = 3.
+        nells = 101
+        ell = np.logspace(minl, maxl, nells)
+        k_min, k_max = ell[0] / DA_max, ell[-1] / DA_min
+
+        flat_power = calculate_power(flat_model, k_min=k_min, k_max=k_max, scaled_by_h=True)
+        flat_growth = get_growth_function(flat_model, z)
+        flat_variances = tabulate_3D_variances(ell, flat_DA[izmin:], flat_growth[izmin:], flat_power)
+
+        flat_EE_cross = calculate_shear_power(flat_DC[izmin:], flat_DA[izmin:],flat_weights[izmin:,izmin:], flat_variances, mode='shear-shear-cross')
+
+        theta_rad = 2 * np.pi / ell[::-1]
+        self.theta_arcmin = 60 * np.rad2deg(theta_rad)
+        flat_EE_xi_m = calculate_correlation_function(flat_EE_cross, ell, theta_rad, order=4)
+
+        self.calcbfe()
+        if self.meta.truNz != None:
+            hist_tru = self.meta.truNz
+        hist_int = self.meta.intNz
+        hist_stk = self.meta.stkNz
+        hist_map = self.meta.mapNz
+        hist_exp = self.meta.expNz
+        hist_mml = self.meta.mmlNz
+        hist_bfe = np.exp(self.locs)
+
+        w_stk = self.calculate_weights(hist_tru[izmin:], hist_stk[izmin:], z[izmin:])
+        w_map = self.calculate_weights(hist_tru[izmin:], hist_map[izmin:], z[izmin:])
+        w_exp = self.calculate_weights(hist_tru[izmin:], hist_exp[izmin:], z[izmin:])
+        w_mml = self.calculate_weights(hist_tru[izmin:], hist_mml[izmin:], z[izmin:])
+        w_bfe = self.calculate_weights(hist_tru[izmin:], hist_bfe[izmin:], z[izmin:])
+        w_int = self.calculate_weights(hist_tru[izmin:], hist_int[izmin:], z[izmin:])
+        if self.meta.truNz != None:
+            w_tru = self.calculate_weights(hist_tru[izmin:], hist_tru[izmin:], z[izmin:])
+
+        self.flat_EE_xi_m_stk = np.sum(flat_EE_xi_m * w_stk[:, :, np.newaxis], axis=(0, 1))
+        self.flat_EE_xi_m_map = np.sum(flat_EE_xi_m * w_map[:, :, np.newaxis], axis=(0, 1))
+        self.flat_EE_xi_m_exp = np.sum(flat_EE_xi_m * w_exp[:, :, np.newaxis], axis=(0, 1))
+        self.flat_EE_xi_m_mml = np.sum(flat_EE_xi_m * w_mml[:, :, np.newaxis], axis=(0, 1))
+        self.flat_EE_xi_m_bfe = np.sum(flat_EE_xi_m * w_bfe[:, :, np.newaxis], axis=(0, 1))
+        self.flat_EE_xi_m_int = np.sum(flat_EE_xi_m * w_int[:, :, np.newaxis], axis=(0, 1))
+        if self.meta.truNz != None:
+            self.flat_EE_xi_m_tru = np.sum(flat_EE_xi_m * w_tru[:, :, np.newaxis], axis=(0, 1))
+
+    def plot(self,key):
+        return
+
+    def finish(self):
+        timesaver(self.meta,'2pcf-start',key)
+
+        self.calculate()
+
+        if self.meta.truNz != None:
+
+            tosub = self.theta_arcmin * self.flat_EE_xi_m_tru
+            self.sps.plot(self.theta_arcmin, (self.theta_arcmin * self.flat_EE_xi_m_stk - tosub),linestyle=s_stk,linewidth=w_stk,alpha=a_stk,color=c_stk,dashes=d_stk[0][1],label=l_stk)
+            self.sps.plot(self.theta_arcmin, (self.theta_arcmin * self.flat_EE_xi_m_map - tosub),linestyle=s_map,linewidth=w_map,alpha=a_map,color=c_map,dashes=d_map[0][1],label=l_map)
+            self.sps.plot(self.theta_arcmin, (self.theta_arcmin * self.flat_EE_xi_m_exp - tosub),linestyle=s_exp,linewidth=w_exp,alpha=a_exp,color=c_exp,dashes=d_exp[0][1],label=l_exp)
+            self.sps.plot(self.theta_arcmin, (self.theta_arcmin * self.flat_EE_xi_m_mml - tosub),linestyle=s_mml,linewidth=w_mml,alpha=a_mml,color=c_mml,dashes=d_mml[0][1],label=l_mml)
+            self.sps.plot(self.theta_arcmin, (self.theta_arcmin * self.flat_EE_xi_m_bfe - tosub),linestyle=s_bfe,linewidth=w_bfe,alpha=a_bfe,color=c_bfe,dashes=d_bfe[0][1],label=l_bfe)
+
+            self.sps.set_ylabel(r'$\theta \times \xi_{m}(\theta)-\theta \times \xi_{m}(\theta_{true})$')#/(\theta \times \xi_{m}(\theta_{true}))$')
+
+        else:
+
+            self.sps.plot(self.theta_arcmin, self.theta_arcmin * self.flat_EE_xi_m_stk,linestyle=s_stk,linewidth=w_stk,alpha=a_stk,color=c_stk,dashes=d_stk[0][1],label=l_stk)
+            self.sps.plot(self.theta_arcmin, self.theta_arcmin * self.flat_EE_xi_m_map,linestyle=s_map,linewidth=w_map,alpha=a_map,color=c_map,dashes=d_map[0][1],label=l_map)
+            self.sps.plot(self.theta_arcmin, self.theta_arcmin * self.flat_EE_xi_m_exp,linestyle=s_exp,linewidth=w_exp,alpha=a_exp,color=c_exp,dashes=d_exp[0][1],label=l_exp)
+            self.sps.plot(self.theta_arcmin, self.theta_arcmin * self.flat_EE_xi_m_mml,linestyle=s_mml,linewidth=w_mml,alpha=a_mml,color=c_mml,dashes=d_mml[0][1],label=l_mml)
+            self.sps.plot(self.theta_arcmin, self.theta_arcmin * self.flat_EE_xi_m_bfe,linestyle=s_bfe,linewidth=w_bfe,alpha=a_bfe,color=c_bfe,dashes=d_bfe[0][1],label=l_bfe)
+            if self.meta.truNz != None:
+                self.sps.plot(self.theta_arcmin, self.theta_arcmin * self.flat_EE_xi_m_tru,linestyle=s_tru,linewidth=w_tru,alpha=a_tru,color=c_tru,dashes=d_tru[0][1],label=l_tru)
+
+            self.sps.set_ylabel(r'$\theta \times \xi_{m}(\theta)$')
+
+        self.sps.legend(loc='upper left',fontsize='xx-small')
+        self.sps.semilogx()
+       # self.sps.set_ylim(0.,0.125)
+        self.sps.set_xlabel(r'$\theta [arcmin]$')
+        self.f.savefig(os.path.join(self.meta.topdir,'powerspectra.pdf'),bbox_inches='tight', pad_inches = 0)
+
+        timesaver(self.meta,'2pcf-done',key)
