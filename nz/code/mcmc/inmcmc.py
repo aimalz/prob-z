@@ -351,10 +351,6 @@ class setup(object):
             out = csv.writer(csvfile,delimiter=' ')
             out.writerow(self.logintNz)
 
-        with open(os.path.join(self.topdir,'logtru.csv'),'wb') as csvfile:
-            out = csv.writer(csvfile,delimiter=' ')
-            out.writerow(self.logtruNz)
-
         return
 
     def setup_mcmc(self,indict):
