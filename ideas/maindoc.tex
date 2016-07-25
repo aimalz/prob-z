@@ -9,6 +9,7 @@
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows}
 \usetikzlibrary{fit}
+\usetikzlibrary{arrows.meta}
 
 \tikzstyle{hyper} = [circle, text centered, draw=black]%, fill=blue!30]
 \tikzstyle{param} = [circle, text centered, draw=black]%, fill=green!30]
@@ -19,6 +20,7 @@
 %\tikzstyle{eqn} = [rectangle, minimum width=1cm, minimum height=0.5cm, text centered, draw=black]%, fill=green!30]
 %\tikzstyle{latent} = [diamond, minimum width=1cm, minimum height=0.5cm, text centered, draw=black]%, fill=green!30]
 \tikzstyle{arrow} = [thick,->,>=stealth]
+\tikzset{det/.style={insert path={ node {.} }}}
 
 \newcommand{\myemail}{aimalz@nyu.edu}
 \newcommand{\textul}{\underline}
@@ -230,7 +232,7 @@ In general, redshift is degenerate with nuisance parameters, namely the galaxy S
 
 \subsubsection{One-point statistic of redshift and a scalar parameter}
 
-We consider a second parameter $M_{j}$ that may represent the luminosity or mass of a galaxy $j$ in a survey.  We assume we are given a survey of joint posteriors $\{p(z_{j},M_{j}|\vec{d}_{j})\}_{J}$.  Fig. \ref{fig:mf} illustrates the conditionals of such a problem.
+We consider a second parameter $M_{j}$ that may represent the luminosity or mass of a galaxy $j$ in a survey.  We assume we are given a survey of joint posteriors $\{p(z_{j},M_{j}|\vec{d}_{j})\}_{J}$.  Fig. \ref{fig:mf} illustrates the conditionals of such a problem.  (ALHAMBRA, for example, produces posteriors of this form with a binning parametrization.)
 
 \begin{figure}
 \vspace{0.5cm}
@@ -269,7 +271,7 @@ p(\textul{\Phi}|\{\vec{d}_{j}\}_{J}) &= \frac{p(\textul{\Phi})}{p(\{\vec{d}_{j}\
 
 \subsubsection{One-point statistic of redshift and a vector of parameters}
 
-Let us consider the three-dimensional lensing potential $\textul{\psi}$ estimated from a survey of $N$ galaxy fluxes $\{\vec{f}_{n}\}_{N}$ and measured angular positions $\{\hat{\theta}_{n}\}_{N}$.  We assume the following quantities are known: $\{p(\vec{\theta}_{n}|\hat{\theta}_{n})\}_{N}$, $\{p(z_{n}|\vec{f}_{n})\}_{N}$, $\{p(\vec{x}_{n}|\textul{\psi})\}_{N}$, $p(\vec{x}_{n}|\vec{\theta}_{n},z_{n}\}_{N}$.
+Let us consider the three-dimensional lensing potential $\textul{\psi}$ estimated from a survey of $N$ galaxy fluxes $\{\vec{f}_{n}\}_{N}$ and angular positions $\{\vec{\theta}_{n}\}_{N}$.  We assume the following quantities are known: $\{p(z_{n}|\vec{f}_{n})\}_{N}$, $\{p(z_{n}|\vec{x}_{n})\}_{N}$, $\{p(\vec{x}_{n}|\textul{\psi})\}_{N}$, $p(\vec{x}_{n}|\vec{\theta}_{n},z_{n}\}_{N}$.  We will have to employ interim priors $\textul{\psi}_{0}$ and $\{\vec{x}_{n,0}\}_{N}$.
 
 \begin{figure}
 \vspace{0.5cm}
@@ -279,9 +281,8 @@ Let us consider the three-dimensional lensing potential $\textul{\psi}$ estimate
 \node (lp) [hyper] {$\textul{\psi}$};
 \node (pos) [param, below of=lp,yshift=-0.5cm] {$\vec{x}_{n}$};
 \node (z) [param, below of=pos,yshift=-0.5cm,xshift=0.5cm] {$z_{n}$};
-\node (t) [param, below of=pos,yshift=-0.5cm,xshift=-0.5cm] {$\vec{\theta}_{n}$};
+\node (t) [data, below of=pos,yshift=-0.5cm,xshift=-0.5cm] {$\vec{\theta}_{n}$};
 \node (flux) [data, below of=z,yshift=-0.5cm] {$\vec{f}_{n}$};
-\node (hatt) [data, below of=t,yshift=-0.5cm] {$\hat{\theta}_{n}$};
 \node (survey) [draw=black,fit={(t.west)(pos.north)(flux.south)(z.east)}] {};
 \node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$n=1,\dots,N$};
 
@@ -289,7 +290,6 @@ Let us consider the three-dimensional lensing potential $\textul{\psi}$ estimate
 \draw [arrow] (pos) -- (z);
 \draw [arrow] (pos) -- (t);
 \draw [arrow] (z) -- (flux);
-\draw [arrow] (t) -- (hatt);
 
 \end{tikzpicture}
 \caption{}
@@ -298,11 +298,11 @@ Let us consider the three-dimensional lensing potential $\textul{\psi}$ estimate
 \end{figure}
 
 \begin{align*}
-p(\textul{\psi}|\{\hat{\theta}_{n},\vec{f}_{n}\}_{N}) &= \frac{p(\textul{\psi})}{p(\{\hat{\theta}_{n},\vec{f}_{n}\}_{N})}p(\{\hat{\theta}_{n},\vec{f}_{n}\}_{N}|\textul{\psi})\\
-&\propto p(\textul{\psi})p(\{\hat{\theta}_{n},\vec{f}_{n}\}_{N}|\textul{\psi})\\
-&\propto p(\textul{\psi})\prod_{n=1}^{N}p(\hat{\theta}_{n},\vec{f}_{n}|\textul{\psi})\\
-&\propto p(\textul{\psi})\prod_{n=1}^{N}\int p(\hat{\theta}_{n},\vec{f}_{n}|\vec{x}_{n})p(\vec{x}_{n}|\textul{\psi})d\vec{x}_{n}\\
-&\propto p(\textul{\psi})\prod_{n=1}^{N}\int p(\vec{x}_{n}|\textul{\psi})\iint p(\hat{\theta}_{n}|\vec{\theta}_{n})p(\vec{f}_{n}|z_{n})p(\vec{\theta}_{n},z_{n}|\vec{x}_{n})d\vec{\theta}_{n}dz_{n}d\vec{x}_{n}\\
+p(\textul{\psi}|\{\vec{\theta}_{n},\vec{f}_{n}\}_{N}) &= \frac{p(\textul{\psi})}{p(\{\vec{\theta}_{n},\vec{f}_{n}\}_{N})}p(\{\vec{\theta}_{n},\vec{f}_{n}\}_{N}|\textul{\psi})\\
+&\propto p(\textul{\psi})p(\{\vec{\theta}_{n},\vec{f}_{n}\}_{N}|\textul{\psi})\\
+&\propto p(\textul{\psi})\prod_{n=1}^{N}p(\vec{\theta}_{n},\vec{f}_{n}|\textul{\psi})\\
+&\propto p(\textul{\psi})\prod_{n=1}^{N}\int p(\vec{\theta}_{n},\vec{f}_{n}|\vec{x}_{n})p(\vec{x}_{n}|\textul{\psi})d\vec{x}_{n}\\
+&\propto p(\textul{\psi})\prod_{n=1}^{N}\int p(\vec{x}_{n}|\textul{\psi})\iint p(\vec{f}_{n}|z_{n})p(\vec{\theta}_{n},z_{n}|\vec{x}_{n})d\vec{\theta}_{n}dz_{n}d\vec{x}_{n}\\
 \end{align*}
 %
 %\begin{figure}
@@ -368,6 +368,52 @@ p(\textul{\psi}|\{\hat{\theta}_{n},\vec{f}_{n}\}_{N}) &= \frac{p(\textul{\psi})}
 \subsection{Two-point statistics}
 \subsubsection{Two-point statistics of redshift}
 
+One relevant issue to the application of the two-point correlation function for shear maps is that the choice of tomographic binning strategy affects the inference of cosmological parameters.
+
+\begin{figure}
+\vspace{0.5cm}
+\begin{center}
+\begin{tikzpicture}[node distance=1cm]
+
+%\node (nz) [det,above] {$\vec{N}$};
+\node (nz) [hyper,above] {$\vec{N}$};
+\node (niz) [hyper,below of=nz,yshift=-0.5cm] {$\vec{N}_{i}$};
+\node (zj) [param, below of=niz,yshift=-0.25cm] {$z_{j}$};
+\node (dj) [data, below of=zj,yshift=-0.75cm] {$\vec{d}_{j}$};
+
+\node (cosmo) [hyper,above,xshift=1.5cm] {$\vec{\Omega}$};
+\node (xii) [param,below of=cosmo,yshift=-0.5cm] {$\vec{\xi}_{i}$};
+\node (wj) [data, below of=zj,xshift=1.5cm,yshift=-0.75cm] {$\vec{w}_{j}$};
+
+\node (bj) [param,below of=xii,xshift=-0.75cm,yshift=-0.25cm] {$b_{j}$};
+\node (tj) [det, below of=bj,yshift=-0.25cm] {$\vec{\theta}_{j}$};
+
+\node (bi) [param,below of=xii,xshift=0.75cm,yshift=-0.25cm] {$\vec{B}_{i}$};
+\node (beta) [det, below of=xii,xshift=1.5cm,yshift=-0.25cm] {$\vec{\beta}$};
+
+\node (survey) [draw=black,fit={(dj.west)(zj.north)(dj.south)(wj.east)}] {};
+\node (tomo) [draw=black,fit={(dj.west)(niz.north)(dj.south)(bi.east)}] {};
+\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
+\node [xshift=1.75cm,yshift=0.25cm] at (tomo.south) {$i=1,\dots,I$};
+
+\draw [arrow] (nz) -- (niz);
+\draw [arrow] (niz) -- (zj);
+\draw [arrow] (zj) -- (dj);
+\draw [arrow] (cosmo) -- (xii);
+\draw [arrow] (niz) -- (xii);
+\draw [arrow] (wj) -- (dj);
+\draw [arrow] (xii) -- (bj);
+\draw [arrow] (xii) -- (tj);
+\draw[{Circle[black]}-Latex] (tj) -- (dj);
+\draw [arrow] (bj) -- (zj);
+\draw [arrow] (bi) -- (bj);
+\draw[{Circle[black]}-Latex] (beta) -- (bi);
+
+\end{tikzpicture}
+\caption{}
+\label{fig:tomo}
+\end{center}
+\end{figure}
 %\begin{figure}
 %\vspace{0.5cm}
 %\begin{center}
@@ -387,6 +433,8 @@ p(\textul{\psi}|\{\hat{\theta}_{n},\vec{f}_{n}\}_{N}) &= \frac{p(\textul{\psi})}
 %\label{fig:fz}
 %\end{center}
 %\end{figure}
+
+
 
 \subsubsection{Two-point statistics of redshift and a scalar parameter}
 \subsubsection{Two-point statistics of redshift and a vector of parameters}
