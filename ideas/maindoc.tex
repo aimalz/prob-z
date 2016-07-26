@@ -368,7 +368,7 @@ p(\textul{\psi}|\{\vec{\theta}_{n},\vec{f}_{n}\}_{N}) &= \frac{p(\textul{\psi})}
 \subsection{Two-point statistics}
 \subsubsection{Two-point statistics of redshift}
 
-One relevant issue to the application of the two-point correlation function for shear maps is that the choice of tomographic binning strategy affects the inference of cosmological parameters.
+One relevant issue to the application of the two-point correlation function for shear maps is that the choice of tomographic binning strategy affects the inference of cosmological parameters.  (This section has been discussed with Elizabeth Krause and has received significant input from Michael Schneider.)
 
 \begin{figure}
 \vspace{0.5cm}
@@ -376,44 +376,104 @@ One relevant issue to the application of the two-point correlation function for 
 \begin{tikzpicture}[node distance=1cm]
 
 %\node (nz) [det,above] {$\vec{N}$};
-\node (nz) [hyper,above] {$\vec{N}$};
-\node (niz) [hyper,below of=nz,yshift=-0.5cm] {$\vec{N}_{i}$};
-\node (zj) [param, below of=niz,yshift=-0.25cm] {$z_{j}$};
-\node (dj) [data, below of=zj,yshift=-0.75cm] {$\vec{d}_{j}$};
+\node (n) [hyper,above] {$\textul{\mathcal{N}}$};
+\node (nk) [hyper,below of=n,yshift=-0.5cm] {$\vec{N}_{k}$};
+\node (nj) [param,below of=nk,yshift=-0.5cm] {$\vec{N}_{jk}$};
+\node (zi) [param, below of=nj,yshift=-0.5cm] {$z_{i}$};
+\node (di) [data, below of=zi,yshift=-0.5cm] {$\vec{d}_{i}$};
 
-\node (cosmo) [hyper,above,xshift=1.5cm] {$\vec{\Omega}$};
-\node (xii) [param,below of=cosmo,yshift=-0.5cm] {$\vec{\xi}_{i}$};
-\node (wj) [data, below of=zj,xshift=1.5cm,yshift=-0.75cm] {$\vec{w}_{j}$};
+\node (o) [hyper,above,xshift=1.5cm] {$\vec{\Omega}$};
+\node (xk) [param,below of=o,yshift=-0.5cm] {$\vec{\xi}_{k}$};
+\node (ti) [det, below of=xk,yshift=-2cm] {$\vec{\theta}_{i}$};
 
-\node (bj) [param,below of=xii,xshift=-0.75cm,yshift=-0.25cm] {$b_{j}$};
-\node (tj) [det, below of=bj,yshift=-0.25cm] {$\vec{\theta}_{j}$};
+\node (b) [det,above,xshift=-1.5cm] {$\textul{\beta}$};
+\node (bk) [det,below of=b,yshift=-0.5cm] {$\vec{B}_{k}$};
+\node (bj) [det, below of=bk,yshift=-0.5cm] {$b_{jk}$};
 
-\node (bi) [param,below of=xii,xshift=0.75cm,yshift=-0.25cm] {$\vec{B}_{i}$};
-\node (beta) [det, below of=xii,xshift=1.5cm,yshift=-0.25cm] {$\vec{\beta}$};
+\node (a) [hyper,above,xshift=3cm] {$\textul{A}$};
+\node (ai) [param, below of=a,yshift=-5cm] {$\vec{\alpha}_{i}$};
 
-\node (survey) [draw=black,fit={(dj.west)(zj.north)(dj.south)(wj.east)}] {};
-\node (tomo) [draw=black,fit={(dj.west)(niz.north)(dj.south)(bi.east)}] {};
-\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
-\node [xshift=1.75cm,yshift=0.25cm] at (tomo.south) {$i=1,\dots,I$};
+\node (g) [draw=black,fit={(zi.west)(ti.north)(di.south)(ai.east)}] {};
+\node (s) [draw=black,fit={(bj.west)(nj.north)(di.south)(ai.east)}] {};
+\node (c) [draw=black,fit={(bk.west)(nk.north)(di.south)(ai.east)}] {};
+\node (gl) [xshift=1.5cm,yshift=-0.25cm] at (g.south) {$i=1,\dots,I$};
+\node (sl) [xshift=2.5cm,yshift=-0.5cm] at (s.south) {$j=1,\dots,J$};
+\node (cl) [xshift=3cm,yshift=-0.75cm] at (c.south) {$j=1,\dots,K$};
 
-\draw [arrow] (nz) -- (niz);
-\draw [arrow] (niz) -- (zj);
-\draw [arrow] (zj) -- (dj);
-\draw [arrow] (cosmo) -- (xii);
-\draw [arrow] (niz) -- (xii);
-\draw [arrow] (wj) -- (dj);
-\draw [arrow] (xii) -- (bj);
-\draw [arrow] (xii) -- (tj);
-\draw[{Circle[black]}-Latex] (tj) -- (dj);
-\draw [arrow] (bj) -- (zj);
-\draw [arrow] (bi) -- (bj);
-\draw[{Circle[black]}-Latex] (beta) -- (bi);
+\draw [arrow] (n) -- (nk);
+\draw [arrow] (nk) -- (nj);
+\draw [arrow] (nk) -- (xk);
+\draw [arrow] (nj) -- (zi);
+\draw [arrow] (zi) -- (di);
+
+\draw [arrow] (o) -- (xk);
+\draw [arrow] (xk) -- (ti);
+%\draw [arrow] (ti) -- (di);
+\draw[{Circle[black]}-Latex] (ti) -- (di);
+
+%\draw [arrow] (b) -- (bk);
+\draw[{Circle[black]}-Latex] (b) -- (bk);
+%\draw [arrow] (bk) -- (bj);
+\draw[{Circle[black]}-Latex] (bk) -- (bj);
+%\draw [arrow] (bj) -- (nj);
+\draw[{Circle[black]}-Latex] (bj) -- (nj);
+
+\draw [arrow] (a) -- (ai);
+\draw [arrow] (ai) -- (di);
+
+%\draw[{Circle[black]}-Latex] (tj) -- (dj);
+%\draw[{Circle[black]}-Latex] (beta) -- (bi);
 
 \end{tikzpicture}
-\caption{}
+\caption{Here we wish to marginalize over tomographic binning strategies to estimate the cosmological parameters $\vec{\Omega}$.}
 \label{fig:tomo}
 \end{center}
 \end{figure}
+
+%\begin{figure}
+%\vspace{0.5cm}
+%\begin{center}
+%\begin{tikzpicture}[node distance=1cm]
+%
+%%\node (nz) [det,above] {$\vec{N}$};
+%\node (nz) [hyper,above] {$\vec{N}$};
+%\node (niz) [hyper,below of=nz,yshift=-0.5cm] {$\vec{N}_{i}$};
+%\node (zj) [param, below of=niz,yshift=-0.25cm] {$z_{j}$};
+%\node (dj) [data, below of=zj,yshift=-0.75cm] {$\vec{d}_{j}$};
+%
+%\node (cosmo) [hyper,above,xshift=1.5cm] {$\vec{\Omega}$};
+%\node (xii) [param,below of=cosmo,yshift=-0.5cm] {$\vec{\xi}_{i}$};
+%\node (wj) [data, below of=zj,xshift=1.5cm,yshift=-0.75cm] {$\vec{w}_{j}$};
+%
+%\node (bj) [param,below of=xii,xshift=-0.75cm,yshift=-0.25cm] {$b_{j}$};
+%\node (tj) [det, below of=bj,yshift=-0.25cm] {$\vec{\theta}_{j}$};
+%
+%\node (bi) [param,below of=xii,xshift=0.75cm,yshift=-0.25cm] {$\vec{B}_{i}$};
+%\node (beta) [det, below of=xii,xshift=1.5cm,yshift=-0.25cm] {$\vec{\beta}$};
+%
+%\node (survey) [draw=black,fit={(dj.west)(zj.north)(dj.south)(wj.east)}] {};
+%\node (tomo) [draw=black,fit={(dj.west)(niz.north)(dj.south)(bi.east)}] {};
+%\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$j=1,\dots,J$};
+%\node [xshift=1.75cm,yshift=0.25cm] at (tomo.south) {$i=1,\dots,I$};
+%
+%\draw [arrow] (nz) -- (niz);
+%\draw [arrow] (niz) -- (zj);
+%\draw [arrow] (zj) -- (dj);
+%\draw [arrow] (cosmo) -- (xii);
+%\draw [arrow] (niz) -- (xii);
+%\draw [arrow] (wj) -- (dj);
+%\draw [arrow] (xii) -- (bj);
+%\draw [arrow] (xii) -- (tj);
+%\draw[{Circle[black]}-Latex] (tj) -- (dj);
+%\draw [arrow] (bj) -- (zj);
+%\draw [arrow] (bi) -- (bj);
+%\draw[{Circle[black]}-Latex] (beta) -- (bi);
+%
+%\end{tikzpicture}
+%\caption{}
+%\label{fig:tomo}
+%\end{center}
+%\end{figure}
 %\begin{figure}
 %\vspace{0.5cm}
 %\begin{center}
