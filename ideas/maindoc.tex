@@ -396,9 +396,9 @@ One relevant issue to the application of the two-point correlation function for 
 \node (g) [draw=black,fit={(zi.west)(ti.north)(di.south)(ai.east)}] {};
 \node (s) [draw=black,fit={(bj.west)(nj.north)(di.south)(ai.east)}] {};
 \node (c) [draw=black,fit={(bk.west)(nk.north)(di.south)(ai.east)}] {};
-\node (gl) [xshift=1.5cm,yshift=-0.25cm] at (g.south) {$i=1,\dots,I$};
-\node (sl) [xshift=2.5cm,yshift=-0.5cm] at (s.south) {$j=1,\dots,J$};
-\node (cl) [xshift=3cm,yshift=-0.75cm] at (c.south) {$j=1,\dots,K$};
+\node (gl) [xshift=1cm,yshift=-0.25cm] at (g.north) {$i=1,\dots,I$};
+\node (sl) [xshift=1.75cm,yshift=-0.25cm] at (s.north) {$j=1,\dots,J$};
+\node (cl) [xshift=1.75cm,yshift=-0.25cm] at (c.north) {$k=1,\dots,K$};
 
 \draw [arrow] (n) -- (nk);
 \draw [arrow] (nk) -- (nj);
@@ -425,7 +425,7 @@ One relevant issue to the application of the two-point correlation function for 
 %\draw[{Circle[black]}-Latex] (beta) -- (bi);
 
 \end{tikzpicture}
-\caption{Here we wish to marginalize over tomographic binning strategies to estimate the cosmological parameters $\vec{\Omega}$.}
+\caption{Here we wish to marginalize over tomographic binning strategies to estimate the cosmological parameters $\vec{\Omega}$.  For each galaxy $i$ in the survey, there is an observed vector of data $\vec{d}_{i}$ determined by the redshift $z_{i}$, the angular position $\vec{\theta}_{i}$, and the intrinsic galaxy properties $\vec{\alpha}_{i}$.  $\textul{\beta}$ contains the parameters determining binning strategies $\vec{B}_{k}$ each with bins $b_{jk}$.  $\textul{\mathcal{N}}$ contains the parameters determining the redshift distribution function with parameters $\vec{N}_{k}$ under each binning strategy, where each bin has a redshift distribution function with parameters in $\vec{N}_{jk}$ that determine the redshifts $z_{i}$.  The cosmological parameters in $\vec{\Omega}$ determine the two-point correlation function parameters $\vec{\xi}_{k}$ which vary over binning strategies $k$, and those determine the angular positions $\vec{\theta}_{i}$.  The intrinsic galaxy parameters $\vec{\alpha}_{i}$ are determined by the hyperparameters contained in $\textul{A}$.}
 \label{fig:tomo}
 \end{center}
 \end{figure}
