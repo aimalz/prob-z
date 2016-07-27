@@ -42,21 +42,22 @@ Heidelberg, Germany}
 \begin{abstract}
 Ongoing and upcoming galaxy surveys aiming to constrain cosmological parameters 
 will produce photometric redshift (photo-$z$) probability distribution 
-functions (PDFs), which are, presumably, posteriors under some interim prior.  
+functions (PDFs), which are, generally, posteriors under some interim prior.  
 We present a fully probabilistic approach to obtain the posterior distribution 
-on a one-point statistic from a survey providing photo-$z$ interim posteriors 
-and their interim prior.  The technique uses a probabilistic graphical model 
-corresponding to the hierarchical Bayesian relation of photo-$z$ PDFs to a 
-posterior distribution over the one-point statistic.  This mathematically 
-consistent method is applied to the redshift distribution function $N(z)$ 
-necessary for the calculation of cosmological parameters from weak lensing 
-surveys, validated on synthetic data, and tested on a small subset of BOSS DR10 
-data.  It is demonstrated that this method improves accuracy, both 
+on a one-point statistic of redshift from a survey providing photo-$z$ interim 
+posteriors and their interim prior.  The technique uses a probabilistic 
+graphical model corresponding to the hierarchical Bayesian relation of 
+photo-$z$ PDFs to a posterior distribution over the one-point statistic.  This 
+mathematically consistent method is applied to the redshift distribution 
+function $N(z)$ necessary for the calculation of cosmological parameters from 
+weak lensing surveys, validated on synthetic data, and tested on a small subset 
+of BOSS DR10 data.  It is demonstrated that this method improves accuracy, both 
 qualitatively and as quantified by the Kullback-Leibler Divergence, compared to 
 popular alternatives (such as stacking of photo-$z$ PDFs and conversion of 
-photo-$z$ PDFs to point estimates).  The method can be straightforwardly 
-generalized to other one-point statistics including distribution functions over 
-luminosity, mass, star formation rate, etc.
+photo-$z$ PDFs to point estimators of redshift).  The method can be 
+straightforwardly generalized to other one-point statistics of redshift 
+including distribution functions over luminosity, mass, star formation rate, 
+etc.
 \end{abstract}
 
 \keywords{methods: analytical "\_\_\_" methods: data analysis "\_\_\_" methods: 
@@ -185,7 +186,7 @@ Asorey2016, Leistedt2016}, so comparisons to the literature may easily be made.
 
 \textbf{New paragraph here: Say what precision is needed for N(z) for future 
 weak lensing surveys. Say what precision the mass function is needed (in, say 
-cluster studies) for precision cosmology; that's also relevant in principle}
+cluster studies) for precision cosmology.}
 
 Sec. \ref{sec:meth} will derive the framework for exploring the full posterior 
 of distribution for $N(z)$ using photo-$z$ probability distribution functions.  
@@ -516,19 +517,24 @@ $\{\ln[p(z_{j}|\vec{d}_{j})]\}_{J}$ are synthesized as well as the real
 datasets considered for comparison.  In Sec. \ref{sec:mcmc} we describe the 
 algorithm used to compute the full log-posterior distribution 
 $\ln[p(\vec{\theta}|\{\vec{d}_{j}\})]$.  In Sec. \ref{sec:diag} we outline the 
-measures used to evaluate the performance of the method, including the 
-alternative methods with which our results will be compared.
+measures used to evaluate the performance of the method.
 
 \subsection{Data}
 \label{sec:alldata}
 
-The parametrization of $N(z)$ chosen here is a histogram formulation such that 
-$f_{\vec{\theta}}(z\in B_{k})=\theta_{k}$, where $B_{k}$ refers to the 
-$K$-dimensional binning $B_{k}=[z_{k-1},z_{k}]$ on the redshift range from 
-$z_{0}=z_{min}$ to $z_{K}=z_{max}$ with bin widths $\Delta_{k}$.  All tests in 
-this paper will be conducted with $z_{min}=0.0$, $z_{max}=1.1$, and $K=35$, the 
-endpoints and dimensionality of the published BOSS DR8 photo-$z$ interim 
-posteriors \citet{Sheldon2012}.
+The parametrization of $N(z)$ chosen here is a step function formulation 
+according to Eq. \ref{eq:steps} 
+\begin{eqnarray}
+\label{eq:steps}
+f_{\vec{\theta}}(z)&=&\sum_{k=1}^{K}\exp[\theta_{k}]s(z;k)\\
+s(z;k)&=&\left\{\begin{array}{ccc}0&\text{for}&z<z_{k-1}\\(z_{k}-z_{k-1})^{-1}&\
+text{for}&z_{k-1}<z<z_{k}\\0&\text{for}&z_{k}<z\end{array}\right\}
+\end{eqnarray}
+where $B_{k}$ refers to the $K$-dimensional binning $B_{k}=[z_{k-1},z_{k}]$ on 
+the redshift range from $z_{0}=z_{min}$ to $z_{K}=z_{max}$ with bin widths 
+$\Delta_{k}$.  All tests in this paper will be conducted with $z_{min}=0.0$, 
+$z_{max}=1.1$, and $K=35$, the endpoints and dimensionality of the published 
+BOSS DR8 photo-$z$ interim posteriors \citet{Sheldon2012}.
 
 The hyperprior distribution chosen here is a multivariate normal distribution 
 with mean $\vec{\mu}$ equal to the interim prior $\vec{\theta}^{*}$ and 
@@ -559,17 +565,20 @@ described in Sec. \ref{sec:data} are also considered.
 \textul{Photo-$z$ PDFs}\\
 Fiducial & Physically motivated, & Uniform & Single, Broad Gaussians\\
 & featured $N(z)$ &&\\
-Imprecise/5 & Physically motivated, & Uniform & Single, Narrow Gaussians\\
+Precise & Physically motivated, & Uniform & Single, Narrow Gaussians\\
 & featured $N(z)$ &&\\
-Inaccurate & Physically motivated, & Uniform & Violating Generative Model\\
-& featured $N(z)$ &&\\
-Multimodal & Physically motivated, & Uniform & Randomly Sampled,\\
-& featured $N(z)$ && Multiple, Narrow Gaussians\\
+Intrinsic & Physically motivated, & Uniform & Single Gaussians\\
+Scatter & featured $N(z)$ && with $\sigma_{j}\sim z^{*}_{j}$\\
+Catastrophic & Physically motivated, & Uniform & Multiple Gaussians\\
+Outlier & featured $N(z)$ &&\\
+Inaccurate & Physically motivated, & Uniform & Multiple Gaussians\\
+& featured $N(z)$ && with $\sigma_{j}\sim z^{*}_{j}$\\
 Featured & Single, Narrow Gaussian & Uniform & Single, Broad Gaussians\\
-Unimodal & Physically motivated, & Low-$z$ Favoring & Single, Broad Gaussians\\
+Unimodal $\vec{\theta}_{0}$ & Physically motivated, & Low-$z$ Favoring & 
+Single, Broad Gaussians\\
 & featured $N(z)$ &&\\
-Bimodal & Physically motivated, & Mid-$z$ Disfavoring & Single, Broad 
-Gaussians\\
+Bimodal $\vec{\theta}_{0}$& Physically motivated, & Mid-$z$ Disfavoring & 
+Single, Broad Gaussians\\
 & featured $N(z)$ &&\\
 Surveyed & Unknown & \citet{Sheldon2012} & pseudo-random sample of BOSS DR10\\
 Biased & Unknown & \citet{Sheldon2012} & brightest 50\% of BOSS test
@@ -587,19 +596,19 @@ The following outlines the "fiducial" test case.  We begin by choosing a
 physically-motivated $p^{*}(z)$ defining the general shape of $N(z)$ over the 
 specified redshift range $[z_{min},z_{max}]$.  Here we shall set it to a 
 weighted sum of truncated Gaussians chosen to impose recognizably recoverable 
-features on the true $N(z)$, shown in the left panel of Fig. \ref{fig:physpz}.  
+features on the true $N(z)$, shown in the top panel of Fig. \ref{fig:physpz}.  
 In the test case of \ref{sec:fake} it shall be set to a narrow Gaussian shown 
-in the right panel of Fig. \ref{fig:physpz}.  The true survey size $J$ is a 
+in the bottom panel of Fig. \ref{fig:physpz}.  The true survey size $J$ is a 
 Poisson random variable distributed about a target survey size of $J'$.
 
 \begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/null/physPz.pdf}\\
+\includegraphics[width=0.5\textwidth]{figs/sig5/physPz.pdf}\\
 \includegraphics[width=0.5\textwidth]{figs/delt/physPz.pdf}
-\caption{The physically-motivated true redshift distribution (black line) used 
-in the mock data tests is chosen to have recognizable features of different 
-scales so the quality of recovery can be easily determined.  The top panel 
-shows a physically motivated true $N(z)$ for the fiducial test, and the bottom 
-panel shows a toy model of a highly featured true $N(z)$.}
+\caption{The physically-motivated true redshift distribution used in the mock 
+data tests is chosen to have recognizable features of different scales so the 
+quality of recovery can be easily determined.  The top panel shows a physically 
+motivated true $N(z)$ for the fiducial test, and the bottom panel shows a toy 
+model of a highly featured true $N(z)$.}
 \label{fig:physpz}
 \end{figure}
 
@@ -610,7 +619,7 @@ redshift point estimates with reported error bars.  To obtain the standard
 deviations $\sigma_{j}\sim\mathcal{N}(g\bar{\Delta},(g\bar{\Delta})^{2})$ 
 associated with each surveyed galaxy $j$, we first sample a Gaussian 
 distribution with mean and standard deviation equal to $g\bar{\Delta}$ for some 
-factor $g$ (by default set to 5), truncated to enforce positive standard 
+factor $g$ (by default set to 2), truncated to enforce positive standard 
 deviations.  Each Gaussian is centered at an "observed" redshift 
 $z'_{j}\sim\mathcal{N}(z^{*}_{j},\sigma_{j})$ separated from the true redshift 
 $z^{*}_{j}$ by a Gaussian random variable 
@@ -628,18 +637,14 @@ a Gaussian random variable $\epsilon_{j}$.  The top left panel of Fig.
 distribution $p(z'_{j}|z^{*}_{j})$ for a random galaxy $j$.
 
 \begin{figure}
-\includegraphics[width=\textwidth]{figs/sig5/zobsvztru.pdf}
-\caption{Top left panel: This plot depicts $p(z'_{j}|z^{*}_{j})$ for a randomly 
+\includegraphics[width=0.5\textwidth]{figs/sig2/zobsvztru.pdf}
+\caption{Top panel: This plot depicts $p(z'_{j}|z^{*}_{j})$ for a randomly 
 chosen galaxy $j$ with areas of high probability in darker grayscale shades.  
 The colored dots represent coordinates at which the function is evaluated to 
-produce the horizontal slices shown in the right panel.  Right panel: In colors 
-are plotted several examples of individual photo-$z$ posteriors (continuous in 
-full opacity and in a binned parametrization in half opacity) in the fiducial 
+produce the vertical slices shown in the right panel.  Bottom panel: In colors 
+are plotted several examples of individual photo-$z$ posteriors in the fiducial 
 case with their MLE redshifts (dashed lines) and true redshifts (solid lines); 
-these represent horizontal slices through the top left panel.  Bottom panel: 
-This plot shows the integral along horizontal slices through the top left 
-panel, demonstrating that the individual photo-$z$ posteriors are properly 
-normalized.}
+these represent vertical slices through the top panel.}
 \label{fig:nullpzs}
 \end{figure}
 
@@ -686,21 +691,36 @@ of the photometric redshift posterior based on an a locally-calibrated SED
 template library or spectroscopically-confirmed training is more likely to be 
 inappropriate, leading to broader features.  In general, the galaxies that 
 could not have been observed spectroscopically will have different and noisier 
-photo-$z$ PDFs than those that could fall into a spectroscopic training set.
+photo-$z$ PDFs than those that could fall into a spectroscopic training set.  
+This effect may be stronger for high-redshift galaxies.
 
 Here we vary the fiducial case with less noisy data to demonstrate that the 
-results of the sampler and of stacking still diverge for narrower photo-$z$ 
-likelihoods representing unrealistically low intrinsic scatter.  In these 
-cases, $\sigma_{j}$ is drawn from a normal distribution as described in Sec. 
-\ref{sec:mock} but with the factor $g=1$ instead of $g=5$.  In this case, 
-illustrated in Fig. \ref{fig:sigspzs}, the corresponding sample interim 
-photo-$z$ posteriors to those of Fig. \ref{fig:nullpzs} are narrower.
+results of the sampler and of stacking still diverge in the best case of 
+narrower photo-$z$ likelihoods representing unrealistically low intrinsic 
+scatter produced by certain photo-$z$ interim posterior production techniques.  
+In these cases, $\sigma_{j}$ is drawn from a normal distribution as described 
+in Sec. \ref{sec:mock} but with the factor $g=1$.  Examples of interim 
+photo-$z$ posteriors are plotted in Fig. \ref{fig:sigspzs}.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/sig1/samplepzs.pdf}
-\caption{Same as Fig \ref{fig:nullpzs}.  The $1/5$ imprecise likelihood cases 
-have standard deviations are decreased by a factor of 5.}
+\caption{Randomly sampled interim photo-z posteriors from the overly precise 
+case are plotted in colors above, along with the true redshift (solid line) and 
+the maximum a posteriori redshift (dashed line).}
 \label{fig:sigspzs}
+\end{figure}
+
+We also test the effect of intrinsic scatter dependent on true redshift by 
+varying the fiducial case such that the standard deviation of the photo-$z$ 
+likelihoods increases linearly with redshift.  An illustration of the data 
+generation process analogous to Fig. \ref{fig:nullpzs} is shown in Fig. 
+\ref{fig:varspzs}.
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/vars/zobsvztru.pdf}
+\caption{Same as Fig. \ref{fig:nullpzs} but with standard deviation increasing 
+linearly with true redshift.}
+\label{fig:varspzs}
 \end{figure}
 
 \subsubsection{Inaccurate Data}
@@ -752,7 +772,7 @@ sum of Gaussians chosen as in the fiducial case.}
 \label{sec:fake-data}
 
 We test the sampler in a case of a highly unrealistic but strongly featured 
-true $N(z)$, that of the right panel of Fig. \ref{fig:physpz}.  This is done to 
+true $N(z)$, that of the lower panel of Fig. \ref{fig:physpz}.  This is done to 
 show that the sampler works even in extreme and unanticipated conditions.  
 Instead of sampling the physically motivated true distribution 
 $p(z|\vec{\theta}')$ as in Sec \ref{sec:mock}, we assign all galaxies the same 
@@ -1305,7 +1325,7 @@ The instability is due to the fact that the photo-$z$ interim posteriors are
 still highly multimodal, but the improved agreement with the other methods is 
 due to the fact that they are less so than in the unbiased case.
 
-%\clearpage
+\clearpage
 \section{Conclusion}
 \label{sec:con}
 
@@ -1387,7 +1407,10 @@ mean distance ratio.  Future work will also include the extension of this fully
 probabilistic approach to higher-order statistics of redshift such as the 
 two-point correlation function.
 
-\textbf{What else should I be putting here?  Is this too terse?}
+\textbf{What else should I be putting here?  Is this a good place to put the 
+discussion of how different estimators of $N(z)$ affect different estimators of 
+the weak lensing power spectrum?  That analysis has been completed, but I'm not 
+sure where it fits into the paper.}
 
 %\clearpage
 
