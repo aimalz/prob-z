@@ -26,7 +26,7 @@ class pertest(object):
 
         self.meta = meta
 
-        self.seed = self.meta.allnbins
+        self.seed = self.meta.allnbins+1
 
         start_time = timeit.default_timer()
         self.readin()
@@ -114,11 +114,8 @@ class pertest(object):
         if self.meta.shape == True:
             np.random.seed(seed=self.seed)
             maxpeaks = 5#self.ndims
-            weights = [1./k**maxpeaks for k in xrange(1,maxpeaks)]
+            weights = [1./k**2 for k in xrange(1,maxpeaks)]
             self.npeaks = np.array([us.choice(xrange(1,maxpeaks),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
-            #self.npeaks = [1]*self.ngals
-#         elif self.meta.degen != 0:
-#             self.npeaks = [self.meta.degen]*self.ngals
         else:
             self.npeaks = [1]*self.ngals
 
@@ -135,7 +132,7 @@ class pertest(object):
             self.mudegen = [sp.stats.uniform(loc=self.allzs[0],scale=self.zrange).rvs(1) for x in xrange(self.meta.degen)]
             np.random.seed(seed=self.seed)
             self.sigdegen = [us.tnorm(self.sigval,self.sigval,(self.allzs[0],self.allzs[-1])).rvs(1) for x in xrange(self.meta.degen)]
-
+            self.distdegen = [us.tnorm(self.mudegen[x][0],self.sigdegen[x][0],(self.zlos[0],self.zhis[-1])) for x in xrange(self.meta.degen)]
 
     def choosetrue(self):
 
@@ -189,6 +186,7 @@ class pertest(object):
         np.random.seed(seed=self.seed)
         self.shift = np.array([[np.random.normal(loc=0.,scale=self.sigZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
         self.obsZs = np.array([[self.truZs[j]+self.shift[j][p] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+        #print(self.obsZs-self.truZs)
 
         self.minobs = min(min(self.obsZs))
         self.maxobs = max(max(self.obsZs))
@@ -442,6 +440,7 @@ class pertest(object):
             cpkl.dump(self.meta.real, cpfile)
 
     def makepdfs(self,j,grid,intp):
+        gridmids = (grid[1:]+grid[:-1])/2.
         difs = grid[1:]-grid[:-1]
         allsummed = np.zeros(len(grid)-1)
 
@@ -454,12 +453,14 @@ class pertest(object):
 
         if self.meta.degen != 0:
             for x in xrange(self.meta.degen):
+                #funcs = us.tnorm(self.mudegen[x][0]-self.obsZs[j][pn],self.sigdegen[x][0],(min(grid),max(grid)))
                 funcs = us.tnorm(self.mudegen[x][0],self.sigdegen[x][0],(min(grid),max(grid)))
                 #pdfs = funcs.pdf(self.truZs[j])
-                cdfs = np.array([funcs.cdf(binend) for binend in grid])
-                spreads = cdfs[1:]-cdfs[:-1]
-
-                allsummed += spreads/(self.npeaks[j]+self.meta.degen)
+                binlos = [np.argmin(np.abs(gridmids-self.obsZs[j])) for p in xrange(self.npeaks[j])]
+                spreads = np.sum(np.array([max(funcs.cdf(grid[b+1])-funcs.cdf(grid[b]),sys.float_info.epsilon)*self.ngals for b in binlos]))
+                #cdfs = np.array([funcs.cdf(binend) for binend in grid])
+                #spreads = cdfs[1:]-cdfs[:-1]
+                allsummed += spreads/(self.npeaks[j]+self.meta.degen)/self.meta.noisefact/1000.
 
         pdf = intp*allsummed
         # normalize probabilities to integrate (not sum)) to 1
