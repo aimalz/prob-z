@@ -19,13 +19,6 @@ from sklearn import neighbors
 import scipy as sp
 import csv
 
-import randomfield
-from randomfield.lensing import *
-from randomfield.cosmotools import calculate_power
-from randomfield.cosmotools import get_growth_function
-from astropy.cosmology import LambdaCDM
-import astropy.units as u
-
 import distribute
 from utilmcmc import *
 from keymcmc import key
@@ -712,6 +705,14 @@ class plotter_chains(plotter):
 
 class plotter_2pcf(plotter):
     def __init__(self, meta):
+
+        import randomfield
+        from randomfield.lensing import *
+        from randomfield.cosmotools import calculate_power
+        from randomfield.cosmotools import get_growth_function
+        from astropy.cosmology import LambdaCDM
+        import astropy.units as u
+
         self.meta = meta
         self.f = plt.figure(figsize=(5,5))
         self.sps = self.f.add_subplot(1,1,1)
