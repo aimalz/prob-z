@@ -19,6 +19,13 @@ from sklearn import neighbors
 import scipy as sp
 import csv
 
+import randomfield
+from randomfield.lensing import *
+from randomfield.cosmotools import calculate_power
+from randomfield.cosmotools import get_growth_function
+from astropy.cosmology import LambdaCDM
+import astropy.units as u
+
 import distribute
 from utilmcmc import *
 from keymcmc import key
@@ -165,7 +172,7 @@ def plot_ivals(meta):
     plotstep(sps,meta.binends,meta.mean)
     for i in lrange(meta.ivals):
         plotstep(sps,meta.binends,meta.ivals[i],a=1./meta.factor,c=meta.colors[i%len(meta.colors)])
-    f.savefig(os.path.join(meta.topdir,'initializations.png'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
+    f.savefig(os.path.join(meta.topdir,'initializations.pdf'),bbox_inches='tight', pad_inches = 0)#,dpi=100)
     return
 
 # def plot_true(meta):
@@ -706,13 +713,6 @@ class plotter_chains(plotter):
 class plotter_2pcf(plotter):
     def __init__(self, meta):
 
-        import randomfield
-        from randomfield.lensing import *
-        from randomfield.cosmotools import calculate_power
-        from randomfield.cosmotools import get_growth_function
-        from astropy.cosmology import LambdaCDM
-        import astropy.units as u
-
         self.meta = meta
         self.f = plt.figure(figsize=(5,5))
         self.sps = self.f.add_subplot(1,1,1)
@@ -775,7 +775,7 @@ class plotter_2pcf(plotter):
         DA_max = flat_DA[-1]#max(flat_DA[-1], open_DA[-1], closed_DA[-1])
         minl = 1.
         maxl = 3.
-        nells = 101
+        nells = 1001
         ell = np.logspace(minl, maxl, nells)
         k_min, k_max = ell[0] / DA_max, ell[-1] / DA_min
 

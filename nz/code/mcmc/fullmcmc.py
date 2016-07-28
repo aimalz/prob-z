@@ -53,8 +53,8 @@ def fsamp(idinfo):
 all_plotters = [plots.plotter_chains,
                 plots.plotter_samps,
                 plots.plotter_probs,
-                plots.plotter_times]#,
-                #plots.plotter_2pcf]
+                plots.plotter_times,
+                plots.plotter_2pcf]
 
 testdir = os.path.join('..','tests')#yes, I hardcoded this
 
