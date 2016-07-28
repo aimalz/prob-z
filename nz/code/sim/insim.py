@@ -130,9 +130,9 @@ class setup(object):
 
         # 0 for unimodal, 1 for multimodal
         if 'shape' in indict:
-            self.shape = bool(int(indict['shape'][0]))
+            self.shape = int(indict['shape'][0])
         else:
-            self.shape = bool(0)
+            self.shape = 1
 
         # 1 for no degeneracies, n for n degenerate redshifts
         if 'degen' in indict:

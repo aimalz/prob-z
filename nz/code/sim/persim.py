@@ -111,10 +111,10 @@ class pertest(object):
     def makelf(self):
 
         # choose npeaks before sigma so you know how many to pick
-        if self.meta.shape == True:
+        if self.meta.shape > 1:
             np.random.seed(seed=self.seed)
-            maxpeaks = 5#self.ndims
-            weights = [1./k**2 for k in xrange(1,maxpeaks)]
+            maxpeaks = self.meta.shape#self.ndims
+            weights = [1./k**maxpeaks for k in xrange(1,maxpeaks)]
             self.npeaks = np.array([us.choice(xrange(1,maxpeaks),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
         else:
             self.npeaks = [1]*self.ngals
@@ -185,7 +185,6 @@ class pertest(object):
         # jitter peak zs given sigma to simulate inaccuracy
         np.random.seed(seed=self.seed)
         self.shift = np.array([[np.random.normal(loc=0.,scale=self.sigZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-        print(np.mean(self.shift),self.shift)
         self.obsZs = np.array([[self.truZs[j]+self.shift[j][p] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
         #print(self.obsZs-self.truZs)
 
@@ -398,9 +397,9 @@ class pertest(object):
 
     def calcvar(self,theta):
         vslog = theta-self.logtruNz
-        vslog = np.dot(vslog,vslog)/self.nbins
+        vslog = np.dot(vslog,vslog)/float(self.nbins)
         vs = np.exp(theta)-self.truNz
-        vs = np.dot(vs,vs)/self.nbins
+        vs = np.dot(vs,vs)/float(self.nbins)
         return(vslog,vs)
 
     def makemml(self,arg):
@@ -450,7 +449,7 @@ class pertest(object):
             cdf = np.array([func.cdf(binend) for binend in grid])
             spread = cdf[1:]-cdf[:-1]
 
-            allsummed += spread/(self.npeaks[j]+self.meta.degen)
+            allsummed += spread/float((self.npeaks[j]+self.meta.degen))
 
         if self.meta.degen != 0:
             for x in xrange(self.meta.degen):
@@ -461,7 +460,7 @@ class pertest(object):
                 spreads = np.sum(np.array([max(funcs.cdf(grid[b+1])-funcs.cdf(grid[b]),sys.float_info.epsilon)*self.ngals for b in binlos]))
                 #cdfs = np.array([funcs.cdf(binend) for binend in grid])
                 #spreads = cdfs[1:]-cdfs[:-1]
-                allsummed += spreads/(self.npeaks[j]+self.meta.degen)/self.meta.noisefact/1000.
+                allsummed += spreads/float(self.npeaks[j]+self.meta.degen)/float(self.meta.noisefact)/1000.
 
         pdf = intp*allsummed
         # normalize probabilities to integrate (not sum)) to 1
