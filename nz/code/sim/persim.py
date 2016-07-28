@@ -114,8 +114,8 @@ class pertest(object):
         if self.meta.shape > 1:
             np.random.seed(seed=self.seed)
             maxpeaks = self.meta.shape#self.ndims
-            weights = [1./k**maxpeaks for k in xrange(1,maxpeaks)]
-            self.npeaks = np.array([us.choice(xrange(1,maxpeaks),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
+            weights = [1./k**maxpeaks for k in xrange(1,maxpeaks+1)]
+            self.npeaks = np.array([us.choice(xrange(1,maxpeaks+1),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
         else:
             self.npeaks = [1]*self.ngals
 

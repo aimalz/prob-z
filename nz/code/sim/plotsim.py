@@ -144,10 +144,15 @@ def plot_pdfs(meta,test):
     plotstep(sps,dummy_x,dummy_y,c=c_exp,s=s_map,w=w_exp,l=r' MLE $z$',d=d_map,a=a_map)
     sps.legend(loc='upper right',fontsize='x-small')
     #sps.set_title('multimodal='+str(meta.shape)+', noisy='+str(meta.noise))
-    for r in us.lrange(test.randos):
-        plotstep(sps,test.binends,test.pdfs[test.randos[r]],c=meta.colors[r],s=s_smp,w=w_smp,d=d_smp,a=a_smp)
-        sps.vlines(test.truZs[test.randos[r]],0.,max(test.pdfs[test.randos[r]]),color=meta.colors[r],linestyle=s_tru,linewidth=w_tru,dashes=d_tru,alpha=a_tru)
-        sps.vlines(test.mapZs[test.randos[r]],0.,max(test.pdfs[test.randos[r]]),color=meta.colors[r],linestyle=s_map,linewidth=w_map,dashes=d_map,alpha=a_map)
+    if meta.shape <= 1:
+        randos = test.randos
+    else:
+        randos = np.random.choice(np.where(test.npeaks > 1)[0],len(meta.colors),replace=False)
+    for r in us.lrange(randos):
+        plotstep(sps,test.binends,test.pdfs[randos[r]],c=meta.colors[r],s=s_smp,w=w_smp,d=d_smp,a=a_smp)
+        sps.vlines(test.truZs[randos[r]],0.,max(test.pdfs[randos[r]]),color=meta.colors[r],linestyle=s_tru,linewidth=w_tru,dashes=d_tru,alpha=a_tru)
+        for p in xrange(test.npeaks[r]):
+            sps.vlines(test.obsZs[randos[r]][p],0.,max(test.pdfs[randos[r]]),color=meta.colors[r],linestyle=s_map,linewidth=w_map,dashes=d_map,alpha=a_map)
     if meta.degen != 0:
         for x in xrange(meta.degen):
             sps.vlines(test.mudegen[x][0],0.,(test.zhis[-1]-test.zlos[0])/test.bindif,color='k')
@@ -373,10 +378,10 @@ def makelfs(meta,test,j):
 
 def plot_lfs(meta,test):
     lfdir = os.path.join(meta.datadir,'lfs')
-    if meta.shape > 1:
+    if meta.shape <= 1:
         j = test.randos[0]#for j in us.lrange(test.randos):
     else:
-        j = np.where(test.npeaks > 1)[0][0]
+        j = np.random.choice(np.where(test.npeaks > 1)[0])#np.where(test.npeaks > 1)[0][0]
     f = plt.figure(figsize=(5,10))
     sps = f.add_subplot(2,1,1)
     f.suptitle(meta.name+r' $p_{'+str(j)+r'}(z_{obs}|z_{tru})$')
@@ -415,22 +420,20 @@ def plot_lfs(meta,test):
     #plotstep(sps_pdfs,dummy_x,dummy_y,c=c_exp,s=s_map,w=w_exp,l=r' MLE $z$',d=d_map,a=a_map)
     #sps_pdfs.legend(loc='upper right',fontsize='x-small')
     np.random.seed(seed=test.seed)
-    inttrus = [sp.stats.uniform(loc=ztrugrid[0],scale=zrange).rvs(1)[0] for x in xrange(len(meta.colors))]
+    inttrus = np.array([sp.stats.uniform(loc=ztrugrid[0],scale=zrange).rvs(1)[0] for x in xrange(len(meta.colors))])
     zfactors = lf[5]
 #     if meta.sigma == True:
 #         zfactors = [(1.+inttru)**2 for inttru in inttrus]
 #     else:
 #         zfactors = [1. for inttru in inttrus]
-    intshifts = [[np.random.normal(loc=0.,scale=zfactors[x]*test.varZs[j]) for p in xrange(test.npeaks[j])] for x in xrange(len(meta.colors))]
-    intobss = [[inttrus[x]+intshifts[x][p] for p in xrange(test.npeaks[j])] for x in xrange(len(meta.colors))]
+    intshifts = np.array([[np.random.normal(loc=0.,scale=test.sigZs[j][p]) for p in xrange(test.npeaks[j])] for x in xrange(len(meta.colors))])
+    intobss = np.array([[inttrus[x]+intshifts[x][p] for p in xrange(test.npeaks[j])] for x in xrange(len(meta.colors))])
     for x in xrange(len(meta.colors)):
         pdf_info = [[intobss[x][p],test.sigZs[j][p],1./float(test.npeaks[j]+meta.degen)] for p in xrange(test.npeaks[j])]
         pdf_info = np.array(pdf_info)
-        print(pdf_info,obsgridmids)
         pdf_infos = us.gmix(pdf_info,(zobsgrid[0],zobsgrid[-1]))
-        plot_ys = pdf_infos.pdf(np.array(obsgridmids))# for obsgridmid in obsgridmids]
+        plot_y = pdf_infos.pdf(np.array(obsgridmids))# for obsgridmid in obsgridmids]
         #binnedys = pdfs.pdfs(extmids)
-        plot_y = np.sum(plot_ys,axis=0)
         if meta.degen != 0:
             for y in xrange(meta.degen):
                 sps_pdfs.vlines(test.mudegen[y][0],0.,(test.zhis[-1]-test.zlos[0])/test.bindif,color='k')
