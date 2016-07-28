@@ -106,7 +106,7 @@ def initial_plots(meta, test):
     plot_pdfs(meta,test)
 #    plot_truevmap(meta,test)
     plot_lfs(meta,test)
-    plot_mlehist(meta,test)
+#    plot_mlehist(meta,test)
     print(meta.name+' plotted setup')
 
 # plot the underlying P(z) and its components
@@ -404,8 +404,8 @@ def plot_lfs(meta,test):
             sps.scatter(test.truZs[i],test.obsZs[i][p],c='k',s=1)
 
     sps_pdfs = f.add_subplot(2,1,2)
-    thing = np.histogram(test.obsZs.flatten(),bins=test.nbins,density=True)
-    sps_pdfs.hist(thing[0],bins=thing[1],color='k',alpha=0.1)
+    #thing = np.histogram(test.obsZs.flatten(),bins=test.nbins,density=True)
+    #sps_pdfs.hist(thing[0],bins=thing[1],color='k',alpha=0.1)
     sps_pdfs.set_title(r'Example PDFs')
     #dummy_x,dummy_y = np.array([-1,-2,-3]),np.array([-1,-2,-3])
     #plotstep(sps_pdfs,dummy_x,dummy_y,c=c_tru,s=s_tru,w=w_tru,l=l_tru+r'$z$',d=d_tru,a=a_tru)
@@ -449,7 +449,7 @@ def plot_lfs(meta,test):
         #plotstep(sps_pdfs,extended,binnedy,c=meta.colors[x],a=0.5)
         sps_pdfs.vlines(inttrus[x],0.,max(plot_y),color=meta.colors[x],linestyle=s_tru,linewidth=w_tru,dashes=d_tru,alpha=a_tru)
         for p in xrange(test.npeaks[j]):
-            sps.scatter(inttrus[x],intobss[x][p],color=test.meta.colors[x])
+            #sps.scatter(inttrus[x],intobss[x][p],color=test.meta.colors[x])
             sps_pdfs.vlines(intobss[x][p],0.,max(plot_y),color=meta.colors[x],linestyle=s_map,linewidth=w_map,dashes=d_map,alpha=a_map)
 
     sps_pdfs.set_ylabel(r'$p(\vec{d}|z)$')

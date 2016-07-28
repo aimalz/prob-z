@@ -172,7 +172,7 @@ class pertest(object):
         #test increasing sigma associated with increasing z
         # or self.meta.shape == True:
         if self.meta.sigma == True:
-            self.zfactor = (1.+self.truZs)**2#const+(self.truZs-self.allzs[0])/self.zrange
+            self.zfactor = (1.+self.truZs)**self.meta.noisefact#const+(self.truZs-self.allzs[0])/self.zrange
 #             np.random.seed(seed=self.seed)
 #             self.sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j]*self.zfactor[j],scale=self.varZs[j]*self.zfactor[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 #             self.sigZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
@@ -180,11 +180,12 @@ class pertest(object):
             self.zfactor = np.array([1.]*self.ngals)
             #self.sigZs = self.varZs#np.array([[self.varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
         np.random.seed(seed=self.seed)
-        self.sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j][p]*self.zfactor[j],scale=self.varZs[j][p]*self.zfactor[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+        self.sigZs = np.array([[self.varZs[j][p]*self.zfactor[j] for p in xrange(self.npeaks[j])] for j in xrange(self.ngals)])#np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j][p]*self.zfactor[j],scale=self.varZs[j][p]*self.zfactor[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
         # jitter peak zs given sigma to simulate inaccuracy
         np.random.seed(seed=self.seed)
         self.shift = np.array([[np.random.normal(loc=0.,scale=self.sigZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+        print(np.mean(self.shift),self.shift)
         self.obsZs = np.array([[self.truZs[j]+self.shift[j][p] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
         #print(self.obsZs-self.truZs)
 
