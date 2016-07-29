@@ -484,19 +484,22 @@ f_{\hat{\theta}}(z) = \sum_{j=1}^{J}\ p(z_{j}|\vec{d}_{j},\vec{\theta}^{*})
 $N(z)$ from a dataset of interim photo-$z$ posteriors \citep{Sheldon2012, 
 Kelly2014, Benjamin2013, Bonnett2015a, Viironen2015, Asorey2016}.  However, it 
 must be noted here that (\ref{eq:stack}) is not mathematically valid.  (See 
-\citet{Hogg2012} for a complete discussion.)  
+\citet{Hogg2012} for a complete discussion.)  The estimator produced by 
+stacking shall henceforth be referred to as the "stacked" estimator.
 
 Point estimation converts the interim photo-$z$ posteriors 
 $p(z_{j}|\vec{d}_{j},\vec{\theta}^{*})$ into delta functions with all 
 probability at a single redshift.  Some variants of point estimation choose 
-this single redshift to be that of maximum a posteriori (MAP) probability 
+this single redshift to be that of maximum a posteriori probability 
 $argmax[p(z_{j}|\vec{d}_{j},\vec{\theta}^{*})]$ or the expected value of 
-redshift $\int z_{j}\ p(z_{j}|\vec{d}_{j},\vec{\theta}^{*})\ dz_{j}$.  Stacking 
-these modified interim photo-$z$ posteriors leads to the marginalized MAP 
-estimator and the marginalized $E[z]$ estimator.
+redshift $E[z]=\int z_{j}\ p(z_{j}|\vec{d}_{j},\vec{\theta}^{*})\ dz_{j}$.  
+Stacking these modified interim photo-$z$ posteriors leads to the marginalized 
+maximum a posteriori (MMAP) estimator and the marginalized expected value 
+(MExp) estimator.
 
 A final estimator of the hyperparameters is the maximum marginalized likelihood 
-estimator (MLE), the value of $\hat{\theta}$ maximizing the likelihood given by 
+estimator (MMLE), the value of $\hat{\theta}$ maximizing the likelihood given 
+by 
 \begin{equation}
 \label{eq:mmle}
 \ln[p(\{\vec{d}_{j}\}|\vec{\theta})] \propto -\int\ f_{\vec{\theta}}(z)\ 
@@ -959,14 +962,13 @@ calculated, and the minimum of the two is reported in this study.  In simulated
 tests, $\vec{\theta}^{\ddagger}$ is the true value and $\vec{\theta}^{\dagger}$ 
 is the value produced by one of the methods in question.  
 
-%\clearpage
+\clearpage
 \section{Validation Tests}
 \label{sec:valid}
 
 Here we present the results of the informative tests of Sec. \ref{sec:exp}, 
 summarized in Tab. \ref{tab:key}.  
 
-\clearpage
 \subsection{Fiducial Case}
 \label{sec:null}
 
@@ -991,10 +993,12 @@ within the error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray).}
 \includegraphics[width=0.5\textwidth]{figs/null/comps.pdf}
 \caption{The mean of the samples (thick, solid line) and marginalized MLE 
 (thick, dotted line) are the best estimators of the true distribution (thin, 
-black line); stacking (thick, dashed line) overestimates $N(z)$ at the tails 
-and underestimates $N(z)$ at the peaks.  The two point estimators considered 
-here, marginalized MAP (thin, dashed line) and marginalized expected value 
-(thin, dotted line) fall between these two extremes.}
+solid line), and the error bars ($1\sigma$ in dark gray, $2\sigma$ in light 
+gray) appear to be accurate.  Stacking (thick, dashed line) overestimates 
+$N(z)$ at the tails and underestimates $N(z)$ at the peaks.  The two point 
+estimators considered here, marginalized MAP (thin, dashed line) and 
+marginalized expected value (thin, dotted line) fall between these two 
+extremes.}
 \label{fig:null-comp}
 \end{figure}
 
@@ -1008,213 +1012,192 @@ The sampler was run on the two datasets described in Sec.
 and in the case of noisier data (Fig. \ref{fig:sig4-comp}), the error bars were 
 larger than in the fiducial case.  However, in both these cases, the value of 
 the mean of the samples was virtually unaffected.  Even in the best case of 
-$g=1$, the The alternative methods are still negatively affected in the 
-optimistically narrow likelihood case and the case in which the likelihoods 
-broaden with increasing redshift.
+$g=1$, the alternative methods are still negatively affected; in the case of 
+$g=4$, it can be plainly seen that the marginalized maximum a posteriori 
+estimator experiences instability at the edges of the distribution and the 
+other alternatives estimate a substantially broader distribution than the 
+accurate sampler.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/sig1/comps.pdf}
-\caption{Here it is most obvious that the alternative methods erase features in 
-estimating the true $N(z)$ (thin, black line) even in the case of optimistic 
-photo-$z$ interim posteriors.  The marginalized MAP (thin, dashed line; KLD) is 
-heavily biased by the systematics of the rigid binning but otherwise performs 
-similarly to stacking (thick, dashed line; KLD) and the marginalized expected 
-value (thin, dotted line; KLD), smoothing the features of the distribution.  
-The mean of sampled values (thick, solid line; KLD) and marginalized MLE 
-(thick, dotted line; KLD) exhibit some bias at the peaks of the distribution 
-but overall perform far better than the alternatives.}
+\caption{Here it is shown that the alternative methods erase features in 
+estimating the true $N(z)$ (thin, solid line) even in the case of 
+optimistically precise photo-$z$ interim posteriors.  Stacking (thick, dashed 
+line), the marginalized maximum a posteriori estimator (thin, dashed line), and 
+the marginalized expected value (thin, dotted line) all smooth the features of 
+the distribution, an effect that is reflected in the KLD.  The mean of 
+posterior samples (thick, solid line) and marginalized MMLE (thick, dotted 
+line) perform better than the alternatives, with the error bars ($1\sigma$ in 
+dark gray, $2\sigma$ in light gray) on the mean of samples being appropriately 
+shrunken.}
 \label{fig:sig1-comp}
 \end{figure}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/sig4/comps.pdf}
-\caption{The mean of sampled values (thick, black line) is prone to overestimat
-ing the peak values and underestimating the trough values relative to the true 
-$N(z)$ (thin, black line).  The result of stacking (dotted line), on the other 
-hand, underestimates the peak values, overestimates the trough values, and incr
-eases the weight of the tails, leading to a greater KLD than for the sampler.  
-The marginalized MLE (dashed line) performs well, but is more prone to the bias
-es that affect the sampler, so has a larger KLD than the sampler as well.}
-\label{fig:sig2-comp}
+\caption{The alternative estimators erase features in estimating the true 
+$N(z)$ (thin, solid line) more severely for noisier interim photo-$z$ 
+posteriors.  The marginalized maximum a posteriori estimator (thin, dashed 
+line), stacked estimator (thick, dashed line), and marginalized expected value 
+(thin, dotted line) estimate overly smooth redshift distributions.  The mean of 
+posterior samples (thick, solid line) and marginalized maximum likelihood 
+estimator (thick, dotted line) perform far better than the alternatives, with 
+the error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) on the 
+posterior samples being appropriately inflated.}
+\label{fig:sig4-comp}
 \end{figure}
+
+In the third case simulating intrinsic scatter, in which the width of the 
+Gaussian likelihoods increases with redshift, the sampler again is a better 
+estimator of the true redshift distribution.  In Fig. \ref{fig:vars-comp}, one 
+can see that systematics are present in all point estimators, including that of 
+the mean of posterior samples.  However the distribution of posterior samples 
+is broader in regions where the mean is farther from the truth, whereas the 
+point estimators cannot accurately estimate error bars.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/vars/comps.pdf}
-\caption{Even in the case of simulated intrinsic scatter increasing with 
-redshift, the sampler successfully recovers the true $N(z)$ whereas the 
-alternatives fail to do so.}
+\caption{The mean of sampled values (thick, solid line) recovers the general 
+features of the true $N(z)$ (thin, solid line), with larger error bars 
+($1\sigma$ in dark gray, $2\sigma$ in light gray) in regions where it deviates 
+more from the truth.  The marginalized maximum a posteriori estimator (thin, 
+dashed line) follows the same skewed yet featureless distribution of the 
+stacked estimator (thick, dashed line) but with an overestimate of probability 
+at the edges of the distribution.  The marginalized expected value estimator 
+(thin, dotted line) is truly featureless without even the skew reflecting the 
+increased uncertainties at higher redshift.  The marginalized maximum 
+likelihood estimator (thick, dotted line) performs comparably to the mean of 
+the posterior samples, modulo some numerical instability.}
 \label{fig:vars-comp}
 \end{figure}
 
-From these two test cases, it can be seen that the mean of the sampled 
+From these three test cases, it can be seen that the mean of the sampled 
 hyperparameter values is a robust estimator of the true $N(z)$, regardless of 
-the imprecision of the data.  The error bars accurately reflect our beliefs 
-about the uncertainty of this estimator.  Stacking and the point estimators 
-fail to recover the distinctive features of the true $N(z)$.
+the imprecision of the data.  The width of the posterior distribution over 
+hyperparameters accurately reflects our beliefs about the uncertainty of this 
+estimator.  Stacking and the other point estimators generally fail to recover 
+the distinctive features of the true $N(z)$.
 
 %\clearpage
 \subsection{Inaccurate interim photo-$z$ posteriors}
 \label{sec:multi}
 
-The mean of the sampled hyperparameter values is compared to the results of 
-stacking and other alternatives in Fig. \ref{fig:noisy-comp}.  It can be seen 
-that inaccurate interim photo-$z$ posteriors are best handled by the sampler, 
-whose KLD is lower than that of stacking and marginalized likelihood 
-maximization.
+The effect of catastrophic outliers on hyperparameter estimation, simulated 
+according to the procedure of Sec. \ref{sec:inaccuracy} is described here.  
 
-%\begin{figure}
-%\includegraphics[width=0.5\textwidth]{figs/vars/samps.pdf}
-%\caption{The mean of the sampled values (thick, black line) accurately reproduc
-%es the true $N(z)$ distribution (thin, black line) such that the true values al
-%ways fall within the error bars ($1\sigma$ in dark gray, $2\sigma$ in light gra
-%y).  Some samples (colored lines) are shown as well.}
-%\label{fig:noisy-samp}
-%\end{figure}
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figs/vars/comps.pdf}
-\caption{The marginalized MLE (thick, dotted line; KLD $0.004$) is in this case 
-the best estimator of the true $N(z)$.  The mean of the samples (thick, solid 
-line; KLD $0.006$) shows some bias at the peaks and troughs of the 
-distribution, but not as much as stacking (thick, dashed line; KLD $0.016$).  
-The marginalized MAP (thin, dashed line; KLD $0.009$) and marginalized expected 
-value (thin, dotted line; KLD $0.007$) have intermediate accuracy, with the 
-same bias at the peaks and troughs of the distribution.}
-\label{fig:noisy-comp}
-\end{figure}
-
-Fig. \ref{fig:multi-comp} shows a comparison to alternative methods.  It can be 
-seen that the lessened quality of the data does impact the accuracy of the mean 
-of the posterior samples as an estimator of the truth, exaggerating the signal 
-at the peaks and troughs.  However, the alternatives do worse as measured by 
-the KLD, with stacking smoothing the peaks and troughs.
-
-%\begin{figure}
-%\includegraphics[width=0.5\textwidth]{figs/mult/samps.pdf}
-%\caption{The mean of the sampled values (thick, black line) appears to do a rel
-%atively poor job of recovering the true $N(z)$ (thin, black line), enhancing pe
-%aks and troughs compared to the true distribution and underestimating the proba
-%bility density in the tails.  The samples (colored lines) are quite close to th
-%e mean with error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) tight 
-%enough to exclude the true value.}
-%\label{fig:multi-samp}
-%\end{figure}
+For the case of multimodal likelihoods, Fig. \ref{fig:multi-comp} shows a 
+comparison of the mean of the samples to alternative methods.  It can be seen 
+that the lessened quality of the data does not impact the accuracy of the mean 
+of the posterior samples as an estimator of the truth.  However, both the error 
+bars on the mean of posterior samples and the alternative point estimators are 
+worse in the sense of being broader.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/mult/comps.pdf}
-\caption{\textbf{The point estimators are doing well because I'm not straying 
-far enough from the generative model.  I will note that the MMLE has trouble 
-with these kinds of distributions.}}
+\caption{Both the mean of posterior samples (thick, solid line) and 
+marginalized maximum likelihood estimator (thick, dotted line) do a good job of 
+recovering the true redshift distribution function (thin, solid line).  The 
+stacked estimator (thick, dashed line), marginalized maximum a posteriori 
+estimator (thin, dashed line), and marginalized expected value estimator 
+(thick, dotted line) are smoother and fail to recover the features of the true 
+redshift distribution.  The error bars ($1\sigma$ in dark gray, $2\sigma$ in 
+light gray) on the mean of posterior samples include the true value of the 
+hyperparameters.}
 \label{fig:multi-comp}
 \end{figure}
 
-The performance of the mean of the samples as an estimator in these two test 
-cases is weaker than in test cases that do not vary the generative model.  It 
-can thus be concluded that it is essential for the success of this approach 
-that the form of the likelihood passed to MCMC accurately reflect the way the 
-photo-$z$ posteriors were produced.  In cases where we are uncertain as to the 
-accuracy of the generative model for the photo-$z$ posteriors, it is 
-recommended to use the marginalized MLE.
+For the case of sampled posteriors, Fig. \ref{fig:samp-comp} shows a comparison 
+of the mean of the samples to alternative methods.  It can be seen that the 
+lessened quality of the data does impart some systematic effects onto the mean 
+of samples that is not seen in the marginalized maximum likelihood estimator, 
+but the error bars are broader as well to reflect the uncertainty of the mean 
+of posterior samples.  The alternative point estimators still fail to recover 
+features of the true redshift distribution.
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/samp/comps.pdf}
+\caption{In the case of sampled interim photo-$z$ posteriors, the mean of 
+posterior samples (thick, solid line) and marginalized maximum likelihood 
+estimator (thick, dotted line) do a good job of recovering the true redshift 
+distribution function (thin, solid line), though the error bars ($1\sigma$ in 
+dark gray, $2\sigma$ in light gray) of the posterior samples appear to be 
+underestimated.  The stacked estimator (thick, dashed line), marginalized 
+maximum a posteriori estimator (thin, dashed line), and marginalized expected 
+value estimator (thick, dotted line) are smoother and fail to recover the 
+features of the true redshift distribution.}
+\label{fig:samp-comp}
+\end{figure}
 
 %\clearpage
 \subsection{Toy Model $N(z)$}
 \label{sec:fake}
 
 Fig. \ref{fig:toy-comp} compares the mean of the posterior samples to the 
-results of stacking and marginalized likelihood maximization.    
-
-%\begin{figure}
-%\includegraphics[width=0.5\textwidth]{figs/delt/samps.pdf}
-%\caption{}
-%\label{fig:toy-samp}
-%\end{figure}
+results of stacking and marginalized likelihood maximization.  It can be seen 
+that the marginalized maximum likelihood estimator is best at recovering the 
+true distribution approaching a delta function due to the nature of the 
+optimizer, which considers each component of the hyperparameter vector to be 
+independent of all others.  Other estimators predict a broader distribution 
+than the truth, with stacking broadening it the most and the mean of the 
+samples broadening it the least.  Though the sampler does not consider 
+components of the hyperparameter vector to be independent, it is flexible 
+enough to provide good constraints on the true $N(z)$.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/delt/comps.pdf}
-\caption{In this case, the marginalized MLE (thick, dotted line; KLD $<0.001$) 
-recovers the true $N(z)$ (thin, solid line) to greater than 0.1\% precision.  
-The mean of the samples (thick, solid line; KLD $0.352$) performs almost as 
-well, with some low amplitude residuals due to the form of the prior.  The 
-point estimators (marginalized MAP as a thin, dashed line and marginalized 
-expected value as a thin, dotted line), which share KLD $0.89$, broaden the 
-distribution more than the mean of the samples but not quite as much as 
-stacking (thick, dashed line; KLD $1.123$).}
+\caption{In this case, the marginalized maximum likelihood estimator (thick, 
+dotted line) recovers the true $N(z)$ (thin, solid line) better than the mean 
+of posterior samples (thick, solid line), though the error bars ($1\sigma$ in 
+dark gray, $2\sigma$ in light gray) do include the true values of the 
+hyperparameters.  The stacked estimator (thick, dashed line) is the worst 
+estimator of the true redshift distribution function, while the marginalized 
+maximum a posteriori estimator (thin, dashed line) and marginalized expected 
+value estimator (thin, dotted line) are not quite as broad.}
 \label{fig:toy-comp}
 \end{figure}
-
-It can be seen that the marginalized MLE is best at recovering the true 
-distribution of a delta function due to the nature of the optimizer, which 
-considers each component of the hyperparameter vector to be independent of all 
-others.  Other estimators predict a broader distribution than the truth, with 
-stacking broadening it the most and the mean of the samples broadening it the 
-least.  Though the sampler does not consider components of the hyperparameter 
-vector to be independent, it is flexible enough to provide good constraints on 
-the true $N(z)$.  In cases where we expect an extremely strongly featured 
-$N(z)$, such as one might find in an area with a small number of galaxy 
-clusters, the marginalized MLE is the recommended estimator; if for numerical 
-reasons optimization is not possible, the mean of MCMC samples is recommended.
 
 %\clearpage
 \subsection{Variable Interim Prior}
 \label{sec:interim}
 
-A comparison of the sampler to other approaches is shown in Fig. 
-\ref{fig:intu-comp}.  The methods that account for the nontrivial interim prior 
-(the marginalized MLE and the sampler) yield substantially less biased results 
-than the methods that do not (stacking and the point estimators, the 
-marginalized MAP and marginalized expected value).
-
-%\begin{figure}
-%\includegraphics[width=0.5\textwidth]{figs/uint/samps.pdf}
-%\caption{The mean (thick, black line) of the samples (colored lines) show no in
-%fluence of the interim prior (gray line) and accurately replicates the features
-% of the true $N(z)$ (thin, black line) everywhere that the interim prior suppor
-%ts the data.}
-%\label{fig:intu-samp}
-%\end{figure}
+The cases of inappropriate interim priors also demonstrate the prowess of the 
+sampling approach.  The result for a unimodal, low-$z$-favoring interim prior 
+is shown in Fig. \ref{fig:intu-comp}, and the result for a bimodal, 
+mid-$z$-disfavoring interim prior is shown in Fig. \ref{fig:intb-comp}.  The 
+methods that account for the nontrivial interim prior (the marginalized maximum 
+likelihood estimator and the sampler) yield substantially less biased results 
+than the methods that do not, and those methods are strongly biased towards the 
+interim prior distribution.  
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/uint/comps.pdf}
-\caption{The interim prior (gray line) is biased towards lower redshifts.  The 
-mean of the sampled values (thick, solid line; KLD $0.002$) and marginalized 
-MLE (thick, dotted line; KLD $0.003$) are unaffected by the nontrivial interim 
-prior, taking the same KLD values as in the fiducial case with a flat interim 
-prior.  However, the alternatives yield biased estimates, both smoothing the 
-features of the true $N(z)$ (thin, solid line) and showing a bias to low 
-redshift values according to the interim prior.  Stacking (thick, dashed line; 
-KLD $0.017$) does the worst of the three alternatives, with the marginalized 
-MAP (thin, dashed line; KLD $0.015$) and marginalized expected value (thin, 
-dotted line; KLD $0.014$) doing slightly better.}
+\caption{The mean of the sampled values (thick, solid line) and marginalized 
+maximum likelihood estimator (thick, dotted line) are unaffected by the 
+nontrivial interim prior, with appropriate error bars ($1\sigma$ in dark gray, 
+$2\sigma$ in light gray) on the samples from the posterior distribution of 
+hyperparameters.  However, the alternatives yield biased estimates, both 
+smoothing the features of the true $N(z)$ (thin, solid line) and showing a bias 
+to low redshift values favored by the interim prior (gray line).  Stacking 
+(thick, dashed line) does the worst of the three alternatives, with the 
+marginalized maximum a posteriori estimator (thin, dashed line) and 
+marginalized expected value (thin, dotted line) doing slightly better.}
 \label{fig:intu-comp}
 \end{figure}
 
-
-Fig. \ref{fig:intb-comp} shows the comparison of the mean of the sample values 
-to the true values and the result of stacking.  What is most striking is that 
-stacking is very strongly affected by the choice of the interim prior, whereas 
-the mean of the samples is only weakly affected by it and the marginalized MLE 
-is not affected by it very much at all.  Based on these results, it can be 
-concluded that when the interim prior is known to be inappropriate, the 
-marginalized MLE is the best estimator of the truth.  
-
-%\begin{figure}
-%\includegraphics[width=0.5\textwidth]{figs/bint/samps.pdf}
-%\caption{The mean (thick, black line) of the samples (colored lines) show some 
-%influence of the interim prior (gray line) but also replicate some of the featu
-%res of the true $N(z)$ (thin, black line).}
-%\label{fig:intb-samp}
-%\end{figure}
-
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/bint/comps.pdf}
-\caption{The interim prior (gray line) is biased toward low and high redshifts. 
- In this case, the marginalized MLE (thick, dotted line; KLD $0.003$) best 
-recovers the true $N(z)$ (thin, solid line), with the mean of samples (thick, 
-solid line; KLD $0.005$) as a close second.  The point estimators and stacking 
-have comparable results, with the marginalized MAP (thin, dashed line; KLE 
-$0.01$) being the best of them and the marginalized expected value (thin, 
-dotted line) and stacked result (thick, dashed line) sharing the same KLD of 
-$0.012$.}
+\caption{\textbf{I am redoing this test with the interim prior tweaked to 
+provide full coverage over the whole redshift range to eliminate the 
+underestimate in the last bin}.  The mean of the sampled values (thick, solid 
+line) and marginalized maximum likelihood estimator (thick, dotted line) are 
+unaffected by the nontrivial interim prior, with appropriate error bars 
+($1\sigma$ in dark gray, $2\sigma$ in light gray) on the samples from the 
+posterior distribution of hyperparameters.  However, the alternatives of the 
+stacked estimator (thick, dashed line), the marginalized maximum a posteriori 
+estimator (thin, dashed line), and marginalized expected value (thin, dotted 
+line) yielding biased estimates, both smoothing the features of the true $N(z)$ 
+(thin, solid line) and showing a bias to low and high redshift values favored 
+by the interim prior (gray line).}
 \label{fig:intb-comp}
 \end{figure}
 
@@ -1222,8 +1205,17 @@ $0.012$.}
 \subsection{Data}
 \label{sec:boss}
 
-The results of the inference are shown in Figs. \ref{fig:dataparam} and 
-\ref{fig:datacomp}.  
+The results of the inference of the redshift distribution function from a 
+pseudo-random sample of BOSS DR10 data described in Sec. \ref{sec:data} are 
+shown in Figs. \ref{fig:dataparam} and \ref{fig:datacomp}.  
+
+The most striking feature of Fig. \ref{fig:dataparam} aside from the stark 
+difference between the mean of the samples and the interim prior is the major 
+systematic in the samples from the posterior distribution is observed at high 
+redshift.  Because the data itself exhibits high uncertainty at high $z$ in the 
+form of local maxima of the photo-$z$ interim posteriors, a reflection of the 
+inherent degeneracies that give rise to catastrophic photo-$z$ errors, it is 
+natural that there be large errors in that region.  
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/boss/samps.pdf}
@@ -1234,66 +1226,73 @@ $2\sigma$ in light gray) are in line with the sampled values.}
 \label{fig:dataparam}
 \end{figure}
 
+Fig. \ref{fig:datacomp} also shows the broader error bars in a small region of 
+high redshift, but it has the additional information of how other estimators 
+perform.  The results of stacking and reduction of interim photo-$z$ posteriors 
+to point estimators are strongly biased toward the interim prior, especially 
+stacking.  Given that stacking has been validated by the results' similarity to 
+the interim prior, it is especially grave that it trivially reproduce it; if 
+the interim prior is inappropriate, stacking is guaranteed to fail because it 
+do not account for the effect of the interim prior on the interim photo-$z$ 
+posteriors, permitting it to dominate over the underling likelihoods.  The 
+result of marginalized maximum likelihood estimation is also shown to be 
+numerically unstable, a possible effect of the extreme multimodality of the 
+data.  
+
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/boss/comps.pdf}
-\caption{The results of each of several estimators are shown here.  It can be 
-seen that stacking (thick, dashed line) and the point estimators (marginalized 
-MAP as thin, dashed line; marginalized expected value as thin, dotted line) 
-yield a broader distribution with fewer features, closely matching the interim 
-prior (gray, solid line) than the mean of the samples (thick, solid line).  The 
-marginalized MLE (thick, dotted line) is highly unstable, as was true in the 
-simulated case with multimodal photo-$z$ likelihoods that more closely 
-resembled the data of this case.}
+\caption{It can be seen that the stacked estimator (thick, dashed line) almost 
+perfectly reproduces the interim prior (gray line), while the marginalized 
+maximum a posteriori estimator (thin, dashed line) and marginalized expected 
+value estimator (thin, dotted line) do so with some instability.  The 
+marginalized maximum likelihood estimator (thick, dotted line) is most 
+unstable, while the mean of the posterior samples (thick, solid line) predicts 
+a very different redshift distribution function than the interim prior, with a 
+peculiar feature in the error bars ($1\sigma$ in dark gray, $2\sigma$ in light 
+gray) at high redshift.}
 \label{fig:datacomp}
 \end{figure}
 
-It is worth discussing two systematic effects evident in the results.  Because 
-the data itself exhibits high uncertainty at high $z$ in the form of local 
-maxima of the photo-$z$ interim posteriors, a reflection of the inherent 
-degeneracies that give rise to catastrophic photo-$z$ errors, it is natural 
-that there be large errors in that region.  Another effect worth investigating 
-is the instability of the marginalized maximum likelihood estimator.  
-\textbf{I'm not sure how to justify my explanation that the MMLE fails more 
-severely on more strongly multimodal data without showing the results of the 
-tests that proved it.}
-
 The BOSS subsample is further subsampled by imposing a cut in $r$-band 
 magnitude (at the median magnitude) to approximate the behavior of a heavily 
-biased galaxy survey with a magnitude limit.  Samples of photo-$z$ interim 
-posteriors are shown in the right panel of Fig. \ref{fig:datapzs}.  The results 
-of the inference are shown in Figs. \ref{fig:biasparam} and \ref{fig:biascomp}. 
- 
+biased galaxy survey with a magnitude limit.  This is motivated by the question 
+of what data is behind the feature in the posterior distribution's error bars 
+at high redshift.  Recall that samples of photo-$z$ interim posteriors are 
+shown in the lower panel of Fig. \ref{fig:datapzs}.  The results of the 
+inference are shown in Figs. \ref{fig:biasparam} and \ref{fig:biascomp}.  
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/bias/samps.pdf}
 \caption{Samples from the full posterior (colored lines) of the biased 
-subsample differ substantially from the interim prior (gray).  The mean of 
-samples (thick, black line) and associated error bars ($1\sigma$ in dark gray, 
-$2\sigma$ in light gray) are in line with the sampled values.}
+subsample still differ substantially from the interim prior (gray).  The mean 
+of samples (thick, black line) and associated error bars ($1\sigma$ in dark 
+gray, $2\sigma$ in light gray) are in line with the sampled values.}
 \label{fig:biasparam}
 \end{figure}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/bias/comps.pdf}
-\caption{The results of each of several estimators are shown here.  First, it 
-should be noted that the interim prior (gray, solid line) differs substantially 
-from all the estimators.  Second, it can be seen that stacking (thick, dashed 
-line) estimates a broader distribution with fewer features than the mean of the 
-samples (thick, solid line).  The marginalized MLE (thick, dotted line) is 
-highly unstable, as was true in the simulated case with multimodal photo-$z$ 
-likelihoods that more closely resembled the data.}
+\caption{The mean of posterior samples (thick, solid line) differs from the 
+interim prior (gray line) more than the alternative estimators, exhibiting some 
+features at low redshift.  It can be seen that the stacked estimator (thick, 
+dashed line) is most biased towards the interim prior, though the effect is 
+also seen in the marginalized maximum a posteriori estimator (thin, dashed 
+line) and marginalized expectation value estimator (thin, dotted line).  The 
+marginalized MLE (thick, dotted line) is still highly unstable.  The error bars 
+($1\sigma$ in dark gray, $2\sigma$ in light gray) do not exhibit the same 
+behavior as in the unbiased subsample.}
 \label{fig:biascomp}
 \end{figure}
 
-One can note that in these figures, the large error bars at high $z$ are 
-reduced to the size of those at lower redshifts.  Because the cut in magnitude 
-eliminates the dimmest galaxies for which redshifts cannot be well constrained, 
-the interim photo-$z$ posteriors that had local maxima at those redshifts are 
-not included in the sample.  Nonetheless, the marginalized MLE is still 
-unstable, although not as much as in the case of unbiased pseudo-random data.  
-The instability is due to the fact that the photo-$z$ interim posteriors are 
-still highly multimodal, but the improved agreement with the other methods is 
-due to the fact that they are less so than in the unbiased case.
+There are two notable differences between the unbiased and biased subsamples of 
+the BOSS DR10 pseudo-random subsample.  First, the stacked and point estimators 
+are less biased toward the interim prior.  This may be due to the way the 
+interim prior was chosen, such that it was influenced strongly by the dimmest 
+galaxies.  Second, the high-redshift feature in the error bars is not present 
+once a magnitude cut is imposed.  From this one can conclude that the signal 
+and associated error bars in that region were caused by the sampler's 
+assignment high redshifts to poorly constrained interim photo-$z$ posteriors 
+corresponding to the dimmest galaxies.  
 
 \section{Conclusion}
 \label{sec:con}
@@ -1309,52 +1308,60 @@ the true parameter values better than popular alternatives.
 
 In the tests on simulated data performed here, the full posterior distribution 
 over the hyperparameters defining $N(z)$ derived by this method is consistent 
-with the true hyperparameter values, making the mean of sampled values an 
-excellent estimator of $N(z)$.  The results of those tests is summarized below 
-and in Tab. \ref{tab:kld}, where lower values indicate a closer match between 
-the true $N(z)$ and the estimator.  Tests were performed on subsets of BOSS 
-data with results consistent with those of simulations.
+with the true redshift distribution function, making the mean of sampled values 
+an excellent point estimator of $N(z)$.  The information contained in the full 
+posterior distribution's shape convey the traditional error bar information 
+without having to explicitly propagate any error estimates.  The results of 
+those tests is summarized below and in Tab. \ref{tab:kld}, where lower values 
+indicate a closer match between the true $N(z)$ and the estimator.  Tests were 
+also performed on subsets of BOSS DR10 data with results consistent with those 
+of simulations.
+
+The following conclusions and recommendations can be made with confidence:
 
 \begin{enumerate}
-\item Both the marginalized MLE and the mean of the samples are good estimators 
-of $N(z)$ for the simplest photo-$z$ posteriors.
-\item When data suffers from imprecision, as in the case of high intrinsic 
-scatter, the difference between stacking and sampling is highly pronounced, 
-with stacking yielding a much smoother estimator of $N(z)$ and sampling 
-producing a broader posterior with the same mean hyperparameter values as in 
-the case of cleaner data.
-\item When data suffers from inaccuracies, as in the case of catastrophic 
-outliers, the marginalized MLE is unstable, point estimators are subject to 
-catastrophic errors, and stacking yields an especially smoothed estimate of 
-$N(z)$; sampling does the best job of recovering the true $N(z)$, but it does 
-not do as well as in cases where the generative model reflected in the full 
-likelihood matches the way the data were produced.
-\item The marginalized MLE is an excellent estimator for strongly featured 
-$N(z)$ with simple, clean photo-$z$ posteriors; stacking smooths features more 
-than sampling and photo-$z$ point estimation.
+\item Both the marginalized maximum likelihood estimator and the mean of the 
+samples are good point estimators of the redshift distribution function; the 
+error bars on the posterior distribution over hyperparameters are generally 
+reliable and easier to derive than error bars from traditional point estimators 
+of the redshift distribution function.
+\item Even in the case of precise data, traditional methods fail, and they do 
+even worse with imprecise data; the error bars of the mean of posterior 
+samples, however, are accurate.  When data quality worsens with redshift, all 
+estimators are affected, but the inaccuracy is quantified by the full 
+distribution of the posterior samples whereas the alternative estimators 
+require separate error propagation.  
+\item When data suffers from inaccuracies, as in the case of multimodal interim 
+photo-$z$ posteriors, the marginalized maximum likelihood estimator performs 
+comparably to the mean of the posterior samples
+\item The marginalized maximum likelihood estimator is an excellent estimator 
+for strongly featured redshift distribution function with simple, clean 
+photo-$z$ posteriors; stacking smooths features more than sampling and 
+photo-$z$ point estimation.
 \item When the interim prior is known to be a poor approximation to the data, 
 only the marginalized MLE and mean of sampled values are satisfactory 
-estimators of $N(z)$ because they are the only methods that can account for the 
-bias introduced into the photo-$z$ posteriors; this is the most compelling case 
-because of the ubiquity of using inappropriate interim priors.
+estimators of the redshift distribution function because they are the only 
+methods that can account for the bias introduced into the photo-$z$ posteriors; 
+this is the most compelling case for the sampler because of the ubiquity of 
+inappropriate interim priors.
 \end{enumerate}
 
 \begin{table}
 \begin{tabular}{lccccc}
-& Mean of & Marginalized & Stacking & Marginalized & Marginalized\\
-& Samples & MMLE & & MMAP & MExpected Value\\
-Fiducial &&&&&\\
-Precise &&&&&\\
-Imprecise &&&&&\\
-Trending &&&&&\\
-Multimodal &&&&&\\
-Sampled &&&&&\\
-Featured &&&&&\\
-Unimodal &&&&&\\
-Bimodal &&&&&
+& Mean of & Marginalized & Stacked & Marginalized & Marginalized\\
+& Samples & MLE & Estimator & MAP & Expected Value\\
+Fiducial &\textbf{0.0041}&0.0057&0.0139&0.0098&0.0072\\
+Precise &\textbf{0.0035}&0.0065&0.0176&0.0112&0.0102\\
+Imprecise &\textbf{0.0068}&0.0155&0.1014&0.1207&0.1028\\
+Trending &\textbf{0.0199}&0.0262&0.1057&0.1288&0.0813\\
+Multimodal &\textbf{0.0052}&0.0054&0.0508&0.0385&0.0250\\
+Sampled &0.0189&\textbf{0.0026}&0.0475&0.0446&0.0230\\
+Featured &0.0104&\textbf{0.0060}&0.2902&0.1721&0.1720\\
+Unimodal &\textbf{0.0030}&0.0046&0.0150&0.0128&0.0127\\
+Bimodal &\textbf{0.0037}&0.0056&0.0143&0.0122&0.0141
 \end{tabular}
-\caption{The best-fit estimator in each case is bolded.  \textbf{This table 
-will be filled in once I'm certain I won't be re-running any tests.}}
+\caption{The KLD values for all estimators in each simulated test are provided 
+here.  The best-fit estimator in each case is bolded.}
 \label{tab:kld}
 \end{table}
 
@@ -1371,7 +1378,7 @@ photo-$z$ posteriors from data that it is essential to release the interim
 prior used in generating this data product in order for proper inference to be 
 conducted by consumers of this information.
 
-The method herein developed is applicable with minimal modification to other 
+The technique herein developed is applicable with minimal modification to other 
 one-point statistics of redshift to which we will apply this method in the 
 future, such as the redshift-dependent luminosity function and weak lensing 
 mean distance ratio.  Future work will also include the extension of this fully 
