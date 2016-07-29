@@ -563,16 +563,18 @@ described in Sec. \ref{sec:data} are also considered.
 \begin{tabular}{llll}
 \textul{Title} & \textul{True $N(z)$} & \textul{Interim Prior} & 
 \textul{Photo-$z$ PDFs}\\
-Fiducial & Physically motivated, & Uniform & Single, Broad Gaussians\\
+Fiducial & Physically motivated, & Uniform & Single Gaussians\\
 & featured $N(z)$ &&\\
 Precise & Physically motivated, & Uniform & Single, Narrow Gaussians\\
 & featured $N(z)$ &&\\
-Intrinsic & Physically motivated, & Uniform & Single Gaussians\\
-Scatter & featured $N(z)$ && with $\sigma_{j}\sim z^{*}_{j}$\\
-Catastrophic & Physically motivated, & Uniform & Multiple Gaussians\\
-Outlier & featured $N(z)$ &&\\
-%Inaccurate & Physically motivated, & Uniform & Multiple Gaussians\\
-%& featured $N(z)$ && with $\sigma_{j}\sim z^{*}_{j}$\\
+Imprecise & Physically motivated, & Uniform & Single, Broad Gaussians\\
+& featured $N(z)$ &&\\
+Trending & Physically motivated, & Uniform & Single Gaussians\\
+& featured $N(z)$ && with $\sigma_{j}\sim z^{*}_{j}$\\
+Multimodal & Physically motivated, & Uniform & Multiple Gaussians\\
+& featured $N(z)$ &&\\
+Multimodal & Physically motivated, & Uniform & Sampled, Single Gaussian\\
+& featured $N(z)$ &&\\
 Featured & Single, Narrow Gaussian & Uniform & Single, Broad Gaussians\\
 Unimodal $\vec{\theta}_{0}$ & Physically motivated, & Low-$z$ Favoring & 
 Single, Broad Gaussians\\
@@ -684,11 +686,11 @@ of the photometric redshift posterior based on an a locally-calibrated SED
 template library or spectroscopically-confirmed training set is more likely to 
 be inappropriate, leading to broader features.  In general, the galaxies that 
 could not have been observed spectroscopically will have different and noisier 
-photo-$z$ PDFs than those that could fall into a spectroscopic training set (or 
-spectroscopically derived template library).  This effect may be stronger for 
-high-redshift galaxies.  This set of tests aims to demonstrate the performance 
-of the sampler in cases with less and more random noise (via the factor $g$) 
-and with noise that increases with redshift.
+photo-$z$ likelihoods than those that could fall into a spectroscopic training 
+set (or spectroscopically derived template library).  This effect may be 
+stronger for high-redshift galaxies.  This set of tests aims to demonstrate the 
+performance of the sampler in cases with less and more random noise (via the 
+factor $g$) and with noise that increases with redshift.
 
 The first two test cases deviate from the fiducial case by varying the factor 
 $g$ to be lower ($g=1$) and higher ($g=4$).  Examples of interim photo-$z$ 
@@ -752,17 +754,16 @@ their peak redshifts (dashed lines) and true redshifts (solid lines).}
 \label{fig:multpzsgen}
 \end{figure}
 
-A second way to produce multimodal or asymmetric PDFs is to sample the simple 
-Gaussians of the fiducial case at the level of the posteriors.  Here $K$ 
+A second way to produce multimodal or asymmetric posteriors is to sample the 
+simple Gaussians of the fiducial case at the level of the posteriors.  Here $K$ 
 samples are taken.  Some examples of both types of multimodal interim photo-$z$ 
 posteriors are shown in Fig. \ref{fig:allpzs}.  
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/mult/samplepzs.pdf}\\
 \includegraphics[width=0.5\textwidth]{figs/samp/samplepzs.pdf}
-\caption{The catastrophic outlier PDFs case shows the same quantities as Fig. 
-\ref{fig:nullpzs} but for multiple likelihood components (top panel) and 
-sampled PDFs (bottom panel).}
+\caption{Same as Fig. \ref{fig:nullpzs} but for multiple likelihood components 
+(top panel) and sampled posteriors (bottom panel).}
 \label{fig:allpzs}
 \end{figure}
 
@@ -825,32 +826,22 @@ redshifts than for mid-range redshifts.
 We also test this method on subsets of the published interim photo-$z$ 
 posteriors of SDSS III DR 10.  A sampling of the provided interim photo-$z$ 
 posteriors of dimension $K=35$ for $z_{min}=0.3$ and $z_{max}=1.4$ is shown in 
-the lower panels of Fig. \ref{fig:datapzs}.  The interim prior used for this 
-set of interim redshift posteriors is the reweighted estimator of $N(z)$ of 
-\citet{Sheldon2012}.
-
-In addition to simulated tests, we also apply this method to a samples of the 
-data described in Sec. \ref{sec:data}.  The interim prior is taken from 
-\citet{Sheldon2012}.  In these cases the true $N(z)$ is not known, but the 
-fully probabilistic method presented here may still be compared to what is 
-obtained by alternative approaches.
-
-A pseudo-random sampling of the full BOSS dataset is first examined to 
-approximate the behavior of an average galaxy survey.  Samples of photo-$z$ 
-interim posteriors are shown in the top panel of Fig. \ref{fig:datapzs}.  The 
-brightest half of this pseudo-random sampling are selected for another test, 
-with photo-$z$ interim posterior samples shown in the bottom panel of Fig. 
-\ref{fig:datapzs}.
+the top panel of Fig. \ref{fig:datapzs}.  The brightest half of this 
+pseudo-random sampling are selected for another test, with photo-$z$ interim 
+posterior samples shown in the bottom panel of Fig. \ref{fig:datapzs}.  The 
+interim prior used for this set of interim photo-$z$ posteriors is the 
+reweighted estimator of $N(z)$ of \citet{Sheldon2012}.  In these cases the true 
+$N(z)$ is not known, but the fully probabilistic method presented here may 
+still be compared to what is obtained by alternative approaches.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/boss/samplepzs.pdf}\\
 \includegraphics[width=0.5\textwidth]{figs/bias/samplepzs.pdf}
-\caption{Here is shown the same information as in Fig. \ref{fig:nullpzs} for 
-real data.  A pseudo-random sampling of BOSS DR 10 photo-$z$ posteriors 
-produced by \citet{Sheldon2012} (top panel) are clearly much noisier than those 
-of the fiducial case.  A random sampling of the brightest half of the 
-pseudo-random BOSS DR10 sample (bottom panel) corresponds to much cleaner 
-photo-$z$ PDFs.}
+\caption{Same as Fig. \ref{fig:nullpzs} but for real data.  A pseudo-random 
+sampling of BOSS DR 10 photo-$z$ posteriors produced by \citet{Sheldon2012} 
+(top panel) are clearly much noisier than those of the fiducial case.  A random 
+sampling of the brightest half of the pseudo-random BOSS DR10 sample (bottom 
+panel) corresponds to much cleaner photo-$z$ posteriors.}
 \label{fig:datapzs}
 \end{figure}
 
@@ -886,7 +877,7 @@ in Fig. \ref{fig:prior}.
 \includegraphics[width=0.5\textwidth]{figs/null/priorsamps.pdf}
 \caption{This figure shows samples (colored lines) of $p(z|\vec{\theta})$ where 
 each $\vec{\theta}$ is drawn from the hyperprior distribution $p(\vec{\theta})$ 
-defined in Sec. \ref{sec:exp} with \ref{eq:priorcov}.}
+defined in Sec. \ref{sec:exp} with Eq. \ref{eq:priorcov}.}
 \label{fig:prior}
 \end{figure}
 
@@ -955,17 +946,17 @@ distribution for each hyperparameter using the standard deviation regardless of
 whether the true values are known.  
 
 In simulated cases where the true parameter values are known, we calculate the 
-Kullback-Leibler divergence (KLD), given in 
+Kullback-Leibler divergence (KLD), given by 
 \begin{equation}
 \label{eq:kl}
-KL_{\dagger,'} = \sum_{k=1}^{K}\ \exp[\theta_{k}^{\dagger}]\ 
-\ln\left[\frac{\theta_{k}^{\dagger}}{\theta_{k}^{'}}\right]\ \Delta_{k},
+KL_{\dagger,\ddagger} = \int\ p(z|\theta^{\dagger})\ 
+\ln\left[\frac{p(z|\theta^{\dagger})}{p(z|\theta^{\ddagger})}\right]\ dz,
 \end{equation}
 which measures a distance between parameter values $\vec{\theta}^{\dagger}$ and 
-$\vec{\theta}^{'}$ that is invariant under changes of variables.  We note that 
-$KL_{\dagger,'}\neq KL_{',\dagger}$, so both must be calculated, and the 
-minimum of the two is reported in this study.  In simulated tests, one of 
-$\vec{\theta}^{\dagger}$ and $\vec{\theta}^{'}$ is the true value and the other 
+$\vec{\theta}^{\ddagger}$ that is invariant under changes of variables.  We 
+note that $KL_{\dagger,\ddagger}\neq KL_{\ddagger,\dagger}$, so both must be 
+calculated, and the minimum of the two is reported in this study.  In simulated 
+tests, $\vec{\theta}^{\ddagger}$ is the true value and $\vec{\theta}^{\dagger}$ 
 is the value produced by one of the methods in question.  
 
 %\clearpage
@@ -975,19 +966,16 @@ is the value produced by one of the methods in question.
 Here we present the results of the informative tests of Sec. \ref{sec:exp}, 
 summarized in Tab. \ref{tab:key}.  
 
-\textbf{I will fill in KLD values, etc. when it looks like the test cases will 
-no longer change.}
-
 \clearpage
 \subsection{Fiducial Case}
 \label{sec:null}
 
-For the fiducial experiment, we precisely follow the procedures outlined in 
-Sec. \ref{sec:mock} and Sec. \ref{sec:mcmc}.  Recall that Fig. 
-\ref{fig:nullpzs} shows the interim photo-$z$ posteriors used in this test 
-case.  Fig. \ref{fig:null-samp} shows some random sample values, the true value 
-of $N(z)$.  Fig. \ref{fig:null-comp} compares the mean of the sample values to 
-alternative estimators as well as the truth.
+Fig. \ref{fig:null-samp} shows a selection of random samples from the posterior 
+distribution of Eq. \ref{eq:final} for the fiducial setup of Sec. 
+\ref{sec:mock}.  Fig. \ref{fig:null-comp} compares the mean of the sample 
+values to alternative estimators as well as the truth.  In the fiducial case, 
+hierarchical inference preserves features in the redshift distribution 
+function, whereas stacking tends to smear it out.  
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/null/samps.pdf}
@@ -1001,64 +989,28 @@ within the error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray).}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/null/comps.pdf}
-\caption{The mean of the samples (thick, solid line; KLD $0.002$) and 
-marginalized MLE (thick, dotted line; KLD $0.003$) are the best estimators of 
-the true distribution (thin, black line); stacking (thick, dashed line; KLD 
-$0.012$) overestimates $N(z)$ at the tails and underestimates $N(z)$ at the 
-peaks.  The two point estimators considered here, marginalized MAP (thin, 
-dashed line; KLD $0.009$) and marginalized expected value (thin, dotted line; 
-KLD $0.007$) fall between these two extremes.}
+\caption{The mean of the samples (thick, solid line) and marginalized MLE 
+(thick, dotted line) are the best estimators of the true distribution (thin, 
+black line); stacking (thick, dashed line) overestimates $N(z)$ at the tails 
+and underestimates $N(z)$ at the peaks.  The two point estimators considered 
+here, marginalized MAP (thin, dashed line) and marginalized expected value 
+(thin, dotted line) fall between these two extremes.}
 \label{fig:null-comp}
 \end{figure}
 
-In the fiducial case, hierarchical inference preserves features in the redshift 
-distribution function, whereas stacking tends to smear them out.  The 
-difference between stacking and the mean of the samples is more evident in 
-cases of noisier data, discussed in Sec. \ref{sec:noisy}.
-
 %\clearpage
-\subsection{Imprecise interim photo-$z$ posteriors}
+\subsection{Intrinsic Scatter}
 \label{sec:noisy}
 
 The sampler was run on the two datasets described in Sec. 
-\ref{sec:imprecision}.  In the case of less noisy data, the error bars were 
-smaller than in the fiducial case.  In both cases, the value of the mean of the 
-samples was virtually unaffected.  Fig. \ref{fig:sig1-comp} shows this result 
-for the $g=1$ case.  The alternative methods are still negatively affected in 
-the optimistically narrow likelihood case and the case in which the likelihoods 
+\ref{sec:imprecision}.  In the case of less noisy data (Fig. 
+\ref{fig:sig1-comp}), the error bars were smaller than in the fiducial case, 
+and in the case of noisier data (Fig. \ref{fig:sig4-comp}), the error bars were 
+larger than in the fiducial case.  However, in both these cases, the value of 
+the mean of the samples was virtually unaffected.  Even in the best case of 
+$g=1$, the The alternative methods are still negatively affected in the 
+optimistically narrow likelihood case and the case in which the likelihoods 
 broaden with increasing redshift.
-
-%\begin{figure}
-%\includegraphics[width=0.5\textwidth]{figs/sig2/samps.pdf}
-%\caption{The mean of sampled values (thick, black line) is quite comparable to 
-%that of the original fiducial case even though the data is twice as noisy.  How
-%ever, the error bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) are some
-%what larger.}
-%\label{fig:sig2-samp}
-%\end{figure}
-%
-%\begin{figure}
-%\includegraphics[width=0.5\textwidth]{figs/sig2/comps.pdf}
-%\caption{The mean of sampled values (thick, black line) is prone to overestimat
-%ing the peak values and underestimating the trough values relative to the true 
-%$N(z)$ (thin, black line).  The result of stacking (dotted line), on the other 
-%hand, underestimates the peak values, overestimates the trough values, and incr
-%eases the weight of the tails, leading to a greater KLD than for the sampler.  
-%The marginalized MLE (dashed line) performs well, but is more prone to the bias
-%es that affect the sampler, so has a larger KLD than the sampler as well.}
-%\label{fig:sig2-comp}
-%\end{figure}
-%
-%\begin{figure}
-%\includegraphics[width=0.5\textwidth]{figs/sig4/samps.pdf}
-%\caption{Compared to Fig. \ref{fig:null-samp}, the greatest difference between 
-%the original fiducial case and the quadruply noisy case is the size of the erro
-%r bars ($1\sigma$ in dark gray, $2\sigma$ in light gray) about the true $N(z)$ 
-%(thin, black line), as exemplified by the plotted random samples (colored lines
-%) that scatter further from the mean of the sampled values (thick, black line).
-%}
-%\label{fig:sig4-samp}
-%\end{figure}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/sig1/comps.pdf}
@@ -1072,6 +1024,18 @@ The mean of sampled values (thick, solid line; KLD) and marginalized MLE
 (thick, dotted line; KLD) exhibit some bias at the peaks of the distribution 
 but overall perform far better than the alternatives.}
 \label{fig:sig1-comp}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figs/sig4/comps.pdf}
+\caption{The mean of sampled values (thick, black line) is prone to overestimat
+ing the peak values and underestimating the trough values relative to the true 
+$N(z)$ (thin, black line).  The result of stacking (dotted line), on the other 
+hand, underestimates the peak values, overestimates the trough values, and incr
+eases the weight of the tails, leading to a greater KLD than for the sampler.  
+The marginalized MLE (dashed line) performs well, but is more prone to the bias
+es that affect the sampler, so has a larger KLD than the sampler as well.}
+\label{fig:sig2-comp}
 \end{figure}
 
 \begin{figure}
@@ -1378,11 +1342,13 @@ because of the ubiquity of using inappropriate interim priors.
 \begin{table}
 \begin{tabular}{lccccc}
 & Mean of & Marginalized & Stacking & Marginalized & Marginalized\\
-& Samples & MLE & & MAP & Expected Value\\
+& Samples & MMLE & & MMAP & MExpected Value\\
 Fiducial &&&&&\\
-Imprecise/5 &&&&&\\
-Inaccurate &&&&&\\
+Precise &&&&&\\
+Imprecise &&&&&\\
+Trending &&&&&\\
 Multimodal &&&&&\\
+Sampled &&&&&\\
 Featured &&&&&\\
 Unimodal &&&&&\\
 Bimodal &&&&&
