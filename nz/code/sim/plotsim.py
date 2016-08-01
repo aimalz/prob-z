@@ -33,20 +33,36 @@ mpl.rcParams['figure.subplot.hspace'] = 0.5
 cmap = np.linspace(0.,1.,4)
 colors = [cm.Greys(i) for i in cmap]#"gnuplot" works well
 
+# global s_tru,w_tru,a_tru,c_tru,d_tru,l_tru
+# s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',1.,1.,'k',[(0,(1,0.0001))],r' True '
+# global s_int,w_int,a_int,c_int,d_int,l_int
+# s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,0.5,'k',[(0,(1,0.0001))],r' Interim '
+# global s_stk,w_stk,a_stk,c_stk,d_stk,l_stk
+# s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,'k',[(0,(1,2))],r' Stacked '
+# global s_map,w_map,a_map,c_map,d_map,l_map
+# s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,0.75,'k',[(0,(4,4,2,4))],r' MMAP '
+# global s_exp,w_exp,a_exp,c_exp,d_exp,l_exp
+# s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,0.25,'k',[(0,(4,4,2,4))],r' MExp '
+# global s_mml,w_mml,a_mml,c_mml,d_mml,l_mml
+# s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,'k',[(0,(3,2))],r' MMLE '
+# global s_smp,w_smp,a_smp,c_smp,d,smp,l_smp
+# s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '--',1.,1.,'k',[(0,(1,0.0001))],r' Sampled '
 global s_tru,w_tru,a_tru,c_tru,d_tru,l_tru
-s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',1.,1.,'k',[(0,(1,0.0001))],r' True '
+s_tru,w_tru,a_tru,c_tru,d_tru,l_tru = '--',0.5,1.,'k',[(0,(1,0.0001))],'True '
 global s_int,w_int,a_int,c_int,d_int,l_int
-s_int,w_int,a_int,c_int,d_int,l_int = '--',1.,0.5,'k',[(0,(1,0.0001))],r' Interim '
+s_int,w_int,a_int,c_int,d_int,l_int = '--',0.5,0.5,'k',[(0,(1,0.0001))],'Interim '
 global s_stk,w_stk,a_stk,c_stk,d_stk,l_stk
-s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.,1.,'k',[(0,(1,2))],r' Stacked '
+s_stk,w_stk,a_stk,c_stk,d_stk,l_stk = '--',1.5,1.,'k',[(0,(3,2))],'Stacked '#[(0,(2,1))]
 global s_map,w_map,a_map,c_map,d_map,l_map
-s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,0.75,'k',[(0,(4,4,2,4))],r' MMAP '
+s_map,w_map,a_map,c_map,d_map,l_map = '--',1.,1.,'k',[(0,(3,2))],'MMAP '#[(0,(1,1,3,1))]
 global s_exp,w_exp,a_exp,c_exp,d_exp,l_exp
-s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,0.25,'k',[(0,(4,4,2,4))],r' MExp '
+s_exp,w_exp,a_exp,c_exp,d_exp,l_exp = '--',1.,1.,'k',[(0,(1,1))],'MExp '#[(0,(3,3,1,3))]
 global s_mml,w_mml,a_mml,c_mml,d_mml,l_mml
-s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',1.,1.,'k',[(0,(3,2))],r' MMLE '
+s_mml,w_mml,a_mml,c_mml,d_mml,l_mml = '--',2.,1.,'k',[(0,(1,1))],'MMLE '#[(0,(3,2))]
 global s_smp,w_smp,a_smp,c_smp,d,smp,l_smp
-s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '--',1.,1.,'k',[(0,(1,0.0001))],r' Sampled '
+s_smp,w_smp,a_smp,c_smp,d_smp,l_smp = '--',1.,1.,'k',[(0,(1,0.0001))],'Sampled '
+global s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe
+s_bfe,w_bfe,a_bfe,c_bfe,d_bfe,l_bfe = '--',2.,1.,'k',[(0,(1,0.0001))],'Mean of\n Samples '
 
 #making a step function plotter because pyplot is stupid
 def plotstep(subplot,binends,plot,s='--',d=[(0,(1,0.0001))],c='k',w=1,l=None,a=1.):
@@ -101,6 +117,7 @@ def initial_plots(meta, test):
     prange = np.sum(pranges,axis=0)
 #     print('will plots work?')
     plot_physgen(meta,test)
+    plot_ests(meta,test)
 #     plot_true(meta,test)
 #     plot_liktest(meta,test)
     plot_pdfs(meta,test)
@@ -111,11 +128,6 @@ def initial_plots(meta, test):
 
 # plot the underlying P(z) and its components
 def plot_physgen(meta,test):
-
-#     global pranges
-#     pranges = test.real.pdfs(zrange)
-#     global prange
-#     prange = np.sum(pranges,axis=0)
 
     f = plt.figure(figsize=(5,5))
     sys.stdout.flush()
@@ -505,4 +517,24 @@ def plot_mlehist(meta,test):
     #sps.set_ylim(0.,1./meta.zdif)
     sps.hist(test.mapZs,test.binends)
     f.savefig(os.path.join(meta.simdir,'mlehist.pdf'),bbox_inches='tight', pad_inches = 0)
+    return
+
+# plot the underlying P(z) and its components
+def plot_ests(meta,test):
+
+    f = plt.figure(figsize=(5,5))
+    sys.stdout.flush()
+    sps = f.add_subplot(1,1,1)
+    sps.set_title(meta.name+r' Comparisons $N(z)$')
+    sps.plot(zrange,np.log(prange/np.sum(prange*np.average(zrange[1:]-zrange[:-1]))*test.ngals),color='k')
+    plotstep(sps,test.binends,test.logstkNz,c=c_stk,s=s_stk,w=w_stk,d=d_stk,a=a_stk,l=l_stk)
+    plotstep(sps,test.binends,test.logintNz,c=c_int,s=s_int,w=w_int,d=d_int,a=a_int,l=l_int)
+#     plotstep(sps,test.binends,test.logmapNz,c=c_map,s=s_map,w=w_map,d=d_map,a=a_map,l=l_map)
+#     plotstep(sps,test.binends,test.logmmlNz,c=c_mml,s=s_mml,w=w_mml,d=d_mml,a=a_mml,l=l_mml)
+#     plotstep(sps,test.binends,test.logexpNz,c=c_exp,s=s_exp,w=w_exp,d=d_exp,a=a_exp,l=l_exp)
+    sps.set_ylabel(r'$\ln[N(z)]$')
+    sps.set_xlabel(r'$z$')
+    sps.set_ylim(-1.,10.)
+    sps.legend(fontsize='small',loc='upper right')
+    f.savefig(os.path.join(meta.simdir,'estNz.pdf'),bbox_inches='tight', pad_inches = 0)
     return
