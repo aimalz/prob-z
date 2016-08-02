@@ -239,10 +239,10 @@ class pertest(object):
 #             p = np.array([z*fun.pdf(z) for z in self.gridmids])
 #             p = p-min(p)+1./self.ngals/self.bindif
         elif self.meta.interim == 'bimodal':
-            mulo = np.percentile(self.binends,17.5)
-            muhi = np.percentile(self.binends,85)#+self.bindif
-            funlo = us.tnorm(mulo,(max(self.binends)-min(self.binends))/5.,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,75),np.sqrt(np.mean(self.binends)))
-            funhi = us.tnorm(muhi,(max(self.binends)-min(self.binends))/3.5,(min(self.binends),max(self.binends)))
+            mulo = np.percentile(self.binends,18)
+            muhi = np.percentile(self.binends,84)#+self.bindif
+            funlo = us.tnorm(mulo,(max(self.binends)-min(self.binends))/4.9,(min(self.binends),max(self.binends)))#sp.stats.norm(np.percentile(self.binends,75),np.sqrt(np.mean(self.binends)))
+            funhi = us.tnorm(muhi,(max(self.binends)-min(self.binends))/3.4,(min(self.binends),max(self.binends)))
             samp1 = funlo.rvs(len(self.meta.colors)/2)
             samp2 = funhi.rvs(len(self.meta.colors)/2)
             samps = np.concatenate((samp1,samp2))
@@ -250,7 +250,7 @@ class pertest(object):
 #             intP = sp.stats.pareto.pdf(np.arange(1.,2.,1./x),x)+sp.stats.pareto.pdf(np.arange(1.,2.,1./x)[::-1],x)
 #             intP = sp.stats.pareto(self.nbins)
             intP = np.array([funlo.pdf(z)+funhi.pdf(z) for z in self.binmids])
-            intP = intP-min(intP)+1./self.ngals/self.bindif#(1.+self.binmids*(max(pdf)-pdf))**2
+            intP = intP-0.9*min(intP)#+self.ngals/float(self.surv)/self.nbins#(1.+self.binmids*(max(pdf)-pdf))**2
 #             p = np.array([1.25*funlo.pdf(z)+funhi.pdf(z) for z in self.gridmids])
 #             p = p-min(p)+1./self.ngals/self.bindif
 #         elif self.meta.interim == 'multimodal':
