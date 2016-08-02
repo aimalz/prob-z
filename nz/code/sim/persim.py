@@ -110,21 +110,46 @@ class pertest(object):
 
     def makelf(self):
 
+#         # choose npeaks before sigma so you know how many to pick
+#         if self.meta.shape > 1:
+#             np.random.seed(seed=self.seed)
+#             maxpeaks = self.meta.shape#self.ndims
+#             weights = [1./k**maxpeaks for k in xrange(1,maxpeaks+1)]
+#             self.npeaks = np.array([us.choice(xrange(1,maxpeaks+1),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
+#         else:
+#             self.npeaks = [1]*self.ngals
+
+#         # choose random sigma
+#         self.sigval = self.meta.noisefact*self.zdif
+#         self.var = us.tnorm(self.sigval,self.sigval,(0.,self.allzs[-1]))
+#         # self.modZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])#self.truZs+1.
+#         self.varZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
+#         # np.random.shuffle(self.modZs)
+
+        # set up for standard deviations
+        self.sigval = self.meta.noisefact*self.zdif
+        self.var = us.tnorm(self.sigval,self.sigval,(0.,self.allzs[-1]))
         # choose npeaks before sigma so you know how many to pick
         if self.meta.shape > 1:
             np.random.seed(seed=self.seed)
-            maxpeaks = self.meta.shape#self.ndims
-            weights = [1./k**maxpeaks for k in xrange(1,maxpeaks+1)]
-            self.npeaks = np.array([us.choice(xrange(1,maxpeaks+1),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
+            self.maxpeaks = self.meta.shape
+            self.peaklocs = np.array(sp.stats.uniform(loc=self.allzs[0],scale=self.zrange).rvs(self.maxpeaks-1))
+            self.peakvars = np.array(self.var.rvs(self.maxpeaks-1))
+            weights = [self.sigval**2]
+            weights.append([self.peakvars[n]**2 for n in xrange(self.maxpeaks-1)])#[1./k**maxpeaks for k in xrange(1,maxpeaks+1)]
+            self.npeaks = np.array([us.choice(xrange(1,self.maxpeaks+1),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
         else:
             self.npeaks = [1]*self.ngals
 
         # choose random sigma
-        self.sigval = self.meta.noisefact*self.zdif
-        self.var = us.tnorm(self.sigval,self.sigval,(0.,self.allzs[-1]))
-        # self.modZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])#self.truZs+1.
-        self.varZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
-        # np.random.shuffle(self.modZs)
+        self.varZs = []
+        varZ = self.var.rvs(self.ngals)
+        for j in xrange(self.ngals):
+            varZ_here = np.array([varZ[j]])#self.var.rvs(1)
+            if self.npeaks[j] != 1:
+                varZ_here = np.concatenate((varZ_here,self.peakvars))
+            self.varZs.append(varZ_here)
+        self.varZs = np.array(self.varZs)
 
         if self.meta.degen != 0:
             #self.mudegen = [sp.stats.uniform.rvs(loc=self.zlos[0],scale=self.zhis[-1]-self.zlos[0],size=2) for x in xrange(self.meta.degen)]
@@ -180,16 +205,28 @@ class pertest(object):
             self.zfactor = np.array([1.]*self.ngals)
             #self.sigZs = self.varZs#np.array([[self.varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
         np.random.seed(seed=self.seed)
-        self.sigZs = np.array([[self.varZs[j][p]*self.zfactor[j] for p in xrange(self.npeaks[j])] for j in xrange(self.ngals)])#np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j][p]*self.zfactor[j],scale=self.varZs[j][p]*self.zfactor[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+        #self.sigZs = np.array([[self.varZs[j][p]*self.zfactor[j] for p in xrange(self.npeaks[j])] for j in xrange(self.ngals)])#np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j][p]*self.zfactor[j],scale=self.varZs[j][p]*self.zfactor[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+        self.sigZs = self.varZs*self.zfactor
+#         # jitter peak zs given sigma to simulate inaccuracy
+#         np.random.seed(seed=self.seed)
+#         self.shift = np.array([[np.random.normal(loc=0.,scale=self.sigZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+#         self.obsZs = np.array([[self.truZs[j]+self.shift[j][p] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+#         #print(self.obsZs-self.truZs)
 
         # jitter peak zs given sigma to simulate inaccuracy
         np.random.seed(seed=self.seed)
         self.shift = np.array([[np.random.normal(loc=0.,scale=self.sigZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-        self.obsZs = np.array([[self.truZs[j]+self.shift[j][p] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-        #print(self.obsZs-self.truZs)
 
-        self.minobs = min(min(self.obsZs))
-        self.maxobs = max(max(self.obsZs))
+        self.obsZs = []
+        for j in xrange(self.ngals):
+            obsZ = np.array([self.truZs[j]+self.shift[j][0]])
+            if self.npeaks[j] != 1:
+                obsZ = np.concatenate((obsZ,self.peaklocs+self.shift[j][1:]))
+            self.obsZs.append(obsZ)
+        self.obsZs = np.array(self.obsZs)
+
+#         self.minobs = np.min(self.obsZs)
+#         self.maxobs = np.max(self.obsZs)
 
     def setup_pdfs(self):
 

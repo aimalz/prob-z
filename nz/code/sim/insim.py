@@ -128,7 +128,7 @@ class setup(object):
 #         else:
 #             self.withz = bool(0)
 
-        # 0 for unimodal, 1 for multimodal
+        # 1 for unimodal, n for multimodal with maximum n peaks randomly
         if 'shape' in indict:
             self.shape = int(indict['shape'][0])
         else:
