@@ -147,9 +147,10 @@ class pertest(object):
         for j in xrange(self.ngals):
             varZ_here = np.array([varZ[j]])#self.var.rvs(1)
             if self.npeaks[j] != 1:
-                varZ_here = np.concatenate((varZ_here,self.peakvars))
+                varZ_here = np.concatenate((varZ_here,us.tnorm(self.peakvars,self.peakvars,(self.allzs[0],self.allzs[-1])).rvs(self.npeaks[j]-1)))
             self.varZs.append(varZ_here)
         self.varZs = np.array(self.varZs)
+        self.randovars = self.varZs[self.randos]
 
         if self.meta.degen != 0:
             #self.mudegen = [sp.stats.uniform.rvs(loc=self.zlos[0],scale=self.zhis[-1]-self.zlos[0],size=2) for x in xrange(self.meta.degen)]
@@ -224,6 +225,7 @@ class pertest(object):
                 obsZ = np.concatenate((obsZ,self.peaklocs+self.shift[j][1:]))
             self.obsZs.append(obsZ)
         self.obsZs = np.array(self.obsZs)
+        self.randovars = self.varZs[self.randos]
 
 #         self.minobs = np.min(self.obsZs)
 #         self.maxobs = np.max(self.obsZs)
