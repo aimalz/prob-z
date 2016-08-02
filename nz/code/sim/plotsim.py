@@ -315,12 +315,6 @@ def makepdfs(meta,test,tru,j,zfactor,grid):
     difs = grid[1:]-grid[:-1]
     allsummed = np.zeros(len(grid)-1)
 
-    #for pn in xrange(test.npeaks[j]):
-    func = us.tnorm(tru,test.varZs[j][0]*zfactor,(min(grid),max(grid)))
-    cdf = np.array([func.cdf(binend) for binend in grid])
-    spread = cdf[1:]-cdf[:-1]
-    allsummed += spread/(test.npeaks[j]+meta.degen)
-
     if meta.degen != 0:
         for x in xrange(meta.degen):
             funcs = us.tnorm(test.mudegen[x][0],test.sigdegen[x][0],(min(grid),max(grid)))
@@ -329,12 +323,21 @@ def makepdfs(meta,test,tru,j,zfactor,grid):
             spreads = cdfs[1:]-cdfs[:-1]
             allsummed += spreads/(test.npeaks[j]+meta.degen)
 
+    if meta.shape == 1:
+        func = us.tnorm(tru,test.varZs[j][0]*zfactor,(min(grid),max(grid)))
+        cdf = np.array([func.cdf(binend) for binend in grid])
+        spread = cdf[1:]-cdf[:-1]
+        allsummed += spread/(test.npeaks[j]+meta.degen)
+
     if meta.shape > 1:
+
+        funcs = [[tru,test.varZs[j][0]*zfactor,1.]]
         for n in xrange(test.npeaks[j]-1):
-            funcs = us.tnorm(test.peaklocs[n],test.peakvars[n],(min(grid),max(grid)))
-            cdfs = np.array([funcs.cdf(binend) for binend in grid])
-            spreads = cdfs[1:]-cdfs[:-1]
-            allsummed += spreads/(test.npeaks[j]+meta.degen)
+            funcs.append([test.peaklocs[n],test.peakvars[n],1.])
+        func = us.gmix(funcs,(min(grid),max(grid)))
+        cdfs = func.cdf(grid)
+        spreads = cdfs[1:]-cdfs[:-1]
+        allsummed += spreads/(test.npeaks[j]+meta.degen)
 
         # normalize probabilities to integrate (not sum)) to 1
     pdf = allsummed/max(np.dot(allsummed,difs),sys.float_info.epsilon)
@@ -440,7 +443,7 @@ def plot_lfs(meta,test):
         pdf_info = [[intobss[x][p],test.sigZs[j][p],1./float(test.npeaks[j]+meta.degen)] for p in xrange(test.npeaks[j])]
         pdf_info = np.array(pdf_info)
         pdf_infos = us.gmix(pdf_info,(zobsgrid[0],zobsgrid[-1]))
-        plot_y = pdf_infos.pdf(np.array(obsgridmids))
+        plot_y = makepdfs(meta,test,intobss[x][0],j,zfactors[x],zobsgrid)#pdf_infos.pdf(np.array(obsgridmids))
         if meta.degen != 0:
             for y in xrange(meta.degen):
                 sps_pdfs.vlines(test.mudegen[y][0],0.,(test.zhis[-1]-test.zlos[0])/test.bindif,color='k')

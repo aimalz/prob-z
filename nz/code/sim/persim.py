@@ -135,11 +135,11 @@ class pertest(object):
             self.maxpeaks = self.meta.shape
             self.peaklocs = np.array(sp.stats.uniform(loc=self.allzs[0],scale=self.zrange).rvs(self.maxpeaks-1))
             self.peakvars = np.array(self.var.rvs(self.maxpeaks-1))
-            weights = [self.sigval**2]
-            weights.append([self.peakvars[n]**2 for n in xrange(self.maxpeaks-1)])#[1./k**maxpeaks for k in xrange(1,maxpeaks+1)]
+            weights =[1./k**self.maxpeaks for k in xrange(1,self.maxpeaks+1)]
             self.npeaks = np.array([us.choice(xrange(1,self.maxpeaks+1),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
         else:
             self.npeaks = [1]*self.ngals
+            self.varZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
 
         # choose random sigma
         self.varZs = []
@@ -147,7 +147,8 @@ class pertest(object):
         for j in xrange(self.ngals):
             varZ_here = np.array([varZ[j]])#self.var.rvs(1)
             if self.npeaks[j] != 1:
-                varZ_here = np.concatenate((varZ_here,us.tnorm(self.peakvars,self.peakvars,(self.allzs[0],self.allzs[-1])).rvs(self.npeaks[j]-1)))
+                for n in xrange(self.npeaks[j]-1):
+                    varZ_here = np.concatenate((varZ_here,us.tnorm(self.peakvars[n],self.peakvars[n],(self.allzs[0],self.allzs[-1])).rvs(self.npeaks[j]-1)))
             self.varZs.append(varZ_here)
         self.varZs = np.array(self.varZs)
         self.randovars = self.varZs[self.randos]
@@ -222,7 +223,7 @@ class pertest(object):
         for j in xrange(self.ngals):
             obsZ = np.array([self.truZs[j]+self.shift[j][0]])
             if self.npeaks[j] != 1:
-                obsZ = np.concatenate((obsZ,self.peaklocs+self.shift[j][1:]))
+                obsZ = np.concatenate((obsZ,self.peaklocs))#+self.shift[j][1:]))
             self.obsZs.append(obsZ)
         self.obsZs = np.array(self.obsZs)
         self.randovars = self.varZs[self.randos]
