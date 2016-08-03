@@ -133,11 +133,11 @@ class pertest(object):
         if self.meta.shape > 1:
             np.random.seed(seed=self.seed)
             self.maxpeaks = self.meta.shape
-            weights = [1./k**self.maxpeaks for k in xrange(1,self.maxpeaks+1)]
+            self.weights = [1./k**self.maxpeaks for k in xrange(1,self.maxpeaks+1)]
             if self.meta.outlier == 1:
                 self.peaklocs = np.array(sp.stats.uniform(loc=self.allzs[0],scale=self.zrange).rvs(self.maxpeaks-1))
                 self.peakvars = np.array([self.zdif for n in xrange(self.maxpeaks-1)])#np.array(self.var.rvs(self.maxpeaks-1))
-            self.npeaks = np.array([us.choice(xrange(1,self.maxpeaks+1),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
+            self.npeaks = np.array([us.choice(xrange(1,self.maxpeaks+1),self.weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
         else:
             self.npeaks = [1]*self.ngals
             #self.varZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
@@ -492,10 +492,10 @@ class pertest(object):
 
         for pn in xrange(self.npeaks[j]):
             func = us.tnorm(self.obsZs[j][pn],self.sigZs[j][pn],(min(grid),max(grid)))
-            cdf = np.array([func.cdf(binend) for binend in grid])
+            cdf = self.weights[pn]*np.array([func.cdf(binend) for binend in grid])
             spread = cdf[1:]-cdf[:-1]
 
-            allsummed += spread/float((self.npeaks[j]+self.meta.degen))
+            allsummed += spread#/float((self.npeaks[j]+self.meta.degen))
 
         if self.meta.degen != 0:
             for x in xrange(self.meta.degen):
@@ -506,7 +506,7 @@ class pertest(object):
                 spreads = np.sum(np.array([max(funcs.cdf(grid[b+1])-funcs.cdf(grid[b]),sys.float_info.epsilon)*self.ngals for b in binlos]))
                 #cdfs = np.array([funcs.cdf(binend) for binend in grid])
                 #spreads = cdfs[1:]-cdfs[:-1]
-                allsummed += spreads/float(self.npeaks[j]+self.meta.degen)/float(self.meta.noisefact)/1000.
+                allsummed += spreads#/float(self.npeaks[j]+self.meta.degen)/float(self.meta.noisefact)/1000.
 
         pdf = intp*allsummed
         # normalize probabilities to integrate (not sum)) to 1
