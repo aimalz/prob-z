@@ -123,16 +123,23 @@ class setup(object):
         # permit more complicated p(z)s
 
         # 0 for variance independent of redshift, 1 for variance scaling with redshift
+        # this is now "sigma"
 #         if 'withz' in indict:
 #             self.withz = bool(int(indict['withz'][0]))
 #         else:
 #             self.withz = bool(0)
 
-        # 1 for unimodal, n for multimodal with maximum n peaks randomly
+        # 1 for unimodal, 2 for bimodal randomly
         if 'shape' in indict:
             self.shape = int(indict['shape'][0])
         else:
             self.shape = 1
+
+        # 0 for unimodal, 1 for bimodal not randomly
+        if 'outlier' in indict:
+            self.outlier = int(indict['outlier'][0])
+        else:
+            self.outlier = 0
 
         # 1 for no degeneracies, n for n degenerate redshifts
         if 'degen' in indict:

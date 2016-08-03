@@ -111,7 +111,7 @@ class pertest(object):
     def makelf(self):
 
 #         # choose npeaks before sigma so you know how many to pick
-#         if self.meta.shape > 1:
+#         if self.meta.outlier == 0 and self.meta.shape > 1:
 #             np.random.seed(seed=self.seed)
 #             maxpeaks = self.meta.shape#self.ndims
 #             weights = [1./k**maxpeaks for k in xrange(1,maxpeaks+1)]
@@ -133,24 +133,27 @@ class pertest(object):
         if self.meta.shape > 1:
             np.random.seed(seed=self.seed)
             self.maxpeaks = self.meta.shape
-            self.peaklocs = np.array(sp.stats.uniform(loc=self.allzs[0],scale=self.zrange).rvs(self.maxpeaks-1))
-            self.peakvars = np.array(self.var.rvs(self.maxpeaks-1))
-            weights =[1./k**self.maxpeaks for k in xrange(1,self.maxpeaks+1)]
+            weights = [1./k**self.maxpeaks for k in xrange(1,self.maxpeaks+1)]
+            if self.meta.outlier == 1:
+                self.peaklocs = np.array(sp.stats.uniform(loc=self.allzs[0],scale=self.zrange).rvs(self.maxpeaks-1))
+                self.peakvars = np.array([self.zdif for n in xrange(self.maxpeaks-1)])#np.array(self.var.rvs(self.maxpeaks-1))
             self.npeaks = np.array([us.choice(xrange(1,self.maxpeaks+1),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
         else:
             self.npeaks = [1]*self.ngals
-            self.varZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
+            #self.varZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
 
         # choose random sigma
-        self.varZs = []
-        varZ = self.var.rvs(self.ngals)
-        for j in xrange(self.ngals):
-            varZ_here = np.array([varZ[j]])#self.var.rvs(1)
-            if self.npeaks[j] != 1:
-                for n in xrange(self.npeaks[j]-1):
-                    varZ_here = np.concatenate((varZ_here,us.tnorm(self.peakvars[n],self.peakvars[n],(self.allzs[0],self.allzs[-1])).rvs(self.npeaks[j]-1)))
-            self.varZs.append(varZ_here)
-        self.varZs = np.array(self.varZs)
+        if self.meta.outlier == 0:
+            self.varZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
+        else:
+            self.varZs = []
+            varZ = self.var.rvs(self.ngals)
+            for j in xrange(self.ngals):
+                varZ_here = np.array([varZ[j]])#self.var.rvs(1)
+                if self.npeaks[j] != 1:
+                    varZ_here = np.concatenate((varZ_here,self.peakvars[:self.npeaks[j]-1]))#us.tnorm(self.peakvars[n],self.peakvars[n],(self.allzs[0],self.allzs[-1])).rvs(self.npeaks[j]-1)))
+                self.varZs.append(varZ_here)
+            self.varZs = np.array(self.varZs)
         self.randovars = self.varZs[self.randos]
 
         if self.meta.degen != 0:
@@ -219,14 +222,17 @@ class pertest(object):
         np.random.seed(seed=self.seed)
         self.shift = np.array([[np.random.normal(loc=0.,scale=self.sigZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
 
-        self.obsZs = []
-        for j in xrange(self.ngals):
-            obsZ = np.array([self.truZs[j]+self.shift[j][0]])
-            if self.npeaks[j] != 1:
-                obsZ = np.concatenate((obsZ,self.peaklocs))#+self.shift[j][1:]))
-            self.obsZs.append(obsZ)
-        self.obsZs = np.array(self.obsZs)
-        self.randovars = self.varZs[self.randos]
+        if self.meta.outlier == 0:
+            self.obsZs = np.array([[self.truZs[j]+self.shift[j][p] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+        else:
+            self.obsZs = []
+            for j in xrange(self.ngals):
+                obsZ = np.array([self.truZs[j]+self.shift[j][0]])
+                if self.npeaks[j] != 1:
+                    obsZ = np.concatenate((obsZ,self.peaklocs[:self.npeaks[j]-1]))#+self.shift[j][1:]))
+                self.obsZs.append(obsZ)
+            self.obsZs = np.array(self.obsZs)
+        self.randoobs = self.obsZs[self.randos]
 
 #         self.minobs = np.min(self.obsZs)
 #         self.maxobs = np.max(self.obsZs)

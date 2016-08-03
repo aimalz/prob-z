@@ -315,28 +315,34 @@ def makepdfs(meta,test,tru,j,zfactor,grid):
     difs = grid[1:]-grid[:-1]
     allsummed = np.zeros(len(grid)-1)
 
+    for pn in xrange(test.npeaks[j]):
+        func = us.tnorm(tru,test.varZs[j][pn]*zfactor,(min(grid),max(grid)))
+        cdf = np.array([func.cdf(binend) for binend in grid])
+        spread = cdf[1:]-cdf[:-1]
+
+        allsummed += spread/(test.npeaks[j]+meta.degen)
+
     if meta.degen != 0:
         for x in xrange(meta.degen):
             funcs = us.tnorm(test.mudegen[x][0],test.sigdegen[x][0],(min(grid),max(grid)))
                 #pdfs = funcs.pdf(self.truZs[j])
             cdfs = np.array([funcs.cdf(binend) for binend in grid])
             spreads = cdfs[1:]-cdfs[:-1]
-            allsummed += spreads/(test.npeaks[j]+meta.degen)
 
-    if meta.shape == 1:
-        func = us.tnorm(tru,test.varZs[j][0]*zfactor,(min(grid),max(grid)))
-        cdf = np.array([func.cdf(binend) for binend in grid])
-        spread = cdf[1:]-cdf[:-1]
-        allsummed += spread/(test.npeaks[j]+meta.degen)
+            allsummed += spreads/(test.npeaks[j]+meta.degen)
 
     if meta.shape > 1:
 
         funcs = [[tru,test.varZs[j][0]*zfactor,1.]]
         for n in xrange(test.npeaks[j]-1):
-            funcs.append([test.peaklocs[n],test.peakvars[n],1.])
+            if meta.outlier == 1:
+                funcs.append([test.peaklocs[n],test.peakvars[n],1.])
+            else:
+                funcs.append([test.obsZs[j][n],test.sigZs[j][n],1.])
         func = us.gmix(funcs,(min(grid),max(grid)))
         cdfs = func.cdf(grid)
         spreads = cdfs[1:]-cdfs[:-1]
+
         allsummed += spreads/(test.npeaks[j]+meta.degen)
 
         # normalize probabilities to integrate (not sum)) to 1
@@ -429,14 +435,15 @@ def plot_lfs(meta,test):
     inttrus = np.array([sp.stats.uniform(loc=ztrugrid[0],scale=zrange).rvs(1)[0] for x in xrange(len(meta.colors))])
     zfactors = lf[5]
     intshifts = np.array([[np.random.normal(loc=0.,scale=test.sigZs[j][p]) for p in xrange(test.npeaks[j])] for x in xrange(len(meta.colors))])
-    #intobss = np.array([[inttrus[x]+intshifts[x][p] for p in xrange(test.npeaks[j])] for x in xrange(len(meta.colors))])
-
-    intobss = []
-    for x in xrange(len(meta.colors)):
-        obsZ = np.array([inttrus[x]+intshifts[x][0]])
-        if meta.shape > 1:
-            obsZ = np.concatenate((obsZ,test.peaklocs+intshifts[x][1:]))
-        intobss.append(obsZ)
+    if meta.outlier == 0:
+        intobss = np.array([[inttrus[x]+intshifts[x][p] for p in xrange(test.npeaks[j])] for x in xrange(len(meta.colors))])
+    else:
+        intobss = []
+        for x in xrange(len(meta.colors)):
+            obsZ = np.array([inttrus[x]+intshifts[x][0]])
+            if test.npeaks[j] != 1:
+                obsZ = np.concatenate((obsZ,test.peaklocs[:test.npeaks[j]-1]))
+            intobss.append(obsZ)
     intobss = np.array(intobss)
 
     for x in xrange(len(meta.colors)):
