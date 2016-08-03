@@ -492,7 +492,7 @@ class pertest(object):
 
         for pn in xrange(self.npeaks[j]):
             func = us.tnorm(self.obsZs[j][pn],self.sigZs[j][pn],(min(grid),max(grid)))
-            cdf = self.weights[pn]*np.array([func.cdf(binend) for binend in grid])
+            cdf = self.weights[pn]/sum(self.weights)*np.array([func.cdf(binend) for binend in grid])
             spread = cdf[1:]-cdf[:-1]
 
             allsummed += spread#/float((self.npeaks[j]+self.meta.degen))
