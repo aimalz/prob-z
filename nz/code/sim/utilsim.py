@@ -107,6 +107,7 @@ class gmix(object):
         self.ncomps = len(self.comps)
 
         self.weights = np.transpose(self.comps)[2]
+        self.weights = self.weights/sum(self.weights)
 #         mincomps = [(self.minZ-comp[0])/comp[1] for comp in self.comps]
 #         maxcomps = [(self.maxZ-comp[0])/comp[1] for comp in self.comps]
         self.comps = [tnorm(comp[0],comp[1],(self.minZ,self.maxZ)) for comp in self.comps]#[sp.stats.truncnorm(mincomps[c],maxcomps[c],loc=self.comps[c][0],scale=self.comps[c][1]) for c in lrange(self.comps)]
@@ -177,3 +178,52 @@ class cont(object):
             Zs = self.dims[k].rvs(j)
             samps = np.concatenate((samps,Zs))
         return np.array(samps)
+
+def makelf(truZ,shift,obsZ,sigZ,dgen=None,outlier=None):
+    weights = (1./sigZ)/sum(1./sigZ)
+    npeaks = len(sigZ)
+    weights = np.array(weights)
+    weights = weights/sum(weights)
+    #print('npeaks={}, weights={}'.format(npeaks, weights))
+    #shift = np.array([np.random.normal(loc=0.,scale=sigZ[p]) for p in xrange(npeaks)])
+    if outlier == None:
+        obsZ = shift+truZ
+    else:
+        obsZ = [shift[0]+truZ]
+        obsZ.extend(outlier)
+    #print('shift={}, truZ={}, obsZ={}, sigZ={}'.format(shift, truZ, obsZ, sigZ))
+    mixmod = []
+    for n in xrange(npeaks):
+        mixmod.append([obsZ[n],sigZ[n],weights[n]])
+
+    lf = mixmod
+
+    if dgen != None:
+        const = dgen.pdf([truZ])
+    else:
+        const = 0.
+
+    return(lf,const)
+
+def makepdf(grid,truZ,shift,obsZ,sigZ,intp=None,dgen=None,outlier=None):
+
+    lf,const = makelf(truZ,shift,obsZ,sigZ,dgen,outlier)
+
+    pdf = gmix(lf,(min(grid),max(grid)))
+
+    difs = grid[1:]-grid[:-1]
+    dif = difs[np.argmin(grid-truZ)]
+    allsummed = np.zeros(len(grid)-1)
+
+    cdf = pdf.cdf(grid)
+    spread = cdf[1:]-cdf[:-1]
+    allsummed += spread
+    allsummed += const*dif
+    if intp != None:
+        pf = intp*allsummed
+    else:
+        pf = allsummed
+    pf = np.array(pf)
+    #pf = pf/max(np.dot(pf,difs),sys.float_info.epsilon)
+
+    return(pf)
