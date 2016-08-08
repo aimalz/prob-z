@@ -389,6 +389,8 @@ def make2dlf(meta,test,j):
     sumx = np.sum(gridpdfs,axis=0)*trugriddifs
     sumy = np.sum(gridpdfs,axis=1)*obsgriddifs
     gridpdfs = (gridpdfs/sumx).T
+    sumx = np.sum(samppdfs,axis=0)*trugriddifs
+    samppdfs = (samppdfs/sumx)
 
     return(gridpdfs,sumx,sumy,ztrugrid,zobsgrid,zfactors,inttrus,intobss,samppdfs)
 
