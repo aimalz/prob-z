@@ -159,10 +159,10 @@ class pertest(object):
         if self.meta.degen != 0:
             #self.mudegen = [sp.stats.uniform.rvs(loc=self.zlos[0],scale=self.zhis[-1]-self.zlos[0],size=2) for x in xrange(self.meta.degen)]
             np.random.seed(seed=self.seed)
-            self.mudegen = [sp.stats.uniform(loc=self.allzs[0],scale=self.zrange).rvs(1) for x in xrange(self.meta.degen)]
+            self.mudegen = sp.stats.uniform(loc=self.allzs[0],scale=self.zrange).rvs(self.meta.degen)# for x in xrange(self.meta.degen)]
             np.random.seed(seed=self.seed)
-            self.sigdegen = [us.tnorm(self.sigval,self.sigval,(self.allzs[0],self.allzs[-1])).rvs(1) for x in xrange(self.meta.degen)]
-            self.distdegen = [us.tnorm(self.mudegen[x][0],self.sigdegen[x][0],(self.zlos[0],self.zhis[-1])) for x in xrange(self.meta.degen)]
+            self.sigdegen = us.tnorm(self.sigval,self.sigval,(self.allzs[0],self.allzs[-1])).rvs(self.meta.degen)# for x in xrange(self.meta.degen)]
+            self.distdegen = [us.tnorm(self.mudegen[x],self.sigdegen[x],(self.zlos[0],self.zhis[-1])) for x in xrange(self.meta.degen)]
 
     def choosetrue(self):
 
@@ -490,17 +490,22 @@ class pertest(object):
         difs = grid[1:]-grid[:-1]
         allsummed = np.zeros(len(grid)-1)
 
+        funcs = []
         for pn in xrange(self.npeaks[j]):
-            func = us.tnorm(self.obsZs[j][pn],self.sigZs[j][pn],(min(grid),max(grid)))
-            cdf = self.weights[pn]/sum(self.weights)*np.array([func.cdf(binend) for binend in grid])
-            spread = cdf[1:]-cdf[:-1]
+            #func = us.tnorm(self.obsZs[j][pn],self.sigZs[j][pn],(min(grid),max(grid)))
+            weight = (1./self.sigZs[j][pn])/sum(1./self.sigZs[j])
+            funcs.append([self.obsZs[j][pn],self.sigZs[j][pn],weight])
+            #cdf = self.weights[pn]/sum(self.weights)*np.array([func.cdf(binend) for binend in grid])
+        func = us.gmix(funcs,(min(grid),max(grid)))
+        cdf = func.cdf(grid)
+        spread = cdf[1:]-cdf[:-1]
 
-            allsummed += spread#/float((self.npeaks[j]+self.meta.degen))
+        allsummed += spread#/float((self.npeaks[j]+self.meta.degen))
 
         if self.meta.degen != 0:
             for x in xrange(self.meta.degen):
                 #funcs = us.tnorm(self.mudegen[x][0]-self.obsZs[j][pn],self.sigdegen[x][0],(min(grid),max(grid)))
-                funcs = us.tnorm(self.mudegen[x][0],self.sigdegen[x][0],(min(grid),max(grid)))
+                funcs = us.tnorm(self.mudegen[x],self.sigdegen[x],(min(grid),max(grid)))
                 #pdfs = funcs.pdf(self.truZs[j])
                 binlos = [np.argmin(np.abs(gridmids-self.obsZs[j])) for p in xrange(self.npeaks[j])]
                 spreads = np.sum(np.array([max(funcs.cdf(grid[b+1])-funcs.cdf(grid[b]),sys.float_info.epsilon)*self.ngals for b in binlos]))

@@ -170,9 +170,9 @@ def plot_pdfs(meta,test):
         sps.vlines(test.truZs[randos[r]],0.,max(test.pdfs[randos[r]]),color=meta.colors[r],linestyle=s_tru,linewidth=w_tru,dashes=d_tru,alpha=a_tru)
         for p in xrange(test.npeaks[randos[r]]):
             sps.vlines(test.obsZs[randos[r]][p],0.,max(test.pdfs[randos[r]]),color=meta.colors[r],linestyle=s_map,linewidth=w_map,dashes=d_map,alpha=a_map)
-    if meta.degen != 0:
-        for x in xrange(meta.degen):
-            sps.vlines(test.mudegen[x],0.,(test.zhis[-1]-test.zlos[0])/test.bindif,color='k')
+#     if meta.degen != 0:
+#         for x in xrange(meta.degen):
+#             sps.vlines(test.mudegen[x],0.,(test.zhis[-1]-test.zlos[0])/test.bindif,color='k')
     sps.set_ylabel(r'$p(z|\vec{d})$')
     sps.set_xlabel(r'$z$')
     sps.set_xlim(test.binlos[0]-meta.zdif,test.binhis[-1]+meta.zdif)
