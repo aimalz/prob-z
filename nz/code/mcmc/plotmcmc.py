@@ -19,7 +19,7 @@ from sklearn import neighbors
 import scipy as sp
 import csv
 
-import randomfield
+import randomfield as rf
 from randomfield.lensing import *
 from randomfield.cosmotools import calculate_power
 from randomfield.cosmotools import get_growth_function
