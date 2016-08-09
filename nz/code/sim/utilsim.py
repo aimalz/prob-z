@@ -90,7 +90,9 @@ class tnorm(object):
     def cdf(self,z):
         x = self.loc(z)
         cdf = self.phi(x)-self.phi(self.lo)
-        return cdf/self.norm()
+        result = cdf/self.norm()
+        #print('a cdf: {}/{}'.format(result,z))
+        return result
 
     def rvs(self,J):
         func = sp.stats.truncnorm(self.lo,self.hi,loc=self.mu,scale=self.sig)
@@ -115,19 +117,23 @@ class gmix(object):
 #         self.weights = np.array([self.calccdf(c,self.minZ,self.maxZ) for c in lrange(self.comps)])
 
     def pdfs(self,zs):
-        out = np.array([self.weights[c]*np.array([self.comps[c].pdf(z) for z in zs]) for c in xrange(self.ncomps)])
+        print('zs.shape={}'.format(np.shape(zs)))
+        out = np.array([self.weights[c]*self.comps[c].pdf(zs) for c in xrange(self.ncomps)])
+        print('pdfs.out.shape={}'.format(np.shape(out)))
         return out
 
     def pdf(self,zs):
         out = np.sum(self.pdfs(zs),axis=0)
+        print('pdf.out.shape={}'.format(np.shape(out)))
         return out
 
     def cdfs(self,zs):
-        out = np.array([self.weights[c]*np.array([self.comps[c].cdf(z) for z in zs]) for c in xrange(self.ncomps)])
+        out = np.array([self.weights[c]*self.comps[c].cdf(zs) for c in xrange(self.ncomps)])
         return out
 
     def cdf(self,zs):
-        return np.sum(self.cdfs(zs),axis=0)
+        out = np.sum(self.cdfs(zs),axis=0)
+        return out
 
     def binned(self,zs):
         thing = self.cdf(zs)
@@ -179,46 +185,42 @@ class cont(object):
             samps = np.concatenate((samps,Zs))
         return np.array(samps)
 
-def makelf(truZ,shift,obsZ,sigZ,dgen=None,outlier=None):
-    weights = (1./sigZ)/sum(1./sigZ)
-    npeaks = len(sigZ)
-    weights = np.array(weights)
-    weights = weights/sum(weights)
-    #print('npeaks={}, weights={}'.format(npeaks, weights))
-    #shift = np.array([np.random.normal(loc=0.,scale=sigZ[p]) for p in xrange(npeaks)])
-    if outlier == None:
-        obsZ = shift+truZ
-    else:
-        obsZ = [shift[0]+truZ]
-        obsZ.extend(outlier)
-    #print('shift={}, truZ={}, obsZ={}, sigZ={}'.format(shift, truZ, obsZ, sigZ))
-    mixmod = []
-    for n in xrange(npeaks):
-        mixmod.append([obsZ[n],sigZ[n],weights[n]])
+def makelf(truZ,zfactor,elements,outlier=None):#,dgen=None):
+
+    if outlier is None:
+        outlier = []
+
+    mixmod = [[truZ+elem.shift,elem.stddev*zfactor,elem.weight] for elem in elements]
+    mixmod.extend([[elem.obsZ,elem.stddev,elem.weight] for elem in outlier])
 
     lf = mixmod
 
-    if dgen != None:
-        const = dgen.pdf([truZ])
-    else:
-        const = 0.
+    return(lf)#,dgen)
 
-    return(lf,const)
+def makepdf(grid,truZ,gal,intp=None,dgen=None,outlier=None):
 
-def makepdf(grid,truZ,shift,obsZ,sigZ,intp=None,dgen=None,outlier=None):
+    elements = gal.elements
 
-    lf,const = makelf(truZ,shift,obsZ,sigZ,dgen,outlier)
-
-    pdf = gmix(lf,(min(grid),max(grid)))
+    zfactor = gal.makezfactor(truZ)
 
     difs = grid[1:]-grid[:-1]
     dif = difs[np.argmin(grid-truZ)]
     allsummed = np.zeros(len(grid)-1)
 
+    lf = makelf(truZ,zfactor,elements,outlier=outlier)#,dgen)
+
+    pdf = gmix(lf,(min(grid),max(grid)))
+
+    if dgen != None:
+        dgdist = gmix(dgen,(min(grid),max(grid)))
+        const = dgdist.pdf(truZ)*dif
+    else:
+        const = 0.
+
     cdf = pdf.cdf(grid)
     spread = cdf[1:]-cdf[:-1]
     allsummed += spread
-    allsummed += const*dif
+    allsummed += const
     if intp != None:
         pf = intp*allsummed
     else:

@@ -16,6 +16,7 @@ import cPickle as cpkl
 
 from insim import setup
 import utilsim as us
+import pergal as pg
 
 class pertest(object):
     """
@@ -107,135 +108,107 @@ class pertest(object):
 
 #         self.phsNz = self.ngals*self.phsPz
 #         self.logphsNz = us.safelog(self.phsNz)
+        self.gals = [pg.pergal(self.meta, j) for j in xrange(self.ngals)]
+
 
     def makelf(self):
 
-#         # choose npeaks before sigma so you know how many to pick
-#         if self.meta.outlier == 0 and self.meta.shape > 1:
-#             np.random.seed(seed=self.seed)
-#             maxpeaks = self.meta.shape#self.ndims
-#             weights = [1./k**maxpeaks for k in xrange(1,maxpeaks+1)]
-#             self.npeaks = np.array([us.choice(xrange(1,maxpeaks+1),weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
-#         else:
-#             self.npeaks = [1]*self.ngals
+        self.choosepeaks()
+        self.choosevars()
 
-#         # choose random sigma
-#         self.sigval = self.meta.noisefact*self.zdif
-#         self.var = us.tnorm(self.sigval,self.sigval,(0.,self.allzs[-1]))
-#         # self.modZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])#self.truZs+1.
-#         self.varZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
-#         # np.random.shuffle(self.modZs)
+    def choosepeaks(self):
+
+        # choose npeaks before sigma so you know how many to pick
+        if self.meta.shape > 1:
+            np.random.seed(seed=self.seed)
+            self.maxcomps = self.meta.shape
+            self.compweights = [1./k**self.maxcomps for k in xrange(1,self.maxcomps+1)]
+            for gal in self.gals:
+                gal.ncomps = us.choice(xrange(1,self.maxcomps+1),self.compweights)
+
+        if self.meta.outlier > 0:
+            np.random.seed(seed=self.seed)
+            self.maxouts = self.meta.outlier
+            self.outweights = [1./k**self.maxouts for k in xrange(1,self.maxouts+2)]
+            for gal in self.gals:
+                gal.nouts = us.choice(xrange(self.maxouts+1),self.outweights)
+                #print('chose nouts = {} from ({}, {}) with {}'.format(gal.nouts, 0, self.maxouts, self.outweights))
+
+    def choosevars(self):
 
         # set up for standard deviations
         self.sigval = self.meta.noisefact*self.zdif
         self.var = us.tnorm(self.sigval,self.sigval,(0.,self.allzs[-1]))
-        # choose npeaks before sigma so you know how many to pick
-        if self.meta.shape > 1:
-            np.random.seed(seed=self.seed)
-            self.maxpeaks = self.meta.shape
-            self.weights = [1./k**self.maxpeaks for k in xrange(1,self.maxpeaks+1)]
-            if self.meta.outlier == 1:
-                self.peaklocs = np.array(sp.stats.uniform(loc=self.allzs[0],scale=self.zrange).rvs(self.maxpeaks-1))
-                self.peakvars = np.array([self.zdif for n in xrange(self.maxpeaks-1)])#np.array(self.var.rvs(self.maxpeaks-1))
-            self.npeaks = np.array([us.choice(xrange(1,self.maxpeaks+1),self.weights) for j in xrange(self.ngals)])#np.array([np.random.randint(1,self.ndims-1) for j in xrange(self.ngals)])
-        else:
-            self.npeaks = [1]*self.ngals
-            #self.varZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
 
-        # choose random sigma
-        if self.meta.outlier == 0:
-            self.varZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
-        else:
-            self.varZs = []
-            varZ = self.var.rvs(self.ngals)
-            for j in xrange(self.ngals):
-                varZ_here = np.array([varZ[j]])#self.var.rvs(1)
-                if self.npeaks[j] != 1:
-                    varZ_here = np.concatenate((varZ_here,self.peakvars[:self.npeaks[j]-1]))#us.tnorm(self.peakvars[n],self.peakvars[n],(self.allzs[0],self.allzs[-1])).rvs(self.npeaks[j]-1)))
-                self.varZs.append(varZ_here)
-            self.varZs = np.array(self.varZs)
-        self.randovars = self.varZs[self.randos]
+        for gal in self.gals:
+            gal.compvar = self.var.rvs(gal.ncomps)
 
-        if self.meta.degen != 0:
-            #self.mudegen = [sp.stats.uniform.rvs(loc=self.zlos[0],scale=self.zhis[-1]-self.zlos[0],size=2) for x in xrange(self.meta.degen)]
-            np.random.seed(seed=self.seed)
-            self.mudegen = sp.stats.uniform(loc=self.allzs[0],scale=self.zrange).rvs(self.meta.degen)# for x in xrange(self.meta.degen)]
-            np.random.seed(seed=self.seed)
-            self.sigdegen = us.tnorm(self.sigval,self.sigval,(self.allzs[0],self.allzs[-1])).rvs(self.meta.degen)# for x in xrange(self.meta.degen)]
-            self.distdegen = [us.tnorm(self.mudegen[x],self.sigdegen[x],(self.zlos[0],self.zhis[-1])) for x in xrange(self.meta.degen)]
+        if self.meta.outlier > 0:
+            self.peakvars = [self.zdif/k**self.maxouts for k in xrange(1,self.maxouts+1)]
+            for gal in self.gals:
+                gal.outvar = self.peakvars[:gal.nouts]
+
+        for gal in self.gals:
+          pass
 
     def choosetrue(self):
 
+        self.chooseztru()
+        self.choosesigs()
+        self.choosezobs()
+
+    def chooseztru(self):
+
         # test all galaxies in survey have same true redshift vs. sample from physPz
-#         if self.meta.random == True:
-#             np.random.seed(seed=self.seed)
-#             self.truZs = self.real.sample(self.ngals)
-#         else:
         if self.meta.random == False:
             center = (self.allzs[0]+self.allzs[-1])/2.
             self.meta.real = np.array([np.array([center,self.zdif,1.])])
         self.real = us.gmix(self.meta.real,(self.allzs[0],self.allzs[-1]))
-#             self.truZs = np.array([center]*self.ngals)
         np.random.seed(seed=self.seed)
+        for gal in self.gals:
+            gal.truZ = self.real.sample(1)
         self.truZs = self.real.sample(self.ngals)
-#         np.random.seed(seed=self.seed)
-#         np.random.shuffle(self.truZs)
 
-        #test catastrophic outliers
-#         if self.meta.degen != 0:
-#             np.random.seed(seed=self.seed)
-#             #self.mudegen = [sp.stats.uniform.rvs(loc=self.zlos[0],scale=self.zhis[-1]-self.zlos[0],size=2) for x in xrange(self.meta.degen)]
-#             self.mudegen = [sp.stats.uniform(loc=self.allzs[0],scale=self.zrange).rvs(1) for x in xrange(self.meta.degen)]
-#             self.sigdegen = [sp.stats.norm(loc=self.sigval,scale=self.sigval).rvs(1) for x in xrange(self.meta.degen)]
-            # self.sigdegen = [np.array([self.meta.noisefact*(z-self.allzs[0])/(self.allzs[-1]-self.allzs[0]) for z in self.degen])
-#             self.ratio = self.real.pdf(self.degen)
-#             self.ratio = self.ratio/sum(self.ratio)
-            # self.distdegen = [us.tnorm(self.degen[z],self.sigdegen[z],(self.zlos[0],self.zhis[-1])) for z in xrange(self.meta.degen)]
-            #self.sigdegen = [np.array([self.zrange,self.zdif/self.meta.noisefact]) for sig in self.sigdegen]
-            #self.distdegen = [sp.stats.multivariate_normal(mean=self.mudegen[x],cov=np.diagflat(self.sigdegen[x])) for x in xrange(self.meta.degen)]
-#             for z in xrange(self.meta.degen):
-#                 dist = us.tnorm(self.degen[z],self.sigdegen[z],(min(grid),max(grid)))
-#                 item = np.array([dist.cdf(binend) for binend in grid])#self.obsZs[j][pn])
-#                 allsummed +=
-#             print(str(self.degen)+' degenerate as '+str(self.ratio)+' with '+str(self.sigdegen))
+    def choosesigs(self):
 
-        #test increasing sigma associated with increasing z
-        # or self.meta.shape == True:
-        if self.meta.sigma == True:
-            self.zfactor = (1.+self.truZs)**self.meta.noisefact#const+(self.truZs-self.allzs[0])/self.zrange
-#             np.random.seed(seed=self.seed)
-#             self.sigZs = np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j]*self.zfactor[j],scale=self.varZs[j]*self.zfactor[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-#             self.sigZs = np.array([self.var.rvs(self.npeaks[j]) for j in xrange(self.ngals)])
-        else:
-            self.zfactor = np.array([1.]*self.ngals)
-            #self.sigZs = self.varZs#np.array([[self.varZs[j] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-        np.random.seed(seed=self.seed)
-        #self.sigZs = np.array([[self.varZs[j][p]*self.zfactor[j] for p in xrange(self.npeaks[j])] for j in xrange(self.ngals)])#np.array([[max(sys.float_info.epsilon,np.random.normal(loc=self.varZs[j][p]*self.zfactor[j],scale=self.varZs[j][p]*self.zfactor[j])) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-        self.sigZs = self.varZs*self.zfactor
-#         # jitter peak zs given sigma to simulate inaccuracy
-#         np.random.seed(seed=self.seed)
-#         self.shift = np.array([[np.random.normal(loc=0.,scale=self.sigZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-#         self.obsZs = np.array([[self.truZs[j]+self.shift[j][p] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-#         #print(self.obsZs-self.truZs)
+#         if self.meta.sigma == True:
+#             for gal in self.gals:
+#                 gal.zfactor = (1.+gal.truZ)**self.meta.noisefact
 
-        # jitter peak zs given sigma to simulate inaccuracy
-        np.random.seed(seed=self.seed)
-        self.shift = np.array([[np.random.normal(loc=0.,scale=self.sigZs[j][p]) for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
+        for gal in self.gals:
+            gal.zfactor = gal.makezfactor(gal.truZ)
+            gal.sigZ = gal.zfactor*gal.compvar
 
-        if self.meta.outlier == 0:
-            self.obsZs = np.array([[self.truZs[j]+self.shift[j][p] for p in xrange(self.npeaks[j])] for j in xrange(0,self.ngals)])
-        else:
-            self.obsZs = []
-            for j in xrange(self.ngals):
-                obsZ = np.array([self.truZs[j]+self.shift[j][0]])
-                if self.npeaks[j] != 1:
-                    obsZ = np.concatenate((obsZ,self.peaklocs[:self.npeaks[j]-1]))#+self.shift[j][1:]))
-                self.obsZs.append(obsZ)
-            self.obsZs = np.array(self.obsZs)
-        self.randoobs = self.obsZs[self.randos]
+    def chooseelement(self, gal, sig):
+        shift = np.random.normal(loc=0.,scale=sig)
+        #obsZ = gal.truZ + shift
+        return pg.ObsStats(shift=shift, stddev=sig/gal.zfactor, weight=1.)
 
-#         self.minobs = np.min(self.obsZs)
-#         self.maxobs = np.max(self.obsZs)
+    def choosezobs(self):
+
+        for gal in self.gals:
+            gal.elements = [self.chooseelement(gal, sig) for sig in gal.sigZ]
+            gal.shift = [element.shift for element in gal.elements]
+            gal.obsZ = [gal.truZ+element.shift for element in gal.elements]
+
+        if self.meta.outlier > 0:
+            print('self.maxouts={}'.format(self.maxouts))
+            self.peaklocs = np.array(sp.stats.uniform(loc=self.allzs[0],scale=self.zrange).rvs(self.maxouts))
+            for gal in self.gals:
+                gal.outobs = self.peaklocs[:gal.nouts]
+                #print('size(self.outobs)={}, size(gal.outvar)={}'.format(len(self.peaklocs), len(gal.outvar)))
+                #assert len(gal.outobs) == len(gal.outvar)
+                gal.outelems = [pg.OutStats(obsZ=loc, stddev=sigZ, weight=sigZ/self.zdif)
+                                for loc, sigZ in zip(gal.outobs, gal.outvar)]
+
+        if self.meta.degen > 0:
+            #self.mudegen = [sp.stats.uniform.rvs(loc=self.zlos[0],scale=self.zhis[-1]-self.zlos[0],size=2) for x in xrange(self.meta.degen)]
+            np.random.seed(seed=self.seed)
+            self.mudgen = sp.stats.uniform(loc=self.allzs[0],scale=self.zrange).rvs(self.meta.degen)# for x in xrange(self.meta.degen)]
+            np.random.seed(seed=self.seed)
+            self.sigdgen = us.tnorm(self.sigval,self.sigval,(self.allzs[0],self.allzs[-1])).rvs(self.meta.degen)# for x in xrange(self.meta.degen)]
+            for gal in self.gals:
+                gal.distdgen = [[self.mudgen[x],self.sigdgen[x],1.] for x in xrange(self.meta.degen)]
 
     def setup_pdfs(self):
 
@@ -308,14 +281,6 @@ class pertest(object):
         self.intNz = float(self.ngals)*self.intPz
         self.logintNz = us.safelog(self.intNz)
 
-        self.intobss = []
-        self.intshift = []
-        for inttru in self.inttrus:
-            shift = [np.random.normal(loc=0.,scale=self.sigZs[self.randos[0]][p]) for p in xrange(self.npeaks[self.randos[0]])]#self.shift[self.randos[0]]
-            obsZ = [inttru+shift[p] for p in xrange(self.npeaks[self.randos[0]])]
-            self.intshift.append(shift)
-            self.intobss.append(obsZ)
-
     def makecat(self):
 
         self.setup_pdfs()
@@ -325,37 +290,27 @@ class pertest(object):
         mapZs = []
         expZs = []
 
-        for j in xrange(self.ngals):
-#             allsummed = np.array([0.]*self.nbins)
-#             for pn in xrange(self.npeaks[j]):
-#                 func = us.tnorm(self.obsZs[j][pn],self.sigZs[j][pn],(self.allzs[0],self.allzs[-1]))
-#                 cdfs = np.array([func.cdf(binend) for binend in self.binends])
-#                 spread = cdfs[1:]-cdfs[:-1]
+        for gal in self.gals:
+            pdf = us.makepdf(self.binends,gal.truZ,gal,
+                             intp=self.intPz,dgen=gal.distdgen,outlier=gal.outelems)
 
-#                 allsummed += spread
+            if self.meta.noise == True:# or self.meta.shape == True:
+                nsamps = len(self.binmids)
+                spdf = [0]*nsamps
+                samprange = xrange(nsamps)
+                for k in samprange:
+                    spdf[us.choice(samprange, pdf)] += 1
+                pdf = np.array(spdf)
 
-#             pdf = self.intPz*allsummed
-#             # normalize probabilities to integrate (not sum)) to 1
-#             pdf = pdf/max(np.dot(pdf,self.bindifs),sys.float_info.epsilon)
+            gal.pdf = pdf/max(np.dot(pdf,self.bindifs),sys.float_info.epsilon)
 
-#             # sample posterior if noisy observation
-#             if self.meta.noise == True or self.meta.shape == True:
-#                 spdf = [0]*self.nbins
-#                 for k in xrange(self.nbins):
-#                     spdf[us.choice(xrange(self.nbins), pdf)] += 1
-#                 pdf = np.array(spdf)/np.dot(spdf,self.bindifs)
-            pdf = self.makepdfs(j,self.binends,self.intPz)
-#             j = self.randos[0]
-#             lf = self.makelfs(j,self.zgrid)
-#             #lf = np.array([np.array([l[zo]*l[zt] for zo in us.lrange(self.gridmids)]) for zt in us.lrange(self.gridmids)])
-#             lfs.append(lf)
-            mapZ = self.binmids[np.argmax(pdf)]
-            expZ = sum(self.binmids*self.bindifs*pdf)
-            logpdf = us.safelog(pdf)
-            logpdfs.append(logpdf)
-            pdfs.append(pdf)
-            mapZs.append(mapZ)
-            expZs.append(expZ)
+            gal.mapZ = self.binmids[np.argmax(pdf)]
+            gal.expZ = np.dot(self.binmids,self.bindifs*gal.pdf)
+            gal.logpdf = us.safelog(pdf)
+            logpdfs.append(gal.logpdf)
+            pdfs.append(gal.pdf)
+            mapZs.append(gal.mapZ)
+            expZs.append(gal.expZ)
         self.pdfs = np.array(pdfs)
         self.logpdfs = np.array(logpdfs)
         self.mapZs = np.array(mapZs)
@@ -484,45 +439,3 @@ class pertest(object):
                 out.writerow(item)
         with open(os.path.join(self.meta.simdir,'truth.p'),'wb') as cpfile:
             cpkl.dump(self.meta.real, cpfile)
-
-    def makepdfs(self,j,grid,intp):
-        gridmids = (grid[1:]+grid[:-1])/2.
-        difs = grid[1:]-grid[:-1]
-        allsummed = np.zeros(len(grid)-1)
-
-        funcs = []
-        for pn in xrange(self.npeaks[j]):
-            #func = us.tnorm(self.obsZs[j][pn],self.sigZs[j][pn],(min(grid),max(grid)))
-            weight = (1./self.sigZs[j][pn])/sum(1./self.sigZs[j])
-            funcs.append([self.obsZs[j][pn],self.sigZs[j][pn],weight])
-            #cdf = self.weights[pn]/sum(self.weights)*np.array([func.cdf(binend) for binend in grid])
-        func = us.gmix(funcs,(min(grid),max(grid)))
-        cdf = func.cdf(grid)
-        spread = cdf[1:]-cdf[:-1]
-
-        allsummed += spread#/float((self.npeaks[j]+self.meta.degen))
-
-        if self.meta.degen != 0:
-            for x in xrange(self.meta.degen):
-                #funcs = us.tnorm(self.mudegen[x][0]-self.obsZs[j][pn],self.sigdegen[x][0],(min(grid),max(grid)))
-                funcs = us.tnorm(self.mudegen[x],self.sigdegen[x],(min(grid),max(grid)))
-                #pdfs = funcs.pdf(self.truZs[j])
-                binlos = [np.argmin(np.abs(gridmids-self.obsZs[j])) for p in xrange(self.npeaks[j])]
-                spreads = np.sum(np.array([max(funcs.cdf(grid[b+1])-funcs.cdf(grid[b]),sys.float_info.epsilon)*self.ngals for b in binlos]))
-                #cdfs = np.array([funcs.cdf(binend) for binend in grid])
-                #spreads = cdfs[1:]-cdfs[:-1]
-                allsummed += spreads#/float(self.npeaks[j]+self.meta.degen)/float(self.meta.noisefact)/1000.
-
-        pdf = intp*allsummed
-        # normalize probabilities to integrate (not sum)) to 1
-        pdf = pdf/max(np.dot(pdf,difs),sys.float_info.epsilon)
-
-        # sample posterior if noisy observation
-
-        if self.meta.noise == True:# or self.meta.shape == True:
-            spdf = [0]*(len(grid)-1)
-            for k in xrange(len(grid)-1):
-                spdf[us.choice(xrange(len(grid)-1), pdf)] += 1
-            pdf = np.array(spdf)/np.dot(spdf,difs)
-
-        return(pdf)

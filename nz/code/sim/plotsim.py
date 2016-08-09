@@ -156,7 +156,8 @@ def plot_pdfs(meta,test):
     plotstep(sps,test.binends,test.intPz,c=c_int,l=l_int+r'$P(z)$',s=s_int,w=w_int,d=d_int,a=a_int)
     dummy_x,dummy_y = np.array([-1,-2,-3]),np.array([-1,-2,-3])
     plotstep(sps,dummy_x,dummy_y,c=c_tru,s=s_tru,w=w_tru,l=l_tru+r'$z$',d=d_tru,a=a_tru)
-    plotstep(sps,dummy_x,dummy_y,c=c_exp,s=s_map,w=w_exp,l=r' MLE $z$',d=d_map,a=a_map)
+    plotstep(sps,dummy_x,dummy_y,c=c_map,s=s_map,w=w_map,l=r' MAP $z$',d=d_map,a=a_map)
+    plotstep(sps,dummy_x,dummy_y,c=c_exp,s=s_exp,w=w_exp,l=r' $E(z)$',d=d_exp,a=a_exp)
     sps.legend(loc='upper right',fontsize='x-small')
     #sps.set_title('multimodal='+str(meta.shape)+', noisy='+str(meta.noise))
     #if meta.shape <= 1:
@@ -167,9 +168,11 @@ def plot_pdfs(meta,test):
     #print(randos)
     for r in us.lrange(randos):
         plotstep(sps,test.binends,test.pdfs[randos[r]],c=meta.colors[r],s=s_smp,w=w_smp,d=d_smp,a=a_smp)
-        sps.vlines(test.truZs[randos[r]],0.,max(test.pdfs[randos[r]]),color=meta.colors[r],linestyle=s_tru,linewidth=w_tru,dashes=d_tru,alpha=a_tru)
-        for p in xrange(test.npeaks[randos[r]]):
-            sps.vlines(test.obsZs[randos[r]][p],0.,max(test.pdfs[randos[r]]),color=meta.colors[r],linestyle=s_map,linewidth=w_map,dashes=d_map,alpha=a_map)
+        sps.vlines(test.gals[randos[r]].truZ,0.,max(test.pdfs[randos[r]]),color=meta.colors[r],linestyle=s_tru,linewidth=w_tru,dashes=d_tru,alpha=a_tru)
+        sps.vlines(test.gals[randos[r]].mapZ,0.,max(test.pdfs[randos[r]]),color=meta.colors[r],linestyle=s_map,linewidth=w_map,dashes=d_map,alpha=a_map)
+        sps.vlines(test.gals[randos[r]].expZ,0.,max(test.pdfs[randos[r]]),color=meta.colors[r],linestyle=s_exp,linewidth=w_exp,dashes=d_exp,alpha=a_exp)
+#         for p in xrange(test.npeaks[randos[r]]):
+#             sps.vlines(test.obsZs[randos[r]][p],0.,max(test.pdfs[randos[r]]),color=meta.colors[r],linestyle=s_map,linewidth=w_map,dashes=d_map,alpha=a_map)
 #     if meta.degen != 0:
 #         for x in xrange(meta.degen):
 #             sps.vlines(test.mudegen[x],0.,(test.zhis[-1]-test.zlos[0])/test.bindif,color='k')
@@ -294,27 +297,32 @@ def plot_pdfs(meta,test):
 
 #     f.savefig(os.path.join(meta.simdir,'liktest.png'),bbox_inches='tight', pad_inches = 0)
 
-def makepdfs(meta,test,j,tru,obs,zfactor,grid):
-    shift = test.shift[j]
+def makepdfs(meta,test,j,tru,zfactors,grid):
+    gal = test.gals[j]
+    dgen = gal.distdgen
 
-    if meta.degen != 0:
-        dgen = []
-        for x in xrange(meta.degen):
-            weight = (1./test.sigdegen[x])/sum(1./test.sigdegen)
-            dgen.append([test.mudegen[x],test.sigdegen[x],weight])
-        dgen = us.gmix(dgen,(min(grid),max(grid)))
-    else:
-        dgen = None
+    #shift = test.shift[j]
 
-    if meta.outlier != 0:
-        outlier = test.peaklocs
-    else:
-        outlier = None
+#     if meta.degen != 0:
+#         dgen = []
+#         for x in xrange(meta.degen):
+#             weight = (1./test.sigdegen[x])/sum(1./test.sigdegen)
+#             dgen.append([test.mudegen[x],test.sigdegen[x],weight])
+#         dgen = us.gmix(dgen,(min(grid),max(grid)))
+#     else:
+#         dgen = None
 
-    sigZ = test.varZs[j]*zfactor
-    obsZ = test.obsZs[j]
+#     if meta.outlier != 0:
+#         outlier = test.peaklocs
+#     else:
+#         outlier = None
+
+    #sigZ = test.varZs[j]*zfactor
+    #obsZ = test.obsZs[j]
+    #allelems = gal.allelems
     #print('outlier={}; obsZ={}'.format(outlier, obsZ))
-    pdf = us.makepdf(grid,tru,shift,obsZ,sigZ,intp=None,dgen=dgen,outlier=outlier)
+    pdf = us.makepdf(grid,tru,gal,
+                     intp=None,dgen=dgen,outlier=gal.outelems)#(grid,tru,shift,obsZ,sigZ,intp=None,dgen=dgen,outlier=outlier)
 
 #     difs = grid[1:]-grid[:-1]
 #     allsummed = np.zeros(len(grid)-1)
@@ -360,7 +368,7 @@ def make2dlf(meta,test,j):
     zrange = test.zhis[-1]-test.zlos[0]
     ztrugrid = np.arange(test.zlos[0],test.zhis[-1]+eps,eps)
     ztrugrid = ztrugrid[ztrugrid!=0.]
-    zobsgrid = np.arange(test.zlos[0]-zrange/10.,test.zhis[-1]+zrange/10.+eps,eps)
+    zobsgrid = np.arange(test.zlos[0],test.zhis[-1]+eps,eps)
     zobsgrid = zobsgrid[zobsgrid!=0.]
     trugridmids = (ztrugrid[1:]+ztrugrid[:-1])/2.
     obsgridmids = (zobsgrid[1:]+zobsgrid[:-1])/2.
@@ -374,11 +382,12 @@ def make2dlf(meta,test,j):
     inttrus,samppdfs,intobss = [],[],[]
     for k in us.lrange(obsgridmids):
         if meta.sigma == True:
+            #print 'making nontrivial zfactors'
             zfactor = (1.+obsgridmids[k])**meta.noisefact
         else:
             zfactor = 1.
         zfactors.append(zfactor)
-        gridpdf = makepdfs(meta,test,j,obsgridmids[k],test.obsZs[j],zfactor,ztrugrid)
+        gridpdf = makepdfs(meta,test,j,obsgridmids[k],zfactors,ztrugrid)
         for x in randos:
             if k == x:
                 #inttrus.append(trugridmids[k])
@@ -389,7 +398,7 @@ def make2dlf(meta,test,j):
     sumx = np.sum(gridpdfs,axis=0)*trugriddifs
     sumy = np.sum(gridpdfs,axis=1)*obsgriddifs
     gridpdfs = (gridpdfs/sumx).T
-    sumx = np.sum(samppdfs,axis=0)*trugriddifs
+    #sumx = np.sum(samppdfs,axis=0)*trugriddifs
     samppdfs = (samppdfs/sumx)
 
     return(gridpdfs,sumx,sumy,ztrugrid,zobsgrid,zfactors,inttrus,intobss,samppdfs)
@@ -521,9 +530,10 @@ def make2dlf(meta,test,j):
 def plot_lfs(meta,test):
     lfdir = os.path.join(meta.datadir,'lfs')
     if meta.shape == 1:
-        j = test.randos[0]#for j in us.lrange(test.randos):
+        j = test.randos[0]
     else:
-        j = np.random.choice(np.where(test.npeaks > 1)[0])
+        options = [gal.ind for gal in test.gals if gal.ncomps > 1]
+        j = np.random.choice(options)
     f = plt.figure(figsize=(5,10))
     sps = f.add_subplot(2,1,1)
     f.suptitle(meta.name+r' $p_{'+str(j)+r'}(z_{obs}|z_{tru})$')
