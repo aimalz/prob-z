@@ -89,6 +89,19 @@ p(f|\{\vec{d}_{n}\}_{N}) &= p(\{\vec{d}_{n}\}_{N}|f)\frac{p(f)}{p(\{\vec{d}_{n}\
 
 The code produced by Malz \& Hogg 2016 can be run to sample this posterior distribution over the contamination fraction parameter, as the problem is essentially that of a two-bin histogram representation of $N(T)$.   
 
+\section{Toy Model}
+\label{sec:toy}
+
+We may also consider the simpler case of a survey in which all galaxies have one of exactly two redshifts sufficiently apart that one would expect no correlation between the power spectra at each redshift.  In the case in which we are interested solely in one group and not in the other, hereafter referred to as the contaminating population, we wish to estimate the power spectrum of that group given some incompleteness and contamination.  In this case, the three dimensional galaxy map is a linear combination of galaxies from each of the two populations, and since the two possible redshifts are distant from one another, the power spectrum of the combined sample will be a linear combination of the power spectra of each individual population.  In this problem, several questions can be investigated.
+
+\begin{itemize}
+\item Can we analytically solve for the power spectrum of the population of interest in terms of the observed power spectrum and contamination/incompleteness fractions?
+\item Can the observed power spectrum of the two groups be used to identify misclassified galaxies and reclassify their redshifts in an iterative calculation of the power spectrum?
+\item If instead of deterministic redshift assignments we have probabilities for each galaxy, can they be used to infer the posterior of the power spectrum of interest?
+\end{itemize}
+
+This problem is also similar to that of blended objects, in which we observe more than one galaxy but classify it as a single galaxy due to the close proximity on the sky of the galaxies in question.  Redshift estimation in this case can be catastrophically wrong, but discrimination of blended systems could be valuable in improving the power spectrum calculated from the blended galaxy map.  Again, in this toy model, it would be of interest to investigate how the observed power spectrum is affected by blended objects and whether it can be corrected through an iterative procedure on the identification of blended systems.
+
 %\section{Power Spectrum}
 %\label{sec:powspec}
 
