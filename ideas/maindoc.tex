@@ -35,14 +35,14 @@
 \begin{align}
 \end{align}
 
-\title{Photometric Redshift Estimation: Avenues for Improvement}
+\title{Redshift Estimation: Avenues for Improvement}
 
 \author{A.I. Malz\altaffilmark{1}}
 \altaffiltext{1}{CCPP}
 \email{aimalz@nyu.edu}
 
 \begin{abstract}
-This document presents a brief introduction to photometric redshifts for a non-astronomer audience before outlining some open problems in the subject and a brief discussion of possible solutions.
+This document presents a brief introduction to redshift estimation methods for a non-astronomer audience before outlining some open problems in the subject and a brief discussion of possible solutions.
 \end{abstract}
 
 \keywords{photo-z}
@@ -75,8 +75,8 @@ Here are some interesting questions we may ask about zPDFs:
 \item \label{it:plus} How much is an estimate of a zPDF improved by the inclusion of each additional band of photometry? 
 \item \label{it:pixel} How can one use photometry at each pixel in a galaxy to generate a posterior zPDF?
 \item \label{it:spatial} How informative is inclusion of the angular size of a galaxy to the estimated zPDF?
-\item \label{it:inference} How should zPDFs be used in inference?
 \item \label{it:croscor} How may position information be used to improve zPDFs?
+\item \label{it:inference} How should zPDFs be used in inference?
 \end{enumerate}
 
 These questions will each be discussed in detail below.
@@ -127,6 +127,18 @@ One proposal for how to get around the issue of untrustworthy priors mentioned i
 Given the redshift density function $n_{p}(z)$ for a test set and If we wish to estimate the comoving number density of test set galaxies $n_{p}(r,z)$ as a function of the redshifts and comoving physical distances $r(z)$ from each training set galaxy to each test set galaxy given an observed angular cross-correlation $\xi_{sp}(r,z)$ between the comoving physical distances and redshifts of test and training set galaxies ,  \citep{new08}
 
 This method has not yet been adapted to handle individual redshift posteriors for the test set and permits neither refinement of the input photometric redshifts nor determination of individual redshift posteriors based on $n(z)$ and $\vec{\xi}_{sp}$.  It is worth reviewing the method in detail to investigate possible extensions to zPDFs.
+
+\section{Toy Problem: Sample Discrimination}
+
+Consider a survey in which all galaxies have one of exactly two redshifts sufficiently apart that one would expect no correlation between the power spectra at each redshift.  In the case in which we are interested solely in one group and not in the other, hereafter referred to as the contaminating population, we wish to estimate the power spectrum of that group given some incompleteness and contamination.  In this case, the three dimensional galaxy map is a linear combination of galaxies from each of the two populations, and since the two possible redshifts are distant from one another, the power spectrum of the combined sample will be a linear combination of the power spectra of each individual population.  In this problem, several questions can be investigated.
+
+\begin{itemize}
+\item Can we analytically solve for the power spectrum of the population of interest in terms of the observed power spectrum and contamination/incompleteness fractions?
+\item Can the observed power spectrum of the two groups be used to identify misclassified galaxies and reclassify their redshifts in an iterative calculation of the power spectrum?
+\item If instead of deterministic redshift assignments we have probabilities for each galaxy, can they be used to infer the posterior of the power spectrum of interest?
+\end{itemize}
+
+This problem is also similar to that of blended objects, in which we observe more than one galaxy but classify it as a single galaxy due to the close proximity on the sky of the galaxies in question.  Redshift estimation in this case can be catastrophically wrong, but discrimination of blended systems could be valuable in improving the power spectrum calculated from the blended galaxy map.  Again, in this toy model, it would be of interest to investigate how the observed power spectrum is affected by blended objects and whether it can be corrected through an iterative procedure on the identification of blended systems.
 
 \section{zPDFs in inference}
 
