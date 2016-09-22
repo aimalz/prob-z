@@ -26,7 +26,9 @@
 \title{Inference of galaxy population statistics given photometric redshift 
 probability distribution functions}
 
-\author{A.I. Malz\altaffilmark{1} \& David W. Hogg\altaffilmark{1,2,3,4}}
+\author{A.I. Malz\altaffilmark{1} \& David W. Hogg\altaffilmark{1,2,3,4} %\& 
+Boris Leistedt\altaffilmark{1,5}
+}
 \email{aimalz@nyu.edu}
 
 \altaffiltext{1}{Center for Cosmology and Particle Physics, Department of 
@@ -38,6 +40,8 @@ New York, NY 10010, USA}
 7th floor, New York, NY 10003, USA}
 \altaffiltext{4}{Max-Planck-Institut f\"ur Astronomie, K\"onigstuhl 17, D-69117 
 Heidelberg, Germany}
+\altaffiltext{5}{Department of Physics \& Astronomy, University College London, 
+Gower Street, London, WC1E 6BT, UK}
 
 \begin{abstract}
 Ongoing and upcoming galaxy surveys aiming to constrain cosmological parameters 
@@ -449,7 +453,8 @@ hold.
 estimates of the true photo-$z$ posteriors and assume we are given the interim 
 prior used to produce them.
 \item We must assume a log-hyperprior constraining the underlying probability 
-distribution of the hyperparameters.
+distribution of the hyperparameters, which is informed by our prior beliefs 
+about the true redshift distribution function.
 \end{enumerate}
 
 These assumptions have known limitations.  First, the photometric data are not 
@@ -462,7 +467,8 @@ trustworthy; there is not yet agreement on the best technique to obtain
 photo-$z$ probability distributions, and the interim prior may not be 
 appropriate or even known to us as consumers of interim photo-$z$ posteriors.  
 Third, the hyperprior may be quite arbitrary and poorly motivated if the 
-underlying physics is complex.
+underlying physics is complex, and it can only be appropriate if our prior 
+beliefs about the redshift distribution function are accurate.
 
 %\clearpage
 \subsection{Alternative Approaches}
@@ -483,31 +489,45 @@ f_{\hat{\theta}}(z) = \sum_{j=1}^{J}\ p(z_{j}|\vec{d}_{j},\vec{\theta}^{*})
 \citep{Lima2008}.  Stacking is considered the preferred method for obtaining 
 $N(z)$ from a dataset of interim photo-$z$ posteriors \citep{Sheldon2012, 
 Kelly2014, Benjamin2013, Bonnett2015a, Viironen2015, Asorey2016}.  However, it 
-must be noted here that (\ref{eq:stack}) is not mathematically valid.  (See 
-\citet{Hogg2012} for a complete discussion.)  The estimator produced by 
-stacking shall henceforth be referred to as the "stacked" estimator.
+must be noted here that (\ref{eq:stack}) is not in general mathematically 
+valid.  (See \citet{Hogg2012} for a complete discussion.)  The estimator 
+produced by stacking shall henceforth be referred to as the "stacked" estimator.
 
 Point estimation converts the interim photo-$z$ posteriors 
 $p(z_{j}|\vec{d}_{j},\vec{\theta}^{*})$ into delta functions with all 
-probability at a single redshift.  Some variants of point estimation choose 
-this single redshift to be that of maximum a posteriori probability 
+probability at a single estimated redshift.  Some variants of point estimation 
+choose this single redshift to be that of maximum a posteriori probability 
 $argmax[p(z_{j}|\vec{d}_{j},\vec{\theta}^{*})]$ or the expected value of 
 redshift $E[z]=\int z_{j}\ p(z_{j}|\vec{d}_{j},\vec{\theta}^{*})\ dz_{j}$.  
 Stacking these modified interim photo-$z$ posteriors leads to the marginalized 
 maximum a posteriori (MMAP) estimator and the marginalized expected value 
 (MExp) estimator.
 
+It is worth discussing the relationship between point estimation and stacking.  
+When the point estimator of redshift is equal to the true redshift, stacking 
+delta function photo-$z$ posteriors will indeed lead to an accurate recovery of 
+the true redshift distribution function.  However, stacking is in general 
+applied indiscriminately to broader photo-$z$ posteriors, and point estimators 
+of redshift are not in general perfectly accurate.  It is for these reasons 
+that alternatives are considered here.
+
 A final estimator of the hyperparameters is the maximum marginalized likelihood 
-estimator (MMLE), the value of $\hat{\theta}$ maximizing the likelihood given 
-by 
-\begin{equation}
-\label{eq:mmle}
-\ln[p(\{\vec{d}_{j}\}|\vec{\theta})] \propto -\int\ f_{\vec{\theta}}(z)\ 
+estimator (MMLE), the value of $\hat{\theta}$ maximizing the log posterior 
+given by Eq. \ref{eq:final} using any optimization code.  To compare with 
+sampling, the MMLE also depends on the choice of the hyperprior distribution, 
+and it does not produce a full posterior probability distribution over the 
+parameters of interest, only point estimators.  It must be noted that 
+computation of the MMLE may be unstable depending on the strengths and 
+weaknesses of the optimizer.  In general, derivatives will not be available for 
+the full posterior distribution, restricting optimization methods used.
+%\begin{equation}
+%\label{eq:mmle}
+%\ln[p(\{\vec{d}_{j}\}|\vec{\theta})] \propto -\int\ f_{\vec{\theta}}(z)\ 
 dz+\sum_{j=1}^{J}\ln\left[\int\ 
 \exp\left[\ln[p(z_{j}|\vec{d}_{j},\vec{\theta}^{*})]+\ln[f_{\vec{\theta}}(z)]-\l
 n[f_{\vec{\theta}^{*}}(z)]\right]\ dz\right],
-\end{equation}
-accessible with any optimization code.
+%\end{equation}
+%accessible with any optimization code.
 
 %\clearpage
 \section{Model Specifics}
@@ -576,7 +596,7 @@ Trending & Physically motivated, & Uniform & Single Gaussians\\
 & featured $N(z)$ && with $\sigma_{j}\sim z^{*}_{j}$\\
 Multimodal & Physically motivated, & Uniform & Multiple Gaussians\\
 & featured $N(z)$ &&\\
-Multimodal & Physically motivated, & Uniform & Sampled, Single Gaussian\\
+Sampled & Physically motivated, & Uniform & Sampled, Single Gaussian\\
 & featured $N(z)$ &&\\
 Featured & Single, Narrow Gaussian & Uniform & Single, Broad Gaussians\\
 Unimodal $\vec{\theta}_{0}$ & Physically motivated, & Low-$z$ Favoring & 
@@ -734,16 +754,16 @@ peaks in the interim photo-$z$ posteriors.
 
 Catastrophic errors are simulated by considering multimodal photo-$z$ 
 likelihoods.  The first way to achieve this goal is to take the likelihoods to 
-be sums of Gaussians of the form of those tested in Sec. \ref{sec:null}.  Each 
-galaxy is assigned a number $R_{j}$ of Gaussian elements to be summed, chosen 
-randomly from $1,\dots,5$ with weights proportional to $k^{-2}$.  One 
+be sums of Gaussians of the form of those tested in Sec. \ref{sec:null}.  
+$R_{max}$ degenerate variances $\sigma_{R}^{2} $ and redshifts $z_{R}$ are 
+chosen randomly for the entire survey.  Each galaxy is assigned a number 
+$R_{j}$ of Gaussian elements to be summed, chosen randomly from 
+$R=1,\dots,R_{max}$ with weights proportional to $\sigma_{R}^{2}$.  One 
 $\sigma_{jr}$ is drawn for each $r=1,\dots,R_{j}$, and one $z'_{jr}$ is 
-selected from the corresponding $\mathcal{N}(z^{*}_{j},\sigma^{2}_{jr})$.  The 
+selected from the corresponding $\mathcal{N}(z_{R},\sigma^{2}_{jr})$.  The 
 components are summed and normalized to yield the likelihood, which is then 
-convolved with the interim prior to produce a true interim posterior, which is 
-sampled $K$ times and renormalized to produce the final interim posterior used 
-in the analysis.   An illustration of this method is shown in Fig. 
-\ref{fig:multpzsgen}. 
+convolved with the interim prior to produce a true interim posterior.   An 
+illustration of this method is shown in Fig. \ref{fig:multpzsgen}. 
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figs/mult/zobsvztru.pdf}
@@ -757,7 +777,7 @@ their peak redshifts (dashed lines) and true redshifts (solid lines).}
 \label{fig:multpzsgen}
 \end{figure}
 
-A second way to produce multimodal or asymmetric posteriors is to sample the 
+A third way to produce multimodal or asymmetric posteriors is to sample the 
 simple Gaussians of the fiducial case at the level of the posteriors.  Here $K$ 
 samples are taken.  Some examples of both types of multimodal interim photo-$z$ 
 posteriors are shown in Fig. \ref{fig:allpzs}.  
@@ -1393,13 +1413,11 @@ sure where it fits into the paper.}
 %\clearpage
 
 \begin{acknowledgements}
-AIM thanks Mohammadjavad Vakili for insightful input on statistics and Boris 
-Leistedt for helpful comments provided in the preparation of this paper.
+AIM thanks Boris Leistedt for helpful comments provided in the preparation of 
+this paper, Geoffrey Ryan for assistance in writing code, and Mohammadjavad 
+Vakili for insightful input on statistics.
 \end{acknowledgements}
 
-\textbf{Let me know if anything is screwed up with my references; I made a mess 
-wrestling with Mendeley and BibDesk and may have missed something when cleaning 
-up.}
 \bibliographystyle{apj}
 \bibliography{zPDF}
 
