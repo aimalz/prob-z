@@ -29,6 +29,8 @@
 \title{Propagating supernova type misclassification probabilities through $H_{0}$ estimation: the fully probabilistic approach}
 
 \author{A.I. Malz\altaffilmark{1}}
+\author{Maryam Modjaz\altaffilmark{1}}
+\author{Federica Bianco\altaffilmark{1}}
 \altaffiltext{1}{CCPP}
 \email{aimalz@nyu.edu}
 
@@ -77,6 +79,8 @@ Let us consider a simplified case in which the full sample of $N$ observed trans
 \draw [arrow] (Dr) -- (rn);
 \draw [arrow] (Ss) -- (sn);
 
+\draw [arrow] (rn) -- (zn);
+
 \draw [arrow] (zn) -- (lcn);
 \draw [arrow] (rn) -- (lcn);
 \draw [arrow] (sn) -- (lcn);
@@ -106,10 +110,33 @@ p(H|\{\textul{d}_{n}\}_{N}) &=\ p(\{\textul{d}_{n}\}_{N}|H)\frac{p(H)}{p(\{\text
 &\indent p(H)\ p(D)\ p(S)\ dD\ dS
 \end{align*}
 
+\section{Classification Methods}
+
+There are a number of probabilistic supernova type classification methods in the literature, each of which will be reviewed here.
+
+\subsection{BEAMS}
+
+\citet{Kunz07} introduces the Bayesian Estimation Applied to Multiple Species (BEAMS) framework in this early paper.  The paper only considers two types of supernovae, type Ia and a single generic contaminating population.  
+
+They aim to find the posterior probability distribution of the luminosity distance $r_{n}$ given the photometric data $\textul{d}_{n}$ for galaxy $n$ in a survey of $N$ galaxies.  We shall consider $t$ possible types $\tau_{n}$ for each galaxy $n$.
+
+\begin{align*}
+p(r_{n}|\textul{d}_{n}) &= \sum_{\tau_{n}}p(r_{n},\tau_{n}|\textul{d}_{n})\\
+&= \sum_{\tau_{n}}p(\textul{d}_{n}|r_{n},\tau_{n})\frac{p(r_{n},\tau_{n})}{p(\textul{d}_{n})}\\
+&\approx \sum_{\tau_{n}}p(\textul{d}_{n}|r_{n},\tau_{n})\frac{p(r_{n})p(\tau_{n})}{p(\textul{d}_{n})}\\
+&\propto \sum_{\tau_{n}}p(\textul{d}_{n}|r_{n},\tau_{n})p(r_{n})p(\tau_{n})
+\end{align*}
+
+Here the prior over type is not derived from the pre-existing knowledge of the proportion of different supernova types in the sample but instead according to $p(\tau_{n})=\prod_{\tau_{n}}p(\tau_{n})p(1-\tau_{n})$.  It is not clear to me what this means and whether it is correct.
+
+\subsection{PSNID}
+
+PSNID outputs the MAP type based on a $\chi^{2}$ fit, without providing the probabilities for each type.  However, it permits specification of the rates for each template type and provision of arbitrary templates, as well as an MCMC exploration of $\chi^{2}$ as opposed to a traditional grid search.  PSNID is also incorporated into SNANA (though perhaps only for Windows?).
+
 %\acknowledgments
 
 %\appendix
 
-\bibliography{references}
+\bibliography{references-sne1a}
 
 \end{document}
