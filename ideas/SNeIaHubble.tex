@@ -112,13 +112,15 @@ p(H|\{\textul{d}_{n}\}_{N}) &=\ p(\{\textul{d}_{n}\}_{N}|H)\frac{p(H)}{p(\{\text
 
 \section{Classification Methods}
 
-There are a number of probabilistic supernova type classification methods in the literature, each of which will be reviewed here.
+There are a number of potentially probabilistic supernova type classification methods in the literature, each of which will be reviewed here.
+
+\subsection{SN-ABC}
+
+\citet{Poznanski06} 
 
 \subsection{BEAMS}
 
-\citet{Kunz07} introduces the Bayesian Estimation Applied to Multiple Species (BEAMS) framework in this early paper.  The paper only considers two types of supernovae, type Ia and a single generic contaminating population.  
-
-They aim to find the posterior probability distribution of the luminosity distance $r_{n}$ given the photometric data $\textul{d}_{n}$ for galaxy $n$ in a survey of $N$ galaxies.  We shall consider $t$ possible types $\tau_{n}$ for each galaxy $n$.
+\citet{Kunz07} introduces the Bayesian Estimation Applied to Multiple Species (BEAMS) framework in this early paper.  The paper only considers two types of supernovae, type Ia and a single generic contaminating population.  They aim to find the posterior probability distribution of the luminosity distance $r_{n}$ given the photometric data $\textul{d}_{n}$ for galaxy $n$ in a survey of $N$ galaxies.  We shall consider $t$ possible types $\tau_{n}$ for each galaxy $n$.
 
 \begin{align*}
 p(r_{n}|\textul{d}_{n}) &= \sum_{\tau_{n}}p(r_{n},\tau_{n}|\textul{d}_{n})\\
@@ -127,11 +129,21 @@ p(r_{n}|\textul{d}_{n}) &= \sum_{\tau_{n}}p(r_{n},\tau_{n}|\textul{d}_{n})\\
 &\propto \sum_{\tau_{n}}p(\textul{d}_{n}|r_{n},\tau_{n})p(r_{n})p(\tau_{n})
 \end{align*}
 
-Here the prior over type is not derived from the pre-existing knowledge of the proportion of different supernova types in the sample but instead according to $p(\tau_{n})=\prod_{\tau_{n}}p(\tau_{n})p(1-\tau_{n})$.  It is not clear to me what this means and whether it is correct.
+Here the prior over type is not derived from the pre-existing knowledge of the proportion of different supernova types in the sample but instead according to $p(\tau_{n})=\prod_{\tau_{n}}p(\tau_{n})p(1-\tau_{n})$.  It is not clear to me what this means and whether it is correct.  Something about the notation that follows confuses me, so I'm not sure any of it is correct (or incorrect), though I can think of the way I would complete the derivation.
+
+\subsection{SOFT}
+
+\citep{Rodney09, Rodney10}
 
 \subsection{PSNID}
 
-PSNID outputs the MAP type based on a $\chi^{2}$ fit, without providing the probabilities for each type.  However, it permits specification of the rates for each template type and provision of arbitrary templates, as well as an MCMC exploration of $\chi^{2}$ as opposed to a traditional grid search.  PSNID is also incorporated into SNANA (though perhaps only for Windows?).
+Photometric SN Identification (PSNID) \citep{Sako11} outputs the MAP type based on a $\chi^{2}$ fit, without providing the probabilities for each type.  However, it permits specification of the rates for each template type and provision of arbitrary templates, as well as an MCMC exploration of $\chi^{2}$ as opposed to a traditional grid search.  PSNID is also incorporated into SNANA (though perhaps only for Windows?).
+
+\subsection{Machine Learning}
+
+Tree-based methods have been explored only recently in the literature \citep{Lochner16, Moller16}.  While they do in theory produce probabilities over classes, they have largely been used only to make deterministic classifications thus far.  
+
+Other machine learning approaches have also been investigated \citep{Varughese15, Charnock16}
 
 %\acknowledgments
 
