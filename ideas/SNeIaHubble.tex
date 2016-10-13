@@ -45,7 +45,7 @@ This document outlines a method for incorporating supernova type classification 
 
 Supernovae of type Ia (hereafter SNe Ia) serve as standardizable candles that can be used to obtain the redshift-dependent expansion rate of the universe $H(z)$ known as the Hubble parameter.  Ongoing and future photometric surveys will observe SNe Ia with irregular cadence and without spectroscopic confirmation, leading to large uncertainties in type classification and redshift estimation.  However, posterior probabilities on type and redshift may be obtained and used in calculations of the expansion rate.  
 
-Current plans for utilizing classification and redshift probabilities involve imposing cuts to obtain a sample with a low contamination fraction and high completeness.  This approach unfortunately throws out information, excluding some SNe Ia and including some contaminants, such as type Ib/c supernovae (hereafter SNe Ib/c).  As an alternative, the set of joint posterior probabilities over type and redshift produced by a given survey may be used in full to calculate the posterior probability distribution over the Hubble parameter.  
+Current plans for utilizing classification and redshift probabilities involve imposing cuts to obtain a sample with a low contamination fraction and high completeness.  This approach unfortunately throws out information, excluding some SNe Ia and including some contaminants, such as type Ib/c supernovae (hereafter SNe Ib/c).   The effect of these contaminants on the Hubble parameter is explored in \citet{Homeier05}.  As an alternative, the set of joint posterior probabilities over type and redshift produced by a given survey may be used in full to calculate the posterior probability distribution over the Hubble parameter.  
 
 \section{A proposed solution}
 \label{sec:confrac}
@@ -112,11 +112,15 @@ p(H|\{\textul{d}_{n}\}_{N}) &=\ p(\{\textul{d}_{n}\}_{N}|H)\frac{p(H)}{p(\{\text
 
 \section{Classification Methods}
 
-There are a number of potentially probabilistic supernova type classification methods in the literature, each of which will be reviewed here.
+There are a number of potentially probabilistic supernova type classification methods in the literature, each of which will be reviewed here.  Many of these are compared in \citet{Kessler10}.
+
+\subsection{First(?) Bayesian Approach}
+
+\citet{Kuznetsova06} is the first paper I can find on a probabilistic classifier, but it takes data of the form of a single band, multi-epoch lightcurve and a deterministic redshift.  This template-based method assumes the templates completely span the space of possible lightcurves and takes a $\chi^{2}$ likelihood model for the parameters of the fit between template and data.  They plug this into Bayes' Rule and integrate over types in the likelihood term (with a prior on type prevalence) to obtain a posterior.  They also assume a flat prior over prevalence of each type, which heavily biases their results whether or not they realize this.
 
 \subsection{SN-ABC}
 
-\citet{Poznanski06} 
+\citet{Poznanski06} is a probabilistic classifier that assigns supernovae a maximum likelihood type (Ia or core-collapse) based on single epoch, multi-band photometry and a photometric, spectroscopic, or probabilistic redshift for the host galaxy.  The likelihood of data given each of a grid of models for each type is calculated (assuming a $\chi^{2}$ form), and then the grid information (redshift, extinction, and epoch) is integrated out.  The evidence ratio (the ratio of the integral of likelihood over marginalized parameters and the sum of those integrals for all types) is declared to be a probability of a supernova being of that type, and the maximum probability type is assigned to the supernova.
 
 \subsection{BEAMS}
 
@@ -137,13 +141,13 @@ Here the prior over type is not derived from the pre-existing knowledge of the p
 
 \subsection{PSNID}
 
-Photometric SN Identification (PSNID) \citep{Sako11} outputs the MAP type based on a $\chi^{2}$ fit, without providing the probabilities for each type.  However, it permits specification of the rates for each template type and provision of arbitrary templates, as well as an MCMC exploration of $\chi^{2}$ as opposed to a traditional grid search.  PSNID is also incorporated into SNANA (though perhaps only for Windows?).
+Photometric SN Identification (PSNID) \citep{Sako11} outputs the MAP type based on a $\chi^{2}$ fit, without providing the probabilities for each type.  However, it permits specification of the rates for each template type and provision of arbitrary templates, as well as an MCMC exploration of $\chi^{2}$ as opposed to a traditional grid search.  PSNID is also incorporated into SNANA.
 
 \subsection{Machine Learning}
 
-Tree-based methods have been explored only recently in the literature \citep{Lochner16, Moller16}.  While they do in theory produce probabilities over classes, they have largely been used only to make deterministic classifications thus far.  
+Tree-based methods have been explored recently in the literature \citep{Richards11, Lochner16, Moller16}.  While they do in theory produce probabilities over classes, they have largely been used only to make deterministic classifications thus far.  
 
-Other machine learning approaches have also been investigated \citep{Varughese15, Charnock16}
+Other machine learning approaches have also been investigated.  \citet{Varughese15} uses adaptive wavelets, \citet{Karpenka12, Charnock16} use recurrent neural networks, 
 
 %\acknowledgments
 
