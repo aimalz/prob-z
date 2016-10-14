@@ -22,7 +22,7 @@
 %\slugcomment{}
 
 \shorttitle{Propagating SNe misclassification probabilities into $H_{0}$}
-\shortauthors{Malz}
+\shortauthors{Malz, et al.}
 
 \begin{document}
 
@@ -137,7 +137,11 @@ Here the prior over type is not derived from the pre-existing knowledge of the p
 
 \subsection{SOFT}
 
-\citep{Rodney09, Rodney10}
+\citep{Rodney09, Rodney10} present the BATM (which seems to have math that is consistent with but distinct from BEAMS) and SOFT approaches to probabilistic classification.  
+
+BATM employs a Gaussian likelihood to relate a model lightcurve (from a template set based on observed supernovae of each type) to data and Bayesian model comparison techniques to obtain the classification probabilities for each supernova.  This works when the template lightcurves are discrete, the template set spans the space of lightcurves represented in the data, and there are no duplicates in the template set.  
+
+SOFT is proposed for when the above assumptions are violated.  In particular, a discrete template set cannot span the continuous space of lightcurves.  The authors introduce fuzzy set theory in which every supernova has a membership grade corresponding to each model spectrum and permitting partial membership in multiple classes.
 
 \subsection{PSNID}
 
