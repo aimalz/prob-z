@@ -124,7 +124,7 @@ There are a number of potentially probabilistic supernova type classification me
 
 \subsection{BEAMS}
 
-\citet{Kunz07} introduces the Bayesian Estimation Applied to Multiple Species (BEAMS) framework in this early paper.  The paper only considers two types of supernovae, type Ia and a single generic contaminating population.  They aim to find the posterior probability distribution of the distance modulus given the photometric data.  They do show the case more than two possible types, but they do not test the method on real data.
+\citet{Kunz07} introduces the Bayesian Estimation Applied to Multiple Species (BEAMS) framework in this early paper, which does not produce classification probabilities, rather probabilities on the lightcurve fit parameters of interest, such as distance modulus.  They aim to find the posterior probability distribution of the distance modulus given the photometric data, but they do require the type classification probability to be known.  They do show the case more than two possible types, but they do not test the method on real data.
 %
 %\begin{align*}
 %p(r_{n}|\textul{d}_{n}) &= \sum_{\tau_{n}}p(r_{n},\tau_{n}|\textul{d}_{n})\\
@@ -133,7 +133,7 @@ There are a number of potentially probabilistic supernova type classification me
 %&\propto \sum_{\tau_{n}}p(\textul{d}_{n}|r_{n},\tau_{n})p(r_{n})p(\tau_{n})
 %\end{align*}
 
-Here the prior over type $\tau$ is not derived from the pre-existing knowledge of the proportion of different supernova types in the sample or supernovae indexed by $n$ but instead according to $p(\tau_{n})=\prod_{\tau_{n}}p(\tau_{n})p(1-\tau_{n})$.  It is at this point in the derivation that the notation begins to confuse me, so I cannot comment on how trustworthy I find it to be.  In spite of this shortcoming on my part, I would recommend this method as the one used for this project because it has a rigorous, general derivation that does not make as many assumptions as other methods and is extended to multiple supernova types.
+Here the prior over type $\tau$ is not derived from the pre-existing knowledge of the proportion of different supernova types in the sample or supernovae indexed by $n$ but instead according to $p(\tau_{n})=\prod_{\tau_{n}}p(\tau_{n})p(1-\tau_{n})$.  It is at this point in the derivation that the notation begins to confuse me, so I cannot comment on how trustworthy I find it to be.  In spite of this shortcoming on my part, I would recommend this method as the one used for the intermediate step of this project because it has a rigorous, general derivation that does not make as many assumptions as other methods and is extended to multiple supernova types.
 
 \subsection{SOFT}
 
@@ -141,17 +141,17 @@ Here the prior over type $\tau$ is not derived from the pre-existing knowledge o
 
 BATM employs a Gaussian likelihood to relate a model lightcurve (from a template set based on observed supernovae of each type) to data and Bayesian model comparison techniques to obtain the classification probabilities for each supernova.  This works when the template lightcurves are discrete, the template set spans the space of lightcurves represented in the data, and there are no duplicates in the template set.  
 
-SOFT is proposed for when the above assumptions are violated.  In particular, a discrete template set cannot span the continuous space of lightcurves.  The authors introduce fuzzy set theory in which every supernova has a membership grade corresponding to each model spectrum and permitting partial membership in multiple classes.  
+SOFT is proposed for when the above assumptions are violated.  In particular, a discrete template set cannot span the continuous space of lightcurves.  The authors introduce fuzzy set theory in which every supernova has a membership grade corresponding to each model spectrum and permitting partial membership in multiple classes.  They do, however, evaluate a point estimate classification based on membership grades.
 
 \subsection{PSNID}
 
-Photometric SN Identification (PSNID) \citep{Sako11} outputs the MAP type based on a $\chi^{2}$ fit, without providing the probabilities for each type.  However, it permits specification of the rates for each template type and provision of arbitrary templates, as well as an MCMC exploration of $\chi^{2}$ as opposed to a traditional grid search.  PSNID is also incorporated into SNANA.
+Photometric SN Identification (PSNID) \citep{Sako11} outputs the MAP type based on a $\chi^{2}$ fit, without providing the probabilities for each type.  However, it permits specification of the rates for each template type and provision of arbitrary templates, as well as an MCMC exploration of $\chi^{2}$ as opposed to a traditional grid search.  PSNID is also incorporated into SNANA and is extremely similar to SN-ABC in its overall approach.  The differences are more freedom in the number of classes and the variables that are free in the $\chi^{2}$ fits.
 
 \subsection{Machine Learning}
 
 Tree-based methods have been explored recently in the literature \citep{Richards11, Lochner16, Moller16}.  While they do in theory produce probabilities over classes, they have largely been used only to make deterministic classifications thus far.  
 
-Other machine learning approaches have also been investigated.  \citet{Varughese15} uses adaptive wavelets, \citet{Karpenka12, Charnock16} use recurrent neural networks, 
+Other machine learning approaches have also been investigated.  \citet{Varughese15} uses adaptive wavelets.  \citet{Karpenka12, Charnock16} use recurrent neural networks.  \citet{Lochner16} compares several of these approaches.
 
 %\acknowledgments
 
