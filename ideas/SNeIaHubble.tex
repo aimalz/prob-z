@@ -124,7 +124,7 @@ There are a number of potentially probabilistic supernova type classification me
 
 \subsection{BEAMS}
 
-\citet{Kunz07} introduces the Bayesian Estimation Applied to Multiple Species (BEAMS) framework in this early paper.  The paper only considers two types of supernovae, type Ia and a single generic contaminating population.  They aim to find the posterior probability distribution of the luminosity distance $r_{n}$ given the photometric data $\textul{d}_{n}$ for galaxy $n$ in a survey of $N$ galaxies.  We shall consider $t$ possible types $\tau_{n}$ for each galaxy $n$.
+\citet{Kunz07} introduces the Bayesian Estimation Applied to Multiple Species (BEAMS) framework in this early paper.  The paper only considers two types of supernovae, type Ia and a single generic contaminating population.  They aim to find the posterior probability distribution of the distance modulus given the photometric data.  They do show the case more than two possible types, but they do not test the method on real data.
 %
 %\begin{align*}
 %p(r_{n}|\textul{d}_{n}) &= \sum_{\tau_{n}}p(r_{n},\tau_{n}|\textul{d}_{n})\\
@@ -133,7 +133,7 @@ There are a number of potentially probabilistic supernova type classification me
 %&\propto \sum_{\tau_{n}}p(\textul{d}_{n}|r_{n},\tau_{n})p(r_{n})p(\tau_{n})
 %\end{align*}
 
-Here the prior over type is not derived from the pre-existing knowledge of the proportion of different supernova types in the sample but instead according to $p(\tau_{n})=\prod_{\tau_{n}}p(\tau_{n})p(1-\tau_{n})$.  It is not clear to me what this means and whether it is correct.  Something about the notation that follows confuses me, so I'm not sure any of it is correct (or incorrect), though I can think of the way I would complete the derivation given an understanding of this step.  In spite of this shortcoming on my part, I would recommend this method as the one used for this project.
+Here the prior over type $\tau$ is not derived from the pre-existing knowledge of the proportion of different supernova types in the sample or supernovae indexed by $n$ but instead according to $p(\tau_{n})=\prod_{\tau_{n}}p(\tau_{n})p(1-\tau_{n})$.  It is at this point in the derivation that the notation begins to confuse me, so I cannot comment on how trustworthy I find it to be.  In spite of this shortcoming on my part, I would recommend this method as the one used for this project because it has a rigorous, general derivation that does not make as many assumptions as other methods and is extended to multiple supernova types.
 
 \subsection{SOFT}
 
