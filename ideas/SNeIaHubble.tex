@@ -125,23 +125,23 @@ There are a number of potentially probabilistic supernova type classification me
 \subsection{BEAMS}
 
 \citet{Kunz07} introduces the Bayesian Estimation Applied to Multiple Species (BEAMS) framework in this early paper.  The paper only considers two types of supernovae, type Ia and a single generic contaminating population.  They aim to find the posterior probability distribution of the luminosity distance $r_{n}$ given the photometric data $\textul{d}_{n}$ for galaxy $n$ in a survey of $N$ galaxies.  We shall consider $t$ possible types $\tau_{n}$ for each galaxy $n$.
+%
+%\begin{align*}
+%p(r_{n}|\textul{d}_{n}) &= \sum_{\tau_{n}}p(r_{n},\tau_{n}|\textul{d}_{n})\\
+%&= \sum_{\tau_{n}}p(\textul{d}_{n}|r_{n},\tau_{n})\frac{p(r_{n},\tau_{n})}{p(\textul{d}_{n})}\\
+%&\approx \sum_{\tau_{n}}p(\textul{d}_{n}|r_{n},\tau_{n})\frac{p(r_{n})p(\tau_{n})}{p(\textul{d}_{n})}\\
+%&\propto \sum_{\tau_{n}}p(\textul{d}_{n}|r_{n},\tau_{n})p(r_{n})p(\tau_{n})
+%\end{align*}
 
-\begin{align*}
-p(r_{n}|\textul{d}_{n}) &= \sum_{\tau_{n}}p(r_{n},\tau_{n}|\textul{d}_{n})\\
-&= \sum_{\tau_{n}}p(\textul{d}_{n}|r_{n},\tau_{n})\frac{p(r_{n},\tau_{n})}{p(\textul{d}_{n})}\\
-&\approx \sum_{\tau_{n}}p(\textul{d}_{n}|r_{n},\tau_{n})\frac{p(r_{n})p(\tau_{n})}{p(\textul{d}_{n})}\\
-&\propto \sum_{\tau_{n}}p(\textul{d}_{n}|r_{n},\tau_{n})p(r_{n})p(\tau_{n})
-\end{align*}
-
-Here the prior over type is not derived from the pre-existing knowledge of the proportion of different supernova types in the sample but instead according to $p(\tau_{n})=\prod_{\tau_{n}}p(\tau_{n})p(1-\tau_{n})$.  It is not clear to me what this means and whether it is correct.  Something about the notation that follows confuses me, so I'm not sure any of it is correct (or incorrect), though I can think of the way I would complete the derivation.
+Here the prior over type is not derived from the pre-existing knowledge of the proportion of different supernova types in the sample but instead according to $p(\tau_{n})=\prod_{\tau_{n}}p(\tau_{n})p(1-\tau_{n})$.  It is not clear to me what this means and whether it is correct.  Something about the notation that follows confuses me, so I'm not sure any of it is correct (or incorrect), though I can think of the way I would complete the derivation given an understanding of this step.  In spite of this shortcoming on my part, I would recommend this method as the one used for this project.
 
 \subsection{SOFT}
 
-\citep{Rodney09, Rodney10} present the BATM (which seems to have math that is consistent with but distinct from BEAMS) and SOFT approaches to probabilistic classification.  
+\citep{Rodney09, Rodney10} present the BATM (which seems to have math that is consistent with but distinct from BEAMS) and SOFT approaches to probabilistic classification.  I'm unsure if this approach is appropriate because we believe the supernovae actually do belong to discrete, deterministic sets.  However, when applied to the problem we wish to solve, it appears to perform quite well.
 
 BATM employs a Gaussian likelihood to relate a model lightcurve (from a template set based on observed supernovae of each type) to data and Bayesian model comparison techniques to obtain the classification probabilities for each supernova.  This works when the template lightcurves are discrete, the template set spans the space of lightcurves represented in the data, and there are no duplicates in the template set.  
 
-SOFT is proposed for when the above assumptions are violated.  In particular, a discrete template set cannot span the continuous space of lightcurves.  The authors introduce fuzzy set theory in which every supernova has a membership grade corresponding to each model spectrum and permitting partial membership in multiple classes.
+SOFT is proposed for when the above assumptions are violated.  In particular, a discrete template set cannot span the continuous space of lightcurves.  The authors introduce fuzzy set theory in which every supernova has a membership grade corresponding to each model spectrum and permitting partial membership in multiple classes.  
 
 \subsection{PSNID}
 
