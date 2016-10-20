@@ -45,74 +45,88 @@ This document outlines a method for incorporating supernova type classification 
 
 Supernovae of type Ia (hereafter SNe Ia) serve as standardizable candles that can be used to obtain the redshift-dependent expansion rate of the universe $H(z)$ known as the Hubble parameter.  Ongoing and future photometric surveys will observe SNe Ia with irregular cadence and without spectroscopic confirmation, leading to large uncertainties in type classification and redshift estimation.  However, posterior probabilities on type and redshift may be obtained and used in calculations of the expansion rate.  
 
-Current plans for utilizing classification and redshift probabilities involve imposing cuts to obtain a sample with a low contamination fraction and high completeness.  This approach unfortunately throws out information, excluding some SNe Ia and including some contaminants, such as type Ib/c supernovae (hereafter SNe Ib/c).   The effect of these contaminants on the Hubble parameter is explored in \citet{Homeier05}.  As an alternative, the set of joint posterior probabilities over type and redshift produced by a given survey may be used in full to calculate the posterior probability distribution over the Hubble parameter.  
+Current plans for utilizing classification and redshift probabilities involve imposing cuts to obtain a sample with a low contamination fraction and high completeness and inferring the Hubble parameter from the cut sample.  This approach unfortunately throws out information, excluding some SNe Ia and including some contaminants, such as type Ib/c supernovae (hereafter SNe Ib/c).  The effect of these contaminants on the Hubble parameter is explored in \citet{Homeier05} and one attempt to correct for it are presented in \citet{Kessler16}.  As an alternative, the set of joint posterior probabilities over type and redshift produced by a given survey may be used in full to calculate the posterior probability distribution over the Hubble parameter.  
 
 \section{A proposed solution}
 \label{sec:confrac}
 
-Let us consider a simplified case in which the full sample of $N$ observed transients in a photometric survey are close enough in redshift that the Hubble parameter $H(z)$ is a constant $H_{0}$, which we shall call the Hubble constant.  The data $\{\textul{d}_{n}\}_{N}$ from this hypothetical survey consist of $N$ matrices $\textul{d}_{n}$ each comprised of a set of fluxes at $T_{n}$ lightcurve observation times in each of $F$ photometric filters specified by known parameters $\vec{f}$.  These represent samples of a true lightcurve specified by latent parameters $\vec{\ell}_{n}$ of the supernova at the location of the observer.  The lightcurve parameters are in turn determined by several other latent variables; its shape over time is determined by the properties $\vec{\alpha}_{m}$ associated with the type $s_{n}$ of supernova (out of $m$ possible types) in question, its magnitude is determined by its distance $r_{n}$ from the observer and the parameters determining its intrinsic luminosity $\vec{L}_{n}$, and its location in spectral space is determined by its redshift $z_{n}$.  There are some hyperparameters governing the distribution of each of these parameters; $H$ determines the relationship between $z_{n}$ and $r_{n}$, $D$ specifies the intrinsic density distribution of supernovae, and $S$ governs the distribution of supernova types.  This information may be summarized by the probabilistic graphical model of Fig. \ref{fig:pgm}.
+This work expands upon the graphical model presented in \citet{Ma16} and the probabilistic treatment of \citet{Kunz07}, summarized here.
 
-\begin{figure}
-\vspace{0.5cm}
-\begin{center}
-\begin{tikzpicture}[node distance=1cm]
+\citet{Kunz07} introduces the Bayesian Estimation Applied to Multiple Species (BEAMS) framework, which does not produce classification probabilities, rather probabilities on the lightcurve fit parameters of interest, such as distance modulus.  They aim to find the posterior probability distribution of the distance modulus for each supernova given the photometric data, but they do require the type classification posterior to be known.  They do show the case more than two possible types, but they do not test the method on real data.
 
-\node (Hz) [hyper, xshift=-1cm] {$H$};
-\node (Dr) [hyper] {$D$};
-\node (Ss) [hyper, xshift=+1cm] {$S$};
 
-\node (zn) [param, below of=Hz,yshift=-0.25cm] {$z_{n}$};
-\node (rn) [param, below of=Dr,yshift=-0.25cm] {$r_{n}$};
-\node (sn) [param, below of=Ss,yshift=-0.25cm] {$s_{n}$};
 
-\node (lcn) [param, below of=rn,yshift=-0.25cm] {$\textul{\ell}_{n}$};
-
-\node (dn) [data, below of=lcn,yshift=-0.25cm] {$\textul{d}_{n}$};
-
-\node (f) [det,below of=sn,xshift=+1cm] {$\vec{f}$};
-\node (t) [det,below of=f] {$\textul{t}$};
-
-\node (survey) [draw=black,fit={(zn.west)(rn.north)(dn.south)(sn.east)}] {};
-\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$n=1,\dots,N$};
-
-\draw [arrow] (Hz) -- (zn);
-\draw [arrow] (Dr) -- (rn);
-\draw [arrow] (Ss) -- (sn);
-
-\draw [arrow] (rn) -- (zn);
-
-\draw [arrow] (zn) -- (lcn);
-\draw [arrow] (rn) -- (lcn);
-\draw [arrow] (sn) -- (lcn);
-
-\draw [arrow] (lcn) -- (dn);
-\draw [arrow] (f) -- (dn);
-\draw [arrow] (t) -- (dn);
-
-\end{tikzpicture}
-\caption{}
-\label{fig:pgm}
-\end{center}
-\end{figure}
-
-The model of Fig. \ref{fig:pgm} corresponds to the following equations for the posterior probability distribution $p(H|\{\textul{d}_{n}\}_{N})$.  
-
-\begin{align*}
-p(H|\{\textul{d}_{n}\}_{N}) &=\ p(\{\textul{d}_{n}\}_{N}|H)\frac{p(H)}{p(\{\textul{d}_{n}\}_{N})}\\
-&\ p(\{\textul{d}_{n}\}_{N}|H)p(H)\\
-&\propto\ \iint\ p(\{\textul{d}_{n}\}_{N}|H,D,S)\ p(H,D,S)\ dD\ dS\\
-&\propto\ \iint\ p(\{\textul{d}_{n}\}_{N}|H,D,S)\ p(H)\ p(D)\ p(S)\ dD\ dS\\
-&\propto\ \iint\ \left[\prod_{n=1}^{N}\ p(\textul{d}_{n}|H,D,S)\right]\ p(H)\ p(D)\ p(S)\ \ dD\ dS\\
-&\propto\ \iint\ \left[\prod_{n=1}^{N}\ \int\ p(\textul{d}_{n}|\textul{\ell}_{n},\vec{f},\textul{t})\ p(\textul{\ell}_{n}|H,D,S)\ d\textul{\ell}_{n}\right]\ p(H)\ p(D)\ p(S)\ dD\ dS\\
-&\propto\ \iint\ \left[\prod_{n=1}^{N}\ \int\ p(\textul{d}_{n}|\textul{\ell}_{n},\vec{f},\textul{t})\ \left[\iiint\ p(\textul{\ell}_{n}|z_{n},r_{n},s_{n})\ p(z_{n},r_{n},s_{n}|H,D,S)\ dz_{n}\ dr_{n}\ ds_{n}\right]\ d\textul{\ell}_{n}\right]\\
-&\indent p(H)\ p(D)\ p(S)\ dD\ dS\\
-&\propto\ \iint\ \left[\prod_{n=1}^{N}\ \int\ p(\textul{d}_{n}|\textul{\ell}_{n},\vec{f},\textul{t})\ \left[\iiint\ p(\textul{\ell}_{n}|z_{n},r_{n},s_{n})\ p(z_{n}|H)\ p(r_{n}|D)\ p(s_{n}|S)\ dz_{n}\ dr_{n}\ ds_{n}\right]\ d\textul{\ell}_{n}\right]\\
-&\indent p(H)\ p(D)\ p(S)\ dD\ dS
-\end{align*}
+%Let us consider a simplified case in which the full sample of $N$ observed transients in a photometric survey are close enough in redshift that the Hubble parameter $H(z)$ is a constant $H_{0}$, which we shall call the Hubble constant.  The data $\{\textul{d}_{n}\}_{N}$ from this hypothetical survey consist of $N$ matrices $\textul{d}_{n}$ each comprised of a set of fluxes at $T_{n}$ lightcurve observation times in each of $F$ photometric filters specified by known parameters $\vec{f}$.  These represent samples of a true lightcurve specified by latent parameters $\vec{\ell}_{n}$ of the supernova at the location of the observer.  The lightcurve parameters are in turn determined by several other latent variables; its shape over time is determined by the properties $\vec{\alpha}_{m}$ associated with the type $s_{m}$ of supernova (out of $m$ possible types) in question, its magnitude is determined by its distance $r_{n}$ from the observer and the parameters determining its intrinsic luminosity $\vec{L}_{n}$, and its location in spectral space is determined by its redshift $z_{n}$.  There are some hyperparameters governing the distribution of each of these parameters; $H$ determines the relationship between $z_{n}$ and $r_{n}$, $D$ specifies the intrinsic density distribution of supernovae, and $S$ governs the distribution of supernova types.  This information may be summarized by the probabilistic graphical model of Fig. \ref{fig:pgm}.
+%
+%\begin{figure}
+%\vspace{0.5cm}
+%\begin{center}
+%\begin{tikzpicture}[node distance=1cm]
+%
+%\node (Hz) [hyper, xshift=-1cm] {$H$};
+%\node (Dr) [hyper] {$D$};
+%\node (Ss) [hyper, xshift=+1cm] {$S$};
+%
+%\node (zn) [param, below of=Hz,yshift=-0.25cm] {$z_{n}$};
+%\node (rn) [param, below of=Dr,yshift=-0.25cm] {$r_{n}$};
+%\node (sn) [param, below of=Ss,yshift=-0.25cm] {$s_{n}$};
+%
+%\node (lcn) [param, below of=rn,yshift=-0.25cm] {$\textul{\ell}_{n}$};
+%
+%\node (dn) [data, below of=lcn,yshift=-0.25cm] {$\textul{d}_{n}$};
+%
+%\node (f) [det,below of=sn,xshift=+1cm] {$\vec{f}$};
+%\node (t) [det,below of=f] {$\textul{t}$};
+%
+%\node (survey) [draw=black,fit={(zn.west)(rn.north)(dn.south)(sn.east)}] {};
+%\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$n=1,\dots,N$};
+%
+%\draw [arrow] (Hz) -- (zn);
+%\draw [arrow] (Dr) -- (rn);
+%\draw [arrow] (Ss) -- (sn);
+%
+%\draw [arrow] (rn) -- (zn);
+%
+%\draw [arrow] (zn) -- (lcn);
+%\draw [arrow] (rn) -- (lcn);
+%\draw [arrow] (sn) -- (lcn);
+%
+%\draw [arrow] (lcn) -- (dn);
+%\draw [arrow] (f) -- (dn);
+%\draw [arrow] (t) -- (dn);
+%
+%\end{tikzpicture}
+%\caption{}
+%\label{fig:pgm}
+%\end{center}
+%\end{figure}
+%
+%The model of Fig. \ref{fig:pgm} corresponds to the following equations for the posterior probability distribution $p(H|\{\textul{d}_{n}\}_{N})$.  
+%
+%\begin{align*}
+%p(H|\{\textul{d}_{n}\}_{N}) &=\ p(\{\textul{d}_{n}\}_{N}|H)\frac{p(H)}{p(\{\textul{d}_{n}\}_{N})}\\
+%&\ p(\{\textul{d}_{n}\}_{N}|H)p(H)\\
+%&\propto\ \iint\ p(\{\textul{d}_{n}\}_{N}|H,D,S)\ p(H,D,S)\ dD\ dS\\
+%&\propto\ \iint\ p(\{\textul{d}_{n}\}_{N}|H,D,S)\ p(H)\ p(D)\ p(S)\ dD\ dS\\
+%&\propto\ \iint\ \left[\prod_{n=1}^{N}\ p(\textul{d}_{n}|H,D,S)\right]\ p(H)\ p(D)\ p(S)\ \ dD\ dS\\
+%&\propto\ \iint\ \left[\prod_{n=1}^{N}\ \int\ p(\textul{d}_{n}|\textul{\ell}_{n},\vec{f},\textul{t})\ p(\textul{\ell}_{n}|H,D,S)\ d\textul{\ell}_{n}\right]\ p(H)\ p(D)\ p(S)\ dD\ dS\\
+%&\propto\ \iint\ \left[\prod_{n=1}^{N}\ \int\ p(\textul{d}_{n}|\textul{\ell}_{n},\vec{f},\textul{t})\ \left[\iiint\ p(\textul{\ell}_{n}|z_{n},r_{n},s_{n})\ p(z_{n},r_{n},s_{n}|H,D,S)\ dz_{n}\ dr_{n}\ ds_{n}\right]\ d\textul{\ell}_{n}\right]\\
+%&\indent p(H)\ p(D)\ p(S)\ dD\ dS\\
+%&\propto\ \iint\ \left[\prod_{n=1}^{N}\ \int\ p(\textul{d}_{n}|\textul{\ell}_{n},\vec{f},\textul{t})\ \left[\iiint\ p(\textul{\ell}_{n}|z_{n},r_{n},s_{n})\ p(z_{n}|H)\ p(r_{n}|D)\ p(s_{n}|S)\ dz_{n}\ dr_{n}\ ds_{n}\right]\ d\textul{\ell}_{n}\right]\\
+%&\indent p(H)\ p(D)\ p(S)\ dD\ dS
+%\end{align*}
 
 \section{Classification Methods}
 
-There are a number of potentially probabilistic supernova type classification methods in the literature, each of which will be reviewed here.  Many of these are compared in \citet{Kessler10}.
+There are a number of potentially probabilistic supernova type classification methods in the literature, each of which will be reviewed here.  Many of these are compared in \citet{Kessler10}.  
+
+\begin{tabular}{cccc}
+References&Inputs&Outputs&Availability\\
+\citet{Kuznetsova06}&&&\\
+\citet{Poznanski06}&&&\\
+\citet{Rodney09, Rodney10}&&&\\
+\citet{Sako11}&&&\\
+\end{tabular}
 
 \subsection{First(?) Bayesian Approach}
 
@@ -122,22 +136,9 @@ There are a number of potentially probabilistic supernova type classification me
 
 \citet{Poznanski06} is a probabilistic classifier that assigns supernovae a maximum likelihood type (Ia or core-collapse) based on single epoch, multi-band photometry and a photometric, spectroscopic, or probabilistic redshift for the host galaxy.  The likelihood of data given each of a grid of models for each type is calculated (assuming a $\chi^{2}$ form), and then the grid information (redshift, extinction, and epoch) is integrated out.  The evidence ratio (the ratio of the integral of likelihood over marginalized parameters and the sum of those integrals for all types) is declared to be a probability of a supernova being of that type, and the maximum probability type is assigned to the supernova.
 
-\subsection{BEAMS}
-
-\citet{Kunz07} introduces the Bayesian Estimation Applied to Multiple Species (BEAMS) framework in this early paper, which does not produce classification probabilities, rather probabilities on the lightcurve fit parameters of interest, such as distance modulus.  They aim to find the posterior probability distribution of the distance modulus given the photometric data, but they do require the type classification probability to be known.  They do show the case more than two possible types, but they do not test the method on real data.
-%
-%\begin{align*}
-%p(r_{n}|\textul{d}_{n}) &= \sum_{\tau_{n}}p(r_{n},\tau_{n}|\textul{d}_{n})\\
-%&= \sum_{\tau_{n}}p(\textul{d}_{n}|r_{n},\tau_{n})\frac{p(r_{n},\tau_{n})}{p(\textul{d}_{n})}\\
-%&\approx \sum_{\tau_{n}}p(\textul{d}_{n}|r_{n},\tau_{n})\frac{p(r_{n})p(\tau_{n})}{p(\textul{d}_{n})}\\
-%&\propto \sum_{\tau_{n}}p(\textul{d}_{n}|r_{n},\tau_{n})p(r_{n})p(\tau_{n})
-%\end{align*}
-
-Here the prior over type $\tau$ is not derived from the pre-existing knowledge of the proportion of different supernova types in the sample or supernovae indexed by $n$ but instead according to $p(\tau_{n})=\prod_{\tau_{n}}p(\tau_{n})p(1-\tau_{n})$.  It is at this point in the derivation that the notation begins to confuse me, so I cannot comment on how trustworthy I find it to be.  In spite of this shortcoming on my part, I would recommend this method as the one used for the intermediate step of this project because it has a rigorous, general derivation that does not make as many assumptions as other methods and is extended to multiple supernova types.
-
 \subsection{SOFT}
 
-\citep{Rodney09, Rodney10} present the BATM (which seems to have math that is consistent with but distinct from BEAMS) and SOFT approaches to probabilistic classification.  I'm unsure if this approach is appropriate because we believe the supernovae actually do belong to discrete, deterministic sets.  However, when applied to the problem we wish to solve, it appears to perform quite well.
+\citet{Rodney09, Rodney10} present the BATM (which seems to have math that is consistent with but distinct from BEAMS) and SOFT approaches to probabilistic classification.  I'm unsure if this approach is appropriate because we believe the supernovae actually do belong to discrete, deterministic sets.  However, when applied to the problem we wish to solve, it appears to perform quite well.
 
 BATM employs a Gaussian likelihood to relate a model lightcurve (from a template set based on observed supernovae of each type) to data and Bayesian model comparison techniques to obtain the classification probabilities for each supernova.  This works when the template lightcurves are discrete, the template set spans the space of lightcurves represented in the data, and there are no duplicates in the template set.  
 
@@ -148,6 +149,8 @@ SOFT is proposed for when the above assumptions are violated.  In particular, a 
 Photometric SN Identification (PSNID) \citep{Sako11} outputs the MAP type based on a $\chi^{2}$ fit, without providing the probabilities for each type.  However, it permits specification of the rates for each template type and provision of arbitrary templates, as well as an MCMC exploration of $\chi^{2}$ as opposed to a traditional grid search.  PSNID is also incorporated into SNANA and is extremely similar to SN-ABC in its overall approach.  The differences are more freedom in the number of classes and the variables that are free in the $\chi^{2}$ fits.
 
 \subsection{Machine Learning}
+
+Nearest neighbor methods have been applied by \citet{Sako14} in an extension of PSNID.
 
 Tree-based methods have been explored recently in the literature \citep{Richards11, Lochner16, Moller16}.  While they do in theory produce probabilities over classes, they have always been used only to make deterministic classifications thus far.  
 
