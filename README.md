@@ -1,3 +1,5 @@
+Note: This project has been moved to [CHIPPR](https://github.com/aimalz/chippr)!
+
 # prob-z
 
 The goal of this work is to demonstrate how to use probability distributions on phtometric redshifts of galaxies, rather than point estimates of redshifts, to make inferences in cosmology.  At this stage, I'm working with synthetic likelihoods and posteriors, as opposed to calculating either from photometry.  However, future work may focus on improving methods for turning photometry into redshift probability distributions.
